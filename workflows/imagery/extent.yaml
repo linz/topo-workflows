@@ -61,10 +61,12 @@ spec:
       - python
       - "/app/standardising.py"
       args:
-      - "--destination-bucket"
-      - ekstest-artifacts82dd59a1-7bd28d2g5k6g
       - "--gdal-command"
-      - gdal_translate -q -scale 0 255 0 254 -a_srs 'EPSG:2193' -a_nodata 255 -b 1
-        -b 2 -b 3 -co compress=lzw
+      - gdalinfo -json
       - "--gdal-input"
       - "{{inputs.parameters.file}}"
+    outputs:
+      parameters:
+      - name: extent
+        valueFrom:
+          path: "/tmp/extent.json"
