@@ -21,8 +21,8 @@ spec:
             value: "{{workflow.parameters.uri}}"
           - name: filter
             value: "**/BY21_500_03001*.tif"
-      - name: standardise
-        template: standardise
+      - name: get-extent
+        template: get-extent
         arguments:
           parameters:
           - name: file
@@ -51,7 +51,7 @@ spec:
       - name: files
         valueFrom:
           path: "/tmp/file_list.json"
-  - name: standardise
+  - name: get-extent
     inputs:
       parameters:
       - name: file
