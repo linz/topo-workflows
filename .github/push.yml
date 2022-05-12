@@ -1,0 +1,17 @@
+name: Deploy workflows
+
+on: [push]
+
+jobs:
+  build:
+    steps:
+      - uses: azure/setup-kubectl@v2.0  # default is latest stable  
+        id: install
+
+      - name: (Prod) Configure AWS Credentials
+        if: github.ref == 'refs/heads/master'
+        uses: aws-actions/configure-aws-credentials@v1.6.1
+        with:
+          aws-region: ap-southeast-2
+          mask-aws-account-id: true
+          role-to-assume: ${{ secrets.AWS_ROLE_PROD }}
