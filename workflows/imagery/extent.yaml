@@ -2,7 +2,7 @@
 apiVersion: argoproj.io/v1alpha1
 kind: Workflow
 metadata:
-  generateName: standardising-
+  generateName: imagery-extent-
 spec:
   entrypoint: main
   arguments:
