@@ -2,34 +2,37 @@
 apiVersion: argoproj.io/v1alpha1
 kind: Workflow
 metadata:
-  generateName: imagery-extent-
+  generateName: imagery-standardise-
 spec:
+  serviceAccountName: workflow-runner-sa
+  nodeSelector:
+    karpenter.sh/capacity-type: "spot"
   entrypoint: main
   arguments:
     parameters:
-    - name: uri
-      value: s3://linz-imagery-staging/test/sample/BX24_5000_0405.tif
+      - name: uri
+        value: s3://linz-imagery-staging/test/sample/BX24_5000_0405.tif
   templates:
-  - name: main
-    dag:
-      tasks:
-      - name: standardise
-        template: standardise
-        arguments:
-          parameters:
+    - name: main
+      dag:
+        tasks:
+          - name: standardise
+            template: standardise
+            arguments:
+              parameters:
+                - name: file
+                  value: "{{workflow.parameters.uri}}"
+    - name: standardise
+      inputs:
+        parameters:
           - name: file
-            value: "{{workflow.parameters.uri}}"
-  - name: standardise
-    inputs:
-      parameters:
-      - name: file
-    container:
-      image: ghcr.io/linz/topo-imagery:v0.2.0-4-gfd60e53
-      command:
-      - python
-      - "/app/standardising.py"
-      args:
-      - "--source"
-      - "{{inputs.parameters.file}}"
-      - "--destination"
-      - "s3://linz-imagery-staging/test/sample-output/"
+      container:
+        image: ghcr.io/linz/topo-imagery:v0.2.0-4-gfd60e53
+        command:
+          - python
+          - "/app/standardising.py"
+        args:
+          - "--source"
+          - "{{inputs.parameters.file}}"
+          - "--destination"
+          - "s3://linz-imagery-staging/test/sample-output/"
