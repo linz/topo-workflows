@@ -8,8 +8,8 @@ To get setup you need access to the Argo user role inside the EKS cluster, you w
 
 You will need
 
-- (kubectl)[https://kubernetes.io/docs/tasks/tools/]
-- (argo)[https://github.com/argoproj/argo-workflows/releases/]
+- [kubectl](https://kubernetes.io/docs/tasks/tools/)
+- [argo](https://github.com/argoproj/argo-workflows/releases/)
 
 Ensure you have `kubectl` aliased to `k`
 
