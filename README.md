@@ -2,14 +2,14 @@
 
 Topo workflows are run on a AWS EKS Cluster using [Argo Workflows](https://argoproj.github.io/argo-workflows/)
 
-To get setup you need access to the Argo user role inside the EKS cluster, you will need to contact someone from Topo Data Engineering to get access
+To get setup you need access to the Argo user role inside the EKS cluster, you will need to contact someone from Topo Data Engineering to get access, all Imagery maintainers will already have access.
 
 ## Setup
 
 You will need
 
 - [kubectl](https://kubernetes.io/docs/tasks/tools/)
-- [argo](https://github.com/argoproj/argo-workflows/releases/)
+- [argo](https://github.com/argoproj/argo-workflows/releases/) - Just the `argo` cli
 
 Ensure you have `kubectl` aliased to `k`
 
