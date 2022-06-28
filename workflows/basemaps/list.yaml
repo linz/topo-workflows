@@ -3,6 +3,7 @@ kind: Workflow
 metadata:
   generateName: aws-list-
 spec:
+  serviceAccountName: workflow-runner-sa
   entrypoint: main
   arguments:
    parameters:
@@ -53,4 +54,4 @@ spec:
         command:
           - node
         source: |
-          console.log(process.argv, "{{inputs.parameters.file}}");
+          console.log(process.argv, JSON.parse('{{inputs.parameters.file}}'));
