@@ -26,8 +26,11 @@ Then to setup the cluster, only the first time using the cluster you need to run
 You will need a AWS CLI > 2.7.x
 
 ```bash
-aws eks update-kubeconfig --name Workflow --region ap-southeast-2 # no role arn needed if you are already the right role
 
+# For Imagery maintainers you will already have the correct role so no role arn is needed.
+aws eks update-kubeconfig --name Workflow --region ap-southeast-2 
+
+# For AWS Admin users you will need to find the correct EKS role to use
 aws eks update-kubeconfig --name Workflow --region ap-southeast-2 --role-arn arn:aws:iam::...
 ```
 
