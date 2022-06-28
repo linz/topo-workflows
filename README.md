@@ -36,13 +36,17 @@ aws eks update-kubeconfig --name Workflow --region ap-southeast-2 --role-arn arn
 
 to validate the cluster is connected, 
 
-```
+```bash
 k get nodes
+
+NAME                                               STATUS   ROLES    AGE    VERSION
+ip-255-100-38-100.ap-southeast-2.compute.internal   Ready    <none>   7d   v1.21.12-eks-5308cf7
+ip-255-100-39-100.ap-southeast-2.compute.internal   Ready    <none>   7d   v1.21.12-eks-5308cf7
 ```
 
 to make the cli access easier you can set the default namespace to `argo`
 
-```
+```bash
 k config set-context --current  --namespace=argo
 ```
 
