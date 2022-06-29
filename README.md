@@ -28,13 +28,13 @@ You will need a AWS CLI > 2.7.x
 ```bash
 
 # For Imagery maintainers you will already have the correct role so no role arn is needed.
-aws eks update-kubeconfig --name Workflow --region ap-southeast-2 
+aws eks update-kubeconfig --name Workflow --region ap-southeast-2
 
 # For AWS Admin users you will need to find the correct EKS role to use
 aws eks update-kubeconfig --name Workflow --region ap-southeast-2 --role-arn arn:aws:iam::...
 ```
 
-to validate the cluster is connected, 
+to validate the cluster is connected,
 
 ```bash
 k get nodes
@@ -50,7 +50,6 @@ to make the cli access easier you can set the default namespace to `argo`
 k config set-context --current  --namespace=argo
 ```
 
-
 # Submitting a job
 
 Once the cluster connection is setup a job can be sumbitted with the cli or accessed via the running argo-server
@@ -60,14 +59,13 @@ argo submit --watch workflows/imagery/standardising.yaml
 ```
 
 Web interface
+
 ```bash
 # Create a connection to the argo server
 k port-forward deployment/argo-workflows-server 2746:2746
 
 xdg-open http://localhost:2746
 ```
-
-
 
 ### FAQ
 

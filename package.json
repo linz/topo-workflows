@@ -1,0 +1,14 @@
+{
+  "name": "topo-workflows",
+  "version": "1.0.0",
+  "main": "index.js",
+  "repository": "git@github.com:linz/topo-workflows.git",
+  "author": "Blayne Chard <blayne@chard.com>",
+  "license": "MIT",
+  "scripts": {
+    "format": "npx prettier . -w --ignore-path .gitignore --ignore-unknown"
+  },
+  "devDependencies": {
+    "prettier": "^2.7.1"
+  }
+}
