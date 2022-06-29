@@ -9,21 +9,21 @@
 #       id-token: write
 #       contents: write
 #     steps:
-      # - uses: azure/setup-kubectl@v2.0  # default is latest stable  
-      #   id: install
+# - uses: azure/setup-kubectl@v2.0  # default is latest stable
+#   id: install
 
-      # - name: (NonProd) Configure AWS Credentials
-      #   if: github.ref == 'refs/heads/master'
-      #   uses: aws-actions/configure-aws-credentials@v1.6.1
-      #   with:
-      #     aws-region: ap-southeast-2
-      #     mask-aws-account-id: true
-      #     role-to-assume: ${{ secrets.AWS_ROLE_NON_PROD }}
+# - name: (NonProd) Configure AWS Credentials
+#   if: github.ref == 'refs/heads/master'
+#   uses: aws-actions/configure-aws-credentials@v1.6.1
+#   with:
+#     aws-region: ap-southeast-2
+#     mask-aws-account-id: true
+#     role-to-assume: ${{ secrets.AWS_ROLE_NON_PROD }}
 
-      # - name: (NonProd) Connect to EKS
-      #   run: |
-      #     aws eks update-kubeconfig --name ${AWS_EKS_NAME} --region ap-southeast-2 --role-arn ${AWS_EKS_ROLE_NON_PROD}
-      #     kubectl get nodes
-      #   env: 
-      #     AWS_EKS_NAME: ${{ secrets.AWS_EKS_NAME_NON_PROD }}
-      #     AWS_EKS_ROLE_NON_PROD: ${{ secrets.AWS_EKS_ROLE_NON_PROD }}
+# - name: (NonProd) Connect to EKS
+#   run: |
+#     aws eks update-kubeconfig --name ${AWS_EKS_NAME} --region ap-southeast-2 --role-arn ${AWS_EKS_ROLE_NON_PROD}
+#     kubectl get nodes
+#   env:
+#     AWS_EKS_NAME: ${{ secrets.AWS_EKS_NAME_NON_PROD }}
+#     AWS_EKS_ROLE_NON_PROD: ${{ secrets.AWS_EKS_ROLE_NON_PROD }}
