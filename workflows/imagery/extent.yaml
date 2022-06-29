@@ -7,66 +7,66 @@ spec:
   entrypoint: main
   arguments:
     parameters:
-    - name: uri
-      value: s3://linz-imagery-staging/RGB/ecan/2022/04/ashburton-urban/Ashburton_Town/03_RGB_Tiff_AOI/
-  templates:
-  - name: main
-    dag:
-      tasks:
-      - name: aws-list
-        template: aws-list
-        arguments:
-          parameters:
-          - name: uri
-            value: "{{workflow.parameters.uri}}"
-          - name: filter
-            value: "**/BY21_500_03001*.tif"
-      - name: get-extent
-        template: get-extent
-        arguments:
-          parameters:
-          - name: file
-            value: "{{item}}"
-        depends: aws-list
-        withParam: "{{tasks.aws-list.outputs.parameters.files}}"
-  - name: aws-list
-    inputs:
-      parameters:
       - name: uri
-      - name: filter
-    container:
-      image: 840351489492.dkr.ecr.ap-southeast-2.amazonaws.com/cdk-hnb659fds-container-assets-840351489492-ap-southeast-2:5c4dff6aa644602a02f08aaa15079fd9113fbe848e0560053bd3a53e0ec0c3ad
-      command:
-      - node
-      - index.js
-      args:
-      - "--uri"
-      - "{{inputs.parameters.uri}}"
-      - "--filter"
-      - "{{inputs.parameters.filter}}"
-      - "--output"
-      - "/tmp/file_list.json"
-    outputs:
-      parameters:
-      - name: files
-        valueFrom:
-          path: "/tmp/file_list.json"
-  - name: get-extent
-    inputs:
-      parameters:
-      - name: file
-    container:
-      image: 840351489492.dkr.ecr.ap-southeast-2.amazonaws.com/cdk-hnb659fds-container-assets-840351489492-ap-southeast-2:69f1f7c321f88450034adc057bd3456dd51398fce1a0077cc9b68b2ac03a123b
-      command:
-      - python
-      - "/app/standardising.py"
-      args:
-      - "--gdal-command"
-      - gdalinfo -json
-      - "--gdal-input"
-      - "{{inputs.parameters.file}}"
-    outputs:
-      parameters:
-      - name: extent
-        valueFrom:
-          path: "/tmp/extent.json"
+        value: s3://linz-imagery-staging/RGB/ecan/2022/04/ashburton-urban/Ashburton_Town/03_RGB_Tiff_AOI/
+  templates:
+    - name: main
+      dag:
+        tasks:
+          - name: aws-list
+            template: aws-list
+            arguments:
+              parameters:
+                - name: uri
+                  value: "{{workflow.parameters.uri}}"
+                - name: filter
+                  value: "**/BY21_500_03001*.tif"
+          - name: get-extent
+            template: get-extent
+            arguments:
+              parameters:
+                - name: file
+                  value: "{{item}}"
+            depends: aws-list
+            withParam: "{{tasks.aws-list.outputs.parameters.files}}"
+    - name: aws-list
+      inputs:
+        parameters:
+          - name: uri
+          - name: filter
+      container:
+        image: 840351489492.dkr.ecr.ap-southeast-2.amazonaws.com/cdk-hnb659fds-container-assets-840351489492-ap-southeast-2:5c4dff6aa644602a02f08aaa15079fd9113fbe848e0560053bd3a53e0ec0c3ad
+        command:
+          - node
+          - index.js
+        args:
+          - "--uri"
+          - "{{inputs.parameters.uri}}"
+          - "--filter"
+          - "{{inputs.parameters.filter}}"
+          - "--output"
+          - "/tmp/file_list.json"
+      outputs:
+        parameters:
+          - name: files
+            valueFrom:
+              path: "/tmp/file_list.json"
+    - name: get-extent
+      inputs:
+        parameters:
+          - name: file
+      container:
+        image: 840351489492.dkr.ecr.ap-southeast-2.amazonaws.com/cdk-hnb659fds-container-assets-840351489492-ap-southeast-2:69f1f7c321f88450034adc057bd3456dd51398fce1a0077cc9b68b2ac03a123b
+        command:
+          - python
+          - "/app/standardising.py"
+        args:
+          - "--gdal-command"
+          - gdalinfo -json
+          - "--gdal-input"
+          - "{{inputs.parameters.file}}"
+      outputs:
+        parameters:
+          - name: extent
+            valueFrom:
+              path: "/tmp/extent.json"
