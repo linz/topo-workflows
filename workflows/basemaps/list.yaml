@@ -8,7 +8,7 @@ spec:
   arguments:
    parameters:
     - name: uri
-      value: "s3://linz-imagery-staging/test/sample-output/"
+      value: "s3://linz-imagery-staging/test/sample/"
   templates:
     - name: main
       dag:
@@ -38,7 +38,7 @@ spec:
       container:
         image: ghcr.io/linz/basemaps/cli:v6.29.0-4-ge985ea26
         command: [node, index.cjs]
-        args: ["-V", "list", "--filter", "{{inputs.parameters.filter}}","--group", "10", "--output", "/tmp/file_list.json", "--config", "s3://linz-bucket-config/config.json", "{{inputs.parameters.uri}}"]
+        args: ["-V", "list", "--filter", "{{inputs.parameters.filter}}", "--group", "2", "--output", "/tmp/file_list.json", "--config", "s3://linz-bucket-config/config.json", "{{inputs.parameters.uri}}"]
       outputs:
         parameters:
           - name: files
