@@ -45,8 +45,8 @@ spec:
           - name: filter
       container:
         image: ghcr.io/linz/basemaps/cli:v6.29.0-3-gb4dec98c
-        command: [node, index.js]
-        args: ["-V", "list", "--filter", "{{inputs.parameters.filter}}","--group", "10", "--output", "/tmp/file_list.json", "{{inputs.parameters.uri}}"]
+        command: [node, index.cjs]
+        args: ["-V", "list", "--filter", "{{inputs.parameters.filter}}","--group", "10", "--output", "/tmp/file_list.json", "--config", "linz-bucket-config", "{{inputs.parameters.uri}}"]
       outputs:
         parameters:
           - name: files
