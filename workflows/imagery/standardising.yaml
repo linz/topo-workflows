@@ -11,23 +11,54 @@ spec:
   arguments:
     parameters:
       - name: uri
-        value: s3://linz-imagery-staging/test/sample/BX24_5000_0405.tif
+        value: ""
+      - name: filter
+        value: ".tif?$"
+      - name: output
+        value: ""
   templates:
     - name: main
       dag:
         tasks:
+          - name: aws-list
+            template: aws-list
+            arguments:
+              parameters:
+                - name: uri
+                  value: "{{workflow.parameters.uri}}"
+                - name: filter
+                  value: "{{workflow.parameters.filter}}"
           - name: standardise
             template: standardise
             arguments:
               parameters:
                 - name: file
-                  value: "{{workflow.parameters.uri}}"
+                  value: "{{item}}"
+                - name: output
+                  value: "{{workflow.parameters.output}}"
+            depends: "aws-list"
+            withParam: "{{tasks.aws-list.outputs.parameters.files}}"
+    - name: aws-list
+      inputs:
+        parameters:
+          - name: uri
+          - name: filter
+      container:
+        image: ghcr.io/linz/basemaps/cli:v6.29.0-3-gb4dec98c
+        command: [node, index.cjs]
+        args: ["-V", "list", "--filter", "{{inputs.parameters.filter}}", "--output", "/tmp/file_list.json", "--config", "linz-bucket-config", "{{inputs.parameters.uri}}"]
+      outputs:
+        parameters:
+          - name: files
+            valueFrom:
+              path: /tmp/file_list.json
     - name: standardise
       inputs:
         parameters:
           - name: file
+          - name: output
       container:
-        image: ghcr.io/linz/topo-imagery:v0.2.0-4-gfd60e53
+        image: ghcr.io/linz/topo-imagery:v0.2.0-6-gc3932e4
         command:
           - python
           - "/app/standardising.py"
@@ -35,4 +66,4 @@ spec:
           - "--source"
           - "{{inputs.parameters.file}}"
           - "--destination"
-          - "s3://linz-imagery-staging/test/sample-output/"
+          - "{{inputs.parameters.output}}"
