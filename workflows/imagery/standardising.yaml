@@ -15,7 +15,7 @@ spec:
       - name: uri
         value: "s3://linz-imagery-staging/RGB/nelson/2022/06/nelson-urban/"
       - name: filter
-        value: "BQ27.*.tif?$"
+        value: ".tiff?$"
       - name: output
         value: "s3://linz-imagery-staging/test/output/2022/06/nelson-urban/"
   templates:
