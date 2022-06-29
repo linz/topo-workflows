@@ -11,11 +11,11 @@ spec:
   arguments:
     parameters:
       - name: uri
-        value: "s3://linz-imagery-staging/test/sample/"
+        value: ""
       - name: filter
-        value: "BX24_5000_0405.tif"
+        value: ".tif?$"
       - name: output
-        value: "s3://linz-imagery-staging/test/sample-output/"
+        value: ""
   templates:
     - name: main
       dag:
@@ -46,7 +46,7 @@ spec:
       container:
         image: ghcr.io/linz/basemaps/cli:v6.29.0-3-gb4dec98c
         command: [node, index.cjs]
-        args: ["-V", "list", "--filter", "{{inputs.parameters.filter}}","--group", "10", "--output", "/tmp/file_list.json", "--config", "linz-bucket-config", "{{inputs.parameters.uri}}"]
+        args: ["-V", "list", "--filter", "{{inputs.parameters.filter}}", "--output", "/tmp/file_list.json", "--config", "linz-bucket-config", "{{inputs.parameters.uri}}"]
       outputs:
         parameters:
           - name: files
@@ -58,7 +58,7 @@ spec:
           - name: file
           - name: output
       container:
-        image: ghcr.io/linz/topo-imagery:v0.2.0-4-gfd60e53
+        image: ghcr.io/linz/topo-imagery:v0.2.0-6-gc3932e4
         command:
           - python
           - "/app/standardising.py"
