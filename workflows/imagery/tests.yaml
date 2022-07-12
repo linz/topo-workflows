@@ -1,0 +1,23 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Workflow
+metadata:
+  generateName: topo-imagery-test-script-
+spec:
+  serviceAccountName: workflow-runner-sa
+  podGC:
+    strategy: OnPodCompletion # Delete pod once its finished
+  nodeSelector:
+    karpenter.sh/capacity-type: "spot"
+  entrypoint: test-script
+  templates:
+  - name: test-script
+    script:
+      image: ghcr.io/linz/topo-imagery:v0.2.0-10-g34c210a
+      command: [python]
+      source: |
+        import sys
+
+        # Because Argo Worflow executes the script under "/argo/staging/script"
+        sys.path.append("/app/")
+
+        # Put your code below
