@@ -17,7 +17,7 @@ spec:
       source: |
         import sys
 
-        # Because Argo Worflow executes the script under "/argo/staging/script"
+        # Because Argo Workflow executes the script under "/argo/staging/script"
         sys.path.append("/app/")
 
         # Put your code below
