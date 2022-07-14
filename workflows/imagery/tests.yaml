@@ -6,8 +6,6 @@ spec:
   serviceAccountName: workflow-runner-sa
   podGC:
     strategy: OnPodCompletion # Delete pod once its finished
-  nodeSelector:
-    karpenter.sh/capacity-type: "spot"
   entrypoint: test-script
   templates:
   - name: test-script
