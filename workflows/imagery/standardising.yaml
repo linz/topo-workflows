@@ -16,8 +16,6 @@ spec:
         value: "s3://linz-imagery-staging/RGB/nelson/2022/06/nelson-urban/"
       - name: filter
         value: ".tiff?$"
-      - name: output
-        value: "s3://linz-imagery-staging/test/output/2022/06/nelson-urban/"
   templates:
     - name: main
       dag:
@@ -36,8 +34,6 @@ spec:
               parameters:
                 - name: file
                   value: "{{item}}"
-                - name: output
-                  value: "{{workflow.parameters.output}}"
             depends: "aws-list"
             withParam: "{{tasks.aws-list.outputs.parameters.files}}"
     - name: aws-list
@@ -88,5 +84,9 @@ spec:
         args:
           - "--source"
           - "{{inputs.parameters.file}}"
-          - "--destination"
-          - "{{inputs.parameters.output}}"
+      outputs:
+        artifacts:
+          - name: standardised_tiffs
+            path: /tmp/
+            archive:
+              none: {}
