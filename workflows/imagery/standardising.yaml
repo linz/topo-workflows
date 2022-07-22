@@ -13,7 +13,7 @@ spec:
   arguments:
     parameters:
       - name: source
-        value: "s3://linz-imagery-staging/RGB/nelson/2022/06/nelson-urban/"
+        value: "s3://linz-imagery-staging/test/sample/"
   templates:
     - name: main
       dag:
