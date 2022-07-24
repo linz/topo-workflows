@@ -1,6 +1,6 @@
 ---
 apiVersion: argoproj.io/v1alpha1
-kind: Workflow
+kind: WorkflowTemplate
 metadata:
   generateName: imagery-standardise-
 spec:
@@ -12,12 +12,8 @@ spec:
   entrypoint: main
   arguments:
     parameters:
-      - name: uri
-        value: "s3://linz-imagery-staging/RGB/nelson/2022/06/nelson-urban/"
-      - name: filter
-        value: ".tiff?$"
-      - name: output
-        value: "s3://linz-imagery-staging/test/output/2022/06/nelson-urban/"
+      - name: source
+        value: "s3://linz-imagery-staging/test/sample/"
   templates:
     - name: main
       dag:
@@ -26,24 +22,22 @@ spec:
             template: aws-list
             arguments:
               parameters:
-                - name: uri
-                  value: "{{workflow.parameters.uri}}"
+                - name: source
+                  value: "{{workflow.parameters.source}}"
                 - name: filter
-                  value: "{{workflow.parameters.filter}}"
+                  value: ".tiff?$"
           - name: standardise
             template: standardise
             arguments:
               parameters:
                 - name: file
                   value: "{{item}}"
-                - name: output
-                  value: "{{workflow.parameters.output}}"
             depends: "aws-list"
             withParam: "{{tasks.aws-list.outputs.parameters.files}}"
     - name: aws-list
       inputs:
         parameters:
-          - name: uri
+          - name: source
           - name: filter
       container:
         resources:
@@ -62,7 +56,7 @@ spec:
             "/tmp/file_list.json",
             "--config",
             "linz-bucket-config",
-            "{{inputs.parameters.uri}}",
+            "{{inputs.parameters.source}}",
           ]
       outputs:
         parameters:
@@ -75,7 +69,6 @@ spec:
       inputs:
         parameters:
           - name: file
-          - name: output
       container:
         image: ghcr.io/linz/topo-imagery:v0.2.0-6-gc3932e4
         resources:
@@ -88,5 +81,9 @@ spec:
         args:
           - "--source"
           - "{{inputs.parameters.file}}"
-          - "--destination"
-          - "{{inputs.parameters.output}}"
+      outputs:
+        artifacts:
+          - name: standardised_tiffs
+            path: /tmp/
+            archive:
+              none: {}
