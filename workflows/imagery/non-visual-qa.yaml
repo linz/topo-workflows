@@ -2,7 +2,7 @@
 apiVersion: argoproj.io/v1alpha1
 kind: WorkflowTemplate
 metadata:
-  generateName: imagery-non-visual-qa-
+  name: imagery-non-visual-qa-v0.2.0-20
 spec:
   serviceAccountName: workflow-runner-sa
   podGC:
@@ -55,7 +55,7 @@ spec:
             "--filter",
             "{{inputs.parameters.filter}}",
             "--group",
-            "10",
+            "100",
             "--output",
             "/tmp/file_list.json",
             "--config",
