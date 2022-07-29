@@ -3,6 +3,8 @@ apiVersion: argoproj.io/v1alpha1
 kind: WorkflowTemplate
 metadata:
   name: imagery-non-visual-qa-v0.2.0-20
+  annotations:
+    fluentbit.io/parser: json
 spec:
   serviceAccountName: workflow-runner-sa
   podGC:
