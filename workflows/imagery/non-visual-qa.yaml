@@ -54,6 +54,8 @@ spec:
             "list",
             "--filter",
             "{{inputs.parameters.filter}}",
+            "--group",
+            "10",
             "--output",
             "/tmp/file_list.json",
             "--config",
