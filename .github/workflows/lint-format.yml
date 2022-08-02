@@ -19,3 +19,6 @@ jobs:
 
       - name: format
         run: yarn format
+
+      - name: Check formatting
+        run: git diff --exit-code

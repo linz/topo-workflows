@@ -8,14 +8,14 @@ spec:
     strategy: OnPodCompletion # Delete pod once its finished
   entrypoint: test-script
   templates:
-  - name: test-script
-    script:
-      image: ghcr.io/linz/topo-imagery:v0.2.0-11-g8411779
-      command: [python]
-      source: |
-        import sys
+    - name: test-script
+      script:
+        image: ghcr.io/linz/topo-imagery:v0.2.0-11-g8411779
+        command: [python]
+        source: |
+          import sys
 
-        # Because Argo Workflow executes the script under "/argo/staging/script"
-        sys.path.append("/app/")
+          # Because Argo Workflow executes the script under "/argo/staging/script"
+          sys.path.append("/app/")
 
-        # Put your code below
+          # Put your code below

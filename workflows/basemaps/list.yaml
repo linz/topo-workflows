@@ -2,6 +2,8 @@ apiVersion: argoproj.io/v1alpha1
 kind: Workflow
 metadata:
   generateName: aws-list-
+  annotations: # tell fluentbit we are logging as JSON in this job!
+    fluentbit.io/parser: json
 spec:
   serviceAccountName: workflow-runner-sa
   entrypoint: main
@@ -67,4 +69,4 @@ spec:
         command:
           - node
         source: |
-          console.log(process.argv, JSON.parse('{{inputs.parameters.file}}'));
+          console.log(JSON.stringify({ argv: process.argv, params: JSON.parse('{{inputs.parameters.file}}') }));
