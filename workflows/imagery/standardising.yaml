@@ -2,7 +2,7 @@
 apiVersion: argoproj.io/v1alpha1
 kind: WorkflowTemplate
 metadata:
-  generateName: imagery-standardise-
+  name: imagery-standardise-v0.2.0-20
 spec:
   serviceAccountName: workflow-runner-sa
   podGC:
@@ -44,7 +44,7 @@ spec:
           requests:
             memory: 2Gi
             cpu: 2000m
-        image: ghcr.io/linz/basemaps/cli:v6.29.0-3-gb4dec98c
+        image: ghcr.io/linz/basemaps/cli:v6.33.0
         command: [node, index.cjs]
         args:
           [
@@ -70,7 +70,7 @@ spec:
         parameters:
           - name: file
       container:
-        image: ghcr.io/linz/topo-imagery:v0.2.0-6-gc3932e4
+        image: ghcr.io/linz/topo-imagery:v0.2.0-20-ged4d623
         resources:
           requests:
             memory: 2Gi
