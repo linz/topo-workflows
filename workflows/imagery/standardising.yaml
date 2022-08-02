@@ -81,8 +81,8 @@ spec:
             cpu: 2000m
             ephemeral-storage: 9Gi
         volumeMounts:
-        - name: ephemeral
-          mountPath: "/tmp"
+          - name: ephemeral
+            mountPath: "/tmp"
         command:
           - python
           - "/app/standardising.py"
