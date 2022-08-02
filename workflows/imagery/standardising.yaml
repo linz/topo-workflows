@@ -12,6 +12,8 @@ spec:
     parameters:
       - name: source
         value: "s3://linz-imagery-staging/test/sample/"
+      - name: filter
+        value: ".tiff?$"
       - name: group
         value: 10
   templates:
@@ -25,7 +27,7 @@ spec:
                 - name: source
                   value: "{{workflow.parameters.source}}"
                 - name: filter
-                  value: ".tiff?$"
+                  value: "{{workflow.parameters.filter}}"
           - name: standardise
             template: standardise
             arguments:
