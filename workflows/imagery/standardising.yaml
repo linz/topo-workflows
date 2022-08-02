@@ -4,9 +4,7 @@ kind: WorkflowTemplate
 metadata:
   name: imagery-standardise-v0.2.0-20
 spec:
-  serviceAccountName: workflow-runner-sa
-  podGC:
-    strategy: OnPodCompletion # Delete pod once its finished
+  parallelism: 20
   nodeSelector:
     karpenter.sh/capacity-type: "spot"
   entrypoint: main
@@ -14,6 +12,8 @@ spec:
     parameters:
       - name: source
         value: "s3://linz-imagery-staging/test/sample/"
+      - name: group
+        value: 10
   templates:
     - name: main
       dag:
@@ -52,10 +52,12 @@ spec:
             "list",
             "--filter",
             "{{inputs.parameters.filter}}",
+            "--group",
+            "{{workflow.parameters.group}}",
             "--output",
             "/tmp/file_list.json",
             "--config",
-            "linz-bucket-config",
+            "s3://linz-bucket-config/config.json",
             "{{inputs.parameters.source}}",
           ]
       outputs:
@@ -75,6 +77,10 @@ spec:
           requests:
             memory: 2Gi
             cpu: 2000m
+            ephemeral-storage: 9Gi
+        volumeMounts:
+        - name: ephemeral
+          mountPath: "/tmp"
         command:
           - python
           - "/app/standardising.py"
@@ -87,3 +93,6 @@ spec:
             path: /tmp/
             archive:
               none: {}
+  volumes:
+    - name: ephemeral
+      emptyDir: {}
