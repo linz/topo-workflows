@@ -45,7 +45,7 @@ spec:
         resources:
           requests:
             memory: 2Gi
-            cpu: 2000m
+            cpu: 4000m
         image: ghcr.io/linz/basemaps/cli:v6.33.0
         command: [node, index.cjs]
         args:
