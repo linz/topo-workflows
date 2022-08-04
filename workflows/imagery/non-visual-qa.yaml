@@ -4,12 +4,6 @@ kind: WorkflowTemplate
 metadata:
   name: imagery-non-visual-qa-v0.2.0-20
 spec:
-  serviceAccountName: workflow-runner-sa
-  workflowMetadata:
-    annotations:
-      fluentbit.io/parser: json
-  podGC:
-    strategy: OnPodCompletion # Delete pod once its finished
   nodeSelector:
     karpenter.sh/capacity-type: "spot"
   entrypoint: main
@@ -45,10 +39,6 @@ spec:
           - name: uri
           - name: filter
       container:
-        resources:
-          requests:
-            memory: 2Gi
-            cpu: 2000m
         image: ghcr.io/linz/basemaps/cli:v6.29.0-3-gb4dec98c
         command: [node, index.cjs]
         args:
@@ -78,10 +68,6 @@ spec:
           - name: file
       container:
         image: ghcr.io/linz/topo-imagery:v0.2.0-20-ged4d623
-        resources:
-          requests:
-            memory: 2Gi
-            cpu: 2000m
         command:
           - python
           - "/app/non_visual_qa.py"
