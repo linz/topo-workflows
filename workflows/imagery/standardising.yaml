@@ -42,10 +42,6 @@ spec:
           - name: source
           - name: filter
       container:
-        resources:
-          requests:
-            memory: 2Gi
-            cpu: 4000m
         image: ghcr.io/linz/basemaps/cli:v6.33.0
         command: [node, index.cjs]
         args:
@@ -78,7 +74,7 @@ spec:
         resources:
           requests:
             memory: 2Gi
-            cpu: 2000m
+            cpu: 4000m
             ephemeral-storage: 9Gi
         volumeMounts:
           - name: ephemeral
