@@ -36,6 +36,13 @@ spec:
                   value: "{{item}}"
             depends: "aws-list"
             withParam: "{{tasks.aws-list.outputs.parameters.files}}"
+          - name: create-config
+            template: create-config
+            arguments:
+              parameters:
+                - name: source
+                  value: "{{workflow.parameters.source}}"
+            depends: "standardise"
     - name: aws-list
       inputs:
         parameters:
@@ -91,6 +98,23 @@ spec:
             path: /tmp/
             archive:
               none: {}
+    - name: create-config
+      inputs:
+        parameters:
+          - name: source
+      container:
+        image: ghcr.io/linz/basemaps/cli:v6.33.0-12-gcd564b11  # TODO: Update this after create-config cli released.
+        command: [node, index.cjs]
+        args:
+          [
+            "-V",
+            "create-config",
+            "--path",
+            "{{inputs.parameters.source}}",
+            "--config",
+            "s3://linz-bucket-config/config.json",
+            "--commit"
+          ]
   volumes:
     - name: ephemeral
       emptyDir: {}
