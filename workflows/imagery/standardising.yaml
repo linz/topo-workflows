@@ -103,7 +103,7 @@ spec:
         parameters:
           - name: source
       container:
-        image: ghcr.io/linz/basemaps/cli:v6.33.0-12-gcd564b11  # TODO: Update this after create-config cli released.
+        image: ghcr.io/linz/basemaps/cli:v6.33.0-12-gcd564b11 # TODO: Update this after create-config cli released.
         command: [node, index.cjs]
         args:
           [
@@ -113,7 +113,7 @@ spec:
             "{{inputs.parameters.source}}",
             "--config",
             "s3://linz-bucket-config/config.json",
-            "--commit"
+            "--commit",
           ]
   volumes:
     - name: ephemeral
