@@ -110,7 +110,9 @@ spec:
         image: stedolan/jq:latest
         command: [sh, -c]
         args:
-          [printenv ARGO_TEMPLATE | jq -r '.archiveLocation.s3.bucket' > /tmp/bucket]
+          [
+            printenv ARGO_TEMPLATE | jq -r '.archiveLocation.s3.bucket' > /tmp/bucket,
+          ]
       outputs:
         parameters:
           - name: bucket
@@ -120,7 +122,10 @@ spec:
       container:
         image: stedolan/jq:latest
         command: [sh, -c]
-        args: [printenv ARGO_TEMPLATE | jq -r '.archiveLocation.s3.key' | cut -d '/' -f-2 > /tmp/key]
+        args:
+          [
+            printenv ARGO_TEMPLATE | jq -r '.archiveLocation.s3.key' | cut -d '/' -f-2 > /tmp/key,
+          ]
       outputs:
         parameters:
           - name: key
