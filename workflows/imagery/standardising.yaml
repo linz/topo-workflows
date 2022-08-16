@@ -36,20 +36,15 @@ spec:
                   value: "{{item}}"
             depends: "aws-list"
             withParam: "{{tasks.aws-list.outputs.parameters.files}}"
-          - name: get-bucket
-            template: get-bucket
-          - name: get-key
-            template: get-key
-            depends: "get-bucket"
+          - name: get-location
+            template: get-location
           - name: create-config
             arguments:
               parameters:
-                - name: bucket
-                  value: "{{tasks.get-bucket.outputs.parameters.bucket}}"
-                - name: key
-                  value: "{{tasks.get-key.outputs.parameters.key}}"
+                - name: location
+                  value: "{{tasks.get-location.outputs.parameters.location}}"
             template: create-config
-            depends: "get-key && standardise"
+            depends: "get-location && standardise"
     - name: aws-list
       inputs:
         parameters:
@@ -105,37 +100,24 @@ spec:
             path: /tmp/
             archive:
               none: {}
-    - name: get-bucket
-      container:
-        image: stedolan/jq:latest
-        command: [sh, -c]
-        args:
-          [
-            printenv ARGO_TEMPLATE | jq -r '.archiveLocation.s3.bucket' > /tmp/bucket,
-          ]
+    - name: get-location
+      script:
+        image: node:alpine
+        command: [node]
+        source: |
+          const fs = require('fs');
+          const loc = JSON.parse(process.env['ARGO_TEMPLATE']).archiveLocation.s3;
+          const keys = loc.key.split('/');
+          fs.writeFileSync('/tmp/location', `s3://${loc.bucket}/${keys[0]}/${keys[1]}/`);
       outputs:
         parameters:
-          - name: bucket
+          - name: location
             valueFrom:
-              path: "/tmp/bucket"
-    - name: get-key
-      container:
-        image: stedolan/jq:latest
-        command: [sh, -c]
-        args:
-          [
-            printenv ARGO_TEMPLATE | jq -r '.archiveLocation.s3.key' | cut -d '/' -f-2 > /tmp/key,
-          ]
-      outputs:
-        parameters:
-          - name: key
-            valueFrom:
-              path: "/tmp/key"
+              path: "/tmp/location"
     - name: create-config
       inputs:
         parameters:
-          - name: bucket
-          - name: key
+          - name: location
       container:
         image: ghcr.io/linz/basemaps/cli:v6.33.0-12-gcd564b11 # TODO: Update this after create-config cli released.
         command: [node, index.cjs]
@@ -144,7 +126,7 @@ spec:
             "-V",
             "create-config",
             "--path",
-            "s3://{{inputs.parameters.bucket}}/{{inputs.parameters.key}}",
+            "{{inputs.parameters.location}}",
             "--config",
             "s3://linz-bucket-config/config.json",
             "--commit",
