@@ -107,8 +107,8 @@ spec:
         source: |
           const fs = require('fs');
           const loc = JSON.parse(process.env['ARGO_TEMPLATE']).archiveLocation.s3;
-          const keys = loc.key.split('/');
-          fs.writeFileSync('/tmp/location', `s3://${loc.bucket}/${keys[0]}/${keys[1]}/`);
+          const key = loc.key.replace('{{pod.name}}','');
+          fs.writeFileSync('/tmp/location', `s3://${loc.bucket}/${key}`);
       outputs:
         parameters:
           - name: location
