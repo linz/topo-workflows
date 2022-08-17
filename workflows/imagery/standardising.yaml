@@ -51,7 +51,7 @@ spec:
           - name: source
           - name: filter
       container:
-        image: ghcr.io/linz/basemaps/cli:v6.33.0
+        image: ghcr.io/linz/basemaps/cli:v6.34.0
         command: [node, index.cjs]
         args:
           [
@@ -121,7 +121,7 @@ spec:
         parameters:
           - name: location
       container:
-        image: ghcr.io/linz/basemaps/cli:v6.33.0-12-gcd564b11 # TODO: Update this after create-config cli released.
+        image: ghcr.io/linz/basemaps/cli:v6.34.0
         command: [node, index.cjs]
         args:
           [
