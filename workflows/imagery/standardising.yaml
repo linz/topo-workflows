@@ -121,7 +121,7 @@ spec:
         parameters:
           - name: location
       container:
-        image: ghcr.io/linz/basemaps/cli:v6.34.0
+        image: ghcr.io/linz/basemaps/cli:v6.34.0-17-gd1bcc95c
         command: [node, index.cjs]
         args:
           [
@@ -131,8 +131,15 @@ spec:
             "{{inputs.parameters.location}}",
             "--config",
             "s3://linz-bucket-config/config.json",
+            "--output",
+            "/tmp/url",
             "--commit",
           ]
+      outputs:
+        parameters:
+          - name: url
+            valueFrom:
+              path: "/tmp/url"
   volumes:
     - name: ephemeral
       emptyDir: {}
