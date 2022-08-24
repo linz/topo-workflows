@@ -64,7 +64,7 @@ spec:
         parameters:
           - name: file
       container:
-        image: ghcr.io/linz/topo-imagery:v0.2.0-32-g9483f51
+        image: 840351489492.dkr.ecr.ap-southeast-2.amazonaws.com/cdk-hnb659fds-container-assets-840351489492-ap-southeast-2:69f1f7c321f88450034adc057bd3456dd51398fce1a0077cc9b68b2ac03a123b
         command:
           - python
           - "/app/scripts/standardising.py"
