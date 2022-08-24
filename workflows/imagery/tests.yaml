@@ -10,12 +10,12 @@ spec:
   templates:
     - name: test-script
       script:
-        image: ghcr.io/linz/topo-imagery:v0.2.0-30-g25a85c1
+        image: ghcr.io/linz/topo-imagery:v0.2.0-32-g9483f51
         command: [python]
         source: |
           import sys
 
           # Because Argo Workflow executes the script under "/argo/staging/script"
-          sys.path.append("/app/")
+          sys.path.append("/app/scripts/")
 
           # Put your code below

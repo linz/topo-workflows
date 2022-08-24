@@ -68,7 +68,7 @@ spec:
         parameters:
           - name: file
       container:
-        image: ghcr.io/linz/topo-imagery:v0.2.0-30-g25a85c1
+        image: ghcr.io/linz/topo-imagery:v0.2.0-32-g9483f51
         command:
           - python
           - "/app/scripts/non_visual_qa.py"
