@@ -54,8 +54,6 @@ spec:
             "100",
             "--output",
             "/tmp/file_list.json",
-            "--config",
-            "linz-bucket-config",
             "{{inputs.parameters.uri}}",
           ]
       outputs:
