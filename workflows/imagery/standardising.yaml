@@ -2,7 +2,7 @@
 apiVersion: argoproj.io/v1alpha1
 kind: WorkflowTemplate
 metadata:
-  name: imagery-standardise-v0.2.0-30
+  name: imagery-standardise-v0.2.0-32
 spec:
   parallelism: 20
   nodeSelector:
