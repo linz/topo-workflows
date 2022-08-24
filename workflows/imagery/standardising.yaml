@@ -93,7 +93,7 @@ spec:
             mountPath: "/tmp"
         command:
           - python
-          - "/app/standardising.py"
+          - "/app/scripts/standardising.py"
         args:
           - "--source"
           - "{{inputs.parameters.file}}"
