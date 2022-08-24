@@ -1,0 +1,107 @@
+---
+apiVersion: argoproj.io/v1alpha1
+kind: WorkflowTemplate
+metadata:
+  name: create-cog-mapsheet
+  namespace: argo
+spec:
+  nodeSelector:
+    karpenter.sh/capacity-type: "spot"
+  entrypoint: main
+  arguments:
+    parameters:
+      - name: layer
+        value: "104687"
+  templates:
+    - name: main
+      dag:
+        tasks:
+          - name: fetch-layer
+            template: fetch-layer
+            arguments:
+              parameters:
+                - name: layer
+                  value: "{{workflow.parameters.layer}}"
+          - name: transform
+            template: transform
+            arguments:
+              artifacts:
+                - name: geopackage
+                  from: "{{tasks.fetch-layer.outputs.artifacts.geopackage}}"
+            depends: "fetch-layer"
+          - name: create-mapsheet
+            template: create-mapsheet
+            arguments:
+              artifacts:
+                - name: flatGeobuf
+                  from: "{{tasks.transform.outputs.artifacts.flatGeobuf}}"
+            depends: "transform"
+
+    - name: fetch-layer
+      inputs:
+        parameters:
+          - name: layer
+      container:
+        image: ghcr.io/linz/argo-tasks:v1.0.0-8-g53a2c88
+        command: [node, index.cjs]
+        env:
+          - name: AWS_ROLE_CONFIG_PATH
+            value: s3://linz-bucket-config/config.json
+        args:
+          [
+            "lds-fetch-layer",
+            "--layer-id",
+            "{{inputs.parameters.layer}}",
+            "--target",
+            "/tmp/geopackage.gpkg",
+          ]
+      outputs:
+        artifacts:
+          - name: geopackage
+            path: /tmp/geopackage.gpkg
+
+    - name: transform
+      inputs:
+        artifacts:
+          - name: geopackage
+            path: /tmp/geopackage.gpkg
+      container:
+        image: osgeo/gdal:alpine-small-3.5.0
+        command: [ogr2ogr]
+        args:
+          ["-f", "FlatGeobuf", "/tmp/flatGeobuf.fgb", "/tmp/geopackage.gpkg"]
+      outputs:
+        artifacts:
+          - name: flatGeobuf
+            path: /tmp/flatGeobuf.fgb
+
+    - name: create-mapsheet
+      inputs:
+        artifacts:
+          - name: flatGeobuf
+            path: /tmp/flatGeobuf.fgb
+      container:
+        image: ghcr.io/linz/basemaps/cli:v6.34.0-26-g79619ee2
+        command: [node, index.cjs]
+        env:
+          - name: AWS_ROLE_CONFIG_PATH
+            value: s3://linz-bucket-config/config.json
+        args:
+          [
+            "-V",
+            "create-mapsheet",
+            "--path",
+            "/tmp/flatGeobuf.fgb",
+            "--config",
+            "s3://linz-basemaps/config/config-latest.json.gz",
+            "--output",
+            "/tmp/mapsheet.json",
+          ]
+      outputs:
+        artifacts:
+          - name: mapsheet
+            path: /tmp/mapsheet.json
+
+  volumes:
+    - name: ephemeral
+      emptyDir: {}
