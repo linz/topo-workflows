@@ -46,7 +46,7 @@ spec:
         command: [node, index.cjs]
         env:
           - name: AWS_ROLE_CONFIG_PATH
-            value: s3://linz-bucket-config/config-v2.json
+            value: s3://linz-bucket-config/config.json
         args:
           [
             "lds-fetch-layer",
@@ -66,7 +66,7 @@ spec:
           - name: geopackage
             path: /tmp/geopackage.gpkg
       container:
-        image: osgeo/gdal:alpine-small-latest
+        image: osgeo/gdal:alpine-small-3.5.0
         command: [ogr2ogr]
         args:
           ["-f", "FlatGeobuf", "/tmp/flatGeobuf.fgb", "/tmp/geopackage.gpkg"]
@@ -85,7 +85,7 @@ spec:
         command: [node, index.cjs]
         env:
           - name: AWS_ROLE_CONFIG_PATH
-            value: s3://linz-bucket-config/config-v2.json
+            value: s3://linz-bucket-config/config.json
         args:
           [
             "-V",
