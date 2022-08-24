@@ -121,16 +121,17 @@ spec:
         parameters:
           - name: location
       container:
-        image: ghcr.io/linz/basemaps/cli:v6.34.0-17-gd1bcc95c
+        image: ghcr.io/linz/basemaps/cli:v6.34.0-26-g79619ee2
         command: [node, index.cjs]
+        env:
+          - name: AWS_ROLE_CONFIG_PATH
+            value: s3://linz-bucket-config/config-v2.json
         args:
           [
             "-V",
             "create-config",
             "--path",
             "{{inputs.parameters.location}}",
-            "--config",
-            "s3://linz-bucket-config/config.json",
             "--output",
             "/tmp/url",
             "--commit",
