@@ -5,8 +5,6 @@ metadata:
   name: create-cog-mapsheet
   namespace: argo
 spec:
-  nodeSelector:
-    karpenter.sh/capacity-type: "spot"
   entrypoint: main
   arguments:
     parameters:
