@@ -2,7 +2,7 @@
 apiVersion: argoproj.io/v1alpha1
 kind: WorkflowTemplate
 metadata:
-  name: imagery-non-visual-qa-v0.2.0-32
+  name: imagery-non-visual-qa-v0.2.0-34
 spec:
   nodeSelector:
     karpenter.sh/capacity-type: "spot"
@@ -68,7 +68,7 @@ spec:
         parameters:
           - name: file
       container:
-        image: ghcr.io/linz/topo-imagery:v0.2.0-32-g9483f51
+        image: ghcr.io/linz/topo-imagery:v0.2.0-34-g6527603
         command:
           - python
           - "/app/scripts/non_visual_qa.py"
