@@ -2,7 +2,7 @@
 apiVersion: argoproj.io/v1alpha1
 kind: WorkflowTemplate
 metadata:
-  name: imagery-non-visual-qa-v0.2.0-20
+  name: imagery-non-visual-qa-v0.2.0-34
 spec:
   nodeSelector:
     karpenter.sh/capacity-type: "spot"
@@ -39,20 +39,21 @@ spec:
           - name: uri
           - name: filter
       container:
-        image: ghcr.io/linz/basemaps/cli:v6.29.0-3-gb4dec98c
-        command: [node, index.cjs]
+        image: ghcr.io/linz/argo-tasks:v1.0.0-8-g53a2c88
+        command: [node, /app/index.cjs]
+        env:
+          - name: AWS_ROLE_CONFIG_PATH
+            value: s3://linz-bucket-config/config-v2.json
         args:
           [
-            "-V",
             "list",
+            "--verbose",
             "--filter",
             "{{inputs.parameters.filter}}",
             "--group",
             "100",
             "--output",
             "/tmp/file_list.json",
-            "--config",
-            "linz-bucket-config",
             "{{inputs.parameters.uri}}",
           ]
       outputs:
@@ -67,10 +68,10 @@ spec:
         parameters:
           - name: file
       container:
-        image: ghcr.io/linz/topo-imagery:v0.2.0-20-ged4d623
+        image: ghcr.io/linz/topo-imagery:v0.2.0-34-g6527603
         command:
           - python
-          - "/app/non_visual_qa.py"
+          - "/app/scripts/non_visual_qa.py"
         args:
           - "--source"
           - "{{inputs.parameters.file}}"
