@@ -32,7 +32,6 @@ jobs:
     # if: github.ref == 'refs/heads/master'
 
     steps:
-
       - name: Setup kubectl
         uses: azure/setup-kubectl@v3
         with:
@@ -48,3 +47,7 @@ jobs:
           aws-region: ap-southeast-2
           mask-aws-account-id: true
           role-to-assume: ${{ secrets.AWS_EKS_ROLE }}
+
+      - name: Login to EKS
+        run: |
+          aws eks update-kubeconfig --name Workflow --region ap-southeast-2
