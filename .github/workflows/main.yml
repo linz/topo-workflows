@@ -8,31 +8,32 @@ jobs:
     steps:
       - uses: actions/checkout@v1
 
+      - name: Use Node.js 18.x
+        uses: actions/setup-node@v2.2.0
+        with:
+          node-version: "18.x"
 
-  #     - name: Use Node.js 18.x
-  #       uses: actions/setup-node@v2.2.0
-  #       with:
-  #         node-version: "18.x"
+      - name: Install
+        run: yarn
 
-  #     - name: Install
-  #       run: yarn
+      - name: format
+        run: yarn format
 
-  #     - name: format
-  #       run: yarn format
-
-  #     - name: Check formatting
-  #       run: git diff --exit-code
+      - name: Check formatting
+        run: git diff --exit-code
 
   deploy:
     permissions:
       id-token: write
       contents: read
     runs-on: ubuntu-latest
-    # needs: [lint-format]
+    needs: [lint-format]
     name: Deploy workflows into Argo
     # if: github.ref == 'refs/heads/master'
 
     steps:
+      - uses: actions/checkout@v1
+
       - name: Setup kubectl
         uses: azure/setup-kubectl@v3
         with:
@@ -62,4 +63,14 @@ jobs:
 
       - name: Lint workflows
         run: |
-          ./argo-linux-amd64 lint workflows
+          ./argo-linux-amd64 lint workflows/
+
+      - name: Deploy workflows
+        run: |
+          # Find all workflows that have kind "WorkflowTemplate"
+          WORKFLOWS=$(grep '^kind: WorkflowTemplate$' -R workflows/ -H | cut -d ':' -f1)
+
+          # For each workflow attempt to deploy it using kubectl
+          for wf in $WORKFLOWS; do
+              kubectl apply -f $wf
+          done
