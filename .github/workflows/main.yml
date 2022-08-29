@@ -37,10 +37,6 @@ jobs:
         with:
           version: "latest"
 
-      - name: Check kubectl
-        run: |
-          kubectl version
-
       - name: AWS Configure
         uses: aws-actions/configure-aws-credentials@v1.6.1
         with:
@@ -51,3 +47,7 @@ jobs:
       - name: Login to EKS
         run: |
           aws eks update-kubeconfig --name Workflow --region ap-southeast-2
+
+      - name: Check EKS connection
+        run: |
+          kubectl get nodes
