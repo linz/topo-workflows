@@ -40,7 +40,7 @@ jobs:
 
       - name: Check kubectl
         run: |
-          kubectl --version
+          kubectl version
 
       - name: AWS Configure
         uses: aws-actions/configure-aws-credentials@v1.6.1
