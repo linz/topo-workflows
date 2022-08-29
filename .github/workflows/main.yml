@@ -1,5 +1,3 @@
-
-
 on: [push]
 
 jobs:
@@ -30,10 +28,14 @@ jobs:
     name: Deploy workflows into Argo
     # if: github.ref == 'refs/heads/master'
 
-    steps: 
-      - name: AWS Configure
-        uses: aws-actions/configure-aws-credentials@v1.6.1
-        with:
-          aws-region: ap-southeast-2
-          mask-aws-account-id: true
-          role-to-assume: ${{ secrets.AWS_EKS_ROLE }}
+    steps:
+      # - name: AWS Configure
+      #   uses: aws-actions/configure-aws-credentials@v1.6.1
+      #   with:
+      #     aws-region: ap-southeast-2
+      #     mask-aws-account-id: true
+      #     role-to-assume: ${{ secrets.AWS_EKS_ROLE }}
+
+      - name: Check Kubectl
+        run: |
+          kubectl --version
