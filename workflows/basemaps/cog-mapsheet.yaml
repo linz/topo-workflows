@@ -99,8 +99,7 @@ spec:
         artifacts:
           - name: mapsheet
             path: /tmp/mapsheet.json
-            archive:
-              {}
+            archive: {}
   volumes:
     - name: ephemeral
       emptyDir: {}
