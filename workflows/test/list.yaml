@@ -1,9 +1,7 @@
 apiVersion: argoproj.io/v1alpha1
 kind: Workflow
 metadata:
-  generateName: aws-list-
-  annotations: # tell fluentbit we are logging as JSON in this job!
-    fluentbit.io/parser: json
+  generateName: test-aws-list-
 spec:
   serviceAccountName: workflow-runner-sa
   entrypoint: main
@@ -23,15 +21,6 @@ spec:
                   value: "{{workflow.parameters.uri}}"
                 - name: filter
                   value: ".tiff?$"
-          - name: info
-            template: info
-            arguments:
-              parameters:
-                - name: file
-                  value: "{{item}}"
-            depends: "aws-list"
-            withParam: "{{tasks.aws-list.outputs.parameters.files}}"
-
     - name: aws-list
       inputs:
         parameters:
@@ -60,14 +49,3 @@ spec:
           - name: files
             valueFrom:
               path: /tmp/file_list.json
-
-    - name: info
-      inputs:
-        parameters:
-          - name: file
-      script:
-        image: node:18
-        command:
-          - node
-        source: |
-          console.log(JSON.stringify({ argv: process.argv, params: JSON.parse('{{inputs.parameters.file}}') }));
