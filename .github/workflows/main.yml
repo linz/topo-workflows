@@ -8,16 +8,7 @@ jobs:
     steps:
       - uses: actions/checkout@v1
 
-      - name: Install Argo
-        run: |
-          curl -sLO https://github.com/argoproj/argo-workflows/releases/download/v3.4.0-rc2/argo-linux-amd64.gz
-          gunzip argo-linux-amd64.gz
-          chmod +x argo-linux-amd64
-          ./argo-linux-amd64 version
 
-      - name: Lint workflows
-        run: |
-          ./argo-linux-amd64 lint workflows
   #     - name: Use Node.js 18.x
   #       uses: actions/setup-node@v2.2.0
   #       with:
@@ -61,3 +52,14 @@ jobs:
       - name: Check EKS connection
         run: |
           kubectl get nodes
+
+      - name: Install Argo
+        run: |
+          curl -sLO https://github.com/argoproj/argo-workflows/releases/download/v3.4.0-rc2/argo-linux-amd64.gz
+          gunzip argo-linux-amd64.gz
+          chmod +x argo-linux-amd64
+          ./argo-linux-amd64 version
+
+      - name: Lint workflows
+        run: |
+          ./argo-linux-amd64 lint workflows
