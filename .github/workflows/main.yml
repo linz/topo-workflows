@@ -36,6 +36,6 @@ jobs:
           mask-aws-account-id: true
           role-to-assume: ${{ secrets.AWS_EKS_ROLE }}
 
-      - name: Check Kubectl
+      - name: Check kubectl
         run: |
           kubectl --version
