@@ -32,12 +32,6 @@ jobs:
     # if: github.ref == 'refs/heads/master'
 
     steps:
-      - name: AWS Configure
-        uses: aws-actions/configure-aws-credentials@v1.6.1
-        with:
-          aws-region: ap-southeast-2
-          mask-aws-account-id: true
-          role-to-assume: ${{ secrets.AWS_EKS_ROLE }}
 
       - name: Setup kubectl
         uses: azure/setup-kubectl@v3
@@ -47,3 +41,10 @@ jobs:
       - name: Check kubectl
         run: |
           kubectl --version
+
+      - name: AWS Configure
+        uses: aws-actions/configure-aws-credentials@v1.6.1
+        with:
+          aws-region: ap-southeast-2
+          mask-aws-account-id: true
+          role-to-assume: ${{ secrets.AWS_EKS_ROLE }}
