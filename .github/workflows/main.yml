@@ -42,11 +42,11 @@ jobs:
         with:
           aws-region: ap-southeast-2
           mask-aws-account-id: true
-          role-to-assume: ${{ secrets.AWS_EKS_ROLE }}
+          role-to-assume: ${{ secrets.AWS_CI_ROLE }}
 
       - name: Login to EKS
         run: |
-          aws eks update-kubeconfig --name Workflow --region ap-southeast-2
+          aws eks update-kubeconfig --name Workflow --region ap-southeast-2 --role-arn ${{ secrets.AWS_EKS_ROLE }}
 
       - name: Check EKS connection
         run: |
