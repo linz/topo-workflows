@@ -72,5 +72,5 @@ jobs:
 
           # For each workflow attempt to deploy it using kubectl
           for wf in $WORKFLOWS; do
-              kubectl apply -f $wf
+              kubectl apply -f $wf --namespace argo
           done

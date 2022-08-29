@@ -3,6 +3,7 @@ apiVersion: argoproj.io/v1alpha1
 kind: WorkflowTemplate
 metadata:
   name: imagery-non-visual-qa-v0.2.0-34
+  namespace: argo
 spec:
   nodeSelector:
     karpenter.sh/capacity-type: "spot"
