@@ -17,10 +17,10 @@ spec:
       - name: group
         value: 10
       - name: compression
-        value: 'webp'
+        value: "webp"
         enum:
-          - 'webp'
-          - 'lzw'
+          - "webp"
+          - "lzw"
   templates:
     - name: main
       dag:
