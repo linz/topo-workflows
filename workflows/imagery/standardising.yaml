@@ -2,7 +2,7 @@
 apiVersion: argoproj.io/v1alpha1
 kind: WorkflowTemplate
 metadata:
-  name: imagery-standardising-v0.2.0-34
+  name: imagery-standardising-v0.2.0-39
 spec:
   parallelism: 20
   nodeSelector:
@@ -16,6 +16,11 @@ spec:
         value: ".tiff?$"
       - name: group
         value: 10
+      - name: compression
+        value: "webp"
+        enum:
+          - "webp"
+          - "lzw"
   templates:
     - name: main
       dag:
@@ -34,6 +39,8 @@ spec:
               parameters:
                 - name: file
                   value: "{{item}}"
+                - name: preset
+                  value: "{{workflow.parameters.compression}}"
             depends: "aws-list"
             withParam: "{{tasks.aws-list.outputs.parameters.files}}"
           - name: get-location
@@ -81,8 +88,9 @@ spec:
       inputs:
         parameters:
           - name: file
+          - name: preset
       container:
-        image: ghcr.io/linz/topo-imagery:v0.2.0-34-g6527603
+        image: ghcr.io/linz/topo-imagery:v0.2.0-39-gc674366
         resources:
           requests:
             memory: 3.9Gi
@@ -97,6 +105,8 @@ spec:
         args:
           - "--source"
           - "{{inputs.parameters.file}}"
+          - "--preset"
+          - "{{inputs.parameters.preset}}"
       outputs:
         artifacts:
           - name: standardised_tiffs
