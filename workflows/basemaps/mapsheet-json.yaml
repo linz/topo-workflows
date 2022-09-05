@@ -78,7 +78,7 @@ spec:
           - name: flatGeobuf
             path: /tmp/flatGeobuf.fgb
       container:
-        image: ghcr.io/linz/basemaps/cli:v6.34.0-26-g79619ee2
+        image: ghcr.io/linz/basemaps/cli:v6.34.0-27-gd3c9adb8
         command: [node, index.cjs]
         env:
           - name: AWS_ROLE_CONFIG_PATH
@@ -98,7 +98,7 @@ spec:
         artifacts:
           - name: mapsheet
             path: /tmp/mapsheet.json
-
+            archive: {}
   volumes:
     - name: ephemeral
       emptyDir: {}
