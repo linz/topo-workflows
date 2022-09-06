@@ -1,9 +1,12 @@
 on: [push]
 
 jobs:
-  lint-format:
-    name: Lint and format workflows
+  main:
+    name: Format & Deploy(master)
     runs-on: ubuntu-latest
+    permissions:
+      id-token: write
+      contents: read
 
     steps:
       - uses: actions/checkout@v1
@@ -21,18 +24,6 @@ jobs:
 
       - name: Check formatting
         run: git diff --exit-code
-
-  deploy:
-    permissions:
-      id-token: write
-      contents: read
-    runs-on: ubuntu-latest
-    needs: [lint-format]
-    name: Deploy workflows into Argo
-    # if: github.ref == 'refs/heads/master'
-
-    steps:
-      - uses: actions/checkout@v1
 
       - name: Setup kubectl
         uses: azure/setup-kubectl@v3
@@ -66,6 +57,7 @@ jobs:
           ./argo-linux-amd64 lint workflows/
 
       - name: Deploy workflows
+        if: github.ref == 'refs/heads/master'
         run: |
           # Find all workflows that have kind "WorkflowTemplate"
           WORKFLOWS=$(grep '^kind: WorkflowTemplate$' -R workflows/ -H | cut -d ':' -f1)
