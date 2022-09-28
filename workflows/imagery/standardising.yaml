@@ -2,7 +2,7 @@
 apiVersion: argoproj.io/v1alpha1
 kind: WorkflowTemplate
 metadata:
-  name: imagery-standardising-v0.2.0-39
+  name: imagery-standardising-v0.2.0-43
   namespace: argo
 spec:
   parallelism: 20
@@ -91,7 +91,7 @@ spec:
           - name: file
           - name: preset
       container:
-        image: ghcr.io/linz/topo-imagery:v0.2.0-39-gc674366
+        image: ghcr.io/linz/topo-imagery:v0.2.0-43-g9127002
         resources:
           requests:
             memory: 3.9Gi
