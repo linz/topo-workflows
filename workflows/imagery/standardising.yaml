@@ -2,7 +2,7 @@
 apiVersion: argoproj.io/v1alpha1
 kind: WorkflowTemplate
 metadata:
-  name: imagery-standardising-v0.2.0-43
+  name: imagery-standardising-v0.2.0-44
   namespace: argo
 spec:
   parallelism: 20
@@ -13,7 +13,7 @@ spec:
     parameters:
       - name: source
         value: "s3://linz-imagery-staging/test/sample/"
-      - name: filter
+      - name: include
         value: ".tiff?$"
       - name: group
         value: 10
@@ -22,6 +22,7 @@ spec:
         enum:
           - "webp"
           - "lzw"
+          - "gray_webp"
   templates:
     - name: main
       dag:
@@ -32,8 +33,8 @@ spec:
               parameters:
                 - name: source
                   value: "{{workflow.parameters.source}}"
-                - name: filter
-                  value: "{{workflow.parameters.filter}}"
+                - name: include
+                  value: "{{workflow.parameters.include}}"
           - name: standardise-validate
             template: standardise-validate
             arguments:
@@ -57,9 +58,9 @@ spec:
       inputs:
         parameters:
           - name: source
-          - name: filter
+          - name: include
       container:
-        image: ghcr.io/linz/argo-tasks:v1.0.0-8-g53a2c88
+        image: ghcr.io/linz/argo-tasks:v1.0.0-18-gea46732
         command: [node, /app/index.cjs]
         env:
           - name: AWS_ROLE_CONFIG_PATH
@@ -68,8 +69,8 @@ spec:
           [
             "list",
             "--verbose",
-            "--filter",
-            "{{inputs.parameters.filter}}",
+            "--include",
+            "{{inputs.parameters.include}}",
             "--group",
             "{{workflow.parameters.group}}",
             "--output",
@@ -91,7 +92,7 @@ spec:
           - name: file
           - name: preset
       container:
-        image: ghcr.io/linz/topo-imagery:v0.2.0-43-g9127002
+        image: ghcr.io/linz/topo-imagery:v0.2.0-44-g8b9503b
         resources:
           requests:
             memory: 3.9Gi
