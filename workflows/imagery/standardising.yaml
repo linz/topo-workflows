@@ -28,20 +28,12 @@ spec:
         tasks:
           - name: aws-list
             template: aws-list
-            arguments:
-              parameters:
-                - name: source
-                  value: "{{workflow.parameters.source}}"
-                - name: filter
-                  value: "{{workflow.parameters.filter}}"
           - name: standardise-validate
             template: standardise-validate
             arguments:
               parameters:
                 - name: file
                   value: "{{item}}"
-                - name: preset
-                  value: "{{workflow.parameters.compression}}"
             depends: "aws-list"
             withParam: "{{tasks.aws-list.outputs.parameters.files}}"
           - name: get-location
@@ -54,10 +46,6 @@ spec:
             template: create-config
             depends: "get-location && standardise-validate"
     - name: aws-list
-      inputs:
-        parameters:
-          - name: source
-          - name: filter
       container:
         image: ghcr.io/linz/argo-tasks:v1.0.0-8-g53a2c88
         command: [node, /app/index.cjs]
@@ -69,12 +57,12 @@ spec:
             "list",
             "--verbose",
             "--filter",
-            "{{inputs.parameters.filter}}",
+            "{{workflow.parameters.filter}}",
             "--group",
             "{{workflow.parameters.group}}",
             "--output",
             "/tmp/file_list.json",
-            "{{inputs.parameters.source}}",
+            "{{workflow.parameters.source}}",
           ]
       outputs:
         parameters:
@@ -89,7 +77,6 @@ spec:
       inputs:
         parameters:
           - name: file
-          - name: preset
       container:
         image: ghcr.io/linz/topo-imagery:v0.2.0-43-g9127002
         resources:
@@ -107,7 +94,7 @@ spec:
           - "--source"
           - "{{inputs.parameters.file}}"
           - "--preset"
-          - "{{inputs.parameters.preset}}"
+          - "{{workflow.parameters.compression}}"
       outputs:
         artifacts:
           - name: standardised_tiffs
