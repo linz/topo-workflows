@@ -19,15 +19,15 @@ spec:
               parameters:
                 - name: uri
                   value: "{{workflow.parameters.uri}}"
-                - name: filter
+                - name: include
                   value: ".tiff?$"
     - name: aws-list
       inputs:
         parameters:
           - name: uri
-          - name: filter
+          - name: include
       container:
-        image: ghcr.io/linz/argo-tasks:v1.0.0-8-g53a2c88
+        image: ghcr.io/linz/argo-tasks:v1.0.0-18-gea46732
         command: [node, /app/index.cjs]
         env:
           - name: AWS_ROLE_CONFIG_PATH
@@ -36,8 +36,8 @@ spec:
           [
             "list",
             "--verbose",
-            "--filter",
-            "{{inputs.parameters.filter}}",
+            "--include",
+            "{{inputs.parameters.include}}",
             "--group",
             "2",
             "--output",
