@@ -22,6 +22,10 @@ spec:
               parameters:
                 - name: stac-file-path
                   value: "{{workflow.parameters.stac-file-path}}"
+              artifacts:
+                - name: stac-result
+                  raw:
+                    data: "{{tasks.stac-validate.outputs.result}}"
     - name: stac-validate
       inputs:
         parameters:
@@ -38,7 +42,3 @@ spec:
             "--recursive",
             "{{inputs.parameters.stac-file-path}}",
           ]
-      outputs:
-        parameters:
-          - name: stac-results
-            value: {{tasks.stac-validate.outputs.result}}
