@@ -25,7 +25,7 @@ spec:
               artifacts:
                 - name: stac-result
                   raw:
-                    data: "{{tasks.stac-validate.outputs.result}}"
+                    data: "{ { tasks.stac-validate.outputs.result } }"
     - name: stac-validate
       inputs:
         parameters:
