@@ -104,7 +104,7 @@ spec:
         image: ghcr.io/linz/topo-imagery:v0.2.0-46-g5d8ee79
         resources:
           requests:
-            memory: 3.9Gi
+            memory: 7.8Gi
             cpu: 2000m
             ephemeral-storage: 3Gi
         volumeMounts:
