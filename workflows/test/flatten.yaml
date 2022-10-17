@@ -52,7 +52,7 @@ spec:
             "--include",
             "{{inputs.parameters.filter}}",
             "--group",
-            "500",
+            "30",
             "--output",
             "/tmp/file_list.json",
             "{{inputs.parameters.uri}}",
