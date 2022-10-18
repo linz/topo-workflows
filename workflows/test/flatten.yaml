@@ -2,7 +2,7 @@
 apiVersion: argoproj.io/v1alpha1
 kind: WorkflowTemplate
 metadata:
-  name: test-flatten
+  name: test-flatten-v1.0.0-20
   namespace: argo
 spec:
   nodeSelector:
@@ -13,7 +13,7 @@ spec:
       - name: uri
         value: ""
       - name: filter
-        value: ".tiff?$"
+        value: ".tiff?$|.json$"
   templates:
     - name: main
       dag:
@@ -40,7 +40,7 @@ spec:
           - name: uri
           - name: filter
       container:
-        image: ghcr.io/linz/argo-tasks:v1.0.0-16-g9173869
+        image: ghcr.io/linz/argo-tasks:v1.0.0-20-gbb959c8
         command: [node, /app/index.cjs]
         env:
           - name: AWS_ROLE_CONFIG_PATH
@@ -69,7 +69,7 @@ spec:
         parameters:
           - name: file
       container:
-        image: ghcr.io/linz/argo-tasks:v1.0.0-16-g9173869
+        image: ghcr.io/linz/argo-tasks:v1.0.0-20-gbb959c8
         command: [node, /app/index.cjs]
         args:
           - "copy"
