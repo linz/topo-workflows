@@ -70,6 +70,10 @@ spec:
           - name: file
       container:
         image: ghcr.io/linz/argo-tasks:v1.0.0-20-gbb959c8
+        resources:
+          requests:
+            memory: 7.8Gi
+            cpu: 2000m
         command: [node, /app/index.cjs]
         args:
           - "copy"
