@@ -10,7 +10,7 @@ spec:
   templates:
     - name: test-script
       script:
-        image: ghcr.io/linz/topo-imagery:v0.2.0-46-g5d8ee79
+        image: ghcr.io/linz/topo-imagery:v0.2.0-48-g20f5f34
         command: [python]
         source: |
           import sys

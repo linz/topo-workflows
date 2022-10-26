@@ -2,7 +2,7 @@
 apiVersion: argoproj.io/v1alpha1
 kind: WorkflowTemplate
 metadata:
-  name: imagery-standardising-v0.2.0-46
+  name: imagery-standardising-v0.2.0-48
   namespace: argo
 spec:
   parallelism: 20
@@ -56,7 +56,7 @@ spec:
             depends: "get-location && standardise-validate"
     - name: aws-list
       container:
-        image: ghcr.io/linz/argo-tasks:v1.0.0-20-gbb959c8
+        image: ghcr.io/linz/argo-tasks:v1.0.0-23-gea36c2f
         command: [node, /app/index.cjs]
         env:
           - name: AWS_ROLE_CONFIG_PATH
@@ -80,7 +80,7 @@ spec:
               path: /tmp/file_list.json
     - name: generate-ulid
       script:
-        image: ghcr.io/linz/topo-imagery:v0.2.0-46-g5d8ee79
+        image: ghcr.io/linz/topo-imagery:v0.2.0-48-g20f5f34
         command: [python]
         source: |
           import ulid
@@ -101,7 +101,7 @@ spec:
           - name: file
           - name: collection_id
       container:
-        image: ghcr.io/linz/topo-imagery:v0.2.0-46-g5d8ee79
+        image: ghcr.io/linz/topo-imagery:v0.2.0-48-g20f5f34
         resources:
           requests:
             memory: 7.8Gi
