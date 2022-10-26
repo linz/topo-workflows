@@ -2,7 +2,7 @@
 apiVersion: argoproj.io/v1alpha1
 kind: WorkflowTemplate
 metadata:
-  name: imagery-non-visual-qa-v0.2.0-46
+  name: imagery-non-visual-qa-v0.2.0-48
   namespace: argo
 spec:
   nodeSelector:
@@ -40,7 +40,7 @@ spec:
           - name: uri
           - name: include
       container:
-        image: ghcr.io/linz/argo-tasks:v1.0.0-20-gbb959c8
+        image: ghcr.io/linz/argo-tasks:v1.0.0-23-gea36c2f
         command: [node, /app/index.cjs]
         env:
           - name: AWS_ROLE_CONFIG_PATH
@@ -69,7 +69,7 @@ spec:
         parameters:
           - name: file
       container:
-        image: ghcr.io/linz/topo-imagery:v0.2.0-46-g5d8ee79
+        image: ghcr.io/linz/topo-imagery:v0.2.0-48-g20f5f34
         command:
           - python
           - "/app/scripts/non_visual_qa.py"
