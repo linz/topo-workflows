@@ -186,7 +186,7 @@ spec:
             "--include",
             ".tiff?$|.json$",
             "--group",
-            "500",
+            "30",
             "--output",
             "/tmp/file_list.json",
             "{{inputs.parameters.location}}",
@@ -204,6 +204,10 @@ spec:
           - name: file
       container:
         image: ghcr.io/linz/argo-tasks:v1.0.0-23-gea36c2f
+        resources:
+          requests:
+            memory: 7.8Gi
+            cpu: 2000m
         command: [node, /app/index.cjs]
         args:
           - "copy"
