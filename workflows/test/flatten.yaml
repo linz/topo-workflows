@@ -69,7 +69,7 @@ spec:
         parameters:
           - name: file
       container:
-        image: ghcr.io/linz/argo-tasks:v1.0.0-20-gbb959c8
+        image: ghcr.io/linz/argo-tasks:v1.0.0-23-gea36c2f
         resources:
           requests:
             memory: 7.8Gi
