@@ -23,6 +23,10 @@ spec:
           - "webp"
           - "lzw"
           - "gray_webp"
+      - name: title
+        value: ""
+      - name: description
+        value: ""
       - name: start_datetime
         value: "YYYY-MM-DD"
       - name: end_datetime
@@ -45,6 +49,41 @@ spec:
                   value: "{{tasks.generate-ulid.outputs.parameters.ulid}}"
             depends: "aws-list && generate-ulid"
             withParam: "{{tasks.aws-list.outputs.parameters.files}}"
+          - name: flatten
+            template: flatten
+            arguments:
+              parameters:
+                - name: location
+                  value: "{{tasks.get-location.outputs.parameters.location}}"
+            depends: "get-location && standardise-validate"
+          - name: flatten-copy
+            template: flatten-copy
+            arguments:
+              parameters:
+                - name: file
+                  value: "{{item}}"
+            depends: "flatten"
+            withParam: "{{tasks.flatten.outputs.parameters.files}}"
+          - name: create-collection
+            template: create-collection
+            arguments:
+              parameters:
+                - name: collection_id
+                  value: "{{tasks.generate-ulid.outputs.parameters.ulid}}"
+                - name: location
+                  value: "{{tasks.get-location.outputs.parameters.location}}"
+            depends: "flatten-copy"
+          - name: stac-validate
+            template: stac-validate
+            arguments:
+              parameters:
+                - name: location
+                  value: "{{tasks.get-location.outputs.parameters.location}}"
+              artifacts:
+                - name: stac-result
+                  raw:
+                    data: "{{tasks.stac-validate.outputs.result}}"
+            depends: "create-collection"
           - name: get-location
             template: get-location
           - name: create-config
@@ -53,7 +92,7 @@ spec:
                 - name: location
                   value: "{{tasks.get-location.outputs.parameters.location}}"
             template: create-config
-            depends: "get-location && standardise-validate"
+            depends: "get-location && flatten-copy"
     - name: aws-list
       container:
         image: ghcr.io/linz/argo-tasks:v1.0.0-23-gea36c2f
@@ -130,6 +169,92 @@ spec:
             path: /tmp/
             archive:
               none: {}
+    - name: flatten
+      inputs:
+        parameters:
+          - name: location
+      container:
+        image: ghcr.io/linz/argo-tasks:v1.0.0-23-gea36c2f
+        command: [node, /app/index.cjs]
+        env:
+          - name: AWS_ROLE_CONFIG_PATH
+            value: s3://linz-bucket-config/config-v2.json
+        args:
+          [
+            "flatten",
+            "--verbose",
+            "--include",
+            ".tiff?$|.json$",
+            "--group",
+            "30",
+            "--output",
+            "/tmp/file_list.json",
+            "{{inputs.parameters.location}}",
+          ]
+      outputs:
+        parameters:
+          - name: files
+            valueFrom:
+              path: /tmp/file_list.json
+    - name: flatten-copy
+      retryStrategy:
+        limit: "2"
+      inputs:
+        parameters:
+          - name: file
+      container:
+        image: ghcr.io/linz/argo-tasks:v1.0.0-23-gea36c2f
+        resources:
+          requests:
+            memory: 7.8Gi
+            cpu: 2000m
+        command: [node, /app/index.cjs]
+        args:
+          - "copy"
+          - "{{inputs.parameters.file}}"
+    - name: create-collection
+      retryStrategy:
+        limit: "2"
+      nodeSelector:
+        karpenter.sh/capacity-type: "spot"
+      inputs:
+        parameters:
+          - name: collection_id
+          - name: location
+      container:
+        image: ghcr.io/linz/topo-imagery:v0.2.0-48-g20f5f34
+        resources:
+          requests:
+            memory: 7.8Gi
+            cpu: 2000m
+        command:
+          - python
+          - "/app/scripts/collection_from_items.py"
+        args:
+          - "--uri"
+          - "{{inputs.parameters.location}}flat/"
+          - "--collection_id"
+          - "{{inputs.parameters.collection_id}}"
+          - "--title"
+          - "{{workflow.parameters.title}}"
+          - "--description"
+          - "{{workflow.parameters.description}}"
+    - name: stac-validate
+      inputs:
+        parameters:
+          - name: location
+      container:
+        image: ghcr.io/linz/argo-tasks:v1.0.0-23-gea36c2f
+        command: [node, /app/index.cjs]
+        env:
+          - name: AWS_ROLE_CONFIG_PATH
+            value: s3://linz-bucket-config/config-v2.json
+        args:
+          [
+            "stac-validate",
+            "--recursive",
+            "{{inputs.parameters.location}}flat/collection.json",
+          ]
     - name: get-location
       script:
         image: node:alpine
@@ -159,7 +284,7 @@ spec:
             "-V",
             "create-config",
             "--path",
-            "{{inputs.parameters.location}}",
+            "{{inputs.parameters.location}}flat/",
             "--output",
             "/tmp/url",
             "--commit",
