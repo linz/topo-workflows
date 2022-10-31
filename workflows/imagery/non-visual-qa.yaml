@@ -2,7 +2,7 @@
 apiVersion: argoproj.io/v1alpha1
 kind: WorkflowTemplate
 metadata:
-  name: imagery-non-visual-qa-v0.2.0-48
+  name: imagery-non-visual-qa-v0.2.0-49
   namespace: argo
 spec:
   nodeSelector:
