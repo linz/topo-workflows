@@ -1,0 +1,153 @@
+apiVersion: argoproj.io/v1alpha1
+kind: WorkflowTemplate
+metadata:
+  name: test-basemaps-imagery-import
+  namespace: argo
+spec:
+  parallelism: 20
+  nodeSelector:
+    karpenter.sh/capacity-type: "spot"
+  entrypoint: main
+  arguments:
+    parameters:
+      - name: source
+        value: "s3://linz-data-lake-raster-prod/aerial-imagery/new-zealand/tauranga-city_urban_2022_0.1m_RGB/"
+      - name: name
+        value: ""
+      - name: target
+        value: "linz-basemaps-staging"
+      - name: tile-matrix
+        value: "NZTM2000Quad/WebMercatorQuad"
+        enum:
+          - "NZTM2000Quad"
+          - "WebMercatorQuad"
+          - "NZTM2000Quad/WebMercatorQuad"
+      - name: cutline
+        value: ""
+      - name: blend
+        value: 0
+      - name: create_pull_request
+        value: false
+        enum:
+          - true
+          - false
+
+  volumes:
+  - name: secret-vol
+    secret:
+      secretName: github
+
+  templates:
+    - name: main
+      dag:
+        tasks:
+          - name: make-cog
+            template: make-cog
+            arguments:
+              parameters:
+                - name: source
+                  value: "{{workflow.parameters.source}}"
+                - name: name
+                  value: "{{workflow.parameters.name}}"
+                - name: target
+                  value: "{{workflow.parameters.target}}"
+                - name: tile-matrix
+                  value: "{{workflow.parameters.tile-matrix}}"
+                - name: cutline
+                  value: "{{workflow.parameters.cutline}}"
+                - name: blend
+                  value: "{{workflow.parameters.blend}}"
+          - name: cog
+            template: cog
+            arguments:
+              parameters:
+                - name: job
+                  value: "{{item.job}}"
+                - name: names
+                  value: "{{item.names}}"
+            depends: "make-cog"
+            withParam: "{{tasks.make-cog.outputs.parameters.jobs}}"
+          - name: create-pr
+            template: create-pr
+            arguments:
+              parameters:
+                - name: jobs
+                  value: "{{tasks.make-cog.outputs.parameters.jobs}}"
+            when: "{{workflow.parameters.create_pull_request}} == true" 
+            depends: "make-cog && cog"
+
+    - name: make-cog
+      inputs:
+        parameters:
+          - name: source
+          - name: name
+          - name: target
+          - name: tile-matrix
+          - name: cutline
+          - name: blend
+      container:
+        image: ghcr.io/linz/basemaps/cli:v6.36.0
+        command: [node, index.cjs]
+        env:
+          - name: AWS_ROLE_CONFIG_PATH
+            value: s3://linz-bucket-config/config.basemaps.json
+        args:
+          [
+            "-V",
+            "make-cog",
+            "--imagery",
+            "{{inputs.parameters.source}}",
+            "--name",
+            "{{inputs.parameters.name}}",
+            "--target",
+            "{{inputs.parameters.target}}",
+            "--tile-matrix",
+            "{{inputs.parameters.tile-matrix}}",
+            "--cutline",
+            "{{inputs.parameters.cutline}}",
+            "--blend",
+            "{{inputs.parameters.blend}}",
+            "--output",
+            "/tmp/jobs",
+          ]
+      outputs:
+        parameters:
+          - name: jobs
+            valueFrom:
+              path: "/tmp/jobs"
+    - name: cog
+      inputs:
+        parameters:
+          - name: job
+          - name: names
+      container:
+        image: ghcr.io/linz/basemaps/cli:v6.36.0
+        command: [node, index.cjs]
+        env:
+          - name: AWS_ROLE_CONFIG_PATH
+            value: s3://linz-bucket-config/config.basemaps.json
+          - name: AWS_ROLE_DURATION_HOURS
+            value: "1"
+        args:
+          [
+            "-V",
+            "cog",
+            "--job",
+            "{{inputs.parameters.job}}",
+            "--name",
+            "{{inputs.parameters.names}}",
+          ]
+
+    - name: create-pr
+      container:
+        image: alpine:3.7
+        command: [sh, -c]
+        args: ['
+          echo "secret from env: $GITHUB_TOKEN";
+        ']
+        env:
+          - name: GITHUB_TOKEN
+            valueFrom:
+              secretKeyRef:
+                name: github
+                key: github-token
