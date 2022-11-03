@@ -1,7 +1,7 @@
 apiVersion: argoproj.io/v1alpha1
 kind: WorkflowTemplate
 metadata:
-  name: test-basemaps-imagery-import
+  name: basemaps-imagery-import
   namespace: argo
 spec:
   parallelism: 20
@@ -11,11 +11,11 @@ spec:
   arguments:
     parameters:
       - name: source
-        value: "s3://linz-data-lake-raster-prod/aerial-imagery/new-zealand/tauranga-city_urban_2022_0.1m_RGB/"
+        value: ""
       - name: name
         value: ""
       - name: target
-        value: "linz-basemaps-staging"
+        value: "linz-basemaps"
       - name: tile-matrix
         value: "NZTM2000Quad/WebMercatorQuad"
         enum:
