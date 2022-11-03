@@ -39,7 +39,7 @@ spec:
         parameters:
           - name: layer
       container:
-        image: ghcr.io/linz/argo-tasks:v1.0.0-8-g53a2c88
+        image: ghcr.io/linz/argo-tasks:v1.0.0-26-gc81459e
         command: [node, index.cjs]
         env:
           - name: AWS_ROLE_CONFIG_PATH
