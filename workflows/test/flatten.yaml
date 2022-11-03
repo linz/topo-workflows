@@ -2,7 +2,7 @@
 apiVersion: argoproj.io/v1alpha1
 kind: WorkflowTemplate
 metadata:
-  name: test-flatten-v1.0.0-23
+  name: test-flatten-v1.0.0-26
   namespace: argo
 spec:
   nodeSelector:
@@ -40,7 +40,7 @@ spec:
           - name: uri
           - name: filter
       container:
-        image: ghcr.io/linz/argo-tasks:v1.0.0-23-gea36c2f
+        image: ghcr.io/linz/argo-tasks:v1.0.0-26-gc81459e
         command: [node, /app/index.cjs]
         env:
           - name: AWS_ROLE_CONFIG_PATH
@@ -69,7 +69,7 @@ spec:
         parameters:
           - name: file
       container:
-        image: ghcr.io/linz/argo-tasks:v1.0.0-23-gea36c2f
+        image: ghcr.io/linz/argo-tasks:v1.0.0-26-gc81459e
         resources:
           requests:
             memory: 7.8Gi

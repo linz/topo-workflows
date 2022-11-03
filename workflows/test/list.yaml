@@ -1,7 +1,7 @@
 apiVersion: argoproj.io/v1alpha1
 kind: Workflow
 metadata:
-  generateName: test-aws-list-
+  generateName: test-aws-list-v1.0.0-26
 spec:
   serviceAccountName: workflow-runner-sa
   entrypoint: main
@@ -27,7 +27,7 @@ spec:
           - name: uri
           - name: include
       container:
-        image: ghcr.io/linz/argo-tasks:v1.0.0-23-gea36c2f
+        image: ghcr.io/linz/argo-tasks:v1.0.0-26-gc81459e
         command: [node, /app/index.cjs]
         env:
           - name: AWS_ROLE_CONFIG_PATH
