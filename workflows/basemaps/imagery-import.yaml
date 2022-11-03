@@ -33,9 +33,9 @@ spec:
           - false
 
   volumes:
-  - name: secret-vol
-    secret:
-      secretName: github
+    - name: secret-vol
+      secret:
+        secretName: github
 
   templates:
     - name: main
@@ -71,9 +71,9 @@ spec:
             template: create-pr
             arguments:
               parameters:
-                - name: jobs
-                  value: "{{tasks.make-cog.outputs.parameters.jobs}}"
-            when: "{{workflow.parameters.create_pull_request}} == true" 
+                - name: layer
+                  value: "{{tasks.make-cog.outputs.parameters.layer}}"
+            when: "{{workflow.parameters.create_pull_request}} == true"
             depends: "make-cog && cog"
 
     - name: make-cog
@@ -86,11 +86,13 @@ spec:
           - name: cutline
           - name: blend
       container:
-        image: ghcr.io/linz/basemaps/cli:v6.36.0
+        image: ghcr.io/linz/basemaps/cli:v6.36.0-2-g37282456
         command: [node, index.cjs]
         env:
           - name: AWS_ROLE_CONFIG_PATH
             value: s3://linz-bucket-config/config.basemaps.json
+          - name: BASEMAPS_PUBLIC_URL
+            value: https://basemaps.linz.govt.nz
         args:
           [
             "-V",
@@ -107,21 +109,29 @@ spec:
             "{{inputs.parameters.cutline}}",
             "--blend",
             "{{inputs.parameters.blend}}",
+            "--aws",
             "--output",
-            "/tmp/jobs",
+            "/tmp/cog/",
           ]
       outputs:
         parameters:
           - name: jobs
             valueFrom:
-              path: "/tmp/jobs"
+              path: "/tmp/cog/jobs.json"
+          - name: layer
+            valueFrom:
+              path: "/tmp/cog/layer.json"
+          - name: urls
+            valueFrom:
+              path: "/tmp/cog/urls.json"
+
     - name: cog
       inputs:
         parameters:
           - name: job
           - name: names
       container:
-        image: ghcr.io/linz/basemaps/cli:v6.36.0
+        image: ghcr.io/linz/basemaps/cli:v6.36.0-2-g37282456
         command: [node, index.cjs]
         env:
           - name: AWS_ROLE_CONFIG_PATH
@@ -139,15 +149,29 @@ spec:
           ]
 
     - name: create-pr
+      inputs:
+        parameters:
+          - name: layer
       container:
-        image: alpine:3.7
-        command: [sh, -c]
-        args: ['
-          echo "secret from env: $GITHUB_TOKEN";
-        ']
+        image: ghcr.io/linz/basemaps/cli:v6.36.0-2-g37282456
+        command: [node, index.cjs]
         env:
-          - name: GITHUB_TOKEN
+          - name: GITHUB_API_TOKEN
             valueFrom:
               secretKeyRef:
                 name: github
                 key: github-token
+        args:
+          [
+            "-V",
+            "cog-pr",
+            "--layer",
+            "{{inputs.parameters.layer}}",
+            "--output",
+            "/tmp/pr",
+          ]
+      outputs:
+        parameters:
+          - name: pr
+            valueFrom:
+              path: "/tmp/pr"
