@@ -31,6 +31,11 @@ spec:
         value: "YYYY-MM-DD"
       - name: end_datetime
         value: "YYYY-MM-DD"
+      - name: copy-option
+        value: "--no-clobber"
+        enum:
+          - "--no-clobber"
+          - "--force"
   templates:
     - name: main
       dag:
@@ -95,8 +100,8 @@ spec:
             depends: "get-location && flatten-copy"
     - name: aws-list
       container:
-        image: ghcr.io/linz/argo-tasks:v1.0.0-26-gc81459e
-        command: [node, /app/index.cjs]
+        image: ghcr.io/linz/argo-tasks:v1.0.0-29-gcaa00e2
+        command: [node, /app/index.js]
         env:
           - name: AWS_ROLE_CONFIG_PATH
             value: s3://linz-bucket-config/config-v2.json
@@ -174,8 +179,8 @@ spec:
         parameters:
           - name: location
       container:
-        image: ghcr.io/linz/argo-tasks:v1.0.0-26-gc81459e
-        command: [node, /app/index.cjs]
+        image: ghcr.io/linz/argo-tasks:v1.0.0-29-gcaa00e2
+        command: [node, /app/index.js]
         env:
           - name: AWS_ROLE_CONFIG_PATH
             value: s3://linz-bucket-config/config-v2.json
@@ -203,15 +208,18 @@ spec:
         parameters:
           - name: file
       container:
-        image: ghcr.io/linz/argo-tasks:v1.0.0-26-gc81459e
+        image: ghcr.io/linz/argo-tasks:v1.0.0-29-gcaa00e2
         resources:
           requests:
             memory: 7.8Gi
             cpu: 2000m
-        command: [node, /app/index.cjs]
+        command: [node, /app/index.js]
         args:
-          - "copy"
-          - "{{inputs.parameters.file}}"
+          [
+            "copy",
+            "{{workflow.parameters.copy-option}}",
+            "{{inputs.parameters.file}}",
+          ]
     - name: create-collection
       retryStrategy:
         limit: "2"
@@ -245,7 +253,7 @@ spec:
           - name: location
       container:
         image: ghcr.io/linz/argo-tasks:v1.0.0-26-gc81459e
-        command: [node, /app/index.cjs]
+        command: [node, /app/index.js]
         env:
           - name: AWS_ROLE_CONFIG_PATH
             value: s3://linz-bucket-config/config-v2.json

@@ -39,8 +39,8 @@ spec:
         parameters:
           - name: layer
       container:
-        image: ghcr.io/linz/argo-tasks:v1.0.0-26-gc81459e
-        command: [node, index.cjs]
+        image: ghcr.io/linz/argo-tasks:v1.0.0-29-gcaa00e2
+        command: [node, index.js]
         env:
           - name: AWS_ROLE_CONFIG_PATH
             value: s3://linz-bucket-config/config.json
