@@ -24,9 +24,7 @@ spec:
           - "lzw"
           - "gray_webp"
       - name: title
-        value: ""
       - name: description
-        value: ""
       - name: start_datetime
         value: "YYYY-MM-DD"
       - name: end_datetime
