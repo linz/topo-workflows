@@ -25,7 +25,7 @@ spec:
         parameters:
           - name: location
       container:
-        image: ghcr.io/linz/basemaps/cli:v6.34.0-27-gd3c9adb8
+        image: ghcr.io/linz/basemaps/cli:v6.36.0-3-g59a3e7fa
         command: [node, index.cjs]
         env:
           - name: AWS_ROLE_CONFIG_PATH
