@@ -1,0 +1,177 @@
+apiVersion: argoproj.io/v1alpha1
+kind: WorkflowTemplate
+metadata:
+  name: basemaps-imagery-import
+  namespace: argo
+spec:
+  parallelism: 20
+  nodeSelector:
+    karpenter.sh/capacity-type: "spot"
+  entrypoint: main
+  arguments:
+    parameters:
+      - name: source
+        value: ""
+      - name: name
+        value: ""
+      - name: target
+        value: "linz-basemaps"
+      - name: tile-matrix
+        value: "NZTM2000Quad/WebMercatorQuad"
+        enum:
+          - "NZTM2000Quad"
+          - "WebMercatorQuad"
+          - "NZTM2000Quad/WebMercatorQuad"
+      - name: cutline
+        value: ""
+      - name: blend
+        value: 0
+      - name: create_pull_request
+        value: false
+        enum:
+          - true
+          - false
+
+  volumes:
+    - name: secret-vol
+      secret:
+        secretName: github
+
+  templates:
+    - name: main
+      dag:
+        tasks:
+          - name: make-cog
+            template: make-cog
+            arguments:
+              parameters:
+                - name: source
+                  value: "{{workflow.parameters.source}}"
+                - name: name
+                  value: "{{workflow.parameters.name}}"
+                - name: target
+                  value: "{{workflow.parameters.target}}"
+                - name: tile-matrix
+                  value: "{{workflow.parameters.tile-matrix}}"
+                - name: cutline
+                  value: "{{workflow.parameters.cutline}}"
+                - name: blend
+                  value: "{{workflow.parameters.blend}}"
+          - name: cog
+            template: cog
+            arguments:
+              parameters:
+                - name: job
+                  value: "{{item.job}}"
+                - name: names
+                  value: "{{item.names}}"
+            depends: "make-cog"
+            withParam: "{{tasks.make-cog.outputs.parameters.jobs}}"
+          - name: create-pr
+            template: create-pr
+            arguments:
+              parameters:
+                - name: layer
+                  value: "{{tasks.make-cog.outputs.parameters.layer}}"
+            when: "{{workflow.parameters.create_pull_request}} == true"
+            depends: "make-cog && cog"
+
+    - name: make-cog
+      inputs:
+        parameters:
+          - name: source
+          - name: name
+          - name: target
+          - name: tile-matrix
+          - name: cutline
+          - name: blend
+      container:
+        image: ghcr.io/linz/basemaps/cli:v6.36.0-2-g37282456
+        command: [node, index.cjs]
+        env:
+          - name: AWS_ROLE_CONFIG_PATH
+            value: s3://linz-bucket-config/config.basemaps.json
+          - name: BASEMAPS_PUBLIC_URL
+            value: https://basemaps.linz.govt.nz
+        args:
+          [
+            "-V",
+            "make-cog",
+            "--imagery",
+            "{{inputs.parameters.source}}",
+            "--name",
+            "{{inputs.parameters.name}}",
+            "--target",
+            "{{inputs.parameters.target}}",
+            "--tile-matrix",
+            "{{inputs.parameters.tile-matrix}}",
+            "--cutline",
+            "{{inputs.parameters.cutline}}",
+            "--blend",
+            "{{inputs.parameters.blend}}",
+            "--aws",
+            "--output",
+            "/tmp/cog/",
+          ]
+      outputs:
+        parameters:
+          - name: jobs
+            valueFrom:
+              path: "/tmp/cog/jobs.json"
+          - name: layer
+            valueFrom:
+              path: "/tmp/cog/layer.json"
+          - name: urls
+            valueFrom:
+              path: "/tmp/cog/urls.json"
+
+    - name: cog
+      inputs:
+        parameters:
+          - name: job
+          - name: names
+      container:
+        image: ghcr.io/linz/basemaps/cli:v6.36.0-2-g37282456
+        command: [node, index.cjs]
+        env:
+          - name: AWS_ROLE_CONFIG_PATH
+            value: s3://linz-bucket-config/config.basemaps.json
+          - name: AWS_ROLE_DURATION_HOURS
+            value: "1"
+        args:
+          [
+            "-V",
+            "cog",
+            "--job",
+            "{{inputs.parameters.job}}",
+            "--name",
+            "{{inputs.parameters.names}}",
+          ]
+
+    - name: create-pr
+      inputs:
+        parameters:
+          - name: layer
+      container:
+        image: ghcr.io/linz/basemaps/cli:v6.36.0-2-g37282456
+        command: [node, index.cjs]
+        env:
+          - name: GITHUB_API_TOKEN
+            valueFrom:
+              secretKeyRef:
+                name: github
+                key: github-token
+        args:
+          [
+            "-V",
+            "cog-pr",
+            "--layer",
+            "{{inputs.parameters.layer}}",
+            "--output",
+            "/tmp/pr",
+          ]
+      outputs:
+        parameters:
+          - name: pr
+            valueFrom:
+              path: "/tmp/pr"
