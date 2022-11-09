@@ -147,7 +147,7 @@ spec:
         resources:
           requests:
             memory: 7.8Gi
-            cpu: 2000m
+            cpu: 15000m
             ephemeral-storage: 3Gi
         volumeMounts:
           - name: ephemeral
