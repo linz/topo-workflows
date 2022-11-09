@@ -71,7 +71,7 @@ spec:
             template: create-collection
             arguments:
               parameters:
-                - name:
+                - name: collection-id
                   value: "{{tasks.generate-ulid.outputs.parameters.ulid}}"
                 - name: location
                   value: "{{tasks.get-location.outputs.parameters.location}}"
