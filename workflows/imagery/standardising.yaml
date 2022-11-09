@@ -25,9 +25,9 @@ spec:
           - "gray_webp"
       - name: title
       - name: description
-      - name: start_datetime
+      - name: start-datetime
         value: "YYYY-MM-DD"
-      - name: end_datetime
+      - name: end-datetime
         value: "YYYY-MM-DD"
       - name: copy-option
         value: "--no-clobber"
@@ -48,7 +48,7 @@ spec:
               parameters:
                 - name: file
                   value: "{{item}}"
-                - name: collection_id
+                - name: collection-id
                   value: "{{tasks.generate-ulid.outputs.parameters.ulid}}"
             depends: "aws-list && generate-ulid"
             withParam: "{{tasks.aws-list.outputs.parameters.files}}"
@@ -71,7 +71,7 @@ spec:
             template: create-collection
             arguments:
               parameters:
-                - name: collection_id
+                - name:
                   value: "{{tasks.generate-ulid.outputs.parameters.ulid}}"
                 - name: location
                   value: "{{tasks.get-location.outputs.parameters.location}}"
@@ -141,7 +141,7 @@ spec:
       inputs:
         parameters:
           - name: file
-          - name: collection_id
+          - name: collection-id
       container:
         image: ghcr.io/linz/topo-imagery:v0.2.0-52-g4032145
         resources:
@@ -160,12 +160,12 @@ spec:
           - "{{inputs.parameters.file}}"
           - "--preset"
           - "{{workflow.parameters.compression}}"
-          - "--start_datetime"
-          - "{{workflow.parameters.start_datetime}}"
-          - "--end_datetime"
-          - "{{workflow.parameters.end_datetime}}"
-          - "--collection_id"
-          - "{{inputs.parameters.collection_id}}"
+          - "--start-datetime"
+          - "{{workflow.parameters.start-datetime}}"
+          - "--end-datetime"
+          - "{{workflow.parameters.end-datetime}}"
+          - "--collection-id"
+          - "{{inputs.parameters.collection-id}}"
       outputs:
         artifacts:
           - name: standardised_tiffs
@@ -227,7 +227,7 @@ spec:
         karpenter.sh/capacity-type: "spot"
       inputs:
         parameters:
-          - name: collection_id
+          - name: collection-id
           - name: location
       container:
         image: ghcr.io/linz/topo-imagery:v0.2.0-52-g4032145
@@ -241,8 +241,8 @@ spec:
         args:
           - "--uri"
           - "{{inputs.parameters.location}}flat/"
-          - "--collection_id"
-          - "{{inputs.parameters.collection_id}}"
+          - "--collection-id"
+          - "{{inputs.parameters.collection-id}}"
           - "--title"
           - "{{workflow.parameters.title}}"
           - "--description"
