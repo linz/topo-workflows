@@ -2,7 +2,7 @@
 apiVersion: argoproj.io/v1alpha1
 kind: WorkflowTemplate
 metadata:
-  name: imagery-non-visual-qa-v0.2.0-52
+  name: imagery-non-visual-qa-v0.2.0-54
   namespace: argo
 spec:
   nodeSelector:
@@ -69,7 +69,7 @@ spec:
         parameters:
           - name: file
       container:
-        image: ghcr.io/linz/topo-imagery:v0.2.0-52-g4032145
+        image: ghcr.io/linz/topo-imagery:v0.2.0-54-g4d1e9f9
         command:
           - python
           - "/app/scripts/non_visual_qa.py"
