@@ -252,7 +252,7 @@ spec:
         parameters:
           - name: location
       container:
-        image: ghcr.io/linz/argo-tasks:v1.0.0-26-gc81459e
+        image: ghcr.io/linz/argo-tasks:v1.0.0-29-gcaa00e2
         command: [node, /app/index.js]
         env:
           - name: AWS_ROLE_CONFIG_PATH
