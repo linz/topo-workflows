@@ -86,7 +86,7 @@ spec:
           - name: cutline
           - name: blend
       container:
-        image: ghcr.io/linz/basemaps/cli:v6.36.0-2-g37282456
+        image: ghcr.io/linz/basemaps/cli:v6.36.0-6-gb92256b0
         command: [node, index.cjs]
         env:
           - name: AWS_ROLE_CONFIG_PATH
@@ -131,7 +131,7 @@ spec:
           - name: job
           - name: names
       container:
-        image: ghcr.io/linz/basemaps/cli:v6.36.0-2-g37282456
+        image: ghcr.io/linz/basemaps/cli:v6.36.0-6-gb92256b0
         command: [node, index.cjs]
         env:
           - name: AWS_ROLE_CONFIG_PATH
@@ -146,6 +146,7 @@ spec:
             "{{inputs.parameters.job}}",
             "--name",
             "{{inputs.parameters.names}}",
+            "--commit"
           ]
 
     - name: create-pr
@@ -153,7 +154,7 @@ spec:
         parameters:
           - name: layer
       container:
-        image: ghcr.io/linz/basemaps/cli:v6.36.0-2-g37282456
+        image: ghcr.io/linz/basemaps/cli:v6.36.0-6-gb92256b0
         command: [node, index.cjs]
         env:
           - name: GITHUB_API_TOKEN
