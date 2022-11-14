@@ -2,7 +2,7 @@
 apiVersion: argoproj.io/v1alpha1
 kind: WorkflowTemplate
 metadata:
-  name: basemaps-overview-create
+  name: basemaps-create-overview
   namespace: argo
 spec:
   entrypoint: main
@@ -28,27 +28,6 @@ spec:
                   value: "{{workflow.parameters.max-zoom}}"
                 - name: output
                   value: "{{workflow.parameters.output}}"
-          - name: tile-generator
-            template: tile-generator
-            arguments:
-              parameters:
-                - name: jobTile
-                  value: "{{item}}"
-                - name: files
-                  value: "{{tasks.create-overview.outputs.parameters.files}}"
-            depends: "create-overview"
-            withParam: "{{tasks.create-overview.outputs.parameters.jobTiles}}"
-          - name: get-location
-            template: get-location
-          - name: create-tar
-            template: create-tar
-            arguments:
-              parameters:
-                - name: location
-                  value: "{{tasks.get-location.outputs.parameters.location}}"
-                - name: output
-                  value: "{{workflow.parameters.output}}"
-            depends: "tile-generator && get-location"
     - name: create-overview
       inputs:
         parameters:
@@ -56,11 +35,11 @@ spec:
           - name: max-zoom
           - name: output
       container:
-        image: ghcr.io/linz/basemaps/cli:v6.36.0-4-g7c21ca0f
+        image: ghcr.io/linz/basemaps/cli:v6.36.0-6-gb92256b0
         command: [node, index.cjs]
         env:
           - name: AWS_ROLE_CONFIG_PATH
-            value: s3://linz-bucket-config/config.json
+            value: s3://linz-bucket-config/config.basemaps.json
         args:
           [
             "-V",
@@ -69,80 +48,6 @@ spec:
             "{{inputs.parameters.source}}",
             "--max-zoom",
             "{{inputs.parameters.max-zoom}}",
-            "--output",
-            "{{inputs.parameters.output}}",
-            "--job-output",
-            "/tmp/jobs/",
-            "--commit",
-          ]
-      outputs:
-        parameters:
-          - name: jobTiles
-            valueFrom:
-              path: "/tmp/jobs/jobTiles.json"
-          - name: files
-            valueFrom:
-              path: "/tmp/jobs/files.json"
-
-    - name: tile-generator
-      inputs:
-        parameters:
-          - name: jobTile
-          - name: files
-      container:
-        image: ghcr.io/linz/basemaps/cli:v6.36.0-2-g37282456
-        command: [node, index.cjs]
-        env:
-          - name: AWS_ROLE_CONFIG_PATH
-            value: s3://linz-bucket-config/config.json
-        args:
-          [
-            "-V",
-            "tile-generator",
-            "--job_tile",
-            "{{inputs.parameters.jobTile}}",
-            "--files",
-            "{{inputs.parameters.files}}",
-          ]
-      outputs:
-        artifacts:
-          - name: tiles
-            path: /tmp/
-            archive:
-              none: {}
-
-    - name: get-location
-      script:
-        image: node:alpine
-        command: [node]
-        source: |
-          const fs = require('fs');
-          const loc = JSON.parse(process.env['ARGO_TEMPLATE']).archiveLocation.s3;
-          const key = loc.key.replace('{{pod.name}}','');
-          fs.writeFileSync('/tmp/location', `s3://${loc.bucket}/${key}`);
-      outputs:
-        parameters:
-          - name: location
-            valueFrom:
-              path: "/tmp/location"
-
-    - name: create-tar
-      inputs:
-        parameters:
-          - name: location
-          - name: output
-      container:
-        image: ghcr.io/linz/basemaps/cli:v6.36.0-2-g37282456
-        command: [node, index.cjs]
-        env:
-          - name: AWS_ROLE_CONFIG_PATH
-            value: s3://linz-bucket-config/config.json
-        args:
-          [
-            "-V",
-            "create-tar",
-            "--path",
-            "{{inputs.parameters.location}}",
             "--output",
             "{{inputs.parameters.output}}",
           ]
