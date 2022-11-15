@@ -1,19 +1,19 @@
 ---
 apiVersion: argoproj.io/v1alpha1
-kind: WorkflowTemplate
+kind: Workflow
 metadata:
-  name: basemaps-create-overview
+  generateName: basemaps-create-overview
   namespace: argo
 spec:
   entrypoint: main
   arguments:
     parameters:
       - name: source
-        value: ""
+        value: "s3://linz-basemaps/3857/west-coast_rural_2016-17_0-3m/01ED83VT2T06B1FVXF9P6CCV8C/"
       - name: max-zoom
-        value: ""
+        value: "13"
       - name: output
-        value: ""
+        value: "s3://linz-basemaps-staging/2022-22/testing"
   templates:
     - name: main
       dag:
@@ -36,18 +36,21 @@ spec:
           - name: output
       container:
         image: ghcr.io/linz/basemaps/cli:v6.36.0-6-gb92256b0
-        command: [node, index.cjs]
+        resources:
+            requests:
+              cpu: 3000m
+        command: ["sleep", "3600"]
         env:
           - name: AWS_ROLE_CONFIG_PATH
             value: s3://linz-bucket-config/config.basemaps.json
-        args:
-          [
-            "-V",
-            "create-overview",
-            "--source",
-            "{{inputs.parameters.source}}",
-            "--max-zoom",
-            "{{inputs.parameters.max-zoom}}",
-            "--output",
-            "{{inputs.parameters.output}}",
-          ]
+        # args:
+        #   [
+        #     "-V",
+        #     "create-overview",
+        #     "--source",
+        #     "{{inputs.parameters.source}}",
+        #     "--max-zoom",
+        #     "{{inputs.parameters.max-zoom}}",
+        #     "--output",
+        #     "{{inputs.parameters.output}}",
+        #   ]
