@@ -5,6 +5,7 @@ metadata:
   name: publish-imagery-v1.0.0-26
   namespace: argo
 spec:
+  parallelism: 50
   nodeSelector:
     karpenter.sh/capacity-type: "spot"
   entrypoint: main
@@ -57,7 +58,9 @@ spec:
             "--include",
             "{{inputs.parameters.include}}",
             "--group",
-            "30",
+            "1000",
+            "--group-size",
+            "100Gi",
             "--output",
             "/tmp/file_list.json",
             "--target",
