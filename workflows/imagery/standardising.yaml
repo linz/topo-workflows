@@ -242,7 +242,7 @@ spec:
           - name: collection-id
           - name: location
       container:
-        image: ghcr.io/linz/topo-imagery:v0.2.0-54-g4d1e9f9
+        image: ghcr.io/linz/topo-imagery:v0.2.0-58-g7e547d6
         resources:
           requests:
             memory: 7.8Gi
@@ -259,6 +259,8 @@ spec:
           - "{{workflow.parameters.title}}"
           - "--description"
           - "{{workflow.parameters.description}}"
+          - "--concurrency"
+          - "25"
     - name: stac-validate
       inputs:
         parameters:
