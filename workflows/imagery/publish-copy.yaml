@@ -17,6 +17,11 @@ spec:
         value: "s3://linz-imagery-staging/test/sample_target/"
       - name: include
         value: ".tiff?$|.json$|.tfw$"
+      - name: copy-option
+        value: "--no-clobber"
+        enum:
+          - "--no-clobber"
+          - "--force"
   templates:
     - name: main
       dag:
@@ -89,5 +94,8 @@ spec:
           - name: AWS_ROLE_CONFIG_PATH
             value: s3://linz-bucket-config/config-write.imagery.json,s3://linz-bucket-config/config.json
         args:
-          - "copy"
-          - "{{inputs.parameters.file}}"
+          [
+            "copy",
+            "{{workflow.parameters.copy-option}}",
+            "{{inputs.parameters.file}}",
+          ]
