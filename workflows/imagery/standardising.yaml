@@ -2,10 +2,10 @@
 apiVersion: argoproj.io/v1alpha1
 kind: WorkflowTemplate
 metadata:
-  name: imagery-standardising-v0.2.0-54
+  name: imagery-standardising-v0.2.0-56
   namespace: argo
 spec:
-  parallelism: 20
+  parallelism: 50
   nodeSelector:
     karpenter.sh/capacity-type: "spot"
   entrypoint: main
@@ -23,7 +23,7 @@ spec:
           - "5000"
           - "10000"
       - name: group
-        value: "10"
+        value: "50"
       - name: compression
         value: "webp"
         enum:
@@ -105,11 +105,11 @@ spec:
             depends: "get-location && flatten-copy"
     - name: aws-list
       container:
-        image: ghcr.io/linz/argo-tasks:v1.0.0-29-gcaa00e2
+        image: ghcr.io/linz/argo-tasks:v1.0.0-40-g10e90df
         command: [node, /app/index.js]
         env:
           - name: AWS_ROLE_CONFIG_PATH
-            value: s3://linz-bucket-config/config-v2.json
+            value: s3://linz-bucket-config/config.json
         args:
           [
             "list",
@@ -129,7 +129,7 @@ spec:
               path: /tmp/file_list.json
     - name: generate-ulid
       script:
-        image: ghcr.io/linz/topo-imagery:v0.2.0-54-g4d1e9f9
+        image: ghcr.io/linz/topo-imagery:v0.2.0-56-g786b11e
         command: [python]
         source: |
           import ulid
@@ -150,7 +150,7 @@ spec:
           - name: file
           - name: collection-id
       container:
-        image: ghcr.io/linz/topo-imagery:v0.2.0-54-g4d1e9f9
+        image: ghcr.io/linz/topo-imagery:v0.2.0-56-g786b11e
         resources:
           requests:
             memory: 7.8Gi
@@ -186,11 +186,11 @@ spec:
         parameters:
           - name: location
       container:
-        image: ghcr.io/linz/argo-tasks:v1.0.0-29-gcaa00e2
+        image: ghcr.io/linz/argo-tasks:v1.0.0-40-g10e90df
         command: [node, /app/index.js]
         env:
           - name: AWS_ROLE_CONFIG_PATH
-            value: s3://linz-bucket-config/config-v2.json
+            value: s3://linz-bucket-config/config.json
         args:
           [
             "flatten",
@@ -203,6 +203,8 @@ spec:
             "100Gi",
             "--output",
             "/tmp/file_list.json",
+            "--target",
+            "{{inputs.parameters.location}}flat/",
             "{{inputs.parameters.location}}",
           ]
       outputs:
@@ -217,7 +219,7 @@ spec:
         parameters:
           - name: file
       container:
-        image: ghcr.io/linz/argo-tasks:v1.0.0-29-gcaa00e2
+        image: ghcr.io/linz/argo-tasks:v1.0.0-40-g10e90df
         resources:
           requests:
             memory: 7.8Gi
@@ -261,11 +263,11 @@ spec:
         parameters:
           - name: location
       container:
-        image: ghcr.io/linz/argo-tasks:v1.0.0-29-gcaa00e2
+        image: ghcr.io/linz/argo-tasks:v1.0.0-40-g10e90df
         command: [node, /app/index.js]
         env:
           - name: AWS_ROLE_CONFIG_PATH
-            value: s3://linz-bucket-config/config-v2.json
+            value: s3://linz-bucket-config/config.json
         args:
           [
             "stac-validate",
