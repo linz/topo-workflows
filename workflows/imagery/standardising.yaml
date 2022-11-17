@@ -16,6 +16,7 @@ spec:
       - name: include
         value: ".tiff?$"
       - name: scale
+        value: "500"
         enum:
           - "500"
           - "1000"
