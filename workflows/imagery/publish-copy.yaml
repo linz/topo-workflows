@@ -2,18 +2,21 @@
 apiVersion: argoproj.io/v1alpha1
 kind: WorkflowTemplate
 metadata:
-  name: test-flatten-v1.0.0-40
+  name: publish-copy-v1.0.0-40
   namespace: argo
 spec:
+  parallelism: 50
   nodeSelector:
     karpenter.sh/capacity-type: "spot"
   entrypoint: main
   arguments:
     parameters:
-      - name: uri
-        value: ""
-      - name: filter
-        value: ".tiff?$|.json$"
+      - name: source
+        value: "s3://linz-imagery-staging/test/sample/"
+      - name: target
+        value: "s3://linz-imagery-staging/test/sample_target/"
+      - name: include
+        value: ".tiff?$|.json$|.tfw$"
       - name: copy-option
         value: "--no-clobber"
         enum:
@@ -23,27 +26,30 @@ spec:
     - name: main
       dag:
         tasks:
-          - name: flatten
-            template: flatten
+          - name: create-manifest
+            template: create-manifest
             arguments:
               parameters:
-                - name: uri
-                  value: "{{workflow.parameters.uri}}"
-                - name: filter
-                  value: "{{workflow.parameters.filter}}"
-          - name: flatten-copy
-            template: flatten-copy
+                - name: source
+                  value: "{{workflow.parameters.source}}"
+                - name: target
+                  value: "{{workflow.parameters.target}}"
+                - name: include
+                  value: "{{workflow.parameters.include}}"
+          - name: copy
+            template: copy
             arguments:
               parameters:
                 - name: file
                   value: "{{item}}"
-            depends: "flatten"
-            withParam: "{{tasks.flatten.outputs.parameters.files}}"
-    - name: flatten
+            depends: "create-manifest"
+            withParam: "{{tasks.create-manifest.outputs.parameters.files}}"
+    - name: create-manifest
       inputs:
         parameters:
-          - name: uri
-          - name: filter
+          - name: source
+          - name: target
+          - name: include
       container:
         image: ghcr.io/linz/argo-tasks:v1.0.0-40-g10e90df
         command: [node, /app/index.js]
@@ -52,24 +58,26 @@ spec:
             value: s3://linz-bucket-config/config.json
         args:
           [
-            "flatten",
+            "create-manifest",
             "--verbose",
             "--include",
-            "{{inputs.parameters.filter}}",
+            "{{inputs.parameters.include}}",
             "--group",
             "1000",
             "--group-size",
             "100Gi",
             "--output",
             "/tmp/file_list.json",
-            "{{inputs.parameters.uri}}",
+            "--target",
+            "{{inputs.parameters.target}}",
+            "{{inputs.parameters.source}}",
           ]
       outputs:
         parameters:
           - name: files
             valueFrom:
               path: /tmp/file_list.json
-    - name: flatten-copy
+    - name: copy
       retryStrategy:
         limit: "2"
       inputs:
@@ -82,6 +90,9 @@ spec:
             memory: 7.8Gi
             cpu: 2000m
         command: [node, /app/index.js]
+        env:
+          - name: AWS_ROLE_CONFIG_PATH
+            value: s3://linz-bucket-config/config-write.imagery.json,s3://linz-bucket-config/config.json
         args:
           [
             "copy",

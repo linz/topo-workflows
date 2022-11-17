@@ -98,11 +98,11 @@ spec:
             depends: "get-location && flatten-copy"
     - name: aws-list
       container:
-        image: ghcr.io/linz/argo-tasks:v1.0.0-29-gcaa00e2
+        image: ghcr.io/linz/argo-tasks:v1.0.0-40-g10e90df
         command: [node, /app/index.js]
         env:
           - name: AWS_ROLE_CONFIG_PATH
-            value: s3://linz-bucket-config/config-v2.json
+            value: s3://linz-bucket-config/config.json
         args:
           [
             "list",
@@ -177,11 +177,11 @@ spec:
         parameters:
           - name: location
       container:
-        image: ghcr.io/linz/argo-tasks:v1.0.0-29-gcaa00e2
+        image: ghcr.io/linz/argo-tasks:v1.0.0-40-g10e90df
         command: [node, /app/index.js]
         env:
           - name: AWS_ROLE_CONFIG_PATH
-            value: s3://linz-bucket-config/config-v2.json
+            value: s3://linz-bucket-config/config.json
         args:
           [
             "flatten",
@@ -194,6 +194,8 @@ spec:
             "100Gi",
             "--output",
             "/tmp/file_list.json",
+            "--target",
+            "{{inputs.parameters.location}}flat/",
             "{{inputs.parameters.location}}",
           ]
       outputs:
@@ -208,7 +210,7 @@ spec:
         parameters:
           - name: file
       container:
-        image: ghcr.io/linz/argo-tasks:v1.0.0-29-gcaa00e2
+        image: ghcr.io/linz/argo-tasks:v1.0.0-40-g10e90df
         resources:
           requests:
             memory: 7.8Gi
@@ -252,11 +254,11 @@ spec:
         parameters:
           - name: location
       container:
-        image: ghcr.io/linz/argo-tasks:v1.0.0-29-gcaa00e2
+        image: ghcr.io/linz/argo-tasks:v1.0.0-40-g10e90df
         command: [node, /app/index.js]
         env:
           - name: AWS_ROLE_CONFIG_PATH
-            value: s3://linz-bucket-config/config-v2.json
+            value: s3://linz-bucket-config/config.json
         args:
           [
             "stac-validate",
