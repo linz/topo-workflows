@@ -2,7 +2,7 @@
 apiVersion: argoproj.io/v1alpha1
 kind: WorkflowTemplate
 metadata:
-  name: publish-imagery-v1.0.0-26
+  name: publish-copy-v1.0.0-40
   namespace: argo
 spec:
   parallelism: 50
@@ -16,7 +16,7 @@ spec:
       - name: target
         value: ""
       - name: include
-        value: ".tiff?$|.json$"
+        value: ".tiff?$|.json$|.tfw$"
   templates:
     - name: main
       dag:
@@ -46,8 +46,8 @@ spec:
           - name: target
           - name: include
       container:
-        image: ghcr.io/linz/argo-tasks:v1.0.0-26-gc81459e
-        command: [node, /app/index.cjs]
+        image: ghcr.io/linz/argo-tasks:v1.0.0-40-g10e90df
+        command: [node, /app/index.js]
         env:
           - name: AWS_ROLE_CONFIG_PATH
             value: s3://linz-bucket-config/config.json
@@ -79,12 +79,12 @@ spec:
         parameters:
           - name: file
       container:
-        image: ghcr.io/linz/argo-tasks:v1.0.0-26-gc81459e
+        image: ghcr.io/linz/argo-tasks:v1.0.0-40-g10e90df
         resources:
           requests:
             memory: 7.8Gi
             cpu: 2000m
-        command: [node, /app/index.cjs]
+        command: [node, /app/index.js]
         env:
           - name: AWS_ROLE_CONFIG_PATH
             value: s3://linz-bucket-config/config-write.imagery.json,s3://linz-bucket-config/config.json
