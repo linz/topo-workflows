@@ -2,7 +2,7 @@
 apiVersion: argoproj.io/v1alpha1
 kind: WorkflowTemplate
 metadata:
-  name: imagery-standardising-v0.2.0-56
+  name: imagery-standardising-v0.2.0-58
   namespace: argo
 spec:
   parallelism: 50
@@ -15,6 +15,14 @@ spec:
         value: "s3://linz-imagery-staging/test/sample/"
       - name: include
         value: ".tiff?$"
+      - name: scale
+        value: "500"
+        enum:
+          - "500"
+          - "1000"
+          - "2000"
+          - "5000"
+          - "10000"
       - name: group
         value: "50"
       - name: compression
@@ -122,7 +130,7 @@ spec:
               path: /tmp/file_list.json
     - name: generate-ulid
       script:
-        image: ghcr.io/linz/topo-imagery:v0.2.0-56-g786b11e
+        image: ghcr.io/linz/topo-imagery:v0.2.0-58-g7e547d6
         command: [python]
         source: |
           import ulid
@@ -143,7 +151,7 @@ spec:
           - name: file
           - name: collection-id
       container:
-        image: ghcr.io/linz/topo-imagery:v0.2.0-56-g786b11e
+        image: ghcr.io/linz/topo-imagery:v0.2.0-58-g7e547d6
         resources:
           requests:
             memory: 7.8Gi
@@ -158,6 +166,8 @@ spec:
         args:
           - "--source"
           - "{{inputs.parameters.file}}"
+          - "--scale"
+          - "{{workflow.parameters.scale}}"
           - "--preset"
           - "{{workflow.parameters.compression}}"
           - "--start-datetime"
