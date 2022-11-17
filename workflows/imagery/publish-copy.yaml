@@ -12,9 +12,9 @@ spec:
   arguments:
     parameters:
       - name: source
-        value: ""
+        value: "s3://linz-imagery-staging/test/sample/"
       - name: target
-        value: ""
+        value: "s3://linz-imagery-staging/test/sample_target/"
       - name: include
         value: ".tiff?$|.json$|.tfw$"
   templates:
