@@ -91,7 +91,7 @@ spec:
           - name: blend
           - name: aligned-level
       container:
-        image: ghcr.io/linz/basemaps/cli:v6.36.0-20-gdae0e9be
+        image: ghcr.io/linz/basemaps/cli:v6.36.0-24-gac3ef20c
         command: [node, index.cjs]
         env:
           - name: AWS_ROLE_CONFIG_PATH
@@ -138,7 +138,7 @@ spec:
           - name: job
           - name: names
       container:
-        image: ghcr.io/linz/basemaps/cli:v6.36.0-6-gb92256b0
+        image: ghcr.io/linz/basemaps/cli:v6.36.0-24-gac3ef20c
         resources:
           requests:
             memory: 7.8Gi
@@ -147,6 +147,8 @@ spec:
         env:
           - name: AWS_ROLE_CONFIG_PATH
             value: s3://linz-bucket-config/config.basemaps.json
+          - name: BASEMAPS_PUBLIC_URL
+            value: https://basemaps.linz.govt.nz
           - name: AWS_ROLE_DURATION_HOURS
             value: "1"
         args:
@@ -165,7 +167,7 @@ spec:
         parameters:
           - name: layer
       container:
-        image: ghcr.io/linz/basemaps/cli:v6.36.0-6-gb92256b0
+        image: ghcr.io/linz/basemaps/cli:v6.36.0-24-gac3ef20c
         command: [node, index.cjs]
         env:
           - name: GITHUB_API_TOKEN
