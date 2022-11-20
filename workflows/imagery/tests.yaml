@@ -1,7 +1,7 @@
 apiVersion: argoproj.io/v1alpha1
 kind: Workflow
 metadata:
-  generateName: topo-imagery-test-script-
+  generateName: test-topo-imagery-
 spec:
   serviceAccountName: workflow-runner-sa
   podGC:
@@ -10,7 +10,7 @@ spec:
   templates:
     - name: test-script
       script:
-        image: ghcr.io/linz/topo-imagery:v0.2.0-54-g4d1e9f9
+        image: ghcr.io/linz/topo-imagery:v0.2.0-58-g7e547d6
         command: [python]
         source: |
           import sys
