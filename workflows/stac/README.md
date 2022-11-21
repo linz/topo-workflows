@@ -1,4 +1,4 @@
-# Topo Workflows - STAC - Stac Validate
+# Topo Workflows - STAC - stac-validate
 
 Validate STAC Collections and Items against [STAC](https://stacspec.org/) schemas and STAC Extension schemas.
 Uses the [argo-tasks](https://github.com/linz/argo-tasks#stac-validate) container `stac-validate` command.
@@ -9,9 +9,9 @@ Uses the [argo-tasks](https://github.com/linz/argo-tasks#stac-validate) containe
 | -------------- | ---- | ------------------------------------------------------------ | ------------------------------------ |
 | stac-file-path | str  | s3://linz-imagery-staging/test/stac-validate/collection.json | The URIs (paths) to the STAC file(s) |
 
-The STAC Validate workflow has one input parameter `stac-file-path`, the full AWS S3 file path(s) to be validated. Separate multiple files with a space. Access permissions are controlled by the [Bucket Sharing Config](https://github.com/linz/topo-aws-infrastructure/blob/master/src/stacks/bucket.sharing.ts).
+The STAC Validate workflow has one input parameter `stac-file-path`, the full AWS S3 file path(s) to be validated. Separate multiple files with a space. Access permissions are controlled by the [Bucket Sharing Config](https://github.com/linz/topo-aws-infrastructure/blob/master/src/stacks/bucket.sharing.ts) which gives Argo Workflows access to the S3 buckets we use.
 
-The flag `--recursive` is specified inside the STAC Validate WorkflowTemplate, so any linked files will also be validated. If you enter the path to a STAC Collection, e.g. `s3://linz-imagery-staging/test/stac-validate/collection.json` then linked STAC items will also be validated.
+The flag `--recursive` is specified inside the STAC Validate WorkflowTemplate, so any linked files will also be validated. If the path is a STAC Collection, e.g. `s3://linz-imagery-staging/test/stac-validate/collection.json` then linked STAC items will also be validated.
 
 ## Workflow Outputs
 
