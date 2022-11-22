@@ -2,7 +2,7 @@
 apiVersion: argoproj.io/v1alpha1
 kind: WorkflowTemplate
 metadata:
-  name: imagery-standardising-v0.2.0-58
+  name: test-values-imagery-standardising-v0.2.0-58
   namespace: argo
 spec:
   parallelism: 50
@@ -32,7 +32,9 @@ spec:
           - "lzw"
           - "gray_webp"
       - name: title
+        value: "*Region* *Scale* *Urban/Rural* Aerial Photos (*year/s*)"
       - name: description
+        value: "Orthophotography within the..."
       - name: start-datetime
         value: "YYYY-MM-DD"
       - name: end-datetime
