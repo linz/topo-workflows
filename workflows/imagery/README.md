@@ -46,8 +46,18 @@ In addition, a basemaps link is produced enabling visual QA.
 
 If non visual QA fails the logs explain the failure, for example:
 
-```
-{"file": "/tmp/2022_CG10_500_080038.tiff", "errors": [{"type": "nodata", "message": "noDataValue not set"}], "level": 30, "time": 1668659399515, "v": 1, "pid": 28, "hostname": "imagery-standardising-v0.2.0-56-k4hxt-541810038", "id": "01GJ1XHSFRD23RTVEQ8SQFFBP2", "msg": "non_visual_qa_errors"}
+```json
+{
+  "file": "/tmp/2022_CG10_500_080038.tiff",
+  "errors": [{ "type": "nodata", "message": "noDataValue not set" }],
+  "level": 30,
+  "time": 1668659399515,
+  "v": 1,
+  "pid": 28,
+  "hostname": "imagery-standardising-v0.2.0-56-k4hxt-541810038",
+  "id": "01GJ1XHSFRD23RTVEQ8SQFFBP2",
+  "msg": "non_visual_qa_errors"
+}
 ```
 
 ### Create Config
