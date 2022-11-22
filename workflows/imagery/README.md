@@ -27,10 +27,6 @@ In addition, a basemaps link is produced enabling visual QA.
 
 ### Example Input Parameters
 
-"source
-"title": "Bay of Plenty 0.2m Aerial Photos (2021-2022)",
-"description": "Bay of Plenty 0.2m Rural Aerial Photos",
-
 | Parameter      | Value                                                                               |
 | -------------- | ----------------------------------------------------------------------------------- |
 | source         | s3://linz-workflow-artifacts/2022-11/09-imagery-standardising-v0.2.0-52-v46s6/flat/ |
