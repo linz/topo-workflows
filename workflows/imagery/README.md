@@ -94,3 +94,50 @@ Validates the collection.json and all associated items.
 Creates a config of the imagery files within the `flat` directory and outputs a basemaps link for Visual QA.
 
 # Publish-copy
+
+## Workflow Description
+
+Copy files from one S3 location to another. This workflow is intended to be used after standardising and QA to copy:
+
+- from `linz-workflow-artifacts` "flattened" directory to `linz-imagery`
+- from `linz-imagery-uploads` to `linz-imagery-staging` to store a copy of the uploaded RGBI imagery.
+
+```mermaid
+graph TD;
+    create-manifest-->copy;
+```
+
+This is a two stage workflow that uses the [argo-tasks](https://github.com/linz/argo-tasks#create-manifest) container `create-manifest` (list of source and target file paths) and `copy` (the actual file copy) commands.
+
+Access permissions are controlled by the [Bucket Sharing Config](https://github.com/linz/topo-aws-infrastructure/blob/master/src/stacks/bucket.sharing.ts) which gives Argo Workflows access to the S3 buckets we use.
+
+## Workflow Input Parameters
+
+| Parameter   | Type  | Default                                       | Description                                                                                                                     |
+| ----------- | ----- | --------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------- |
+| source      | str   | s3://linz-imagery-staging/test/sample/        | The URIs (paths) to the s3 source location                                                                                      |
+| target      | str   | s3://linz-imagery-staging/test/sample_target/ | The URIs (paths) to the s3 target location                                                                                      |
+| include     | regex | .tiff?\$\|.json\$\|.tfw\$                     | The file types from within the source path to include in the copy.                                                              |
+| copy-option | enum  | --no-clobber                                  | `--no-clobber` will not overwrite files if the name and the file size in bytes are the same. `--force` will overwrite all files |
+
+## Examples
+
+### Publish:
+
+**source:** `s3://linz-workflow-artifacts/2022-11/15-imagery-standardising-v0.2.0-56-x7699/flat/`
+
+**target:** `s3://linz-imagery/southland/invercargill_2022_0.1m/rgb/2193/`
+
+**include:** Although only `.tiff` and `.json` files are required, there should not be any `.tfw` files in with the standardised imagery, so this option can be left at the default.
+
+**copy-option:** `--no-clobber`
+
+### Backup RGBI:
+
+**source:** `s3://linz-imagery-upload/Invercargill2022_Pgrm3016/OutputPGRM3016-InvercargillRural2022/tifs-RGBI/`
+
+**target:** `s3://linz-imagery-staging/RGBi4/invercargill_urban_2022_0.1m/`
+
+**include:** Although only `.tif(f)` and `.tfw` files are required, there should not be any `.json` files in with the uploaded imagery, so this option can be left at the default.
+
+**copy-option:** `--no-clobber`
