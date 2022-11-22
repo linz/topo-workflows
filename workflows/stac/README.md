@@ -36,11 +36,7 @@ Example failure messages:
 Example success messages:
 
 ```json
-{"level":30,"time":1668995442613,"pid":16,"hostname":"stac-validate-v1.0.0-41-7mwdg-stac-validate-1503824974","id":"01GJBY2JNGWJHSKG71TXD9HCA2","type"
-:"Feature","path":"s3://linz-imagery-staging/test/stac-validate/item2.json","sch":"https://stac.linz.govt.nz/v0.0.15/scanning/schema.json","msg":"Vali
-dation:Start"}
-{"level":30,"time":1668995442614,"pid":16,"hostname":"stac-validate-v1.0.0-41-7mwdg-stac-validate-1503824974","id":"01GJBY2JNGWJHSKG71TXD9HCA2","type"
-:"Feature","path":"s3://linz-imagery-staging/test/stac-validate/item2.json","valid":true,"msg":"Validation:Done:Ok"}
-{"level":30,"time":1668995442614,"pid":16,"hostname":"stac-validate-v1.0.0-41-7mwdg-stac-validate-1503824974","id":"01GJBY2JNGWJHSKG71TXD9HCA2","msg":
-"StacValidation:Done:Ok"}
+{"level":30,"time":1668995442613,"pid":16,"hostname":"stac-validate-v1.0.0-41-7mwdg-stac-validate-1503824974","id":"01GJBY2JNGWJHSKG71TXD9HCA2","type":"Feature","path":"s3://linz-imagery-staging/test/stac-validate/item2.json","sch":"https://stac.linz.govt.nz/v0.0.15/scanning/schema.json","msg":"Validation:Start"}
+{"level":30,"time":1668995442614,"pid":16,"hostname":"stac-validate-v1.0.0-41-7mwdg-stac-validate-1503824974","id":"01GJBY2JNGWJHSKG71TXD9HCA2","type":"Feature","path":"s3://linz-imagery-staging/test/stac-validate/item2.json","valid":true,"msg":"Validation:Done:Ok"}
+{"level":30,"time":1668995442614,"pid":16,"hostname":"stac-validate-v1.0.0-41-7mwdg-stac-validate-1503824974","id":"01GJBY2JNGWJHSKG71TXD9HCA2","msg":"StacValidation:Done:Ok"}
 ```
