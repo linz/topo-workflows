@@ -1,4 +1,8 @@
-# Topo Workflows - STAC - stac-validate
+# Contents:
+
+- [stac-validate](#stac-validate)
+
+# stac-validate
 
 Validate STAC Collections and Items against [STAC](https://stacspec.org/) schemas and STAC Extension schemas.
 Uses the [argo-tasks](https://github.com/linz/argo-tasks#stac-validate) container `stac-validate` command.
