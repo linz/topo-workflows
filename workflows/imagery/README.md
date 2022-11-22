@@ -12,18 +12,18 @@ In addition, a basemaps link is produced enabling visual QA.
 
 ## Workflow Input Parameters
 
-| Parameter      | Type  | Default                                                         | Description                                                                                                                      |
-| -------------- | ----- | --------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------- |
-| source         | str   | s3://linz-imagery-staging/test/sample                           | the uri (path) to the input tiffs                                                                                                |
-| include        | regex | .tiff?$                                                         | The file types from within the source path to include in standardising                                                           |
-| scale          | enum  | 500                                                             | The scale of the tiffs                                                                                                           |
-| group          | int   | 50                                                              | The number of files to grouped into the pods (testing has reccommended using 50 for large datasets).                             |
-| compression    | enum  | webp                                                            | Standardised file format                                                                                                         |
-| title          | str   | \*Region\* \*Scale\* \*Urban/Rural\* Aerial Photos (\*year/s\*) | Collection title                                                                                                                 |
-| description    | str   | Orthophotography within the...                                  | Collection description                                                                                                           |
-| start-datetime | str   | YYYY-MM-DD                                                      | Imagery start date (flown from), must be in default formatting                                                                   |
-| end-datetime   | str   | YYYY-MM-DD                                                      | Imagery end date (flown to), must be in default formatting                                                                       |
-| copy-option    | enum  | --no-clobber                                                    | `--no-clobber` will not overwrite files if the name and the file size in bytes are the same. `--force` will overwrite all files. |
+| Parameter      | Type  | Default                                            | Description                                                                                                                      |
+| -------------- | ----- | -------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------- |
+| source         | str   | s3://linz-imagery-staging/test/sample              | the uri (path) to the input tiffs                                                                                                |
+| include        | regex | .tiff?$                                            | The file types from within the source path to include in standardising                                                           |
+| scale          | enum  | 500                                                | The scale of the tiffs                                                                                                           |
+| group          | int   | 50                                                 | The number of files to grouped into the pods (testing has reccommended using 50 for large datasets).                             |
+| compression    | enum  | webp                                               | Standardised file format                                                                                                         |
+| title          | str   | \*Region\* \*Scale\* Aerial Photos (\*year/s\*)    | Collection title                                                                                                                 |
+| description    | str   | \*Region\* \*Scale\* \*Urban/Rural\* Aerial Photos | Collection description                                                                                                           |
+| start-datetime | str   | YYYY-MM-DD                                         | Imagery start date (flown from), must be in default formatting                                                                   |
+| end-datetime   | str   | YYYY-MM-DD                                         | Imagery end date (flown to), must be in default formatting                                                                       |
+| copy-option    | enum  | --no-clobber                                       | `--no-clobber` will not overwrite files if the name and the file size in bytes are the same. `--force` will overwrite all files. |
 
 ### Example Input Parameters
 

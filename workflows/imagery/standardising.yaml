@@ -32,9 +32,9 @@ spec:
           - "lzw"
           - "gray_webp"
       - name: title
-        value: "*Region* *Scale* *Urban/Rural* Aerial Photos (*year/s*)"
+        value: "*Region* *Scale* Aerial Photos (*year/s*)"
       - name: description
-        value: "Orthophotography within the..."
+        value: "*Region* *Scale* *Urban/Rural* Aerial Photos"
       - name: start-datetime
         value: "YYYY-MM-DD"
       - name: end-datetime
