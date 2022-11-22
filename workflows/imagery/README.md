@@ -27,18 +27,18 @@ In addition, a basemaps link is produced enabling visual QA.
 
 ### Example Input Parameters
 
-| Parameter      | Value                                                                               |
-| -------------- | ----------------------------------------------------------------------------------- |
-| source         | s3://linz-workflow-artifacts/2022-11/09-imagery-standardising-v0.2.0-52-v46s6/flat/ |
-| include        | .tiff?$                                                                             |
-| scale          | 2000                                                                                |
-| group          | 50                                                                                  |
-| compression    | webp                                                                                |
-| title          | Bay of Plenty 0.2m Aerial Photos (2021-2022)                                        |
-| description    | Bay of Plenty 0.2m Rural Aerial Photos                                              |
-| start-datetime | 2021-12-02                                                                          |
-| end-datetime   | 2022-05-06                                                                          |
-| copy-option    | --no-clobber                                                                        |
+| Parameter      | Value                                                                             |
+| -------------- | --------------------------------------------------------------------------------- |
+| source         | s3://linz-imagery-upload/PRJ39741_BOPLASS_Imagery_2021-22/PRJ39741_03/01_GeoTiff/ |
+| include        | .tiff?$                                                                           |
+| scale          | 2000                                                                              |
+| group          | 50                                                                                |
+| compression    | webp                                                                              |
+| title          | Bay of Plenty 0.2m Aerial Photos (2021-2022)                                      |
+| description    | Bay of Plenty 0.2m Rural Aerial Photos                                            |
+| start-datetime | 2021-12-02                                                                        |
+| end-datetime   | 2022-05-06                                                                        |
+| copy-option    | --no-clobber                                                                      |
 
 ## Workflow Outputs
 
