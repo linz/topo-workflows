@@ -1,7 +1,7 @@
 # Contents:
 
 - [Standardising](#Standardising)
-- [publish-copy](#publish-copy)
+- [Publish-copy](#Publish-copy)
 
 # Standardising
 
@@ -15,7 +15,7 @@ In addition, a basemaps link is produced enabling visual QA.
 | Parameter      | Type  | Default                                                         | Description                                                                                                                      |
 | -------------- | ----- | --------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------- |
 | source         | str   | s3://linz-imagery-staging/test/sample                           | the uri (path) to the input tiffs                                                                                                |
-| include        | regex | .tiff$                                                          | The file types from within the source path to include in standardising                                                           |
+| include        | regex | .tiff?$                                                         | The file types from within the source path to include in standardising                                                           |
 | scale          | enum  | 500                                                             | The scale of the tiffs                                                                                                           |
 | group          | int   | 50                                                              | The number of files to grouped into the pods (testing has reccommended using 50 for large datasets).                             |
 | compression    | enum  | webp                                                            | Standardised file format                                                                                                         |
@@ -24,6 +24,25 @@ In addition, a basemaps link is produced enabling visual QA.
 | start-datetime | str   | YYYY-MM-DD                                                      | Imagery start date (flown from), must be in default formatting                                                                   |
 | end-datetime   | str   | YYYY-MM-DD                                                      | Imagery end date (flown to), must be in default formatting                                                                       |
 | copy-option    | enum  | --no-clobber                                                    | `--no-clobber` will not overwrite files if the name and the file size in bytes are the same. `--force` will overwrite all files. |
+
+### Example Input Parameters
+
+"source
+"title": "Bay of Plenty 0.2m Aerial Photos (2021-2022)",
+"description": "Bay of Plenty 0.2m Rural Aerial Photos",
+
+| Parameter      | Value                                                                               |
+| -------------- | ----------------------------------------------------------------------------------- |
+| source         | s3://linz-workflow-artifacts/2022-11/09-imagery-standardising-v0.2.0-52-v46s6/flat/ |
+| include        | .tiff?$                                                                             |
+| scale          | 2000                                                                                |
+| group          | 50                                                                                  |
+| compression    | webp                                                                                |
+| title          | Bay of Plenty 0.2m Aerial Photos (2021-2022)                                        |
+| description    | Bay of Plenty 0.2m Rural Aerial Photos                                              |
+| start-datetime | 2021-12-02                                                                          |
+| end-datetime   | 2022-05-06                                                                          |
+| copy-option    | --no-clobber                                                                        |
 
 ## Workflow Outputs
 
