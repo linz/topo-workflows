@@ -5,40 +5,40 @@
 
 # Standardising
 
-This workflow processes raw tiff files for the Topo Data Publishing Team (TDP).
-Gdal_translate, non-visual qa, STAC creation, and STAC validation are all steps included within this workflow.
-Upon completion all standardised tiff and STAC files will be located with the ./flat/ directory of the workflow in the artifacts bucket.
-In addition, a basemaps link is produced enabling visual QA.
+This workflow processes supplied Aerial Imagery TIFF files into consistent Cloud Optimised GeoTIFFs with STAC metadata.
+Standardisation using gdal_translate, non-visual QA, STAC creation, and STAC validation are all steps included within this workflow.
+Upon completion all standardised TIFF and STAC files will be located with the ./flat/ directory of the workflow in the artifacts bucket.
+In addition, a Basemaps link is produced enabling visual QA.
 
 ## Workflow Input Parameters
 
-| Parameter      | Type  | Default                                            | Description                                                                                                                      |
-| -------------- | ----- | -------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------- |
-| source         | str   | s3://linz-imagery-staging/test/sample              | the uri (path) to the input tiffs                                                                                                |
-| include        | regex | .tiff?$                                            | The file types from within the source path to include in standardising                                                           |
-| scale          | enum  | 500                                                | The scale of the tiffs                                                                                                           |
-| group          | int   | 50                                                 | The number of files to grouped into the pods (testing has reccommended using 50 for large datasets).                             |
-| compression    | enum  | webp                                               | Standardised file format                                                                                                         |
-| title          | str   | \*Region\* \*Scale\* Aerial Photos (\*year/s\*)    | Collection title                                                                                                                 |
-| description    | str   | \*Region\* \*Scale\* \*Urban/Rural\* Aerial Photos | Collection description                                                                                                           |
-| start-datetime | str   | YYYY-MM-DD                                         | Imagery start date (flown from), must be in default formatting                                                                   |
-| end-datetime   | str   | YYYY-MM-DD                                         | Imagery end date (flown to), must be in default formatting                                                                       |
-| copy-option    | enum  | --no-clobber                                       | `--no-clobber` will not overwrite files if the name and the file size in bytes are the same. `--force` will overwrite all files. |
+| Parameter      | Type  | Default                                                                                             | Description                                                                                                                      |
+| -------------- | ----- | --------------------------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------- |
+| source         | str   | s3://linz-imagery-staging/test/sample                                                               | the uri (path) to the input tiffs                                                                                                |
+| include        | regex | .tiff?$                                                                                             | A regular expression to match any object path(s) or name(s) from within the source path to include in standardising              |
+| scale          | enum  | 500                                                                                                 | The scale of the tiffs                                                                                                           |
+| group          | int   | 50                                                                                                  | The number of files to grouped into the pods (testing has reccommended using 50 for large datasets).                             |
+| compression    | enum  | webp                                                                                                | Standardised file format                                                                                                         |
+| title          | str   | \*Region/District/City\* \*GSD\* \*Urban/Rural\* Aerial Photos (\*Year-Year\*)                      | Collection title                                                                                                                 |
+| description    | str   | Orthophotography within the \*Region Name\* region captured in the \*Year\*-\*Year\* flying season. | Collection description                                                                                                           |
+| start-datetime | str   | YYYY-MM-DD                                                                                          | Imagery start date (flown from), must be in default formatting                                                                   |
+| end-datetime   | str   | YYYY-MM-DD                                                                                          | Imagery end date (flown to), must be in default formatting                                                                       |
+| copy-option    | enum  | --no-clobber                                                                                        | `--no-clobber` will not overwrite files if the name and the file size in bytes are the same. `--force` will overwrite all files. |
 
 ### Example Input Parameters
 
-| Parameter      | Value                                                                             |
-| -------------- | --------------------------------------------------------------------------------- |
-| source         | s3://linz-imagery-upload/PRJ39741_BOPLASS_Imagery_2021-22/PRJ39741_03/01_GeoTiff/ |
-| include        | .tiff?$                                                                           |
-| scale          | 2000                                                                              |
-| group          | 50                                                                                |
-| compression    | webp                                                                              |
-| title          | Bay of Plenty 0.2m Aerial Photos (2021-2022)                                      |
-| description    | Bay of Plenty 0.2m Rural Aerial Photos                                            |
-| start-datetime | 2021-12-02                                                                        |
-| end-datetime   | 2022-05-06                                                                        |
-| copy-option    | --no-clobber                                                                      |
+| Parameter      | Value                                                                                     |
+| -------------- | ----------------------------------------------------------------------------------------- |
+| source         | s3://linz-imagery-upload/PRJ39741_BOPLASS_Imagery_2021-22/PRJ39741_03/01_GeoTiff/         |
+| include        | .tiff?$                                                                                   |
+| scale          | 2000                                                                                      |
+| group          | 50                                                                                        |
+| compression    | webp                                                                                      |
+| title          | Bay of Plenty 0.2m Rural Aerial Photos (2021-2022)                                        |
+| description    | Orthophotography within the Bay of Plenty region captured in the 2021-2022 flying season. |
+| start-datetime | 2021-12-02                                                                                |
+| end-datetime   | 2022-05-06                                                                                |
+| copy-option    | --no-clobber                                                                              |
 
 ## Workflow Outputs
 
@@ -98,7 +98,7 @@ Lists all the included files within the provided source uri.
 
 ### [standardise-validate](https://github.com/linz/topo-imagery/blob/master/scripts/standardise_validate.py)
 
-The follow steps have been grouped together into standardise-validate.
+The following steps have been grouped together into standardise-validate.
 This was done to reduce the number of times gdalinfo is run and files are looped.
 
 #### Standardise
@@ -146,7 +146,7 @@ Creates a config of the imagery files within the `flat` directory and outputs a 
 Copy files from one S3 location to another. This workflow is intended to be used after standardising and QA to copy:
 
 - from `linz-workflow-artifacts` "flattened" directory to `linz-imagery`
-- from `linz-imagery-uploads` to `linz-imagery-staging` to store a copy of the uploaded RGBI imagery.
+- from `linz-imagery-upload` to `linz-imagery-staging` to store a copy of the uploaded RGBI imagery.
 
 ```mermaid
 graph TD;
@@ -163,7 +163,7 @@ Access permissions are controlled by the [Bucket Sharing Config](https://github.
 | ----------- | ----- | --------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------- |
 | source      | str   | s3://linz-imagery-staging/test/sample/        | The URIs (paths) to the s3 source location                                                                                      |
 | target      | str   | s3://linz-imagery-staging/test/sample_target/ | The URIs (paths) to the s3 target location                                                                                      |
-| include     | regex | .tiff?\$\|.json\$\|.tfw\$                     | The file types from within the source path to include in the copy.                                                              |
+| include     | regex | .tiff?\$\|.json\$\|.tfw\$                     | A regular expression to match any object path(s) or name(s) from within the source path to include in the copy.                 |
 | copy-option | enum  | --no-clobber                                  | `--no-clobber` will not overwrite files if the name and the file size in bytes are the same. `--force` will overwrite all files |
 
 ## Examples
