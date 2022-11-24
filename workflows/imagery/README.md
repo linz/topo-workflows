@@ -15,7 +15,7 @@ In addition, a Basemaps link is produced enabling visual QA.
 | Parameter      | Type  | Default                                                                                             | Description                                                                                                                      |
 | -------------- | ----- | --------------------------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------- |
 | source         | str   | s3://linz-imagery-staging/test/sample                                                               | the uri (path) to the input tiffs                                                                                                |
-| include        | regex | .tiff?$                                                                                             | A regular expression to match any object path(s) or name(s) from within the source path to include in standardising              |
+| include        | regex | .tiff?$                                                                                             | A regular expression to match object path(s) or name(s) from within the source path to include in standardising                  |
 | scale          | enum  | 500                                                                                                 | The scale of the tiffs                                                                                                           |
 | group          | int   | 50                                                                                                  | The number of files to grouped into the pods (testing has reccommended using 50 for large datasets).                             |
 | compression    | enum  | webp                                                                                                | Standardised file format                                                                                                         |
@@ -163,7 +163,7 @@ Access permissions are controlled by the [Bucket Sharing Config](https://github.
 | ----------- | ----- | --------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------- |
 | source      | str   | s3://linz-imagery-staging/test/sample/        | The URIs (paths) to the s3 source location                                                                                      |
 | target      | str   | s3://linz-imagery-staging/test/sample_target/ | The URIs (paths) to the s3 target location                                                                                      |
-| include     | regex | .tiff?\$\|.json\$\|.tfw\$                     | A regular expression to match any object path(s) or name(s) from within the source path to include in the copy.                 |
+| include     | regex | .tiff?\$\|.json\$\|.tfw\$                     | A regular expression to match object path(s) or name(s) from within the source path to include in the copy.                     |
 | copy-option | enum  | --no-clobber                                  | `--no-clobber` will not overwrite files if the name and the file size in bytes are the same. `--force` will overwrite all files |
 
 ## Examples
