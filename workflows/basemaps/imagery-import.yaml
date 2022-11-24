@@ -26,6 +26,8 @@ spec:
         value: ""
       - name: blend
         value: 0
+      - name: aligned-level
+        value: 6
       - name: create_pull_request
         value: false
         enum:
@@ -57,6 +59,8 @@ spec:
                   value: "{{workflow.parameters.cutline}}"
                 - name: blend
                   value: "{{workflow.parameters.blend}}"
+                - name: aligned-level
+                  value: "{{workflow.parameters.aligned-level}}"
           - name: cog
             template: cog
             arguments:
@@ -85,8 +89,9 @@ spec:
           - name: tile-matrix
           - name: cutline
           - name: blend
+          - name: aligned-level
       container:
-        image: ghcr.io/linz/basemaps/cli:v6.36.0-2-g37282456
+        image: ghcr.io/linz/basemaps/cli:v6.36.0-24-gac3ef20c
         command: [node, index.cjs]
         env:
           - name: AWS_ROLE_CONFIG_PATH
@@ -109,6 +114,8 @@ spec:
             "{{inputs.parameters.cutline}}",
             "--blend",
             "{{inputs.parameters.blend}}",
+            "--aligned-level",
+            "{{inputs.parameters.aligned-level}}",
             "--aws",
             "--output",
             "/tmp/cog/",
@@ -131,11 +138,17 @@ spec:
           - name: job
           - name: names
       container:
-        image: ghcr.io/linz/basemaps/cli:v6.36.0-2-g37282456
+        image: ghcr.io/linz/basemaps/cli:v6.36.0-24-gac3ef20c
+        resources:
+          requests:
+            memory: 7.8Gi
+            cpu: 15000m
         command: [node, index.cjs]
         env:
           - name: AWS_ROLE_CONFIG_PATH
             value: s3://linz-bucket-config/config.basemaps.json
+          - name: BASEMAPS_PUBLIC_URL
+            value: https://basemaps.linz.govt.nz
           - name: AWS_ROLE_DURATION_HOURS
             value: "1"
         args:
@@ -146,6 +159,7 @@ spec:
             "{{inputs.parameters.job}}",
             "--name",
             "{{inputs.parameters.names}}",
+            "--commit",
           ]
 
     - name: create-pr
@@ -153,7 +167,7 @@ spec:
         parameters:
           - name: layer
       container:
-        image: ghcr.io/linz/basemaps/cli:v6.36.0-2-g37282456
+        image: ghcr.io/linz/basemaps/cli:v6.36.0-24-gac3ef20c
         command: [node, index.cjs]
         env:
           - name: GITHUB_API_TOKEN
