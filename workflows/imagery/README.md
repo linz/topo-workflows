@@ -210,7 +210,7 @@ The tests workflow has been created so that python code and topo-imagery scripts
 ## Workflow Inputs/Outputs
 
 There are no inputs/outputs in this workflow as it is not a template.
-Inputs/outputs can just be hardcoded into the the python code.
+Inputs/outputs can be hardcoded into the python code.
 
 ## How To Use the Test Workflow
 
