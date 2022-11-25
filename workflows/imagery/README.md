@@ -15,7 +15,7 @@ In addition, a Basemaps link is produced enabling visual QA.
 | Parameter      | Type  | Default                                                                                             | Description                                                                                                                      |
 | -------------- | ----- | --------------------------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------- |
 | source         | str   | s3://linz-imagery-staging/test/sample                                                               | the uri (path) to the input tiffs                                                                                                |
-| include        | regex | .tiff?$                                                                                             | A regular expression to match object path(s) or name(s) from within the source path to include in standardising                  |
+| include        | regex | .tiff?$                                                                                             | A regular expression to match object path(s) or name(s) from within the source path to include in standardising\*.               |
 | scale          | enum  | 500                                                                                                 | The scale of the TIFFs                                                                                                           |
 | group          | int   | 50                                                                                                  | The number of files to grouped into the pods (testing has recommended using 50 for large datasets).                              |
 | compression    | enum  | webp                                                                                                | Standardised file format                                                                                                         |
@@ -24,6 +24,8 @@ In addition, a Basemaps link is produced enabling visual QA.
 | start-datetime | str   | YYYY-MM-DD                                                                                          | Imagery start date (flown from), must be in default formatting                                                                   |
 | end-datetime   | str   | YYYY-MM-DD                                                                                          | Imagery end date (flown to), must be in default formatting                                                                       |
 | copy-option    | enum  | --no-clobber                                                                                        | `--no-clobber` will not overwrite files if the name and the file size in bytes are the same. `--force` will overwrite all files. |
+
+\* This regex can be used to exclude paths as well, e.g. if there are RBG and RGBI directories, the following regex will only include files in the RGB directory: `RGB(?!I).*.tiff?$`. For more complicated exclusions, there is an `--exclude` parameter, which would need to be added to the Argo WorkflowTemplate.
 
 ### Example Input Parameters
 
@@ -112,7 +114,7 @@ This step runs the following non-visual QA checks.
 
 - **gdalinfo -stats -json** reports errors when running `gdalinfo`. The output is used for the checks below.
 
-- **check tile and rename** standardises the filenames to the format `MAPSHEET_GSD_` and reports errors if there is drift.
+- **check tile and rename** standardises the filename to the format `MAPSHEET_GSD_TILE.tiff` (e.g. `BC40_2000_2421.tiff`) and reports errors if the origin does not align to the tile index by >=1.5cm.
 
 - **no data** reports errors if the `noDataValue` isn't 255.
 
@@ -120,7 +122,7 @@ This step runs the following non-visual QA checks.
 
 - **colour interpretation** reports if the band color interpretation is not Band 1 "Red", Band 2 "Green", Band 3 "Blue"`
 
-- **srs** uses `gdalsrsinfo -o wkt "EPSG:2193"` and reports if the SRS is not 2193.
+- **srs** runs `gdalsrsinfo -o wkt "EPSG:2193"` and reports if the SRS is not 2193.
 
 #### [Create Items](https://github.com/linz/topo-imagery/blob/master/scripts/create_stac.py)
 
