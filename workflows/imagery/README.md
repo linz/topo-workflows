@@ -25,7 +25,7 @@ In addition, a Basemaps link is produced enabling visual QA.
 | end-datetime   | str   | YYYY-MM-DD                                                                                          | Imagery end date (flown to), must be in default formatting                                                                       |
 | copy-option    | enum  | --no-clobber                                                                                        | `--no-clobber` will not overwrite files if the name and the file size in bytes are the same. `--force` will overwrite all files. |
 
-\* This regex can be used to exclude paths as well, e.g. if there are RBG and RGBI directories, the following regex will only include files in the RGB directory: `RGB(?!I).*.tiff?$`. For more complicated exclusions, there is an `--exclude` parameter, which would need to be added to the Argo WorkflowTemplate.
+\* This regex can be used to exclude paths as well, e.g. if there are RBG and RGBI directories, the following regex will only include TIFF files in the RGB directory: `RGB(?!I).*.tiff?$`. For more complicated exclusions, there is an `--exclude` parameter, which would need to be added to the Argo WorkflowTemplate.
 
 ### Example Input Parameters
 
