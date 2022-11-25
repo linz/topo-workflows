@@ -2,7 +2,7 @@
 apiVersion: argoproj.io/v1alpha1
 kind: WorkflowTemplate
 metadata:
-  name: imagery-standardising-v0.2.0-58
+  name: imagery-standardising-v0.2.0-60
   namespace: argo
 spec:
   parallelism: 50
@@ -108,7 +108,7 @@ spec:
             depends: "get-location && flatten-copy"
     - name: aws-list
       container:
-        image: ghcr.io/linz/argo-tasks:v1.0.0-40-g10e90df
+        image: ghcr.io/linz/argo-tasks:v1.0.0-42-gdbb002b
         command: [node, /app/index.js]
         env:
           - name: AWS_ROLE_CONFIG_PATH
@@ -132,7 +132,7 @@ spec:
               path: /tmp/file_list.json
     - name: generate-ulid
       script:
-        image: ghcr.io/linz/topo-imagery:v0.2.0-58-g7e547d6
+        image: ghcr.io/linz/topo-imagery:v0.2.0-60-g58d4cd2
         command: [python]
         source: |
           import ulid
@@ -153,7 +153,7 @@ spec:
           - name: file
           - name: collection-id
       container:
-        image: ghcr.io/linz/topo-imagery:v0.2.0-58-g7e547d6
+        image: ghcr.io/linz/topo-imagery:v0.2.0-60-g58d4cd2
         resources:
           requests:
             memory: 7.8Gi
@@ -189,7 +189,7 @@ spec:
         parameters:
           - name: location
       container:
-        image: ghcr.io/linz/argo-tasks:v1.0.0-40-g10e90df
+        image: ghcr.io/linz/argo-tasks:v1.0.0-42-gdbb002b
         command: [node, /app/index.js]
         env:
           - name: AWS_ROLE_CONFIG_PATH
@@ -222,7 +222,7 @@ spec:
         parameters:
           - name: file
       container:
-        image: ghcr.io/linz/argo-tasks:v1.0.0-40-g10e90df
+        image: ghcr.io/linz/argo-tasks:v1.0.0-42-gdbb002b
         resources:
           requests:
             memory: 7.8Gi
@@ -244,7 +244,7 @@ spec:
           - name: collection-id
           - name: location
       container:
-        image: ghcr.io/linz/topo-imagery:v0.2.0-58-g7e547d6
+        image: ghcr.io/linz/topo-imagery:v0.2.0-60-g58d4cd2
         resources:
           requests:
             memory: 7.8Gi
@@ -268,7 +268,7 @@ spec:
         parameters:
           - name: location
       container:
-        image: ghcr.io/linz/argo-tasks:v1.0.0-40-g10e90df
+        image: ghcr.io/linz/argo-tasks:v1.0.0-42-gdbb002b
         command: [node, /app/index.js]
         env:
           - name: AWS_ROLE_CONFIG_PATH

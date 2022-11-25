@@ -16,8 +16,8 @@ In addition, a Basemaps link is produced enabling visual QA.
 | -------------- | ----- | --------------------------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------- |
 | source         | str   | s3://linz-imagery-staging/test/sample                                                               | the uri (path) to the input tiffs                                                                                                |
 | include        | regex | .tiff?$                                                                                             | A regular expression to match object path(s) or name(s) from within the source path to include in standardising                  |
-| scale          | enum  | 500                                                                                                 | The scale of the tiffs                                                                                                           |
-| group          | int   | 50                                                                                                  | The number of files to grouped into the pods (testing has reccommended using 50 for large datasets).                             |
+| scale          | enum  | 500                                                                                                 | The scale of the TIFFs                                                                                                           |
+| group          | int   | 50                                                                                                  | The number of files to grouped into the pods (testing has recommended using 50 for large datasets).                              |
 | compression    | enum  | webp                                                                                                | Standardised file format                                                                                                         |
 | title          | str   | \*Region/District/City\* \*GSD\* \*Urban/Rural\* Aerial Photos (\*Year-Year\*)                      | Collection title                                                                                                                 |
 | description    | str   | Orthophotography within the \*Region Name\* region captured in the \*Year\*-\*Year\* flying season. | Collection description                                                                                                           |
@@ -42,9 +42,9 @@ In addition, a Basemaps link is produced enabling visual QA.
 
 ## Workflow Outputs
 
-### Non Visual QA
+### Non-Visual QA
 
-If non visual QA fails the logs explain the failure, for example:
+If non-visual QA fails the logs explain the failure, for example:
 
 ```json
 {
@@ -62,7 +62,7 @@ If non visual QA fails the logs explain the failure, for example:
 
 ### Create Config
 
-The s3 path to the processed tiffs and the basemaps visualisation URL can be found in the create-config pod outputs.
+The S3 path to the processed TIFFs and the Basemaps visualisation URL can be found in the create-config pod outputs.
 for example:
 
 ```
@@ -101,19 +101,31 @@ Lists all the included files within the provided source uri.
 The following steps have been grouped together into standardise-validate.
 This was done to reduce the number of times gdalinfo is run and files are looped.
 
-#### Standardise
+#### [Standardise](https://github.com/linz/topo-imagery/blob/master/scripts/standardising.py)
 
-Runs gdal_translate on the tiff files.
+Runs `gdal_translate` on the TIFF files.
 See [topo-imagery/scripts/gdal/gdal_preset.py](https://github.com/linz/topo-imagery/blob/master/scripts/gdal/gdal_preset.py) for gdal_translate options and arguments.
 
-#### Non Visual QA
+#### [Non-Visual QA](https://github.com/linz/topo-imagery/blob/master/scripts/files/file_check.py)
 
-This step runs `no data`, `band count`, `colour interpretation`, and `srs` non visual QA checks.
+This step runs the following non-visual QA checks.
 
-#### Create Items
+- **gdalinfo -stats -json** reports errors when running `gdalinfo`. The output is used for the checks below.
 
-Generates stac item json file associated with the tiff.
-nb: currently only core stac is created: start-datetime, end-datetime, geometry and bbox (22/11/2022)
+- **check tile and rename** standardises the filenames to the format `MAPSHEET_GSD_` and reports errors if there is drift.
+
+- **no data** reports errors if the `noDataValue` isn't 255.
+
+- **band count** reports if there are not 3 bands.
+
+- **colour interpretation** reports if the band color interpretation is not Band 1 "Red", Band 2 "Green", Band 3 "Blue"`
+
+- **srs** uses `gdalsrsinfo -o wkt "EPSG:2193"` and reports if the SRS is not 2193.
+
+#### [Create Items](https://github.com/linz/topo-imagery/blob/master/scripts/create_stac.py)
+
+Generates STAC item JSON file associated with the TIFF.
+NB: currently only core STAC metadata is created: start-datetime, end-datetime, geometry and bbox (22/11/2022)
 
 ### [get-location](./standardising.yaml)
 
@@ -137,7 +149,7 @@ Validates the collection.json and all associated items.
 
 ### [create-config](https://github.com/linz/basemaps/blob/59a3e7fa847f64f5c83fc876b071db947407d14d/packages/cli/src/cli/config/action.imagery.config.ts)
 
-Creates a config of the imagery files within the `flat` directory and outputs a basemaps link for Visual QA.
+Creates a config of the imagery files within the `flat` directory and outputs a Basemaps link for Visual QA.
 
 # Publish-copy
 
