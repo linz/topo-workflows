@@ -2,7 +2,7 @@
 apiVersion: argoproj.io/v1alpha1
 kind: WorkflowTemplate
 metadata:
-  name: publish-copy-v1.0.0-41
+  name: publish-copy-v1.0.0-42
   namespace: argo
 spec:
   parallelism: 50
@@ -51,7 +51,7 @@ spec:
           - name: target
           - name: include
       container:
-        image: ghcr.io/linz/argo-tasks:v1.0.0-41-g834c718
+        image: ghcr.io/linz/argo-tasks:v1.0.0-42-gdbb002b
         command: [node, /app/index.js]
         env:
           - name: AWS_ROLE_CONFIG_PATH
@@ -84,7 +84,7 @@ spec:
         parameters:
           - name: file
       container:
-        image: ghcr.io/linz/argo-tasks:v1.0.0-41-g834c718
+        image: ghcr.io/linz/argo-tasks:v1.0.0-42-gdbb002b
         resources:
           requests:
             memory: 7.8Gi
