@@ -230,15 +230,5 @@ Altering the workflow to use a different container would enable the use/testing 
 Paste/write your code underneath the statement `# Put your code below`.
 You can also use any of the scripts/code that have been published in the container.
 
-### Deploying the Workflow
+### [Submitting the Workflow](../../README.md#submitting-a-job)
 
-**In The Argo UI:**
-&rarr; Workflows
-&emsp; &rarr; Submit New Workflow
-&emsp; &emsp; &rarr; Edit using Full workflow options
-&emsp; &emsp; &emsp; &rarr; Upload File
-&emsp; &emsp; &emsp; &emsp;(Locate File -> Open)
-&emsp; &emsp; &emsp; &rarr; Create
-
-**In Command Line:**
-Follow the instructions [here](../../README.md)
