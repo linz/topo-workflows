@@ -69,12 +69,13 @@ xdg-open http://localhost:2746
 
 ## Submit a Job Using the Argo UI
 
-In the **Workflows** page: <br>
-&emsp; &rarr; `SUBMIT NEW WORKFLOW` <br>
-&emsp; &emsp; &rarr; `Edit using full workflow options` <br>
-&emsp; &emsp; &emsp; &rarr; `UPLOAD FILE` <br>
-&emsp; &emsp; &emsp; &emsp;_(Locate File -> Open)_ <br>
-&emsp; &emsp; &emsp; &rarr; `+ CREATE` <br>
+In the **Workflows** page:
+
+1. `SUBMIT NEW WORKFLOW`
+2. `Edit using full workflow options`
+3. `UPLOAD FILE`
+4. _(Locate File -> Open)_
+5. `+ CREATE`
 
 ### FAQ
 
