@@ -231,4 +231,3 @@ Paste/write your code underneath the statement `# Put your code below`.
 You can also use any of the scripts/code that have been published in the container.
 
 ### [Submitting the Workflow](../../README.md#submitting-a-job)
-

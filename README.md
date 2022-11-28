@@ -68,6 +68,7 @@ xdg-open http://localhost:2746
 ```
 
 ## Submit a Job Using the Argo UI
+
 &rarr; Workflows
 &emsp; &rarr; Submit New Workflow
 &emsp; &emsp; &rarr; Edit using Full workflow options
