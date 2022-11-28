@@ -73,7 +73,7 @@ In the **Workflows** page: <br>
 &emsp; &rarr; `SUBMIT NEW WORKFLOW` <br>
 &emsp; &emsp; &rarr; `Edit using full workflow options` <br>
 &emsp; &emsp; &emsp; &rarr; `UPLOAD FILE` <br>
-&emsp; &emsp; &emsp; &emsp;*(Locate File -> Open)* <br>
+&emsp; &emsp; &emsp; &emsp;_(Locate File -> Open)_ <br>
 &emsp; &emsp; &emsp; &rarr; `+ CREATE` <br>
 
 ### FAQ
