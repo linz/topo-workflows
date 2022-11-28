@@ -61,7 +61,7 @@ argo submit --watch workflows/imagery/standardising.yaml
 To open the Web interface:
 
 ```bash
-# Create a connection to the argo server
+# Create a connection to the Argo server
 k port-forward deployment/argo-workflows-server 2746:2746
 
 xdg-open http://localhost:2746

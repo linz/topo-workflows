@@ -205,12 +205,12 @@ Access permissions are controlled by the [Bucket Sharing Config](https://github.
 
 # Tests
 
-The tests workflow has been created so that python code and topo-imagery scripts can be tested in argo.
+The tests workflow has been created so that Python code and topo-imagery scripts can be tested in Argo.
 
 ## Workflow Inputs/Outputs
 
 There are no inputs/outputs in this workflow as it is not a template.
-Inputs/outputs can be hardcoded into the python code.
+Inputs/outputs can be hardcoded into the Python code.
 
 ## How To Use the Test Workflow
 
