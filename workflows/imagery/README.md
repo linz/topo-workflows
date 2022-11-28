@@ -227,7 +227,7 @@ Altering the workflow to use a different container would enable the use/testing 
 
 ### Code
 
-Paste/write your code at line 22 in the workflow.
+Paste/write your code underneath the statement `# Put your code below`.
 You can also use any of the scripts/code that have been published in the container.
 
 ### Deploying the Workflow
