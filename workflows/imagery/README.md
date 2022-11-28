@@ -2,6 +2,7 @@
 
 - [Standardising](#Standardising)
 - [Publish-copy](#Publish-copy)
+- [tests](#Tests)
 
 # Standardising
 
@@ -201,3 +202,32 @@ Access permissions are controlled by the [Bucket Sharing Config](https://github.
 **include:** Although only `.tif(f)` and `.tfw` files are required, there should not be any `.json` files in with the uploaded imagery, so this option can be left at the default.
 
 **copy-option:** `--no-clobber`
+
+# Tests
+
+The tests workflow has been created so that Python code and topo-imagery scripts can be tested in Argo.
+
+## Workflow Inputs/Outputs
+
+There are no inputs/outputs in this workflow as it is not a template.
+Inputs/outputs can be hardcoded into the Python code.
+
+## How To Use the Test Workflow
+
+### Name
+
+Please name your workflow: `test-*username*-*description*`
+Starting the workflow name with `test` separates it from production workflows and ensures it is not logged in #alert-argo-workflows
+Including your `username` and a short `description` provides context for the workflow.
+
+### Container
+
+This workflow uses [topo-imagery](https://github.com/linz/topo-imagery/pkgs/container/topo-imagery) so the [Dockerfile](https://github.com/linz/topo-imagery/blob/master/Dockerfile) and [pyproject.toml](https://github.com/linz/topo-imagery/blob/master/pyproject.toml) determine what is available to import and use.
+Altering the workflow to use a different container would enable the use/testing of other resources if required.
+
+### Code
+
+Paste/write your code underneath the statement `# Put your code below`.
+You can also use any of the scripts/code that have been published in the container.
+
+### [Submitting the Workflow](../../README.md#submitting-a-job)

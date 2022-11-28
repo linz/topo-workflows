@@ -58,14 +58,24 @@ Once the cluster connection is setup a job can be sumbitted with the cli or acce
 argo submit --watch workflows/imagery/standardising.yaml
 ```
 
-Web interface
+To open the web interface:
 
 ```bash
-# Create a connection to the argo server
+# Create a connection to the Argo server
 k port-forward deployment/argo-workflows-server 2746:2746
 
 xdg-open http://localhost:2746
 ```
+
+## Submit a Job Using the Argo UI
+
+In the **Workflows** page:
+
+1. `SUBMIT NEW WORKFLOW`
+2. `Edit using full workflow options`
+3. `UPLOAD FILE`
+4. _(Locate File -> Open)_
+5. `+ CREATE`
 
 ### FAQ
 
