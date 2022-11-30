@@ -2,7 +2,7 @@
 apiVersion: argoproj.io/v1alpha1
 kind: Workflow
 metadata:
-  generateName: basemaps-create-overview
+  name: basemaps-create-overview
   namespace: argo
 spec:
   entrypoint: main
