@@ -23,9 +23,9 @@ spec:
           - "WebMercatorQuad"
           - "NZTM2000Quad/WebMercatorQuad"
       - name: cutline
-        value: ""
+        value: "s3://linz-basemaps-source/cutline/2020-05-07-cutline-nz-coasts-rural-and-urban.geojson"
       - name: blend
-        value: 0
+        value: 20
       - name: aligned-level
         value: 6
       - name: create_pull_request
