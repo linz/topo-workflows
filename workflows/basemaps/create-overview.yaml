@@ -28,7 +28,6 @@ spec:
       inputs:
         parameters:
           - name: source
-          - name: max-zoom
           - name: output
       container:
         image: ghcr.io/linz/basemaps/cli:v6.36.0-31-g59a01e66
