@@ -43,7 +43,7 @@ spec:
         parameters:
           - name: source
       container:
-        image: ghcr.io/linz/basemaps/cli:v6.36.0-20-gdae0e9be
+        image: ghcr.io/linz/basemaps/cli:v6.36.0-31-g59a01e66
         resources:
           requests:
             cpu: 3000m
@@ -57,8 +57,6 @@ spec:
             "create-overview",
             "--source",
             "{{inputs.parameters.source}}",
-            "--max-zoom",
-            "15",
             "--output",
             "{{inputs.parameters.source}}",
           ]

@@ -10,8 +10,6 @@ spec:
     parameters:
       - name: source
         value: ""
-      - name: max-zoom
-        value: "13"
       - name: output
         value: ""
   templates:
@@ -24,8 +22,6 @@ spec:
               parameters:
                 - name: source
                   value: "{{workflow.parameters.source}}"
-                - name: max-zoom
-                  value: "{{workflow.parameters.max-zoom}}"
                 - name: output
                   value: "{{workflow.parameters.output}}"
     - name: create-overview
@@ -35,7 +31,7 @@ spec:
           - name: max-zoom
           - name: output
       container:
-        image: ghcr.io/linz/basemaps/cli:v6.36.0-20-gdae0e9be
+        image: ghcr.io/linz/basemaps/cli:v6.36.0-31-g59a01e66
         resources:
           requests:
             cpu: 3000m
@@ -49,8 +45,6 @@ spec:
             "create-overview",
             "--source",
             "{{inputs.parameters.source}}",
-            "--max-zoom",
-            "{{inputs.parameters.max-zoom}}",
             "--output",
             "{{inputs.parameters.output}}",
           ]
