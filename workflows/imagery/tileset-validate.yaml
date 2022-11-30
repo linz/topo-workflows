@@ -2,7 +2,7 @@
 apiVersion: argoproj.io/v1alpha1
 kind: WorkflowTemplate
 metadata:
-  name: tileset-validate-v1.0.0-42
+  name: tileset-validate-v1.0.0-43
   namespace: argo
 spec:
   nodeSelector:
@@ -31,7 +31,7 @@ spec:
         parameters:
           - name: processed-imagery-path
       container:
-        image: ghcr.io/linz/argo-tasks:v1.0.0-42-gdbb002b
+        image: ghcr.io/linz/argo-tasks:v1.0.0-43-g09ca6ea
         command: [node, /app/index.js]
         env:
           - name: AWS_ROLE_CONFIG_PATH
