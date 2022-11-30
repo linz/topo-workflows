@@ -2,6 +2,7 @@
 
 - [Standardising](#Standardising)
 - [Publish-copy](#Publish-copy)
+- [Tileset-validate](#Tileset-validate)
 - [tests](#Tests)
 
 # Standardising
@@ -193,6 +194,8 @@ Access permissions are controlled by the [Bucket Sharing Config](https://github.
 
 **copy-option:** `--no-clobber`
 
+**Target path naming convention:** `s3://linz-imagery/<region>/<city-or-sub-region>_<year>_<resolution>/<product>/<crs>/`
+
 ### Backup RGBI:
 
 **source:** `s3://linz-imagery-upload/Invercargill2022_Pgrm3016/OutputPGRM3016-InvercargillRural2022/tifs-RGBI/`
@@ -202,6 +205,18 @@ Access permissions are controlled by the [Bucket Sharing Config](https://github.
 **include:** Although only `.tif(f)` and `.tfw` files are required, there should not be any `.json` files in with the uploaded imagery, so this option can be left at the default.
 
 **copy-option:** `--no-clobber`
+
+# Tileset-validate
+
+## Workflow Description
+
+Validate TIFFs are named the same as their tileset and that the origin and size is as expected. Uses the [argo-tasks](https://github.com/linz/argo-tasks/blob/master/src/commands/tileset-validate/tileset.validate.ts) container `tileset-validate` command.
+
+## Workflow Input Parameters
+
+| Parameter              | Type | Default                                              | Description                       |
+| ---------------------- | ---- | ---------------------------------------------------- | --------------------------------- |
+| processed-imagery-path | str  | s3://linz-imagery-staging/test/tileset-validate/flat | The URI (path) to the s3 location |
 
 # Tests
 
