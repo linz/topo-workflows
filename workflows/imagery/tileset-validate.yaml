@@ -25,7 +25,7 @@ spec:
               artifacts:
                 - name: tileset-validate-result
                   raw:
-                    data: "{ { tasks.tileset-validate.outputs.result } }"
+                    data: "{{tasks.tileset-validate.outputs.result}}"
     - name: tileset-validate
       inputs:
         parameters:

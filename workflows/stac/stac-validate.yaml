@@ -2,7 +2,7 @@
 apiVersion: argoproj.io/v1alpha1
 kind: WorkflowTemplate
 metadata:
-  name: stac-validate-v1.0.0-42
+  name: stac-validate-v1.0.0-43
   namespace: argo
 spec:
   nodeSelector:
@@ -25,13 +25,13 @@ spec:
               artifacts:
                 - name: stac-result
                   raw:
-                    data: "{ { tasks.stac-validate.outputs.result } }"
+                    data: "{{tasks.stac-validate.outputs.result}}"
     - name: stac-validate
       inputs:
         parameters:
           - name: stac-file-path
       container:
-        image: ghcr.io/linz/argo-tasks:v1.0.0-42-gdbb002b
+        image: ghcr.io/linz/argo-tasks:v1.0.0-43-g09ca6ea
         command: [node, /app/index.js]
         env:
           - name: AWS_ROLE_CONFIG_PATH
