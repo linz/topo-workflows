@@ -2,7 +2,7 @@
 apiVersion: argoproj.io/v1alpha1
 kind: WorkflowTemplate
 metadata:
-  name: stac-validate-v1.0.0-43
+  name: tileset-validate-v1.0.0-43
   namespace: argo
 spec:
   nodeSelector:
@@ -10,26 +10,26 @@ spec:
   entrypoint: main
   arguments:
     parameters:
-      - name: stac-file-path
-        value: "s3://linz-imagery-staging/test/stac-validate/collection.json"
+      - name: processed-imagery-path
+        value: "s3://linz-imagery-staging/test/tileset-validate/flat"
   templates:
     - name: main
       dag:
         tasks:
-          - name: stac-validate
-            template: stac-validate
+          - name: tileset-validate
+            template: tileset-validate
             arguments:
               parameters:
-                - name: stac-file-path
-                  value: "{{workflow.parameters.stac-file-path}}"
+                - name: processed-imagery-path
+                  value: "{{workflow.parameters.processed-imagery-path}}"
               artifacts:
-                - name: stac-result
+                - name: tileset-validate-result
                   raw:
-                    data: "{{tasks.stac-validate.outputs.result}}"
-    - name: stac-validate
+                    data: "{{tasks.tileset-validate.outputs.result}}"
+    - name: tileset-validate
       inputs:
         parameters:
-          - name: stac-file-path
+          - name: processed-imagery-path
       container:
         image: ghcr.io/linz/argo-tasks:v1.0.0-43-g09ca6ea
         command: [node, /app/index.js]
@@ -38,7 +38,7 @@ spec:
             value: s3://linz-bucket-config/config.json
         args:
           [
-            "stac-validate",
-            "--recursive",
-            "{{inputs.parameters.stac-file-path}}",
+            "tileset-validate",
+            "--verbose",
+            "{{inputs.parameters.processed-imagery-path}}",
           ]
