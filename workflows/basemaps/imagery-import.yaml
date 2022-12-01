@@ -159,7 +159,8 @@ spec:
             value: https://basemaps.linz.govt.nz
           - name: AWS_ROLE_DURATION_HOURS
             value: "1"
-        args: [
+        args:
+          [
             "-V",
             "cog",
             "--job",
