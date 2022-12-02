@@ -99,13 +99,20 @@ spec:
             depends: "create-collection"
           - name: get-location
             template: get-location
+          - name: create-overview
+            arguments:
+              parameters:
+                - name: location
+                  value: "{{tasks.get-location.outputs.parameters.location}}"
+            template: create-overview
+            depends: "get-location && flatten-copy"
           - name: create-config
             arguments:
               parameters:
                 - name: location
                   value: "{{tasks.get-location.outputs.parameters.location}}"
             template: create-config
-            depends: "get-location && flatten-copy"
+            depends: "get-location && create-overview"
     - name: aws-list
       container:
         image: ghcr.io/linz/argo-tasks:v1.0.0-42-gdbb002b
@@ -293,12 +300,34 @@ spec:
           - name: location
             valueFrom:
               path: "/tmp/location"
+    - name: create-overview
+      inputs:
+        parameters:
+          - name: location
+      container:
+        image: ghcr.io/linz/basemaps/cli:v6.36.0-33-gc50b85cc
+        resources:
+          requests:
+            cpu: 3000m
+        command: [node, index.cjs]
+        env:
+          - name: AWS_ROLE_CONFIG_PATH
+            value: s3://linz-bucket-config/config.json
+        args:
+          [
+            "-V",
+            "create-overview",
+            "--source",
+            "{{inputs.parameters.location}}flat/",
+            "--output",
+            "{{inputs.parameters.location}}flat/",
+          ]
     - name: create-config
       inputs:
         parameters:
           - name: location
       container:
-        image: ghcr.io/linz/basemaps/cli:v6.36.0-3-g59a3e7fa
+        image: ghcr.io/linz/basemaps/cli:v6.36.0-33-gc50b85cc
         command: [node, index.cjs]
         env:
           - name: AWS_ROLE_CONFIG_PATH
