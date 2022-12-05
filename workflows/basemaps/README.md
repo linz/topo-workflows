@@ -55,11 +55,11 @@ gdal_translate -of COG -co TILING_SCHEME=GoogleMapsCompatible -co NUM_THREADS=AL
 
 ### [Create-Overview](#Create-Overview)
 
-This create webp overview tar file for the output cogs which can be used for Basemaps server.
+This creates webp overview tar file for the output cogs which can be used for Basemaps server.
 
 ### [Create-PR](https://github.com/linz/basemaps/blob/master/packages/cli/src/cli/cogify/action.make.cog.pr.ts)
 
-This create pull request in the [basemaps-config](https://github.com/linz/basemaps-config) repository and add the new imagery layer into aerial.json config.
+This creates pull request in the [basemaps-config](https://github.com/linz/basemaps-config) repository and adds the new imagery layer into aerial.json config.
 
 ## Workflow Input Parameters
 
@@ -77,7 +77,7 @@ This create pull request in the [basemaps-config](https://github.com/linz/basema
 
 ## Workflow Description
 
-This workflow to used for find out which COGs intersect with a 1:50k tile in order to build ECWs for Topo50 map sheet.
+This workflow is used to for find out which COGs intersect with a 1:50k tile in order to build ECWs for Topo50 map sheet.
 
 ## Workflow Description
 
