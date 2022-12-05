@@ -92,10 +92,10 @@ In the **Workflows** page:
 
 ![WorkflowLogs](/docs/workflow_logs.png)
 
-### Logs in Elastic Search
+### Logs in Elasticsearch
 
-Elastic search is an analytics engine, it allows us to store, search and analyse AWS logs. <br>
-Elastic search can be accessed through https://myapplications.microsoft.com/
+Elasticsearch is an analytics engine, it allows us to store, search and analyse AWS logs.
+Elasticsearch can be accessed through https://myapplications.microsoft.com/
 
 #### Example Filters:
 
@@ -107,7 +107,7 @@ _All Logs for a Workflow:_
 kubernetes.labels.workflows.argoproj.io/workflow : "imagery-standardising-v0.2.0-60-9b7dq"
 ```
 
-_All Logs for a pod:_<br>
+_All Logs for a pod:_
 Click on the pod in the Argo UI and scroll through the summary table to find the pod name.
 
 ```
