@@ -9,6 +9,10 @@ spec:
     parameters:
       - name: layer
         value: "104687"
+      - name: include
+        value: ""
+      - name: exclude
+        value: "nz_satellite"
   templates:
     - name: main
       dag:
@@ -78,7 +82,7 @@ spec:
           - name: flatGeobuf
             path: /tmp/flatGeobuf.fgb
       container:
-        image: ghcr.io/linz/basemaps/cli:v6.36.0-3-g59a3e7fa
+        image: ghcr.io/linz/basemaps/cli:v6.36.0-34-g4cf4f28d
         command: [node, index.cjs]
         env:
           - name: AWS_ROLE_CONFIG_PATH
@@ -93,6 +97,10 @@ spec:
             "s3://linz-basemaps/config/config-latest.json.gz",
             "--output",
             "/tmp/mapsheet.json",
+            "--include",
+            "{{workflow.parameters.include}}",
+            "--exclude",
+            "{{workflow.parameters.exclude}}",
           ]
       outputs:
         artifacts:
