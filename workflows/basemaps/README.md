@@ -6,6 +6,73 @@
 - [Create-Overview](#Create-Overview)
 - [Create-Overview-All](#Create-Overview-All)
 
+# Imagery-Import
+
+## Workflow Description
+
+This workflow is using for importing imagery into Basemaps, it usually take imagery form `linz-imagery` bucket and process as both 2193 and 3857 projection into Basemaps. Also, there is option to create pull request automatically which add the new imagery into [basemaps-config](https://github.com/linz/basemaps-config) aerial map.
+
+## Workflow Description
+
+```mermaid
+graph TD
+    Make-Cog --> A[Create-Cog];
+    Make-Cog -->|......| B[Create-Cog];
+    Make-Cog --> C[Create-Cog];
+    A --> Create-OverView;
+    B --> Create-OverView;
+    C --> Create-OverView;
+    Create-OverView --> Create-PR;
+```
+
+### [Make-Cog](https://github.com/linz/basemaps/blob/master/packages/cli/src/cli/cogify/action.make.cog.ts)
+
+Loop through the source tiffs and prepare cog tiff jobs and bundle the jobs for create-cog task to create cog tiffs.
+
+We chunk up to 100 small cogs, 40 middle cogs, 10 large cogs, or mix of them with the same limitation into one create-cog job in order to limit the create-cog task can finished in about 20 mins.
+
+### [Create-Cog](https://github.com/linz/basemaps/blob/master/packages/cli/src/cli/cogify/action.cog.ts)
+
+Running gdal commands to create cog tiffs.
+
+**gdalbuildvrt**
+
+```
+gdalbuildvrt -hidenodata -allow_projection_difference -addalpha ${source.vrt} ${source tiffs}
+```
+
+**gdalwarp**
+
+```
+gdalwarp -of VRT -multi -wo NUM_THREADS=ALL_CPUS -s_srs EPSG:2193 -t_srs EPSG:3857 -tr ${target_resolution} -tap -cutline ${cutline.geojson} -cblend ${blend} -r bilinear ${source.vrt} ${cog.vrt}
+```
+
+**gdal_translate**
+
+```
+gdal_translate -of COG -co TILING_SCHEME=GoogleMapsCompatible -co NUM_THREADS=ALL_CPUS -co BIGTIFF=YES -co ADD_ALPHA=YES -co BLOCKSIZE=512 -co WARP_RESAMPLING=bilinear -co OVERVIEW_RESAMPLING=lanczos -co COMPRESS=webp -co ALIGNED_LEVELS=5 -co QUALITY=90 -co SPARSE_OK=YES --config GDAL_DISABLE_READDIR_ON_OPEN EMPTY_DIR -tr ${target_resolution} -projwin ${bbox} -projwin_srs EPSG:3857 ${cog.vrt} ${output_cog.tiff}
+```
+
+### [Create-Overview](#Create-Overview)
+
+This create webp overview tar file for the output cogs which can be using for Basemaps server.
+
+### [Create-PR](https://github.com/linz/basemaps/blob/master/packages/cli/src/cli/cogify/action.make.cog.pr.ts)
+
+This create pull request in the [basemaps-config](https://github.com/linz/basemaps-config) repository and add the new imagery layer into aerial.json config.
+
+## Workflow Input Parameters
+
+| Parameter     | Type | Default                                                                                | Description                                                                                                                                                                                                                    |
+| ------------- | ---- | -------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| source        | str  | null                                                                                   | The s3 path contains source tiff files that we want to import into Basemaps. Usually from `linz-imagery` bucket.                                                                                                               |
+| name          | str  | null                                                                                   | The imagery name we want to import. Following the convention name-year-resolution, like `invercargill_2022_0.05m` or `christchurch_2020-2021_0-075m_RGB`.                                                                      |
+| target        | enum | linz-basemaps                                                                          | S3 bucket that we want to import into. `--linz-basemaps` for production and `--linz-basemaps-staging` for dev.                                                                                                                 |
+| tile-matrix   | enum | NZTM2000Quad/WebMercatorQuad                                                           | Target TileMatrix we want to import as. `--NZTM2000Quad/WebMercatorQuad` to import two layers for both NZTM2000Quad and WebMercatorQuad. `--NZTM2000Quad` for NZTM2000Quad only. `--WebMercatorQuad` for WebMercatorQuad Only. |
+| cutline       | str  | s3://linz-basemaps-source/cutline/2020-05-07-cutline-nz-coasts-rural-and-urban.geojson | The cutline using to clip source imagery                                                                                                                                                                                       |
+| blend         | int  | 20                                                                                     | How much blending to consider when working out boundaries.                                                                                                                                                                     |
+| aligned-level | int  | 6                                                                                      | How much do we want o align the output cog tiff from the source tiff resolution zoom level. `(zoom = resolution_zoom - aligned_level)`                                                                                         |
+
 # Mapsheet-Json
 
 ## Workflow Description
@@ -16,7 +83,7 @@ This workflow is used for find out which COGs intersect with a 1:50k tile in ord
 
 ```mermaid
 graph TD;
-    fetch-layer-->transform->create-mapsheet;
+    fetch-layer-->transform-->create-mapsheet;
 ```
 
 ### [fetch-layer](https://github.com/linz/argo-tasks/blob/master/src/commands/lds-cache/lds.cache.ts)
