@@ -10,7 +10,7 @@
 
 ## Workflow Description
 
-This workflow is using for importing imagery into Basemaps, it usually take imagery form `linz-imagery` bucket and process as both 2193 and 3857 projection into Basemaps. Also, there is option to create pull request automatically which add the new imagery into [basemaps-config](https://github.com/linz/basemaps-config) aerial map.
+This workflow is used for importing imagery into Basemaps, it usually takes imagery from `linz-imagery` bucket and processes both 2193 and 3857 projection into Basemaps. Also, there is an option to create pull request automatically which adds the new imagery into [basemaps-config](https://github.com/linz/basemaps-config) aerial map.
 
 ## Workflow Description
 
@@ -29,7 +29,7 @@ graph TD
 
 Loop through the source tiffs and prepare cog tiff jobs and bundle the jobs for create-cog task to create cog tiffs.
 
-We chunk up to 100 small cogs, 40 middle cogs, 10 large cogs, or mix of them with the same limitation into one create-cog job in order to limit the create-cog task can finished in about 20 mins.
+We chunk up to 100 small cogs, 40 middle cogs, 10 large cogs, or mix of them with the same limitation into one create-cog job in order to limit the create-cog task so it can finish in about 20 mins.
 
 ### [Create-Cog](https://github.com/linz/basemaps/blob/master/packages/cli/src/cli/cogify/action.cog.ts)
 
@@ -55,7 +55,7 @@ gdal_translate -of COG -co TILING_SCHEME=GoogleMapsCompatible -co NUM_THREADS=AL
 
 ### [Create-Overview](#Create-Overview)
 
-This create webp overview tar file for the output cogs which can be using for Basemaps server.
+This create webp overview tar file for the output cogs which can be used for Basemaps server.
 
 ### [Create-PR](https://github.com/linz/basemaps/blob/master/packages/cli/src/cli/cogify/action.make.cog.pr.ts)
 
@@ -69,15 +69,15 @@ This create pull request in the [basemaps-config](https://github.com/linz/basema
 | name          | str  | null                                                                                   | The imagery name we want to import. Following the convention name-year-resolution, like `invercargill_2022_0.05m` or `christchurch_2020-2021_0-075m_RGB`.                                                                      |
 | target        | enum | linz-basemaps                                                                          | S3 bucket that we want to import into. `--linz-basemaps` for production and `--linz-basemaps-staging` for dev.                                                                                                                 |
 | tile-matrix   | enum | NZTM2000Quad/WebMercatorQuad                                                           | Target TileMatrix we want to import as. `--NZTM2000Quad/WebMercatorQuad` to import two layers for both NZTM2000Quad and WebMercatorQuad. `--NZTM2000Quad` for NZTM2000Quad only. `--WebMercatorQuad` for WebMercatorQuad Only. |
-| cutline       | str  | s3://linz-basemaps-source/cutline/2020-05-07-cutline-nz-coasts-rural-and-urban.geojson | The cutline using to clip source imagery                                                                                                                                                                                       |
+| cutline       | str  | s3://linz-basemaps-source/cutline/2020-05-07-cutline-nz-coasts-rural-and-urban.geojson | The cutline is used to clip source imagery                                                                                                                                                                                       |
 | blend         | int  | 20                                                                                     | How much blending to consider when working out boundaries.                                                                                                                                                                     |
-| aligned-level | int  | 6                                                                                      | How much do we want o align the output cog tiff from the source tiff resolution zoom level. `(zoom = resolution_zoom - aligned_level)`                                                                                         |
+| aligned-level | int  | 6                                                                                      | How much do we want to align the output cog tiff from the source tiff resolution zoom level. `(zoom = resolution_zoom - aligned_level)`                                                                                         |
 
 # Mapsheet-Json
 
 ## Workflow Description
 
-This workflow is used for find out which COGs intersect with a 1:50k tile in order to build ECWs for Topo50 map sheet.
+This workflow to used for find out which COGs intersect with a 1:50k tile in order to build ECWs for Topo50 map sheet.
 
 ## Workflow Description
 
@@ -103,7 +103,7 @@ ogr2ogr -f FlatGeobuf /tmp/flatGeobuf.fgb /tmp/geopackage.gpkg
 
 ### [create-mapsheet](https://github.com/linz/basemaps/blob/master/packages/cli/src/cli/config/action.cog.mapsheet.ts)
 
-This command loop trough the existing layers and find intersection between Tile Index and layers, then output the mapsheet.json.
+This command loops trough the existing layers and find intersection between Tile Index and layers, then output the mapsheet.json.
 
 ## Workflow Input Parameters
 
@@ -137,9 +137,9 @@ mapsheet.json
 
 # Create-config
 
-This workflow using to create a configuration for a path of TIFF files and provide a preview link with Basemaps system.
+This workflow is used to create a configuration for a path of TIFF files and provide a preview link with Basemaps system.
 
-It is mainly using for the Standardising workflow to provide visual QA for the standarised imagery.
+It is mainly used for the Standardising workflow to provide visual QA for the standarised imagery.
 
 [Source-Code](https://github.com/linz/basemaps/blob/59a3e7fa847f64f5c83fc876b071db947407d14d/packages/cli/src/cli/config/action.imagery.config.ts)
 
@@ -168,11 +168,11 @@ for example:
 
 ## Workflow Description
 
-This workflow is using to create webp overviews for tiffs and output overview.tar.co into the output location.
+This workflow is used to create webp overviews for tiffs and output overview.tar.co into the output location.
 
 Overviews webps tar file contains tile/z/x/y.webp imagery files which covers lower zoom level of the tiffs file which can be load into Basemaps server and provide a high performance tile requests for low zoom level tiles from high resolution tiffs.
 
-This is mainly using for the Standardising workflow and Imagery-Import workflow which creating overview automatically for the processed tiff files.
+This is mainly used for the Standardising workflow and Imagery-Import workflow which creating overview automatically for the processed tiff files.
 
 [Source-Code](https://github.com/linz/basemaps/tree/master/packages/cli/src/cli/overview)
 
@@ -181,11 +181,11 @@ This is mainly using for the Standardising workflow and Imagery-Import workflow 
 | Parameter | Type | Default                                        | Description                                                                                                     |
 | --------- | ---- | ---------------------------------------------- | --------------------------------------------------------------------------------------------------------------- |
 | source    | str  | s3://linz-workflow-artifacts/path_of_tiffs/    | The URIs (paths) to the s3 tiff files.                                                                          |
-| output    | str  | s3://linz-workflow-artifacts/path_of_overview/ | The URIs (paths) to store the output overview.tar.co file which normally using same location of the tiff files. |
+| output    | str  | s3://linz-workflow-artifacts/path_of_overview/ | The URIs (paths) to store the output overview.tar.co file which normally uses same location of the tiff files. |
 
 ## Examples
 
-Given a standerised imagery path and output the same path for the overview tar file.
+Given a standardised imagery path and output the same path for the overview tar file.
 
 ### Publish:
 
@@ -197,7 +197,7 @@ Given a standerised imagery path and output the same path for the overview tar f
 
 ## Workflow Description
 
-This workflow is using for one-off job to create overview for all the existing imagery for the [Basemaps aerial map imageries](https://github.com/linz/basemaps-config/blob/master/config/tileset/aerial.json).
+This workflow is used for one-off job to create overview for all the existing imagery for the [Basemaps aerial map imageries](https://github.com/linz/basemaps-config/blob/master/config/tileset/aerial.json).
 
 ## Workflow Input Parameters
 
