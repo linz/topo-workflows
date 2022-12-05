@@ -69,9 +69,9 @@ This create pull request in the [basemaps-config](https://github.com/linz/basema
 | name          | str  | null                                                                                   | The imagery name we want to import. Following the convention name-year-resolution, like `invercargill_2022_0.05m` or `christchurch_2020-2021_0-075m_RGB`.                                                                      |
 | target        | enum | linz-basemaps                                                                          | S3 bucket that we want to import into. `--linz-basemaps` for production and `--linz-basemaps-staging` for dev.                                                                                                                 |
 | tile-matrix   | enum | NZTM2000Quad/WebMercatorQuad                                                           | Target TileMatrix we want to import as. `--NZTM2000Quad/WebMercatorQuad` to import two layers for both NZTM2000Quad and WebMercatorQuad. `--NZTM2000Quad` for NZTM2000Quad only. `--WebMercatorQuad` for WebMercatorQuad Only. |
-| cutline       | str  | s3://linz-basemaps-source/cutline/2020-05-07-cutline-nz-coasts-rural-and-urban.geojson | The cutline is used to clip source imagery                                                                                                                                                                                       |
+| cutline       | str  | s3://linz-basemaps-source/cutline/2020-05-07-cutline-nz-coasts-rural-and-urban.geojson | The cutline is used to clip source imagery                                                                                                                                                                                     |
 | blend         | int  | 20                                                                                     | How much blending to consider when working out boundaries.                                                                                                                                                                     |
-| aligned-level | int  | 6                                                                                      | How much do we want to align the output cog tiff from the source tiff resolution zoom level. `(zoom = resolution_zoom - aligned_level)`                                                                                         |
+| aligned-level | int  | 6                                                                                      | How much do we want to align the output cog tiff from the source tiff resolution zoom level. `(zoom = resolution_zoom - aligned_level)`                                                                                        |
 
 # Mapsheet-Json
 
@@ -178,9 +178,9 @@ This is mainly used for the Standardising workflow and Imagery-Import workflow w
 
 ## Workflow Input Parameters
 
-| Parameter | Type | Default                                        | Description                                                                                                     |
-| --------- | ---- | ---------------------------------------------- | --------------------------------------------------------------------------------------------------------------- |
-| source    | str  | s3://linz-workflow-artifacts/path_of_tiffs/    | The URIs (paths) to the s3 tiff files.                                                                          |
+| Parameter | Type | Default                                        | Description                                                                                                    |
+| --------- | ---- | ---------------------------------------------- | -------------------------------------------------------------------------------------------------------------- |
+| source    | str  | s3://linz-workflow-artifacts/path_of_tiffs/    | The URIs (paths) to the s3 tiff files.                                                                         |
 | output    | str  | s3://linz-workflow-artifacts/path_of_overview/ | The URIs (paths) to store the output overview.tar.co file which normally uses same location of the tiff files. |
 
 ## Examples
