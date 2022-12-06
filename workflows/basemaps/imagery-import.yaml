@@ -16,6 +16,9 @@ spec:
         value: ""
       - name: target
         value: "linz-basemaps"
+        enum:
+          - "linz-basemaps"
+          - "linz-basemaps-staging"
       - name: tile-matrix
         value: "NZTM2000Quad/WebMercatorQuad"
         enum:
