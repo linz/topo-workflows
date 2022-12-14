@@ -285,15 +285,15 @@ resources:
 
 ## <a name='AdditionalResources'></a>Additional Resources
 
-[Argo Workflows Training Documentation](https://argoproj.github.io/argo-workflows/training/)
-[Argo Workflows User Guide](https://argoproj.github.io/argo-workflows/workflow-concepts/)
-[Argo Workflows YAML Examples](https://github.com/argoproj/argo-workflows/tree/master/examples)
-[AWS EC2 Documentation](https://aws.amazon.com/ec2/)
-[Kubernetes in 100 Seconds (video)](https://www.youtube.com/watch?v=PziYflu8cB8)
+[Argo Workflows Training Documentation](https://argoproj.github.io/argo-workflows/training/)  
+[Argo Workflows User Guide](https://argoproj.github.io/argo-workflows/workflow-concepts/)  
+[Argo Workflows YAML Examples](https://github.com/argoproj/argo-workflows/tree/master/examples)  
+[AWS EC2 Documentation](https://aws.amazon.com/ec2/)  
+[Kubernetes in 100 Seconds (video)](https://www.youtube.com/watch?v=PziYflu8cB8)  
 
 ### <a name='LINZArgoWorkflowsRepositories'></a>LINZ Argo Workflows Repositories
 
-[GitHub - linz/topo-workflows: Argo Workflows for processing Aerial Imagery](https://github.com/linz/topo-workflows)
-[GitHub - linz/topo-imagery: A collection of scripts for processing imagery](https://github.com/linz/topo-imagery)
-[GitHub - linz/argo-tasks: Utility tasks for working with Argo + LINZs AWS accounts](https://github.com/linz/argo-tasks)
-[LINZ GitHub EKS configuration](https://github.com/linz/topo-aws-infrastructure/tree/master/src/stacks/eks)
+[GitHub - linz/topo-workflows: Argo Workflows for processing Aerial Imagery](https://github.com/linz/topo-workflows)  
+[GitHub - linz/topo-imagery: A collection of scripts for processing imagery](https://github.com/linz/topo-imagery)  
+[GitHub - linz/argo-tasks: Utility tasks for working with Argo + LINZs AWS accounts](https://github.com/linz/argo-tasks)  
+[LINZ GitHub EKS configuration](https://github.com/linz/topo-aws-infrastructure/tree/master/src/stacks/eks)  
