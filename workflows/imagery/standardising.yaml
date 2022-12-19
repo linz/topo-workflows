@@ -2,7 +2,7 @@
 apiVersion: argoproj.io/v1alpha1
 kind: WorkflowTemplate
 metadata:
-  name: imagery-standardising-v0.2.0-60
+  name: imagery-standardising-v0.2.0-69
   namespace: argo
 spec:
   parallelism: 50
@@ -139,7 +139,7 @@ spec:
               path: /tmp/file_list.json
     - name: generate-ulid
       script:
-        image: ghcr.io/linz/topo-imagery:v0.2.0-60-g58d4cd2
+        image: ghcr.io/linz/topo-imagery:v0.2.0-69-gdab4565
         command: [python]
         source: |
           import ulid
@@ -160,7 +160,7 @@ spec:
           - name: file
           - name: collection-id
       container:
-        image: ghcr.io/linz/topo-imagery:v0.2.0-60-g58d4cd2
+        image: ghcr.io/linz/topo-imagery:v0.2.0-69-gdab4565
         resources:
           requests:
             memory: 7.8Gi
@@ -251,7 +251,7 @@ spec:
           - name: collection-id
           - name: location
       container:
-        image: ghcr.io/linz/topo-imagery:v0.2.0-60-g58d4cd2
+        image: ghcr.io/linz/topo-imagery:v0.2.0-69-gdab4565
         resources:
           requests:
             memory: 7.8Gi
