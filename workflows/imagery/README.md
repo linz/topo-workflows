@@ -175,12 +175,13 @@ Access permissions are controlled by the [Bucket Sharing Config](https://github.
 
 ## Workflow Input Parameters
 
-| Parameter   | Type  | Default                                       | Description                                                                                                                     |
-| ----------- | ----- | --------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------- |
-| source      | str   | s3://linz-imagery-staging/test/sample/        | The URIs (paths) to the s3 source location                                                                                      |
-| target      | str   | s3://linz-imagery-staging/test/sample_target/ | The URIs (paths) to the s3 target location                                                                                      |
-| include     | regex | .tiff?\$\|.json\$\|.tfw\$                     | A regular expression to match object path(s) or name(s) from within the source path to include in the copy.                     |
-| copy-option | enum  | --no-clobber                                  | `--no-clobber` will not overwrite files if the name and the file size in bytes are the same. `--force` will overwrite all files |
+| Parameter   | Type  | Default                                       | Description                                                                                                                                        |
+| ----------- | ----- | --------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------- |
+| source      | str   | s3://linz-imagery-staging/test/sample/        | The URIs (paths) to the s3 source location                                                                                                         |
+| target      | str   | s3://linz-imagery-staging/test/sample_target/ | The URIs (paths) to the s3 target location                                                                                                         |
+| include     | regex | .tiff?\$\|.json\$\|.tfw\$                     | A regular expression to match object path(s) or name(s) from within the source path to include in the copy.                                        |
+| copy-option | enum  | --no-clobber                                  | `--no-clobber` will not overwrite files if the name and the file size in bytes are the same. `--force` will overwrite all files                    |
+| flatten     | enum  | --flatten                                     | `--flatten` will write all files to the specified directory, it will not copy subfolder structure. ` ` will copy files and the subfolder structure |
 
 ## Examples
 
@@ -194,6 +195,8 @@ Access permissions are controlled by the [Bucket Sharing Config](https://github.
 
 **copy-option:** `--no-clobber`
 
+**flatten:** `--flatten`
+
 **Target path naming convention:** `s3://linz-imagery/<region>/<city-or-sub-region>_<year>_<resolution>/<product>/<crs>/`
 
 ### Backup RGBI:
@@ -205,6 +208,8 @@ Access permissions are controlled by the [Bucket Sharing Config](https://github.
 **include:** Although only `.tif(f)` and `.tfw` files are required, there should not be any `.json` files in with the uploaded imagery, so this option can be left at the default.
 
 **copy-option:** `--no-clobber`
+
+**flatten:** `--flatten`
 
 # Tileset-validate
 
