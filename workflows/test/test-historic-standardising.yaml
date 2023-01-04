@@ -308,7 +308,7 @@ spec:
         parameters:
           - name: location
       container:
-        image: ghcr.io/linz/basemaps/cli:v6.36.0-33-gc50b85cc
+        image: ghcr.io/linz/basemaps/cli:v6.38.0-4-g1c304a20
         resources:
           requests:
             cpu: 3000m
@@ -330,7 +330,7 @@ spec:
         parameters:
           - name: location
       container:
-        image: ghcr.io/linz/basemaps/cli:v6.36.0-33-gc50b85cc
+        image: ghcr.io/linz/basemaps/cli:v6.38.0-4-g1c304a20
         command: [node, index.cjs]
         env:
           - name: AWS_ROLE_CONFIG_PATH
