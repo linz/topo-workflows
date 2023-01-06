@@ -257,6 +257,7 @@ You can see the EC2 Instance usage in Elasticsearch: My Applications > LI Elasti
 Below is an example of a CPU-intensive workflow task running, in this case the stage of the standardising workflow that runs `gdal_translate`.
 
 ![FigureFour](/docs/configuration-figure-4.png)
+
 This shows that the workflow is making good use of the CPU. Before the standardising code was changed to run 4 `gdal_translate` commands concurrently, the CPU usage was much lower.
 
 ### <a name='WheretoStart'></a>Where to Start?
