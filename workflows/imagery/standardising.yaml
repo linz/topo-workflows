@@ -40,6 +40,11 @@ spec:
         value: "YYYY-MM-DD"
       - name: end-datetime
         value: "YYYY-MM-DD"
+      - name: copy-option
+        value: "--no-clobber"
+        enum:
+          - "--no-clobber"
+          - "--force"
   templates:
     - name: main
       dag:
@@ -233,7 +238,12 @@ spec:
             memory: 7.8Gi
             cpu: 2000m
         command: [node, /app/index.js]
-        args: ["copy", "--no-clobber", "{{inputs.parameters.file}}"]
+        args:
+          [
+            "copy",
+            "{{workflow.parameters.copy-option}}",
+            "{{inputs.parameters.file}}",
+          ]
     - name: create-collection
       retryStrategy:
         limit: "2"
@@ -298,7 +308,7 @@ spec:
         parameters:
           - name: location
       container:
-        image: ghcr.io/linz/basemaps/cli:v6.36.0-33-gc50b85cc
+        image: ghcr.io/linz/basemaps/cli:v6.38.0-5-g5d8e0bea
         resources:
           requests:
             cpu: 3000m
@@ -320,7 +330,7 @@ spec:
         parameters:
           - name: location
       container:
-        image: ghcr.io/linz/basemaps/cli:v6.36.0-33-gc50b85cc
+        image: ghcr.io/linz/basemaps/cli:v6.38.0-5-g5d8e0bea
         command: [node, index.cjs]
         env:
           - name: AWS_ROLE_CONFIG_PATH
