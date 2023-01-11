@@ -2,7 +2,7 @@
 apiVersion: argoproj.io/v1alpha1
 kind: WorkflowTemplate
 metadata:
-  name: imagery-standardising-v0.2.0-60
+  name: imagery-standardising-v0.2.0.75
   namespace: argo
 spec:
   parallelism: 50
@@ -30,7 +30,8 @@ spec:
         enum:
           - "webp"
           - "lzw"
-          - "gray_webp"
+      - name: optional-cutline-s3-path
+        value: ""
       - name: title
         value: "*Region/District/City* *GSD* *Urban/Rural* Aerial Photos (*Year-Year*)"
       - name: description
@@ -115,7 +116,7 @@ spec:
             depends: "get-location && create-overview"
     - name: aws-list
       container:
-        image: ghcr.io/linz/argo-tasks:v1.0.0-42-gdbb002b
+        image: ghcr.io/linz/argo-tasks:v1.0.0-50-g007ed49
         command: [node, /app/index.js]
         env:
           - name: AWS_ROLE_CONFIG_PATH
@@ -139,7 +140,7 @@ spec:
               path: /tmp/file_list.json
     - name: generate-ulid
       script:
-        image: ghcr.io/linz/topo-imagery:v0.2.0-60-g58d4cd2
+        image: ghcr.io/linz/topo-imagery:v0.2.0-75-gcfa20cf
         command: [python]
         source: |
           import ulid
@@ -160,7 +161,7 @@ spec:
           - name: file
           - name: collection-id
       container:
-        image: ghcr.io/linz/topo-imagery:v0.2.0-60-g58d4cd2
+        image: ghcr.io/linz/topo-imagery:v0.2.0-75-gcfa20cf
         resources:
           requests:
             memory: 7.8Gi
@@ -185,6 +186,8 @@ spec:
           - "{{workflow.parameters.end-datetime}}"
           - "--collection-id"
           - "{{inputs.parameters.collection-id}}"
+          - "--cutline"
+          - "{{workflow.parameters.optional-cutline-s3-path}}"
       outputs:
         artifacts:
           - name: standardised_tiffs
@@ -196,14 +199,15 @@ spec:
         parameters:
           - name: location
       container:
-        image: ghcr.io/linz/argo-tasks:v1.0.0-42-gdbb002b
+        image: ghcr.io/linz/argo-tasks:v1.0.0-50-g007ed49
         command: [node, /app/index.js]
         env:
           - name: AWS_ROLE_CONFIG_PATH
             value: s3://linz-bucket-config/config.json
         args:
           [
-            "flatten",
+            "create-manifest",
+            "--flatten",
             "--verbose",
             "--include",
             ".tiff?$|.json$",
@@ -229,7 +233,7 @@ spec:
         parameters:
           - name: file
       container:
-        image: ghcr.io/linz/argo-tasks:v1.0.0-42-gdbb002b
+        image: ghcr.io/linz/argo-tasks:v1.0.0-50-g007ed49
         resources:
           requests:
             memory: 7.8Gi
@@ -251,7 +255,7 @@ spec:
           - name: collection-id
           - name: location
       container:
-        image: ghcr.io/linz/topo-imagery:v0.2.0-60-g58d4cd2
+        image: ghcr.io/linz/topo-imagery:v0.2.0-75-gcfa20cf
         resources:
           requests:
             memory: 7.8Gi
@@ -275,7 +279,7 @@ spec:
         parameters:
           - name: location
       container:
-        image: ghcr.io/linz/argo-tasks:v1.0.0-42-gdbb002b
+        image: ghcr.io/linz/argo-tasks:v1.0.0-50-g007ed49
         command: [node, /app/index.js]
         env:
           - name: AWS_ROLE_CONFIG_PATH
@@ -305,7 +309,7 @@ spec:
         parameters:
           - name: location
       container:
-        image: ghcr.io/linz/basemaps/cli:v6.36.0-33-gc50b85cc
+        image: ghcr.io/linz/basemaps/cli:v6.38.0-5-g5d8e0bea
         resources:
           requests:
             cpu: 3000m
@@ -327,7 +331,7 @@ spec:
         parameters:
           - name: location
       container:
-        image: ghcr.io/linz/basemaps/cli:v6.36.0-33-gc50b85cc
+        image: ghcr.io/linz/basemaps/cli:v6.38.0-5-g5d8e0bea
         command: [node, index.cjs]
         env:
           - name: AWS_ROLE_CONFIG_PATH

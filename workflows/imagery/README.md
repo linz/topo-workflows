@@ -14,35 +14,37 @@ In addition, a Basemaps link is produced enabling visual QA.
 
 ## Workflow Input Parameters
 
-| Parameter      | Type  | Default                                                                                             | Description                                                                                                                      |
-| -------------- | ----- | --------------------------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------- |
-| source         | str   | s3://linz-imagery-staging/test/sample                                                               | the uri (path) to the input tiffs                                                                                                |
-| include        | regex | .tiff?$                                                                                             | A regular expression to match object path(s) or name(s) from within the source path to include in standardising\*.               |
-| scale          | enum  | 500                                                                                                 | The scale of the TIFFs                                                                                                           |
-| group          | int   | 50                                                                                                  | The number of files to grouped into the pods (testing has recommended using 50 for large datasets).                              |
-| compression    | enum  | webp                                                                                                | Standardised file format                                                                                                         |
-| title          | str   | \*Region/District/City\* \*GSD\* \*Urban/Rural\* Aerial Photos (\*Year-Year\*)                      | Collection title                                                                                                                 |
-| description    | str   | Orthophotography within the \*Region Name\* region captured in the \*Year\*-\*Year\* flying season. | Collection description                                                                                                           |
-| start-datetime | str   | YYYY-MM-DD                                                                                          | Imagery start date (flown from), must be in default formatting                                                                   |
-| end-datetime   | str   | YYYY-MM-DD                                                                                          | Imagery end date (flown to), must be in default formatting                                                                       |
-| copy-option    | enum  | --no-clobber                                                                                        | `--no-clobber` will not overwrite files if the name and the file size in bytes are the same. `--force` will overwrite all files. |
+| Parameter                | Type  | Default                                                                                             | Description                                                                                                                      |
+| ------------------------ | ----- | --------------------------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------- |
+| source                   | str   | s3://linz-imagery-staging/test/sample                                                               | the uri (path) to the input tiffs                                                                                                |
+| include                  | regex | .tiff?$                                                                                             | A regular expression to match object path(s) or name(s) from within the source path to include in standardising\*.               |
+| scale                    | enum  | 500                                                                                                 | The scale of the TIFFs                                                                                                           |
+| group                    | int   | 50                                                                                                  | The number of files to grouped into the pods (testing has recommended using 50 for large datasets).                              |
+| compression              | enum  | webp                                                                                                | Standardised file format                                                                                                         |
+| optional-cutline-s3-path | str   |                                                                                                     | S3 path to a FlatGeoBuf (`.fgb`) cutline file (optional, leave blank if no cutline)                                              |
+| title                    | str   | \*Region/District/City\* \*GSD\* \*Urban/Rural\* Aerial Photos (\*Year-Year\*)                      | Collection title                                                                                                                 |
+| description              | str   | Orthophotography within the \*Region Name\* region captured in the \*Year\*-\*Year\* flying season. | Collection description                                                                                                           |
+| start-datetime           | str   | YYYY-MM-DD                                                                                          | Imagery start date (flown from), must be in default formatting                                                                   |
+| end-datetime             | str   | YYYY-MM-DD                                                                                          | Imagery end date (flown to), must be in default formatting                                                                       |
+| copy-option              | enum  | --no-clobber                                                                                        | `--no-clobber` will not overwrite files if the name and the file size in bytes are the same. `--force` will overwrite all files. |
 
 \* This regex can be used to exclude paths as well, e.g. if there are RBG and RGBI directories, the following regex will only include TIFF files in the RGB directory: `RGB(?!I).*.tiff?$`. For more complicated exclusions, there is an `--exclude` parameter, which would need to be added to the Argo WorkflowTemplate.
 
 ### Example Input Parameters
 
-| Parameter      | Value                                                                                     |
-| -------------- | ----------------------------------------------------------------------------------------- |
-| source         | s3://linz-imagery-upload/PRJ39741_BOPLASS_Imagery_2021-22/PRJ39741_03/01_GeoTiff/         |
-| include        | .tiff?$                                                                                   |
-| scale          | 2000                                                                                      |
-| group          | 50                                                                                        |
-| compression    | webp                                                                                      |
-| title          | Bay of Plenty 0.2m Rural Aerial Photos (2021-2022)                                        |
-| description    | Orthophotography within the Bay of Plenty region captured in the 2021-2022 flying season. |
-| start-datetime | 2021-12-02                                                                                |
-| end-datetime   | 2022-05-06                                                                                |
-| copy-option    | --no-clobber                                                                              |
+| Parameter                | Value                                                                                     |
+| ------------------------ | ----------------------------------------------------------------------------------------- |
+| source                   | s3://linz-imagery-upload/PRJ39741_BOPLASS_Imagery_2021-22/PRJ39741_03/01_GeoTiff/         |
+| include                  | .tiff?$                                                                                   |
+| scale                    | 2000                                                                                      |
+| group                    | 50                                                                                        |
+| compression              | webp                                                                                      |
+| optional-cutline-s3-path | s3://linz-imagery-staging/cutline/bay-of-plenty_2021-2022.fgb                             |
+| title                    | Bay of Plenty 0.2m Rural Aerial Photos (2021-2022)                                        |
+| description              | Orthophotography within the Bay of Plenty region captured in the 2021-2022 flying season. |
+| start-datetime           | 2021-12-02                                                                                |
+| end-datetime             | 2022-05-06                                                                                |
+| copy-option              | --no-clobber                                                                              |
 
 ## Workflow Outputs
 
@@ -107,7 +109,7 @@ This was done to reduce the number of times gdalinfo is run and files are looped
 
 #### [Standardise](https://github.com/linz/topo-imagery/blob/master/scripts/standardising.py)
 
-Runs `gdal_translate` on the TIFF files.
+Runs `gdal_translate` on the TIFF files, applying a cutline (if supplied) to remove unwanted pixels.
 See [topo-imagery/scripts/gdal/gdal_preset.py](https://github.com/linz/topo-imagery/blob/master/scripts/gdal/gdal_preset.py) for gdal_translate options and arguments.
 
 #### [Non-Visual QA](https://github.com/linz/topo-imagery/blob/master/scripts/files/file_check.py)
