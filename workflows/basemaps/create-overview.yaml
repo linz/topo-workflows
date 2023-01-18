@@ -30,7 +30,7 @@ spec:
           - name: source
           - name: output
       container:
-        image: ghcr.io/linz/basemaps/cli:v6.36.0-31-g59a01e66
+        image: ghcr.io/linz/basemaps/cli:v6.38.0-19-gc9865784
         resources:
           requests:
             cpu: 3000m
