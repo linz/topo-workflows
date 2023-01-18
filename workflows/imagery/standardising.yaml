@@ -2,7 +2,7 @@
 apiVersion: argoproj.io/v1alpha1
 kind: WorkflowTemplate
 metadata:
-  name: imagery-standardising-v0.2.0.75
+  name: imagery-standardising-v0.2.0.76
   namespace: argo
 spec:
   parallelism: 50
@@ -114,6 +114,11 @@ spec:
                   value: "{{tasks.get-location.outputs.parameters.location}}"
             template: create-config
             depends: "get-location && create-overview"
+      synchronization:
+        semaphore:
+          configMapKeyRef:
+            name: semaphores
+            key: standardising
     - name: aws-list
       container:
         image: ghcr.io/linz/argo-tasks:v1.0.0-50-g007ed49
