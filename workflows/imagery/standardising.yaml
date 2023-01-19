@@ -9,6 +9,11 @@ spec:
   nodeSelector:
     karpenter.sh/capacity-type: "spot"
   entrypoint: main
+  synchronization:
+    semaphore:
+      configMapKeyRef:
+        name: semaphores
+        key: standardising
   arguments:
     parameters:
       - name: source
@@ -114,11 +119,6 @@ spec:
                   value: "{{tasks.get-location.outputs.parameters.location}}"
             template: create-config
             depends: "get-location && create-overview"
-      synchronization:
-        semaphore:
-          configMapKeyRef:
-            name: semaphores
-            key: standardising
     - name: aws-list
       container:
         image: ghcr.io/linz/argo-tasks:v1.0.0-50-g007ed49
