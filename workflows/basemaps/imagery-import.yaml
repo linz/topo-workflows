@@ -4,7 +4,7 @@ metadata:
   name: basemaps-imagery-import
   namespace: argo
 spec:
-  parallelism: 20
+  parallelism: 40
   nodeSelector:
     karpenter.sh/capacity-type: "spot"
   entrypoint: main
@@ -12,6 +12,13 @@ spec:
     parameters:
       - name: source
         value: ""
+      - name: category
+        value: "Rural Aerial Photos"
+        enum:
+          - "Rural Aerial Photos"
+          - "Urban Aerial Photos"
+          - "Satellite Imagery"
+          - "New Aerial Photos"
       - name: name
         value: ""
       - name: target
@@ -88,6 +95,8 @@ spec:
               parameters:
                 - name: layer
                   value: "{{tasks.make-cog.outputs.parameters.layer}}"
+                - name: category
+                  value: "{{workflow.parameters.category}}"
             when: "{{workflow.parameters.create_pull_request}} == true"
             depends: "make-cog && create-overview"
 
@@ -102,7 +111,7 @@ spec:
           - name: blend
           - name: aligned-level
       container:
-        image: ghcr.io/linz/basemaps/cli:v6.36.0-33-gc50b85cc
+        image: ghcr.io/linz/basemaps/cli:v6.38.0-23-gd4715ac0
         command: [node, index.cjs]
         env:
           - name: AWS_ROLE_CONFIG_PATH
@@ -127,6 +136,8 @@ spec:
             "{{inputs.parameters.blend}}",
             "--aligned-level",
             "{{inputs.parameters.aligned-level}}",
+            "--max-chunk-unit",
+            "6000",
             "--aws",
             "--output",
             "/tmp/cog/",
@@ -149,10 +160,10 @@ spec:
           - name: job
           - name: names
       container:
-        image: ghcr.io/linz/basemaps/cli:v6.36.0-33-gc50b85cc
+        image: ghcr.io/linz/basemaps/cli:v6.38.0-23-gd4715ac0
         resources:
           requests:
-            memory: 7.8Gi
+            memory: 10Gi
             cpu: 15000m
         command: [node, index.cjs]
         env:
@@ -170,6 +181,8 @@ spec:
             "{{inputs.parameters.job}}",
             "--name",
             "{{inputs.parameters.names}}",
+            "--concurrency",
+            "4",
             "--commit",
           ]
 
@@ -178,7 +191,7 @@ spec:
         parameters:
           - name: path
       container:
-        image: ghcr.io/linz/basemaps/cli:v6.36.0-33-gc50b85cc
+        image: ghcr.io/linz/basemaps/cli:v6.38.0-23-gd4715ac0
         resources:
           requests:
             cpu: 3000m
@@ -200,8 +213,9 @@ spec:
       inputs:
         parameters:
           - name: layer
+          - name: category
       container:
-        image: ghcr.io/linz/basemaps/cli:v6.36.0-33-gc50b85cc
+        image: ghcr.io/linz/basemaps/cli:v6.38.0-23-gd4715ac0
         command: [node, index.cjs]
         env:
           - name: GITHUB_API_TOKEN
@@ -215,6 +229,8 @@ spec:
             "cog-pr",
             "--layer",
             "{{inputs.parameters.layer}}",
+            "--category",
+            "{{inputs.parameters.category}}",
             "--output",
             "/tmp/pr",
           ]
