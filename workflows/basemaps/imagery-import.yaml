@@ -163,7 +163,7 @@ spec:
         image: ghcr.io/linz/basemaps/cli:v6.38.0-23-gd4715ac0
         resources:
           requests:
-            memory: 10Gi
+            memory: 7.8Gi
             cpu: 15000m
         command: [node, index.cjs]
         env:
