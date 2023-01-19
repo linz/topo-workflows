@@ -2,13 +2,18 @@
 apiVersion: argoproj.io/v1alpha1
 kind: WorkflowTemplate
 metadata:
-  name: imagery-standardising-v0.2.0.75
+  name: imagery-standardising-v0.2.0.76
   namespace: argo
 spec:
   parallelism: 50
   nodeSelector:
     karpenter.sh/capacity-type: "spot"
   entrypoint: main
+  synchronization:
+    semaphore:
+      configMapKeyRef:
+        name: semaphores
+        key: standardising
   arguments:
     parameters:
       - name: source
