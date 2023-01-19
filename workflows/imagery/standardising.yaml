@@ -2,7 +2,7 @@
 apiVersion: argoproj.io/v1alpha1
 kind: WorkflowTemplate
 metadata:
-  name: imagery-standardising-v0.2.0.76
+  name: imagery-standardising-v0.2.0-75
   namespace: argo
 spec:
   parallelism: 50
@@ -314,7 +314,7 @@ spec:
         parameters:
           - name: location
       container:
-        image: ghcr.io/linz/basemaps/cli:v6.36.0-33-gc50b85cc
+        image: ghcr.io/linz/basemaps/cli:v6.38.0-23-gd4715ac0
         resources:
           requests:
             cpu: 3000m
@@ -336,7 +336,7 @@ spec:
         parameters:
           - name: location
       container:
-        image: ghcr.io/linz/basemaps/cli:v6.36.0-33-gc50b85cc
+        image: ghcr.io/linz/basemaps/cli:v6.38.0-23-gd4715ac0
         command: [node, index.cjs]
         env:
           - name: AWS_ROLE_CONFIG_PATH
