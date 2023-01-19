@@ -4,4 +4,4 @@ metadata:
   name: semaphores
   namespace: argo
 data:
-  standardising: "2"  # Limit of how many standardising workflow instances can run at the same time
+  standardising: "2" # Limit of how many standardising workflow instances can run at the same time
