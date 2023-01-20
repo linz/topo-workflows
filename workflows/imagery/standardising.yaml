@@ -35,7 +35,8 @@ spec:
         enum:
           - "webp"
           - "lzw"
-      - name: optional-cutline-s3-path
+      - name: cutline
+        description: '(Optional) location of a cutline file to cut the imagery to .fgb or .geojson'
         value: ""
       - name: title
         value: "*Region/District/City* *GSD* *Urban/Rural* Aerial Photos (*Year-Year*)"
@@ -192,7 +193,7 @@ spec:
           - "--collection-id"
           - "{{inputs.parameters.collection-id}}"
           - "--cutline"
-          - "{{workflow.parameters.optional-cutline-s3-path}}"
+          - "{{workflow.parameters.cutline}}"
       outputs:
         artifacts:
           - name: standardised_tiffs

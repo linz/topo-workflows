@@ -31,7 +31,7 @@ spec:
         value: 20
       - name: aligned-level
         value: 6
-      - name: create_pull_request
+      - name: create-pull-request
         value: true
         enum:
           - true
@@ -88,7 +88,7 @@ spec:
               parameters:
                 - name: layer
                   value: "{{tasks.make-cog.outputs.parameters.layer}}"
-            when: "{{workflow.parameters.create_pull_request}} == true"
+            when: "{{workflow.parameters.create-pull-request}} == true"
             depends: "make-cog && create-overview"
 
     - name: make-cog
