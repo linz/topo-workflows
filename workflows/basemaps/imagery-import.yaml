@@ -1,7 +1,7 @@
 apiVersion: argoproj.io/v1alpha1
 kind: WorkflowTemplate
 metadata:
-  name: basemaps-imagery-import
+  name: basemaps-imagery-import-v0
   namespace: argo
 spec:
   parallelism: 20
@@ -10,6 +10,8 @@ spec:
   entrypoint: main
   arguments:
     parameters:
+      - name: version-basemaps-cli
+        value: v6.36.0-3-g59a3e7fa
       - name: source
         value: ""
       - name: name
@@ -102,7 +104,8 @@ spec:
           - name: blend
           - name: aligned-level
       container:
-        image: ghcr.io/linz/basemaps/cli:v6.36.0-33-gc50b85cc
+        image: ghcr.io/linz/basemaps/cli:{{workflow.parameters.version-basemaps-cli}}
+        imagePullPolicy: Always
         command: [node, index.cjs]
         env:
           - name: AWS_ROLE_CONFIG_PATH
@@ -149,7 +152,8 @@ spec:
           - name: job
           - name: names
       container:
-        image: ghcr.io/linz/basemaps/cli:v6.36.0-33-gc50b85cc
+        image: ghcr.io/linz/basemaps/cli:{{workflow.parameters.version-basemaps-cli}}
+        imagePullPolicy: Always
         resources:
           requests:
             memory: 7.8Gi
@@ -178,7 +182,8 @@ spec:
         parameters:
           - name: path
       container:
-        image: ghcr.io/linz/basemaps/cli:v6.36.0-33-gc50b85cc
+        image: ghcr.io/linz/basemaps/cli:{{workflow.parameters.version-basemaps-cli}}
+        imagePullPolicy: Always
         resources:
           requests:
             cpu: 3000m
@@ -201,7 +206,8 @@ spec:
         parameters:
           - name: layer
       container:
-        image: ghcr.io/linz/basemaps/cli:v6.36.0-33-gc50b85cc
+        image: ghcr.io/linz/basemaps/cli:{{workflow.parameters.version-basemaps-cli}}
+        imagePullPolicy: Always
         command: [node, index.cjs]
         env:
           - name: GITHUB_API_TOKEN

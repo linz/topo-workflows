@@ -193,3 +193,31 @@ watch -e nslookup linz-workflow-artifacts.s3.ap-southeast-2.amazonaws.com
 > error: exec plugin: invalid apiVersion "client.authentication.k8s.io/v1alpha1"
 
 Upgrade aws cli to > 2.7.x
+
+## Using containers
+
+Some tasks in the `Workflows` or `WorkflowsTemplates` use a container to run from. These containers are build from other repository, such as https://github.com/linz/topo-imagery, https://github.com/linz/argo-tasks or https://github.com/linz/basemaps.
+Different tags are published for each of these containers:
+
+- `latest`
+- `vX.Y.Z`
+- `vX.Y`
+- `vX`
+
+The container version are managed by a workflow parameter that needs to be specified when submitting the workflow. The default value is the last major version of the container.
+Using the major version tag (`vX`) with `imagePullPolicy: Always` ensures that all minor versions are included when running a workflow using these containers.
+
+### `:latest`
+
+**This tag should never be used in production** as it points to the latest build of the container which could be an unstable version. We reserve this tag for testing purposes.
+
+### `:vX.Y.Z`, `:vX.Y`, `:vX`
+
+These tags are intended to be use in production as they will be published for each stable release of the container.
+
+- `:vX.Y` will change dynamically as `Z` will be incremented.
+- `:vX` will change dynamically as `Y` and `Z` will be incremented.
+
+### In the Workflows/WorkflowTemplates
+
+For testing purpose or to use a previous or not released version of a LINZ container, this can be changed by modifying the value of the workflow parameter `version-*`.

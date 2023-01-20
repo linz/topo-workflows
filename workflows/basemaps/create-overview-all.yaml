@@ -2,13 +2,17 @@
 apiVersion: argoproj.io/v1alpha1
 kind: Workflow
 metadata:
-  name: create-all-overviews
+  name: create-all-overviews-v0-
   namespace: argo
 spec:
   parallelism: 20
   nodeSelector:
     karpenter.sh/capacity-type: "spot"
   entrypoint: main
+  arguments:
+    parameters:
+      - name: version-basemaps-cli
+        value: v6.36.0-3-g59a3e7fa
   templates:
     - name: main
       dag:
@@ -43,7 +47,8 @@ spec:
         parameters:
           - name: source
       container:
-        image: ghcr.io/linz/basemaps/cli:v6.36.0-31-g59a01e66
+        image: ghcr.io/linz/basemaps/cli:{{workflow.parameters.version-basemaps-cli}}
+        imagePullPolicy: Always
         resources:
           requests:
             cpu: 3000m
