@@ -36,7 +36,7 @@ spec:
           - "webp"
           - "lzw"
       - name: cutline
-        description: '(Optional) location of a cutline file to cut the imagery to .fgb or .geojson'
+        description: "(Optional) location of a cutline file to cut the imagery to .fgb or .geojson"
         value: ""
       - name: title
         value: "*Region/District/City* *GSD* *Urban/Rural* Aerial Photos (*Year-Year*)"
