@@ -192,6 +192,11 @@ mtr sts.ap-southeast-2.amazonaws.com
 watch -e nslookup linz-workflow-artifacts.s3.ap-southeast-2.amazonaws.com
 ```
 
+## Concurrency
+
+See [Concurrency](docs/concurrency.md) for details on how to set limits on how
+many workflow instances can be run concurrently.
+
 ## FAQ
 
 > error: exec plugin: invalid apiVersion "client.authentication.k8s.io/v1alpha1"
