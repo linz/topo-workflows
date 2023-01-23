@@ -134,6 +134,10 @@ or
 data.title : "Wellington Urban Aerial Photos (1987-1988) SN8790" and data.url : *
 ```
 
+#### Container version used
+
+`kubernetes.container_hash` field, available in Elastic Search, gives the container hash that was used to run the task. It allows to get the version from the container registry for further investigations.
+
 ### Workflow Artifacts
 
 All workflow outputs and logs are stored in the artifacts bucket, in the `linz-workflow-artifacts` bucket on the `li-topo-prod` account.
@@ -218,9 +222,9 @@ These tags are intended to be use in production as they will be published for ea
 - `:vX.Y` will change dynamically as `Z` will be incremented.
 - `:vX` will change dynamically as `Y` and `Z` will be incremented.
 
-### In the Workflows/WorkflowTemplates
+### Using different versions
 
-For testing purpose or to use a previous or not released version of a LINZ container, this can be changed by modifying the value of the workflow parameter `version-*`.
+For each `Workflow` and `WorkflowTemplate`, there is a parameter `version-*` that allows to specify the version of the LINZ container to use.
 
 ## Versioning
 
