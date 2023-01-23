@@ -2,7 +2,7 @@
 apiVersion: argoproj.io/v1alpha1
 kind: WorkflowTemplate
 metadata:
-  name: tileset-validate-v1.0.0-43
+  name: tileset-validate-v1
   namespace: argo
 spec:
   nodeSelector:
@@ -11,7 +11,7 @@ spec:
   arguments:
     parameters:
       - name: version-argo-tasks
-        value: v2
+        value: "v2"
       - name: processed-imagery-path
         value: "s3://linz-imagery-staging/test/tileset-validate/flat"
   templates:

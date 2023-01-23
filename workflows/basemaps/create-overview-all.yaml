@@ -2,7 +2,7 @@
 apiVersion: argoproj.io/v1alpha1
 kind: Workflow
 metadata:
-  name: create-all-overviews-v0-
+  name: create-all-overviews-v1-
   namespace: argo
 spec:
   parallelism: 20
@@ -12,7 +12,7 @@ spec:
   arguments:
     parameters:
       - name: version-basemaps-cli
-        value: v6.36.0-3-g59a3e7fa
+        value: "v6.36.0-3-g59a3e7fa"
   templates:
     - name: main
       dag:

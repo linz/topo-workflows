@@ -2,7 +2,7 @@
 apiVersion: argoproj.io/v1alpha1
 kind: WorkflowTemplate
 metadata:
-  name: stac-validate-v1.0.0-43
+  name: stac-validate-v1
   namespace: argo
 spec:
   nodeSelector:
@@ -10,6 +10,8 @@ spec:
   entrypoint: main
   arguments:
     parameters:
+      - name: version-argo-tasks
+        value: "v2"
       - name: stac-file-path
         value: "s3://linz-imagery-staging/test/stac-validate/collection.json"
   templates:
@@ -31,7 +33,7 @@ spec:
         parameters:
           - name: stac-file-path
       container:
-        image: ghcr.io/linz/argo-tasks:v1.0.0-43-g09ca6ea
+        image: ghcr.io/linz/argo-tasks:{{workflow.parameters.version-argo-tasks}}
         command: [node, /app/index.js]
         env:
           - name: AWS_ROLE_CONFIG_PATH

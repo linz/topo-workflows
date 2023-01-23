@@ -1,7 +1,7 @@
 apiVersion: argoproj.io/v1alpha1
 kind: WorkflowTemplate
 metadata:
-  name: basemaps-imagery-import-v0
+  name: basemaps-imagery-import-v1
   namespace: argo
 spec:
   parallelism: 20
@@ -11,7 +11,7 @@ spec:
   arguments:
     parameters:
       - name: version-basemaps-cli
-        value: v6.36.0-3-g59a3e7fa
+        value: "v6.36.0-3-g59a3e7fa"
       - name: source
         value: ""
       - name: name

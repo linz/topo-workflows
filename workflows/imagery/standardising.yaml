@@ -2,7 +2,7 @@
 apiVersion: argoproj.io/v1alpha1
 kind: WorkflowTemplate
 metadata:
-  name: imagery-standardising-v0
+  name: imagery-standardising-v1
   namespace: argo
 spec:
   parallelism: 50

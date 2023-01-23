@@ -1,12 +1,14 @@
 apiVersion: argoproj.io/v1alpha1
 kind: Workflow
 metadata:
-  generateName: test-aws-list-v0
+  generateName: test-aws-list-v1-
 spec:
   serviceAccountName: workflow-runner-sa
   entrypoint: main
   arguments:
     parameters:
+      - name: version-argo-tasks
+        value: "latest"
       - name: uri
         value: "s3://linz-imagery-staging/test/sample/"
   templates:
@@ -27,7 +29,7 @@ spec:
           - name: uri
           - name: include
       container:
-        image: ghcr.io/linz/argo-tasks:latest
+        image: ghcr.io/linz/argo-tasks:{{workflow.parameters.version-argo-tasks}}
         command: [node, /app/index.js]
         env:
           - name: AWS_ROLE_CONFIG_PATH
