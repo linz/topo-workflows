@@ -30,6 +30,7 @@ spec:
           - name: include
       container:
         image: ghcr.io/linz/argo-tasks:{{workflow.parameters.version-argo-tasks}}
+        imagePullPolicy: Always
         command: [node, /app/index.js]
         env:
           - name: AWS_ROLE_CONFIG_PATH
