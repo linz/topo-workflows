@@ -134,6 +134,10 @@ or
 data.title : "Wellington Urban Aerial Photos (1987-1988) SN8790" and data.url : *
 ```
 
+#### Container version used
+
+`kubernetes.container_hash` field, available in Elastic Search, gives the container hash that was used to run the task. It allows to get the version from the container registry for further investigations.
+
 ### Workflow Artifacts
 
 All workflow outputs and logs are stored in the artifacts bucket, in the `linz-workflow-artifacts` bucket on the `li-topo-prod` account.
@@ -198,3 +202,35 @@ many workflow instances can be run concurrently.
 > error: exec plugin: invalid apiVersion "client.authentication.k8s.io/v1alpha1"
 
 Upgrade aws cli to > 2.7.x
+
+## Using containers
+
+Some tasks in the `Workflows` or `WorkflowsTemplates` use a container to run from. These containers are build from other repository, such as https://github.com/linz/topo-imagery, https://github.com/linz/argo-tasks or https://github.com/linz/basemaps.
+Different tags are published for each of these containers:
+
+- `latest`
+- `vX.Y.Z`
+- `vX.Y`
+- `vX`
+
+The container version are managed by a workflow parameter that needs to be specified when submitting the workflow. The default value is the last major version of the container.
+Using the major version tag (`vX`) with `imagePullPolicy: Always` ensures that all minor versions are included when running a workflow using these containers.
+
+### `:latest`
+
+**This tag should never be used in production** as it points to the latest build of the container which could be an unstable version. We reserve this tag for testing purposes.
+
+### `:vX.Y.Z`, `:vX.Y`, `:vX`
+
+These tags are intended to be use in production as they will be published for each stable release of the container.
+
+- `:vX.Y` will change dynamically as `Z` will be incremented.
+- `:vX` will change dynamically as `Y` and `Z` will be incremented.
+
+### Using different versions
+
+For each `Workflow` and `WorkflowTemplate`, there is a parameter `version-*` that allows to specify the version of the LINZ container to use.
+
+## Versioning
+
+Argo vanilla does not manage `Workflow` and `WorkflowTemplate` semantic versioning. We decided to version our workflows using a major version style (`vX`). This version is related to the structure of the workflow (for example, adding or modifying a step or parameter) rather than the external applications (i.e. containers commands) that are called.

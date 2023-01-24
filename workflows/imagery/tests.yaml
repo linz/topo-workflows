@@ -1,16 +1,21 @@
 apiVersion: argoproj.io/v1alpha1
 kind: Workflow
 metadata:
-  generateName: test-topo-imagery-
+  generateName: test-topo-imagery-v1-
 spec:
   serviceAccountName: workflow-runner-sa
   podGC:
     strategy: OnPodCompletion # Delete pod once its finished
   entrypoint: test-script
+  arguments:
+    parameters:
+      - name: version-topo-imagery
+        value: "latest"
   templates:
     - name: test-script
       script:
-        image: ghcr.io/linz/topo-imagery:v0.2.0-60-g58d4cd2
+        image: ghcr.io/linz/topo-imagery:{{workflow.parameters.version-topo-imagery}}
+        imagePullPolicy: Always
         command: [python]
         source: |
           import sys
