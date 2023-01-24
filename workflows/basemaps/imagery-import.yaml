@@ -4,7 +4,7 @@ metadata:
   name: basemaps-imagery-import-v1
   namespace: argo
 spec:
-  parallelism: 20
+  parallelism: 40
   nodeSelector:
     karpenter.sh/capacity-type: "spot"
   entrypoint: main
@@ -14,6 +14,13 @@ spec:
         value: "v6.38.0-19-gc9865784"
       - name: source
         value: ""
+      - name: category
+        value: "Rural Aerial Photos"
+        enum:
+          - "Rural Aerial Photos"
+          - "Urban Aerial Photos"
+          - "Satellite Imagery"
+          - "New Aerial Photos"
       - name: name
         value: ""
       - name: target
@@ -90,6 +97,8 @@ spec:
               parameters:
                 - name: layer
                   value: "{{tasks.make-cog.outputs.parameters.layer}}"
+                - name: category
+                  value: "{{workflow.parameters.category}}"
             when: "{{workflow.parameters.create-pull-request}} == true"
             depends: "make-cog && create-overview"
 
@@ -130,6 +139,8 @@ spec:
             "{{inputs.parameters.blend}}",
             "--aligned-level",
             "{{inputs.parameters.aligned-level}}",
+            "--max-chunk-unit",
+            "6000",
             "--aws",
             "--output",
             "/tmp/cog/",
@@ -174,6 +185,8 @@ spec:
             "{{inputs.parameters.job}}",
             "--name",
             "{{inputs.parameters.names}}",
+            "--concurrency",
+            "4",
             "--commit",
           ]
 
@@ -205,6 +218,7 @@ spec:
       inputs:
         parameters:
           - name: layer
+          - name: category
       container:
         image: ghcr.io/linz/basemaps/cli:{{workflow.parameters.version-basemaps-cli}}
         imagePullPolicy: Always
@@ -221,6 +235,8 @@ spec:
             "cog-pr",
             "--layer",
             "{{inputs.parameters.layer}}",
+            "--category",
+            "{{inputs.parameters.category}}",
             "--output",
             "/tmp/pr",
           ]
