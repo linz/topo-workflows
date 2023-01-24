@@ -119,9 +119,9 @@ spec:
             arguments:
               parameters:
                 - name: location
-                  value: "{{tasks.get-location.outputs.parameters.location}}/flat"
+                  value: "{{tasks.get-location.outputs.parameters.location}}flat/"
                 - name: target
-                  value: "{{inputs.parameters.target}}"
+                  value: "{{workflow.parameters.target}}"
                 - name: include
                   value: ".tiff?$|.json$"
             depends: "stac-validate && get-location"
