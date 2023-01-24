@@ -1,12 +1,16 @@
 apiVersion: argoproj.io/v1alpha1
 kind: WorkflowTemplate
 metadata:
-  name: basemaps-create-mapsheet-json
+  name: basemaps-create-mapsheet-json-v1
   namespace: argo
 spec:
   entrypoint: main
   arguments:
     parameters:
+      - name: version-argo-tasks
+        value: "v2"
+      - name: version-basemaps-cli
+        value: "v6.38.0-23-gd4715ac0"
       - name: layer
         value: "104687"
       - name: include
@@ -43,7 +47,8 @@ spec:
         parameters:
           - name: layer
       container:
-        image: ghcr.io/linz/argo-tasks:v1.0.0-29-gcaa00e2
+        image: ghcr.io/linz/argo-tasks:{{workflow.parameters.version-argo-tasks}}
+        imagePullPolicy: Always
         command: [node, index.js]
         env:
           - name: AWS_ROLE_CONFIG_PATH
@@ -67,7 +72,7 @@ spec:
           - name: geopackage
             path: /tmp/geopackage.gpkg
       container:
-        image: osgeo/gdal:alpine-small-3.5.0
+        image: osgeo/gdal:alpine-small-3.6.1
         command: [ogr2ogr]
         args:
           ["-f", "FlatGeobuf", "/tmp/flatGeobuf.fgb", "/tmp/geopackage.gpkg"]
@@ -82,7 +87,8 @@ spec:
           - name: flatGeobuf
             path: /tmp/flatGeobuf.fgb
       container:
-        image: ghcr.io/linz/basemaps/cli:v6.36.0-34-g4cf4f28d
+        image: ghcr.io/linz/basemaps/cli:{{workflow.parameters.version-basemaps-cli}}
+        imagePullPolicy: Always
         command: [node, index.cjs]
         env:
           - name: AWS_ROLE_CONFIG_PATH
