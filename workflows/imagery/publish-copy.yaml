@@ -2,7 +2,7 @@
 apiVersion: argoproj.io/v1alpha1
 kind: WorkflowTemplate
 metadata:
-  name: publish-copy-v1.0.0-42
+  name: publish-copy-v1
   namespace: argo
 spec:
   parallelism: 50
@@ -11,6 +11,8 @@ spec:
   entrypoint: main
   arguments:
     parameters:
+      - name: version-argo-tasks
+        value: "v2"
       - name: source
         value: "s3://linz-imagery-staging/test/sample/"
       - name: target
@@ -52,7 +54,8 @@ spec:
           - name: target
           - name: include
       container:
-        image: ghcr.io/linz/argo-tasks:v1.0.0-42-gdbb002b
+        image: ghcr.io/linz/argo-tasks:{{workflow.parameters.version-argo-tasks}}
+        imagePullPolicy: Always
         command: [node, /app/index.js]
         env:
           - name: AWS_ROLE_CONFIG_PATH
@@ -85,7 +88,8 @@ spec:
         parameters:
           - name: file
       container:
-        image: ghcr.io/linz/argo-tasks:v1.0.0-42-gdbb002b
+        image: ghcr.io/linz/argo-tasks:{{workflow.parameters.version-argo-tasks}}
+        imagePullPolicy: Always
         resources:
           requests:
             memory: 7.8Gi

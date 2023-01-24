@@ -2,12 +2,14 @@
 apiVersion: argoproj.io/v1alpha1
 kind: Workflow
 metadata:
-  name: basemaps-create-overview
+  name: basemaps-create-overview-v1-
   namespace: argo
 spec:
   entrypoint: main
   arguments:
     parameters:
+      - name: version-basemaps-cli
+        value: "v6.38.0-19-gc9865784"
       - name: source
         value: ""
       - name: output
@@ -30,7 +32,8 @@ spec:
           - name: source
           - name: output
       container:
-        image: ghcr.io/linz/basemaps/cli:v6.36.0-31-g59a01e66
+        image: ghcr.io/linz/basemaps/cli:{{workflow.parameters.version-basemaps-cli}}
+        imagePullPolicy: Always
         resources:
           requests:
             cpu: 3000m

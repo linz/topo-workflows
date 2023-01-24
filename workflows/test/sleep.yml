@@ -1,7 +1,7 @@
 apiVersion: argoproj.io/v1alpha1
 kind: Workflow
 metadata:
-  generateName: test-sleep-
+  generateName: test-sleep-v1-
 spec:
   entrypoint: sleep
   templates:
