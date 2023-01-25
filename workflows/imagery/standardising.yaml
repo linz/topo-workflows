@@ -57,6 +57,7 @@ spec:
         enum:
           - "--no-clobber"
           - "--force"
+          - "--force-no-clobber"
   templates:
     - name: main
       dag:
