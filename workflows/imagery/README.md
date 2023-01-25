@@ -2,6 +2,7 @@
 
 - [Standardising](#Standardising)
 - [Publish-copy](#Publish-copy)
+- [Standardising-publish](#Standardising-publish)
 - [Tileset-validate](#Tileset-validate)
 - [tests](#Tests)
 
@@ -207,6 +208,20 @@ Access permissions are controlled by the [Bucket Sharing Config](https://github.
 **include:** Although only `.tif(f)` and `.tfw` files are required, there should not be any `.json` files in with the uploaded imagery, so this option can be left at the default.
 
 **copy-option:** `--no-clobber`
+
+# Standardising-publish
+
+This workflow carries out the steps in the [Standardising](#Standardising) workflow, followed by the steps in the [Publish-copy](#Publish-copy) workflow.
+
+There is one extra parameter on workflow submission, the publish **target** location.
+
+The Publish-copy options are set as follows in the WorkflowTemplate:
+
+**copy-option:** `--no-clobber`
+
+**source:** the output artifact `flat` directory.
+
+**include:** `.tiff?\$\|.json\$\`
 
 # Tileset-validate
 
