@@ -211,7 +211,7 @@ Access permissions are controlled by the [Bucket Sharing Config](https://github.
 
 # Standardising-publish
 
-This workflow carries out the steps in the [Standardising](#Standardising) workflow, followed by the steps in the [Publish-copy](#Publish-copy) workflow.
+This workflow carries out the steps in the [Standardising](#Standardising) workflow, followed by the steps in the [Publish-copy](#Publish-copy) workflow. This is intended for bulk imagery transfers which do not require Visual QA before publication.
 
 There is one extra parameter on workflow submission, the publish **target** location.
 
