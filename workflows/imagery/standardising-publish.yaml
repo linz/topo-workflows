@@ -2,7 +2,7 @@
 apiVersion: argoproj.io/v1alpha1
 kind: Workflow
 metadata:
-  name: imagery-standardising-publish-copy-v1-
+  generateName: imagery-standardising-publish-copy-v1-
   namespace: argo
 spec:
   parallelism: 50
