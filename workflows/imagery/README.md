@@ -2,6 +2,7 @@
 
 - [Standardising](#Standardising)
 - [Publish-copy](#Publish-copy)
+- [Standardising-publish](#Standardising-publish)
 - [Tileset-validate](#Tileset-validate)
 - [tests](#Tests)
 
@@ -207,6 +208,28 @@ Access permissions are controlled by the [Bucket Sharing Config](https://github.
 **include:** Although only `.tif(f)` and `.tfw` files are required, there should not be any `.json` files in with the uploaded imagery, so this option can be left at the default.
 
 **copy-option:** `--no-clobber`
+
+# Standardising-publish
+
+**For command line use only**
+
+This workflow carries out the steps in the [Standardising](#Standardising) workflow, followed by the steps in the [Publish-copy](#Publish-copy) workflow. This is intended for bulk imagery transfers which do not require Visual QA before publication.
+
+The workflow parameters are the same as the standardising workflow, with one additional parameter: the publish **target** location.
+
+The Publish-copy options are set as follows in the workflow and should not need to be changed:
+
+**copy-option:** `--no-clobber`
+
+**source:** the output artifact `flat` directory.
+
+**include:** `.tiff?\$\|.json\$\`
+
+## Example
+
+```bash
+argo submit --from topo-workflows/imagery/standardising-publish.yaml -n argo -p source="s3://linz-imagery-source-example/SNC50451/" -p target="s3://linz-imagery-target-example/region/city-or-sub-region_year_resolution/product/crs/" -p include=".tiff?\$" -p scale="10000" -p group="29" -p cutline="s3://linz-topographic-upload/historical-imagery-cutlines/2023-01-16_84fd68f/SNC50451-combined.fgb" -p title="Marlborough / Wellington 0.75m SNC50451 (2004-2005)" -p description="Marlborough / Wellington 0.75m SNC50451 (2004-2005)" -p start-datetime="2004-12-27" -p end-datetime="2005-02-19" -p copy-option="--no-clobber"
+```
 
 # Tileset-validate
 
