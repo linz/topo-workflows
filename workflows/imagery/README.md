@@ -228,7 +228,7 @@ The Publish-copy options are set as follows in the workflow and should not need 
 ## Example
 
 ```bash
-argo submit --from topo-workflows/imagery/standardising-publish.yaml -n argo -p source="s3://linz-imagery-source-example/SNC50451/" -p target "s3://linz-imagery-target-example/region/city-or-sub-region_year_resolution/product/crs/" -p include=".tiff?\$" -p scale="10000" -p group="29" -p cutline="s3://linz-topographic-upload/historical-imagery-cutlines/2023-01-16_84fd68f/SNC50451-combined.fgb" -p title="Marlborough / Wellington 0.75m SNC50451 (2004-2005)" -p description="Marlborough / Wellington 0.75m SNC50451 (2004-2005)" -p start-datetime="2004-12-27" -p end-datetime="2005-02-19" -p copy-option="--no-clobber"
+argo submit --from topo-workflows/imagery/standardising-publish.yaml -n argo -p source="s3://linz-imagery-source-example/SNC50451/" -p target="s3://linz-imagery-target-example/region/city-or-sub-region_year_resolution/product/crs/" -p include=".tiff?\$" -p scale="10000" -p group="29" -p cutline="s3://linz-topographic-upload/historical-imagery-cutlines/2023-01-16_84fd68f/SNC50451-combined.fgb" -p title="Marlborough / Wellington 0.75m SNC50451 (2004-2005)" -p description="Marlborough / Wellington 0.75m SNC50451 (2004-2005)" -p start-datetime="2004-12-27" -p end-datetime="2005-02-19" -p copy-option="--no-clobber"
 ```
 
 # Tileset-validate
