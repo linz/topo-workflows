@@ -14,6 +14,9 @@ spec:
         value: "v2"
       - name: processed-imagery-path
         value: "s3://linz-imagery-staging/test/tileset-validate/flat"
+  templateDefaults:
+    container:
+      imagePullPolicy: Always
   templates:
     - name: main
       dag:
@@ -34,7 +37,6 @@ spec:
           - name: processed-imagery-path
       container:
         image: ghcr.io/linz/argo-tasks:{{workflow.parameters.version-argo-tasks}}
-        imagePullPolicy: Always
         command: [node, /app/index.js]
         env:
           - name: AWS_ROLE_CONFIG_PATH

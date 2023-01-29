@@ -61,6 +61,9 @@ spec:
           - "--no-clobber"
           - "--force"
           - "--force-no-clobber"
+  templateDefaults:
+    container:
+      imagePullPolicy: Always
   templates:
     - name: main
       dag:
@@ -152,7 +155,6 @@ spec:
     - name: aws-list
       container:
         image: ghcr.io/linz/argo-tasks:{{workflow.parameters.version-argo-tasks}}
-        imagePullPolicy: Always
         command: [node, /app/index.js]
         env:
           - name: AWS_ROLE_CONFIG_PATH
@@ -177,7 +179,6 @@ spec:
     - name: generate-ulid
       script:
         image: ghcr.io/linz/topo-imagery:{{workflow.parameters.version-topo-imagery}}
-        imagePullPolicy: Always
         command: [python]
         source: |
           import ulid
@@ -199,7 +200,6 @@ spec:
           - name: collection-id
       container:
         image: ghcr.io/linz/topo-imagery:{{workflow.parameters.version-topo-imagery}}
-        imagePullPolicy: Always
         resources:
           requests:
             memory: 7.8Gi
@@ -238,7 +238,6 @@ spec:
           - name: location
       container:
         image: ghcr.io/linz/argo-tasks:{{workflow.parameters.version-argo-tasks}}
-        imagePullPolicy: Always
         command: [node, /app/index.js]
         env:
           - name: AWS_ROLE_CONFIG_PATH
@@ -273,7 +272,6 @@ spec:
           - name: file
       container:
         image: ghcr.io/linz/argo-tasks:{{workflow.parameters.version-argo-tasks}}
-        imagePullPolicy: Always
         resources:
           requests:
             memory: 7.8Gi
@@ -296,7 +294,6 @@ spec:
           - name: location
       container:
         image: ghcr.io/linz/topo-imagery:{{workflow.parameters.version-topo-imagery}}
-        imagePullPolicy: Always
         resources:
           requests:
             memory: 7.8Gi
@@ -321,7 +318,6 @@ spec:
           - name: location
       container:
         image: ghcr.io/linz/argo-tasks:{{workflow.parameters.version-argo-tasks}}
-        imagePullPolicy: Always
         command: [node, /app/index.js]
         env:
           - name: AWS_ROLE_CONFIG_PATH
@@ -340,7 +336,6 @@ spec:
           - name: include
       container:
         image: ghcr.io/linz/argo-tasks:{{workflow.parameters.version-argo-tasks}}
-        imagePullPolicy: Always
         command: [node, /app/index.js]
         env:
           - name: AWS_ROLE_CONFIG_PATH
@@ -374,7 +369,6 @@ spec:
           - name: file
       container:
         image: ghcr.io/linz/argo-tasks:{{workflow.parameters.version-argo-tasks}}
-        imagePullPolicy: Always
         resources:
           requests:
             memory: 7.8Gi
@@ -404,7 +398,6 @@ spec:
           - name: location
       container:
         image: ghcr.io/linz/basemaps/cli:{{workflow.parameters.version-basemaps-cli}}
-        imagePullPolicy: Always
         resources:
           requests:
             cpu: 3000m
@@ -427,7 +420,6 @@ spec:
           - name: location
       container:
         image: ghcr.io/linz/basemaps/cli:{{workflow.parameters.version-basemaps-cli}}
-        imagePullPolicy: Always
         command: [node, index.cjs]
         env:
           - name: AWS_ROLE_CONFIG_PATH

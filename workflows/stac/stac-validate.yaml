@@ -14,6 +14,9 @@ spec:
         value: "v2"
       - name: stac-file-path
         value: "s3://linz-imagery-staging/test/stac-validate/collection.json"
+  templateDefaults:
+    container:
+      imagePullPolicy: Always
   templates:
     - name: main
       dag:
@@ -34,7 +37,6 @@ spec:
           - name: stac-file-path
       container:
         image: ghcr.io/linz/argo-tasks:{{workflow.parameters.version-argo-tasks}}
-        imagePullPolicy: Always
         command: [node, /app/index.js]
         env:
           - name: AWS_ROLE_CONFIG_PATH

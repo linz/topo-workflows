@@ -51,6 +51,9 @@ spec:
       secret:
         secretName: github
 
+  templateDefaults:
+    container:
+      imagePullPolicy: Always
   templates:
     - name: main
       dag:
@@ -114,7 +117,6 @@ spec:
           - name: aligned-level
       container:
         image: ghcr.io/linz/basemaps/cli:{{workflow.parameters.version-basemaps-cli}}
-        imagePullPolicy: Always
         command: [node, index.cjs]
         env:
           - name: AWS_ROLE_CONFIG_PATH
@@ -164,7 +166,6 @@ spec:
           - name: names
       container:
         image: ghcr.io/linz/basemaps/cli:{{workflow.parameters.version-basemaps-cli}}
-        imagePullPolicy: Always
         resources:
           requests:
             memory: 7.8Gi
@@ -196,7 +197,6 @@ spec:
           - name: path
       container:
         image: ghcr.io/linz/basemaps/cli:{{workflow.parameters.version-basemaps-cli}}
-        imagePullPolicy: Always
         resources:
           requests:
             cpu: 3000m
@@ -221,7 +221,6 @@ spec:
           - name: category
       container:
         image: ghcr.io/linz/basemaps/cli:{{workflow.parameters.version-basemaps-cli}}
-        imagePullPolicy: Always
         command: [node, index.cjs]
         env:
           - name: GITHUB_API_TOKEN

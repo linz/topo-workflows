@@ -11,6 +11,9 @@ spec:
         value: "latest"
       - name: uri
         value: "s3://linz-imagery-staging/test/sample/"
+  templateDefaults:
+    container:
+      imagePullPolicy: Always
   templates:
     - name: main
       dag:
@@ -30,7 +33,6 @@ spec:
           - name: include
       container:
         image: ghcr.io/linz/argo-tasks:{{workflow.parameters.version-argo-tasks}}
-        imagePullPolicy: Always
         command: [node, /app/index.js]
         env:
           - name: AWS_ROLE_CONFIG_PATH
