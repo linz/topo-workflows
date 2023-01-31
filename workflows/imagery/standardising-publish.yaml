@@ -3,6 +3,7 @@ apiVersion: argoproj.io/v1alpha1
 kind: Workflow
 metadata:
   generateName: standardising-publish-
+spec:
   entrypoint: main
   arguments:
     parameters:
@@ -14,7 +15,6 @@ metadata:
       # -p start-datetime="YYYY-MM-DD"
       # -p end-datetime="YYYY-MM-DD"
       # -p scale=""
-      # -p compression="webp"
 
       ## The cutline parameter CAN be specified when submitting (value is example only)
       # -p cutline="s3://linz-imagery-staging/test/sample/sample_cutline.fgb"
@@ -28,6 +28,8 @@ metadata:
         value: "--no-clobber"
       - name: publish-include
         value: ".tiff?$|.json$"
+      - name: compression
+        value: "webp"
 
   templates:
     - name: main
@@ -60,7 +62,7 @@ metadata:
                 - name: version-argo-tasks
                   value: "v2"
                 - name: source
-                  value: "{{steps.standardise.outputs.parameters.target}}"
+                  value: "{{steps.standardise.outputs.parameters.target}}flat/"
                 - name: target
                   value: "{{workflow.parameters.target}}"
                 - name: include
