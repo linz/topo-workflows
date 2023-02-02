@@ -19,7 +19,7 @@ spec:
       - name: version-argo-tasks
         value: "v2"
       - name: version-basemaps-cli
-        value: "v6.38.0-23-gd4715ac0"
+        value: "v6"
       - name: version-topo-imagery
         value: "v0"
       - name: source

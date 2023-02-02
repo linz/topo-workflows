@@ -9,7 +9,7 @@ spec:
   arguments:
     parameters:
       - name: version-basemaps-cli
-        value: "v6.38.0-19-gc9865784"
+        value: "v6"
       - name: source
         value: ""
       - name: output
