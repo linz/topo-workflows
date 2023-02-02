@@ -57,9 +57,6 @@ spec:
             templateRef:
               name: imagery-standardising-v1
               template: main
-            arguments:
-              parameters:
-
         - - name: publish
             templateRef:
               name: publish-copy-v1
