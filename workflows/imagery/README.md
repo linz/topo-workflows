@@ -20,7 +20,7 @@ In addition, a Basemaps link is produced enabling visual QA.
 | source         | str   | s3://linz-imagery-staging/test/sample                                                               | the uri (path) to the input tiffs                                                                                                                                                                                            |
 | include        | regex | .tiff?$                                                                                             | A regular expression to match object path(s) or name(s) from within the source path to include in standardising\*.                                                                                                           |
 | scale          | enum  | 500                                                                                                 | The scale of the TIFFs                                                                                                                                                                                                       |
-| group          | int   | 50                                                                                                  | The number of files to grouped into the pods (testing has recommended using 50 for large datasets).                                                                                                                          |
+| group          | int   | 50                                                                                                  | The number of files to group into the pods (testing has recommended using 50 for large datasets).                                                                                                                            |
 | compression    | enum  | webp                                                                                                | Standardised file format                                                                                                                                                                                                     |
 | cutline        | str   |                                                                                                     | (Optional) location of a cutline file to cut the imagery to `.fgb` or `.geojson` (leave blank if no cutline)                                                                                                                 |
 | title          | str   | \*Region/District/City\* \*GSD\* \*Urban/Rural\* Aerial Photos (\*Year-Year\*)                      | Collection title                                                                                                                                                                                                             |
@@ -225,10 +225,38 @@ The Publish-copy options are set as follows in the workflow and should not need 
 
 **include:** `.tiff?\$\|.json\$\`
 
+## Workflow Input Parameters
+
+### Mandatory Parameters - must be specified on the command line
+
+| Parameter      | Type | Default | Description                                                                                                                                 |
+| -------------- | ---- | ------- | ------------------------------------------------------------------------------------------------------------------------------------------- |
+| source         | str  |         | the uri (path) to the input tiffs e.g. s3://linz-imagery-upload/test/sample                                                                 |
+| target         | str  |         | the uri (path) to the published tiffs in the format s3://linz-imagery-target-example/region/city-or-sub-region_year_resolution/product/crs/ |
+| title          | str  |         | Collection title in the format "\*Region/District/City\* \*GSD\* \*Urban/Rural\* Aerial Photos (\*Year-Year\*)"                             |
+| description    | str  |         | Collection description in the format "Orthophotography within the \*Region Name\* region captured in the \*Year\*-\*Year\* flying season."  |
+| start-datetime | str  |         | Imagery start date (flown from), must be in the format YYYY-MM-DD formatting                                                                |
+| end-datetime   | str  |         | Imagery end date (flown to), must be in the format YYYY-MM-DD                                                                               |
+| scale          | str  |         | The scale of the TIFFs, e.g. 500                                                                                                            |
+
+### Optional Parameters - can be specified on the command line to override default value
+
+| Parameter           | Type  | Default          | Description                                                                                                                                                                                                                                                         |
+| ------------------- | ----- | ---------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| cutline             | str   |                  | (Optional) location of a cutline file to cut the imagery to `.fgb` or `.geojson` (do not include if no cutline)                                                                                                                                                     |
+| compression         | str   | webp             | Standardised file format. Must be `webp` or `lzw`                                                                                                                                                                                                                   |
+| group               | int   | 50               | Applies to the standardising workflow. The number of files to group into the pods (testing has recommended using 50 for large datasets).                                                                                                                            |
+| include             | regex | .tiff?$          | Applies to the standardising workflow. A regular expression to match object path(s) or name(s) from within the source path to include in standardising\*.                                                                                                           |
+| copy-option         | str   | --no-clobber     | Applies to the standardising workflow. `--no-clobber` will not overwrite files if the name and the file size in bytes are the same. `--force` will overwrite all files. `--force-no-clobber` will only overwrite files of the same name that are of different sizes |
+| publish-include     | regex | .tiff?\$\|.json$ | Applies to the publishing workflow. A regular expression to match object path(s) or name(s) from within the source path to include in publishing\*.                                                                                                                 |
+| publish-copy-option | str   | --no-clobber     | Applies to the publishing workflow. `--no-clobber` will not overwrite files if the name and the file size in bytes are the same. `--force` will overwrite all files. `--force-no-clobber` will only overwrite files of the same name that are of different sizes    |
+
+\* This regex can be used to exclude paths as well, e.g. if there are RBG and RGBI directories, the following regex will only include TIFF files in the RGB directory: `RGB(?!I).*.tiff?$`.
+
 ## Example
 
 ```bash
-argo submit --from topo-workflows/imagery/standardising-publish.yaml -n argo -p source="s3://linz-imagery-source-example/SNC50451/" -p target="s3://linz-imagery-target-example/region/city-or-sub-region_year_resolution/product/crs/" -p include=".tiff?\$" -p scale="10000" -p group="29" -p cutline="s3://linz-topographic-upload/historical-imagery-cutlines/2023-01-16_84fd68f/SNC50451-combined.fgb" -p title="Marlborough / Wellington 0.75m SNC50451 (2004-2005)" -p description="Marlborough / Wellington 0.75m SNC50451 (2004-2005)" -p start-datetime="2004-12-27" -p end-datetime="2005-02-19" -p copy-option="--no-clobber"
+argo submit topo-workflows/imagery/standardising-publish.yaml -n argo -p source="s3://linz-imagery-source-example/SNC50451/" -p target="s3://linz-imagery-staging/RGBi4/invercargill_urban_2022_0.1m/" -p scale="10000" -p group="29" -p cutline="s3://linz-topographic-upload/historical-imagery-cutlines/2023-01-16_84fd68f/SNC50451-combined.fgb" -p title="Marlborough / Wellington 0.75m SNC50451 (2004-2005)" -p description="Marlborough / Wellington 0.75m SNC50451 (2004-2005)" -p start-datetime="2004-12-27" -p end-datetime="2005-02-19"
 ```
 
 # Tileset-validate

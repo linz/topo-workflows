@@ -29,6 +29,11 @@ spec:
       # -p cutline="s3://linz-imagery-staging/test/sample/sample_cutline.fgb"
 
       ## The following parameters CAN be specified when submitting to override the defaults below
+
+      - name: compression
+        value: "webp"
+      - name: group
+        value: "50"
       - name: copy-option
         value: "--no-clobber"
       - name: include
@@ -37,16 +42,12 @@ spec:
         value: "--no-clobber"
       - name: publish-include
         value: ".tiff?$|.json$"
-      - name: compression
-        value: "webp"
       - name: version-argo-tasks
         value: "v2"
       - name: version-basemaps-cli
         value: "v6"
       - name: version-topo-imagery
         value: "v0"
-      - name: group
-        value: 50
       - name: publish-version-argo-tasks
         value: "v2"
 
@@ -55,11 +56,11 @@ spec:
       steps:
         - - name: standardise
             templateRef:
-              name: imagery-standardising-v1
+              name: test-amfage-imagery-standardising-v1
               template: main
         - - name: publish
             templateRef:
-              name: publish-copy-v1
+              name: test-amfage-publish-copy-v1
               template: main
             arguments:
               parameters:
