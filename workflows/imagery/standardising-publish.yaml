@@ -16,39 +16,33 @@ spec:
         key: standardising
   arguments:
     parameters:
-      ## The following parameters MUST be specified when submitting (values are examples only)
-      # -p source="s3://linz-imagery-staging/test/sample/"
-      # -p target="s3://linz-imagery-staging/test/sample_target/"
-      # -p title="*Region/District/City* *GSD* *Urban/Rural* Aerial Photos (*Year-Year*)"
-      # -p description="Orthophotography within the *Region Name* region captured in the *Year*-*Year* flying season."
-      # -p start-datetime="YYYY-MM-DD"
-      # -p end-datetime="YYYY-MM-DD"
-      # -p scale=""
-
-      ## The cutline parameter CAN be specified when submitting (value is example only)
-      # -p cutline="s3://linz-imagery-staging/test/sample/sample_cutline.fgb"
-
-      ## The following parameters CAN be specified when submitting to override the defaults below
-
-      - name: compression
+      - name: target # mandatory parameter
+      # - name: source # mandatory parameter
+      # - name: title # mandatory parameter
+      # - name: description # mandatory parameter
+      # - name: start-datetime # mandatory parameter
+      # - name: end-datetime # mandatory parameter
+      # - name: scale # mandatory parameter
+      # - name: cutline # optional parameter
+      - name: compression # optional parameter, default can be overridden on the command line
         value: "webp"
-      - name: group
+      - name: group # optional parameter, default can be overridden on the command line
         value: "50"
-      - name: copy-option
+      - name: copy-option # optional parameter, default can be overridden on the command line
         value: "--no-clobber"
-      - name: include
+      - name: include # optional parameter, default can be overridden on the command line
         value: ".tiff?$"
-      - name: publish-copy-option
+      - name: publish-copy-option # optional parameter, default can be overridden on the command line
         value: "--no-clobber"
-      - name: publish-include
+      - name: publish-include # optional parameter, default can be overridden on the command line
         value: ".tiff?$|.json$"
-      - name: version-argo-tasks
+      - name: version-argo-tasks # optional parameter, default can be overridden on the command line
         value: "v2"
-      - name: version-basemaps-cli
+      - name: version-basemaps-cli # optional parameter, default can be overridden on the command line
         value: "v6"
-      - name: version-topo-imagery
+      - name: version-topo-imagery # optional parameter, default can be overridden on the command line
         value: "v0"
-      - name: publish-version-argo-tasks
+      - name: publish-version-argo-tasks # optional parameter, default can be overridden on the command line
         value: "v2"
 
   templates:
