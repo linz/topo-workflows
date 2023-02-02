@@ -215,16 +215,6 @@ Access permissions are controlled by the [Bucket Sharing Config](https://github.
 
 This workflow carries out the steps in the [Standardising](#Standardising) workflow, followed by the steps in the [Publish-copy](#Publish-copy) workflow. This is intended for bulk imagery transfers which do not require Visual QA before publication.
 
-The workflow parameters are the same as the standardising workflow, with one additional parameter: the publish **target** location.
-
-The Publish-copy options are set as follows in the workflow and should not need to be changed:
-
-**copy-option:** `--no-clobber`
-
-**source:** the output artifact `flat` directory.
-
-**include:** `.tiff?\$\|.json\$\`
-
 ## Workflow Input Parameters
 
 ### Mandatory Parameters - must be specified on the command line
