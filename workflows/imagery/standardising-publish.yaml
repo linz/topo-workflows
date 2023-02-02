@@ -2,9 +2,18 @@
 apiVersion: argoproj.io/v1alpha1
 kind: Workflow
 metadata:
-  generateName: standardising-publish-
+  generateName: test-amfage-standardising-publish-
+  namespace: argo
 spec:
+  parallelism: 50
+  nodeSelector:
+    karpenter.sh/capacity-type: "spot"
   entrypoint: main
+  synchronization:
+    semaphore:
+      configMapKeyRef:
+        name: semaphores
+        key: standardising
   arguments:
     parameters:
       ## The following parameters MUST be specified when submitting (values are examples only)
@@ -20,9 +29,9 @@ spec:
       # -p cutline="s3://linz-imagery-staging/test/sample/sample_cutline.fgb"
 
       ## The following parameters CAN be specified when submitting to override the defaults below
-      - name: standardise-copy-option
+      - name: copy-option
         value: "--no-clobber"
-      - name: standardise-include
+      - name: include
         value: ".tiff?$"
       - name: publish-copy-option
         value: "--no-clobber"
@@ -30,37 +39,35 @@ spec:
         value: ".tiff?$|.json$"
       - name: compression
         value: "webp"
+      - name: version-argo-tasks
+        value: "v2"
+      - name: version-basemaps-cli
+        value: "v6"
+      - name: version-topo-imagery
+        value: "v0"
+      - name: group
+        value: 50
+      - name: publish-version-argo-tasks
+        value: "v2"
 
   templates:
     - name: main
       steps:
         - - name: standardise
             templateRef:
-              name: test-amfage-imagery-standardising-v1
+              name: imagery-standardising-v1
               template: main
             arguments:
               parameters:
-                - name: version-argo-tasks
-                  value: "v2"
-                - name: version-basemaps-cli
-                  value: "v6"
-                - name: version-topo-imagery
-                  value: "v0"
-                - name: include
-                  value: "{{workflow.parameters.standardise-include}}"
-                - name: copy-option
-                  value: "{{workflow.parameters.standardise-copy-option}}"
-                - name: group
-                  value: "50"
+
         - - name: publish
             templateRef:
-              name: test-amfage-publish-copy-v1
+              name: publish-copy-v1
               template: main
-              depends: standardise
             arguments:
               parameters:
                 - name: version-argo-tasks
-                  value: "v2"
+                  value: "{{workflow.parameters.publish-version-argo-tasks}}"
                 - name: source
                   value: "{{steps.standardise.outputs.parameters.target}}flat/"
                 - name: target
@@ -69,3 +76,6 @@ spec:
                   value: "{{workflow.parameters.publish-include}}"
                 - name: copy-option
                   value: "{{workflow.parameters.publish-copy-option}}"
+  volumes:
+    - name: ephemeral
+      emptyDir: {}
