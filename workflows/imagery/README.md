@@ -254,7 +254,7 @@ argo submit topo-workflows/imagery/standardising-publish.yaml -n argo -p source=
 ### Submitting from the command line using a parameters yaml file and the `-f` (`--parameter-file`) option:
 
 ```bash
-argo submit topo-workflows/imagery/standardising-publish.yaml -n argo --f params.yaml
+argo submit topo-workflows/imagery/standardising-publish.yaml -n argo -f params.yaml
 ```
 
 _params.yaml_:
