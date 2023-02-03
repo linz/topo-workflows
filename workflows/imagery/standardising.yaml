@@ -60,6 +60,7 @@ spec:
           - "--force-no-clobber"
   templates:
     - name: main
+
       dag:
         tasks:
           - name: aws-list
