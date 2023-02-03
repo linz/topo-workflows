@@ -245,8 +245,30 @@ This workflow carries out the steps in the [Standardising](#Standardising) workf
 
 ## Example
 
+### Submitting from the command line using the `-p` (`--parameter`) option:
+
 ```bash
 argo submit topo-workflows/imagery/standardising-publish.yaml -n argo -p source="s3://linz-imagery-source-example/SNC50451/" -p target="s3://linz-imagery-staging/RGBi4/invercargill_urban_2022_0.1m/" -p scale="10000" -p group="29" -p cutline="s3://linz-topographic-upload/historical-imagery-cutlines/2023-01-16_84fd68f/SNC50451-combined.fgb" -p title="Marlborough / Wellington 0.75m SNC50451 (2004-2005)" -p description="Marlborough / Wellington 0.75m SNC50451 (2004-2005)" -p start-datetime="2004-12-27" -p end-datetime="2005-02-19"
+```
+
+### Submitting from the command line using a parameters yaml file and the `-f` (`--parameter-file`) option:
+
+```bash
+argo submit topo-workflows/imagery/standardising-publish.yaml -n argo --f params.yaml
+```
+
+_params.yaml_:
+
+```yaml
+source: "s3://linz-imagery-source-example/SNC50451/"
+target: "s3://linz-imagery-staging/RGBi4/invercargill_urban_2022_0.1m/"
+scale: "1000"
+group: "29"
+cutline: "s3://linz-topographic-upload/historical-imagery-cutlines/2023-01-16_84fd68f/SNC50451-combined.fgb"
+title: "Marlborough / Wellington 0.75m SNC50451 (2004-2005)"
+description: "Marlborough / Wellington 0.75m SNC50451 (2004-2005)"
+start-datetime: "2004-12-27"
+end-datetime: "2005-02-19"
 ```
 
 # Tileset-validate
