@@ -44,7 +44,9 @@ spec:
         value: "v0"
       - name: publish-version-argo-tasks # optional parameter, default can be overridden on the command line
         value: "v2"
-
+  templateDefaults:
+    container:
+      imagePullPolicy: Always
   templates:
     - name: main
       steps:
