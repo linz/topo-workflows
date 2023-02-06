@@ -1,7 +1,7 @@
 apiVersion: argoproj.io/v1alpha1
 kind: Workflow
 metadata:
-  generateName: test-topo-imagery-v1-
+  generateName: test-topo-imagery-
 spec:
   serviceAccountName: workflow-runner-sa
   podGC:

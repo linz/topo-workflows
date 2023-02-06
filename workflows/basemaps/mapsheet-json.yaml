@@ -1,7 +1,7 @@
 apiVersion: argoproj.io/v1alpha1
 kind: WorkflowTemplate
 metadata:
-  name: basemaps-create-mapsheet-json-v1
+  name: basemaps-create-mapsheet-json
   namespace: argo
 spec:
   entrypoint: main

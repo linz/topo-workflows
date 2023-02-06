@@ -2,7 +2,7 @@
 apiVersion: argoproj.io/v1alpha1
 kind: WorkflowTemplate
 metadata:
-  name: tileset-validate-v1
+  name: tileset-validate
   namespace: argo
 spec:
   nodeSelector:
