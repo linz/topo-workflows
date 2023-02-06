@@ -25,6 +25,9 @@ spec:
           - "--no-clobber"
           - "--force"
           - "--force-no-clobber"
+  templateDefaults:
+    container:
+      imagePullPolicy: Always
   templates:
     - name: main
       inputs:
@@ -69,7 +72,6 @@ spec:
           - name: version-argo-tasks
       container:
         image: "ghcr.io/linz/argo-tasks:{{inputs.parameters.version-argo-tasks}}"
-        imagePullPolicy: Always
         command: [node, /app/index.js]
         env:
           - name: AWS_ROLE_CONFIG_PATH
@@ -105,7 +107,6 @@ spec:
           - name: file
       container:
         image: "ghcr.io/linz/argo-tasks:{{inputs.parameters.version-argo-tasks}}"
-        imagePullPolicy: Always
         resources:
           requests:
             memory: 7.8Gi
