@@ -11,11 +11,13 @@ spec:
     parameters:
       - name: version-topo-imagery
         value: "latest"
+  templateDefaults:
+    container:
+      imagePullPolicy: Always
   templates:
     - name: test-script
       script:
         image: ghcr.io/linz/topo-imagery:{{workflow.parameters.version-topo-imagery}}
-        imagePullPolicy: Always
         command: [python]
         source: |
           import sys
