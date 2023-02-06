@@ -52,11 +52,11 @@ spec:
       steps:
         - - name: standardise
             templateRef:
-              name: imagery-standardising-v1
+              name: imagery-standardising
               template: main
         - - name: publish
             templateRef:
-              name: publish-copy-v1
+              name: publish-copy
               template: main
             arguments:
               parameters:

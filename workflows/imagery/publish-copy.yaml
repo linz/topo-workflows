@@ -2,7 +2,7 @@
 apiVersion: argoproj.io/v1alpha1
 kind: WorkflowTemplate
 metadata:
-  name: publish-copy-v1
+  name: publish-copy
   namespace: argo
 spec:
   parallelism: 50
