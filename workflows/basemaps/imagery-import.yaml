@@ -1,7 +1,7 @@
 apiVersion: argoproj.io/v1alpha1
 kind: WorkflowTemplate
 metadata:
-  name: basemaps-imagery-import-v1
+  name: basemaps-imagery-import
   namespace: argo
 spec:
   parallelism: 40

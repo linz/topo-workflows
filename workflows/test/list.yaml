@@ -1,7 +1,7 @@
 apiVersion: argoproj.io/v1alpha1
 kind: Workflow
 metadata:
-  generateName: test-aws-list-v1-
+  generateName: test-aws-list-
 spec:
   serviceAccountName: workflow-runner-sa
   entrypoint: main

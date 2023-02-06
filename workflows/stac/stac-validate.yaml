@@ -2,7 +2,7 @@
 apiVersion: argoproj.io/v1alpha1
 kind: WorkflowTemplate
 metadata:
-  name: stac-validate-v1
+  name: stac-validate
   namespace: argo
 spec:
   nodeSelector:
