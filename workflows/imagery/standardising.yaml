@@ -130,9 +130,14 @@ spec:
                   value: "{{tasks.get-location.outputs.parameters.location}}"
             template: create-config
             depends: "get-location && create-overview"
+      outputs:
+        parameters:
+          - name: target
+            valueFrom:
+              parameter: "{{tasks.get-location.outputs.parameters.location}}"
     - name: aws-list
       container:
-        image: ghcr.io/linz/argo-tasks:{{workflow.parameters.version-argo-tasks}}
+        image: "ghcr.io/linz/argo-tasks:{{workflow.parameters.version-argo-tasks}}"
         command: [node, /app/index.js]
         env:
           - name: AWS_ROLE_CONFIG_PATH
@@ -156,7 +161,7 @@ spec:
               path: /tmp/file_list.json
     - name: generate-ulid
       script:
-        image: ghcr.io/linz/topo-imagery:{{workflow.parameters.version-topo-imagery}}
+        image: "ghcr.io/linz/topo-imagery:{{workflow.parameters.version-topo-imagery}}"
         command: [python]
         source: |
           import ulid
@@ -177,7 +182,7 @@ spec:
           - name: file
           - name: collection-id
       container:
-        image: ghcr.io/linz/topo-imagery:{{workflow.parameters.version-topo-imagery}}
+        image: "ghcr.io/linz/topo-imagery:{{workflow.parameters.version-topo-imagery}}"
         resources:
           requests:
             memory: 7.8Gi
@@ -215,7 +220,7 @@ spec:
         parameters:
           - name: location
       container:
-        image: ghcr.io/linz/argo-tasks:{{workflow.parameters.version-argo-tasks}}
+        image: "ghcr.io/linz/argo-tasks:{{workflow.parameters.version-argo-tasks}}"
         command: [node, /app/index.js]
         env:
           - name: AWS_ROLE_CONFIG_PATH
@@ -249,7 +254,7 @@ spec:
         parameters:
           - name: file
       container:
-        image: ghcr.io/linz/argo-tasks:{{workflow.parameters.version-argo-tasks}}
+        image: "ghcr.io/linz/argo-tasks:{{workflow.parameters.version-argo-tasks}}"
         resources:
           requests:
             memory: 7.8Gi
@@ -271,7 +276,7 @@ spec:
           - name: collection-id
           - name: location
       container:
-        image: ghcr.io/linz/topo-imagery:{{workflow.parameters.version-topo-imagery}}
+        image: "ghcr.io/linz/topo-imagery:{{workflow.parameters.version-topo-imagery}}"
         resources:
           requests:
             memory: 7.8Gi
@@ -295,7 +300,7 @@ spec:
         parameters:
           - name: location
       container:
-        image: ghcr.io/linz/argo-tasks:{{workflow.parameters.version-argo-tasks}}
+        image: "ghcr.io/linz/argo-tasks:{{workflow.parameters.version-argo-tasks}}"
         command: [node, /app/index.js]
         env:
           - name: AWS_ROLE_CONFIG_PATH
@@ -325,7 +330,7 @@ spec:
         parameters:
           - name: location
       container:
-        image: ghcr.io/linz/basemaps/cli:{{workflow.parameters.version-basemaps-cli}}
+        image: "ghcr.io/linz/basemaps/cli:{{workflow.parameters.version-basemaps-cli}}"
         resources:
           requests:
             cpu: 3000m
@@ -347,7 +352,7 @@ spec:
         parameters:
           - name: location
       container:
-        image: ghcr.io/linz/basemaps/cli:{{workflow.parameters.version-basemaps-cli}}
+        image: "ghcr.io/linz/basemaps/cli:{{workflow.parameters.version-basemaps-cli}}"
         command: [node, index.cjs]
         env:
           - name: AWS_ROLE_CONFIG_PATH
