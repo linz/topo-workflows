@@ -2,7 +2,7 @@
 apiVersion: argoproj.io/v1alpha1
 kind: Workflow
 metadata:
-  generateName: standardising-publish-
+  generateName: test-amfage-standardising-publish-import-
   namespace: argo
 spec:
   parallelism: 50
@@ -36,6 +36,10 @@ spec:
         value: "--no-clobber"
       - name: publish-include # optional parameter, default can be overridden on the command line
         value: ".tiff?$|.json$"
+      - name: basemaps-import
+        value: "false" # set to true on command line to run basemaps import
+      - name: basemaps-cutline
+        value: "s3://linz-basemaps-source/cutline/2020-05-07-cutline-nz-coasts-rural-and-urban.geojson"
       - name: version-argo-tasks # optional parameter, default can be overridden on the command line
         value: "v2"
       - name: version-basemaps-cli # optional parameter, default can be overridden on the command line
@@ -44,6 +48,15 @@ spec:
         value: "v0"
       - name: publish-version-argo-tasks # optional parameter, default can be overridden on the command line
         value: "v2"
+      - name: import-version-basemaps-cli # optional parameter, default can be overridden on the command line
+        value: "v6"
+      - name: blend # optional parameter, default can be overridden on the command line
+        value: 20
+      - name: aligned-level # optional parameter, default can be overridden on the command line
+        value: 6
+      - name: create-pull-request # optional parameter, default can be overridden on the command line
+        value: true
+
   templateDefaults:
     container:
       imagePullPolicy: Always
@@ -70,6 +83,28 @@ spec:
                   value: "{{workflow.parameters.publish-include}}"
                 - name: copy-option
                   value: "{{workflow.parameters.publish-copy-option}}"
+        - - name: import
+            templateRef:
+              name: basemaps-imagery-import
+              template: main
+            arguments:
+              parameters:
+                - name: version-basemaps-cli
+                  value: "{{workflow.parameters.import-version-basemaps-cli}}"
+                - name: source
+                  value: "{{workflow.parameters.target}}"
+                - name: cutline
+                  value: "{{workflow.parameters.basemaps-cutline}}"
+                - name: blend
+                  value: "{{workflow.parameters.blend}}"
+                - name: aligned-level
+                  value: "{{workflow.parameters.aligned-level}}"
+                - name: create-pull-request
+                  value: "{{workflow.parameters.create-pull-request}}"
+            when: "{{workflow.parameters.basemaps-import}} == true"
   volumes:
     - name: ephemeral
       emptyDir: {}
+    - name: secret-vol
+      secret:
+        secretName: github
