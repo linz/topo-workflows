@@ -76,8 +76,7 @@ spec:
         image: osgeo/gdal:alpine-small-3.6.1
         imagePullPolicy: IfNotPresent
         command: [sh]
-        args:
-          ["-c", "ogr2ogr -f FlatGeobuf tmp/flatGeobuf.fgb tmp/*.gpkg"]
+        args: ["-c", "ogr2ogr -f FlatGeobuf tmp/flatGeobuf.fgb tmp/*.gpkg"]
       outputs:
         artifacts:
           - name: flatGeobuf
