@@ -65,19 +65,19 @@ spec:
       outputs:
         artifacts:
           - name: geopackage
-            path: /tmp/lds-layer
+            path: /tmp/lds-layer/
 
     - name: transform
       inputs:
         artifacts:
           - name: geopackage
-            path: /tmp/lds-layer
+            path: /tmp/
       container:
         image: osgeo/gdal:alpine-small-3.6.1
         imagePullPolicy: IfNotPresent
-        command: [ogr2ogr]
+        command: [sh]
         args:
-          ["-f", "FlatGeobuf", "/tmp/flatGeobuf.fgb", "/tmp/lds-layer/*.gpkg"]
+          ["-c", "ogr2ogr -f FlatGeobuf tmp/flatGeobuf.fgb tmp/*.gpkg"]
       outputs:
         artifacts:
           - name: flatGeobuf
