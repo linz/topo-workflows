@@ -58,27 +58,26 @@ spec:
         args:
           [
             "lds-fetch-layer",
-            "--layer-id",
             "{{inputs.parameters.layer}}",
             "--target",
-            "/tmp/geopackage.gpkg",
+            "/tmp/lds-layer",
           ]
       outputs:
         artifacts:
           - name: geopackage
-            path: /tmp/geopackage.gpkg
+            path: /tmp/lds-layer
 
     - name: transform
       inputs:
         artifacts:
           - name: geopackage
-            path: /tmp/geopackage.gpkg
+            path: /tmp/lds-layer
       container:
         image: osgeo/gdal:alpine-small-3.6.1
         imagePullPolicy: IfNotPresent
         command: [ogr2ogr]
         args:
-          ["-f", "FlatGeobuf", "/tmp/flatGeobuf.fgb", "/tmp/geopackage.gpkg"]
+          ["-f", "FlatGeobuf", "/tmp/flatGeobuf.fgb", "/tmp/lds-layer/*.gpkg"]
       outputs:
         artifacts:
           - name: flatGeobuf
