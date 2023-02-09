@@ -2,7 +2,7 @@
 apiVersion: argoproj.io/v1alpha1
 kind: Workflow
 metadata:
-  generateName: test-amfage-standardising-publish-import-
+  generateName: test-amfage-imagery-standardising-publish-import-
   namespace: argo
 spec:
   parallelism: 50
@@ -16,13 +16,6 @@ spec:
         key: standardising
   arguments:
     parameters:
-      # - name: target # mandatory parameter
-      # - name: source # mandatory parameter
-      # - name: title # mandatory parameter
-      # - name: description # mandatory parameter
-      # - name: start-datetime # mandatory parameter
-      # - name: end-datetime # mandatory parameter
-      # - name: scale # mandatory parameter
       - name: cutline # optional standardising cutline
         value: ""
       - name: compression
@@ -59,7 +52,7 @@ spec:
                   value: "{{steps.standardise.outputs.parameters.target}}flat/"
                 - name: include
                   value: ".tiff?$|.json$"
-        # - - name: import # uncomment this stanza for basemaps imagery import
+        # - - name: import # uncomment this stanza for basemaps imagery import and amend as necessary. All other inputs should be workflow parameters
         #     templateRef:
         #       name: basemaps-imagery-import
         #       template: main
@@ -71,14 +64,6 @@ spec:
         #           value: "linz-basemaps" # change to "linz-basemaps-staging" for staging environment
         #         - name: cutline
         #           value: "s3://linz-basemaps-source/cutline/2020-05-07-cutline-nz-coasts-rural-and-urban.geojson"
-        #         - name: tile-matrix
-        #           value: "NZTM2000Quad/WebMercatorQuad"
-        #         - name: blend
-        #           value: 20
-        #         - name: aligned-level
-        #           value: 6
-        #         - name: create-pull-request
-        #           value: true
   volumes:
     - name: ephemeral
       emptyDir: {}
