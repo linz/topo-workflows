@@ -54,6 +54,7 @@ spec:
         resources:
           requests:
             cpu: 3000m
+            memory: 7.8Gi
         command: [node, index.cjs]
         env:
           - name: AWS_ROLE_CONFIG_PATH
