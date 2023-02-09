@@ -16,47 +16,29 @@ spec:
         key: standardising
   arguments:
     parameters:
-      - name: target # mandatory parameter
+      # - name: target # mandatory parameter
       # - name: source # mandatory parameter
       # - name: title # mandatory parameter
       # - name: description # mandatory parameter
       # - name: start-datetime # mandatory parameter
       # - name: end-datetime # mandatory parameter
       # - name: scale # mandatory parameter
-      # - name: cutline # optional parameter
-      - name: compression # optional parameter, default can be overridden on the command line
+      - name: cutline # optional standardising cutline
+        value: ""
+      - name: compression
         value: "webp"
-      - name: group # optional parameter, default can be overridden on the command line
+      - name: group
         value: "50"
-      - name: copy-option # optional parameter, default can be overridden on the command line
+      - name: copy-option
         value: "--no-clobber"
-      - name: include # optional parameter, default can be overridden on the command line
+      - name: include
         value: ".tiff?$"
-      - name: publish-copy-option # optional parameter, default can be overridden on the command line
-        value: "--no-clobber"
-      - name: publish-include # optional parameter, default can be overridden on the command line
-        value: ".tiff?$|.json$"
-      - name: basemaps-import
-        value: "false" # set to true on command line to run basemaps import
-      - name: basemaps-cutline
-        value: "s3://linz-basemaps-source/cutline/2020-05-07-cutline-nz-coasts-rural-and-urban.geojson"
-      - name: version-argo-tasks # optional parameter, default can be overridden on the command line
+      - name: version-argo-tasks
         value: "v2"
-      - name: version-basemaps-cli # optional parameter, default can be overridden on the command line
+      - name: version-basemaps-cli
         value: "v6"
-      - name: version-topo-imagery # optional parameter, default can be overridden on the command line
+      - name: version-topo-imagery
         value: "v0"
-      - name: publish-version-argo-tasks # optional parameter, default can be overridden on the command line
-        value: "v2"
-      - name: import-version-basemaps-cli # optional parameter, default can be overridden on the command line
-        value: "v6"
-      - name: blend # optional parameter, default can be overridden on the command line
-        value: 20
-      - name: aligned-level # optional parameter, default can be overridden on the command line
-        value: 6
-      - name: create-pull-request # optional parameter, default can be overridden on the command line
-        value: true
-
   templateDefaults:
     container:
       imagePullPolicy: Always
@@ -73,38 +55,33 @@ spec:
               template: main
             arguments:
               parameters:
-                - name: version-argo-tasks
-                  value: "{{workflow.parameters.publish-version-argo-tasks}}"
                 - name: source
                   value: "{{steps.standardise.outputs.parameters.target}}flat/"
-                - name: target
-                  value: "{{workflow.parameters.target}}"
                 - name: include
-                  value: "{{workflow.parameters.publish-include}}"
-                - name: copy-option
-                  value: "{{workflow.parameters.publish-copy-option}}"
-        - - name: import
-            templateRef:
-              name: basemaps-imagery-import
-              template: main
-            arguments:
-              parameters:
-                - name: version-basemaps-cli
-                  value: "{{workflow.parameters.import-version-basemaps-cli}}"
-                - name: source
-                  value: "{{workflow.parameters.target}}"
-                - name: cutline
-                  value: "{{workflow.parameters.basemaps-cutline}}"
-                - name: blend
-                  value: "{{workflow.parameters.blend}}"
-                - name: aligned-level
-                  value: "{{workflow.parameters.aligned-level}}"
-                - name: create-pull-request
-                  value: "{{workflow.parameters.create-pull-request}}"
-            when: "{{workflow.parameters.basemaps-import}} == true"
+                  value: ".tiff?$|.json$"
+        # - - name: import # uncomment this stanza for basemaps imagery import
+        #     templateRef:
+        #       name: basemaps-imagery-import
+        #       template: main
+        #     arguments:
+        #       parameters:
+        #         - name: source
+        #           value: "{{workflow.parameters.target}}"
+        #         - name: target
+        #           value: "linz-basemaps" # change to "linz-basemaps-staging" for staging environment
+        #         - name: cutline
+        #           value: "s3://linz-basemaps-source/cutline/2020-05-07-cutline-nz-coasts-rural-and-urban.geojson"
+        #         - name: tile-matrix
+        #           value: "NZTM2000Quad/WebMercatorQuad"
+        #         - name: blend
+        #           value: 20
+        #         - name: aligned-level
+        #           value: 6
+        #         - name: create-pull-request
+        #           value: true
   volumes:
     - name: ephemeral
       emptyDir: {}
-    - name: secret-vol
-      secret:
-        secretName: github
+    # - name: secret-vol # uncomment for basemaps imagery import
+    #   secret:
+    #     secretName: github

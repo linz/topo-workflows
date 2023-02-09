@@ -2,7 +2,7 @@
 apiVersion: argoproj.io/v1alpha1
 kind: WorkflowTemplate
 metadata:
-  name: publish-copy
+  name: test-amfage-publish-copy
   namespace: argo
 spec:
   parallelism: 50
@@ -33,10 +33,7 @@ spec:
       inputs:
         parameters:
           - name: source
-          - name: target
           - name: include
-          - name: copy-option
-          - name: version-argo-tasks
       dag:
         tasks:
           - name: create-manifest
@@ -46,32 +43,30 @@ spec:
                 - name: source
                   value: "{{inputs.parameters.source}}"
                 - name: target
-                  value: "{{inputs.parameters.target}}"
+                  value: "{{workflow.parameters.target}}"
                 - name: include
                   value: "{{inputs.parameters.include}}"
                 - name: version-argo-tasks
-                  value: "{{inputs.parameters.version-argo-tasks}}"
+                  value: "{{workflow.parameters.version-argo-tasks}}"
           - name: copy
             template: copy
             arguments:
               parameters:
                 - name: copy-option
-                  value: "{{inputs.parameters.copy-option}}"
+                  value: "{{workflow.parameters.copy-option}}"
                 - name: file
                   value: "{{item}}"
                 - name: version-argo-tasks
-                  value: "{{inputs.parameters.version-argo-tasks}}"
+                  value: "{{workflow.parameters.version-argo-tasks}}"
             depends: "create-manifest"
             withParam: "{{tasks.create-manifest.outputs.parameters.files}}"
     - name: create-manifest
       inputs:
         parameters:
           - name: source
-          - name: target
           - name: include
-          - name: version-argo-tasks
       container:
-        image: "ghcr.io/linz/argo-tasks:{{inputs.parameters.version-argo-tasks}}"
+        image: "ghcr.io/linz/argo-tasks:{{workflow.parameters.version-argo-tasks}}"
         command: [node, /app/index.js]
         env:
           - name: AWS_ROLE_CONFIG_PATH
@@ -89,7 +84,7 @@ spec:
             "--output",
             "/tmp/file_list.json",
             "--target",
-            "{{inputs.parameters.target}}",
+            "{{workflow.parameters.target}}",
             "{{inputs.parameters.source}}",
           ]
       outputs:
@@ -102,11 +97,9 @@ spec:
         limit: "2"
       inputs:
         parameters:
-          - name: copy-option
-          - name: version-argo-tasks
           - name: file
       container:
-        image: "ghcr.io/linz/argo-tasks:{{inputs.parameters.version-argo-tasks}}"
+        image: "ghcr.io/linz/argo-tasks:{{workflow.parameters.version-argo-tasks}}"
         resources:
           requests:
             memory: 7.8Gi
@@ -118,6 +111,6 @@ spec:
         args:
           [
             "copy",
-            "{{inputs.parameters.copy-option}}",
+            "{{workflow.parameters.copy-option}}",
             "{{inputs.parameters.file}}",
           ]
