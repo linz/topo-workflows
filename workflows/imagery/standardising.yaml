@@ -48,6 +48,117 @@ spec:
         value: "*Region/District/City* *GSD* *Urban/Rural* Aerial Photos (*Year-Year*)"
       - name: description
         value: "Orthophotography within the *Region Name* region captured in the *Year*-*Year* flying season."
+      - name: producer
+        value: "AAM NZ"
+        enum:
+          [
+            "AAM NZ",
+            "Aerial Surveys",
+            "Beca",
+            "GeoSmart",
+            "Landpro",
+            "Maxar",
+            "NZ Aerial Mapping",
+            "Terralink International",
+            "UAV Mapping NZ",
+          ]
+      - name: licensor
+        value: "Ashburton District Council"
+        enum:
+          [
+            "Ashburton District Council",
+            "Auckland Council",
+            "BOPLASS Ltd",
+            "Bay of Plenty Regional Council",
+            "Buller District Council",
+            "Canterbury Aerial Imagery Consortium (CAI)",
+            "Carterton District Council",
+            "Central Hawke's Bay District Council",
+            "Central Otago District Council",
+            "Chatham Islands Council",
+            "Christchurch City Council",
+            "Clutha District Council",
+            "CoLAB",
+            "Department of Conservation",
+            "Dunedin City Council",
+            "Environment Canterbury",
+            "Environment Southland",
+            "Far North District Council",
+            "Gisborne District Council",
+            "Gore District Council",
+            "Greater Wellington Regional Council",
+            "Grey District Council",
+            "Hamilton City Council",
+            "Hastings District Council",
+            "Hauraki District Council",
+            "Hawke's Bay Local Authority Shared Services (HB LASS)",
+            "Hawke's Bay Regional Council",
+            "Horizons Regional Council",
+            "Horowhenua District Council",
+            "Hurunui District Council",
+            "Invercargill City Council",
+            "Kaikōura District Council",
+            "Kaipara District Council",
+            "Kawerau District Council",
+            "Kāpiti Coast District Council",
+            "Lower Hutt City Council",
+            "Mackenzie District Council",
+            "Manawatū District Council",
+            "Manawatū-Whanganui LASS Ltd",
+            "Marlborough District Council",
+            "Masterton District Council",
+            "Matamata-Piako District Council",
+            "Maxar Technologies",
+            "Ministry of Primary Industries",
+            "NZ Aerial Mapping Ltd",
+            "Napier City Council",
+            "Nelson City Council",
+            "New Plymouth District Council",
+            "Northland Regional Council",
+            "Ōpōtiki District Council",
+            "Ōtorohanga District Council",
+            "Otago Regional Council",
+            "Palmerston North City Council",
+            "Porirua City Council",
+            "Queenstown-Lakes District Council",
+            "Rangitīkei District Council",
+            "Rotorua District Council",
+            "Ruapehu District Council",
+            "Selwyn District Council",
+            "Sinergise Ltd",
+            "South Taranaki District Council",
+            "South Waikato District Council",
+            "South Wairarapa District Council",
+            "Southland District Council",
+            "Stratford District Council",
+            "Taranaki Regional Council",
+            "Tararua District Council",
+            "Tasman District Council",
+            "Taupo District Council",
+            "Tauranga City Council",
+            "Terralink International Ltd",
+            "Thames-Coromandel District Council",
+            "Timaru District Council",
+            "Toitū Te Whenua Land Information New Zealand",
+            "Upper Hutt City Council",
+            "Waikato District Council",
+            "Waikato Regional Aerial Photography Service (WRAPS)",
+            "Waikato Regional Council",
+            "Waimakariri District Council",
+            "Waimate District Council",
+            "Waipā District Council",
+            "Wairoa District Council",
+            "Waitaki District Council",
+            "Waitomo District Council",
+            "Waka Kotahi",
+            "Wellington City Council",
+            "West Coast Regional Council",
+            "Western Bay of Plenty District Council",
+            "Westland District Council",
+            "Whakatāne District Council",
+            "Whanganui District Council",
+            "Whangārei District Council",
+          ]
       - name: start-datetime
         value: "YYYY-MM-DD"
       - name: end-datetime
@@ -293,6 +404,10 @@ spec:
           - "{{workflow.parameters.title}}"
           - "--description"
           - "{{workflow.parameters.description}}"
+          - "--producer"
+          - "{{workflow.parameters.producer}}"
+          - "--licensor"
+          - "{{workflow.parameters.licensor}}"
           - "--concurrency"
           - "25"
     - name: stac-validate
@@ -334,7 +449,6 @@ spec:
         resources:
           requests:
             cpu: 3000m
-            memory: 7.8Gi
         command: [node, index.cjs]
         env:
           - name: AWS_ROLE_CONFIG_PATH

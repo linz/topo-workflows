@@ -25,6 +25,8 @@ In addition, a Basemaps link is produced enabling visual QA.
 | cutline        | str   |                                                                                                     | (Optional) location of a cutline file to cut the imagery to `.fgb` or `.geojson` (leave blank if no cutline)                                                                                                                 |
 | title          | str   | \*Region/District/City\* \*GSD\* \*Urban/Rural\* Aerial Photos (\*Year-Year\*)                      | Collection title                                                                                                                                                                                                             |
 | description    | str   | Orthophotography within the \*Region Name\* region captured in the \*Year\*-\*Year\* flying season. | Collection description                                                                                                                                                                                                       |
+| producer       | enum  | none                                                                                                | Imagery producer                                                                                                                                                                                                             |
+| licensor       | enum  | none                                                                                                | Imagery licensor                                                                                                                                                                                                             |
 | start-datetime | str   | YYYY-MM-DD                                                                                          | Imagery start date (flown from), must be in default formatting                                                                                                                                                               |
 | end-datetime   | str   | YYYY-MM-DD                                                                                          | Imagery end date (flown to), must be in default formatting                                                                                                                                                                   |
 | copy-option    | enum  | --no-clobber                                                                                        | `--no-clobber` will not overwrite files if the name and the file size in bytes are the same. `--force` will overwrite all files. `--force-no-clobber` will only overwrite files of the same name that are of different sizes |
@@ -43,6 +45,8 @@ In addition, a Basemaps link is produced enabling visual QA.
 | cutline        | s3://linz-imagery-staging/cutline/bay-of-plenty_2021-2022.fgb                             |
 | title          | Bay of Plenty 0.2m Rural Aerial Photos (2021-2022)                                        |
 | description    | Orthophotography within the Bay of Plenty region captured in the 2021-2022 flying season. |
+| producer       | Aerial Surveys                                                                            |
+| licensor       | Toitū Te Whenua Land Information New Zealand                                              |
 | start-datetime | 2021-12-02                                                                                |
 | end-datetime   | 2022-05-06                                                                                |
 | copy-option    | --no-clobber                                                                              |
@@ -225,6 +229,8 @@ This workflow carries out the steps in the [Standardising](#Standardising) workf
 | target         | str  |         | the uri (path) to the published tiffs in the format s3://linz-imagery-target-example/region/city-or-sub-region_year_resolution/product/crs/ |
 | title          | str  |         | Collection title in the format "\*Region/District/City\* \*GSD\* \*Urban/Rural\* Aerial Photos (\*Year-Year\*)"                             |
 | description    | str  |         | Collection description in the format "Orthophotography within the \*Region Name\* region captured in the \*Year\*-\*Year\* flying season."  |
+| producer       | str  |         | Imagery producer name :warning: The name has to be exactly one in the producer enum in `standardising.yaml`                                 |
+| licensor       | str  |         | Imagery licensor name :warning: The name has to be exactly one in the licensor enum in `standardising.yaml`                                 |
 | start-datetime | str  |         | Imagery start date (flown from), must be in the format YYYY-MM-DD formatting                                                                |
 | end-datetime   | str  |         | Imagery end date (flown to), must be in the format YYYY-MM-DD                                                                               |
 | scale          | str  |         | The scale of the TIFFs, e.g. 500                                                                                                            |
@@ -248,7 +254,7 @@ This workflow carries out the steps in the [Standardising](#Standardising) workf
 ### Submitting from the command line using the `-p` (`--parameter`) option:
 
 ```bash
-argo submit topo-workflows/imagery/standardising-publish.yaml -n argo -p source="s3://linz-imagery-source-example/SNC50451/" -p target="s3://linz-imagery-staging/RGBi4/invercargill_urban_2022_0.1m/" -p scale="10000" -p group="29" -p cutline="s3://linz-topographic-upload/historical-imagery-cutlines/2023-01-16_84fd68f/SNC50451-combined.fgb" -p title="Marlborough / Wellington 0.75m SNC50451 (2004-2005)" -p description="Marlborough / Wellington 0.75m SNC50451 (2004-2005)" -p start-datetime="2004-12-27" -p end-datetime="2005-02-19"
+argo submit topo-workflows/imagery/standardising-publish.yaml -n argo -p source="s3://linz-imagery-source-example/SNC50451/" -p target="s3://linz-imagery-staging/RGBi4/invercargill_urban_2022_0.1m/" -p scale="10000" -p group="29" -p cutline="s3://linz-topographic-upload/historical-imagery-cutlines/2023-01-16_84fd68f/SNC50451-combined.fgb" -p title="Marlborough / Wellington 0.75m SNC50451 (2004-2005)" -p description="Marlborough / Wellington 0.75m SNC50451 (2004-2005)" -p producer="Aerial Surveys" -p licensor="Toitū Te Whenua Land Information New Zealand" -p start-datetime="2004-12-27" -p end-datetime="2005-02-19"
 ```
 
 ### Submitting from the command line using a parameters yaml file and the `-f` (`--parameter-file`) option:
@@ -267,6 +273,8 @@ group: "29"
 cutline: "s3://linz-topographic-upload/historical-imagery-cutlines/2023-01-16_84fd68f/SNC50451-combined.fgb"
 title: "Marlborough / Wellington 0.75m SNC50451 (2004-2005)"
 description: "Marlborough / Wellington 0.75m SNC50451 (2004-2005)"
+producer: "Aerial Surveys"
+licensor: "Toitū Te Whenua Land Information New Zealand"
 start-datetime: "2004-12-27"
 end-datetime: "2005-02-19"
 ```
