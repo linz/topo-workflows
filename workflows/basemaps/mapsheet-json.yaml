@@ -13,6 +13,8 @@ spec:
         value: "v6"
       - name: layer
         value: "104687"
+      - name: config
+        value: "s3://linz-basemaps/config/config-latest.json.gz"
       - name: include
         value: ""
       - name: exclude
@@ -100,7 +102,7 @@ spec:
             "--path",
             "/tmp/flatGeobuf.fgb",
             "--config",
-            "s3://linz-basemaps/config/config-latest.json.gz",
+            "{{workflow.parameters.config}}",
             "--output",
             "/tmp/mapsheet.json",
             "--include",
