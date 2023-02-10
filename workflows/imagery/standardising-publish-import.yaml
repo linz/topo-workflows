@@ -2,7 +2,7 @@
 apiVersion: argoproj.io/v1alpha1
 kind: Workflow
 metadata:
-  generateName: test-amfage-imagery-standardising-publish-import-
+  generateName: imagery-standardising-publish-import-
   namespace: argo
 spec:
   parallelism: 50
