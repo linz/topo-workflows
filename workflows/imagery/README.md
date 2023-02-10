@@ -279,7 +279,7 @@ These are hardcoded due to parameter naming collisions in the downstream Workflo
 ### Submitting from the command line using the `-p` (`--parameter`) option (standardising-publish):
 
 ```bash
-argo submit topo-workflows/imagery/standardising-publish.yaml -n argo -p source="s3://linz-imagery-source-example/SNC50451/" -p target="s3://linz-imagery-example/wellington/wellington_urban_2022_0.75m/" -p scale="10000" -p group="29" -p cutline="s3://linz-topographic-upload/historical-imagery-cutlines/2023-01-16_84fd68f/SNC50451-combined.fgb" -p title="Wellington 0.75m SNC50451 (2004-2005)" -p description="Wellington 0.75m SNC50451 (2004-2005)" -p start-datetime="2004-12-27" -p end-datetime="2005-02-19"
+argo submit topo-workflows/imagery/standardising-publish.yaml -n argo -p source="s3://linz-imagery-source-example/SNC50451/" -p target="s3://linz-imagery-example/wellington/wellington_urban_2022_0.75m/rgb/2193/" -p scale="10000" -p group="29" -p cutline="s3://linz-topographic-upload/historical-imagery-cutlines/2023-01-16_84fd68f/SNC50451-combined.fgb" -p title="Wellington 0.75m SNC50451 (2004-2005)" -p description="Wellington 0.75m SNC50451 (2004-2005)" -p start-datetime="2004-12-27" -p end-datetime="2005-02-19"
 ```
 
 ### Submitting from the command line using a parameters yaml file and the `-f` (`--parameter-file`) option (standardising-publish):
@@ -292,7 +292,7 @@ _params.yaml_:
 
 ```yaml
 source: "s3://linz-imagery-source-example/SNC50451/"
-target: "s3://linz-imagery-example/wellington/wellington_urban_2022_0.75m/"
+target: "s3://linz-imagery-example/wellington/wellington_urban_2022_0.75m/rgb/2193/"
 scale: "1000"
 group: "29"
 cutline: "s3://linz-topographic-upload/historical-imagery-cutlines/2023-01-16_84fd68f/SNC50451-combined.fgb"
@@ -305,7 +305,7 @@ end-datetime: "2005-02-19"
 ### Submitting from the command line using the `-p` (`--parameter`) option (standardising-publish-import):
 
 ```bash
-argo submit topo-workflows/imagery/standardising-publish.yaml -n argo -p source="s3://linz-imagery-source-example/SNC50451/" -p target="s3://linz-imagery-example/wellington/wellington_urban_2022_0.75m/" -p scale="10000" -p group="29" -p cutline="s3://linz-topographic-upload/historical-imagery-cutlines/2023-01-16_84fd68f/SNC50451-combined.fgb" -p title="Wellington 0.75m SNC50451 (2004-2005)" -p description="Wellington 0.75m SNC50451 (2004-2005)" -p start-datetime="2004-12-27" -p end-datetime="2005-02-19" -p category="Urban Aerial Photos" -p name="wellington_urban_2022_0.75m" -p tile-matrix="NZTM2000Quad/WebMercatorQuad" -p blend="20" -p aligned-level="6" -p create-pull-request="true"
+argo submit topo-workflows/imagery/standardising-publish.yaml -n argo -p source="s3://linz-imagery-source-example/SNC50451/" -p target="s3://linz-imagery-example/wellington/wellington_urban_2022_0.75m/rgb/2193/" -p scale="10000" -p group="29" -p cutline="s3://linz-topographic-upload/historical-imagery-cutlines/2023-01-16_84fd68f/SNC50451-combined.fgb" -p title="Wellington 0.75m SNC50451 (2004-2005)" -p description="Wellington 0.75m SNC50451 (2004-2005)" -p start-datetime="2004-12-27" -p end-datetime="2005-02-19" -p category="Urban Aerial Photos" -p name="wellington_urban_2022_0.75m" -p tile-matrix="NZTM2000Quad/WebMercatorQuad" -p blend="20" -p aligned-level="6" -p create-pull-request="true"
 ```
 
 ### Submitting from the command line using a parameters yaml file and the `-f` (`--parameter-file`) option (standardising-publish-import):
@@ -318,7 +318,7 @@ _params.yaml_:
 
 ```yaml
 source: "s3://linz-imagery-source-example/SNC50451/"
-target: "s3://linz-imagery-example/wellington/wellington_urban_2022_0.75m/"
+target: "s3://linz-imagery-example/wellington/wellington_urban_2022_0.75m/rgb/2193/"
 scale: "1000"
 group: "29"
 cutline: "s3://linz-topographic-upload/historical-imagery-cutlines/2023-01-16_84fd68f/SNC50451-combined.fgb"
