@@ -2,7 +2,7 @@
 
 - [Standardising](#Standardising)
 - [Publish-copy](#Publish-copy)
-- [Standardising-publish](#Standardising-publish)
+- [Standardising-publish-import](#Standardising-publish-import)
 - [Tileset-validate](#Tileset-validate)
 - [tests](#Tests)
 
@@ -209,15 +209,17 @@ Access permissions are controlled by the [Bucket Sharing Config](https://github.
 
 **copy-option:** `--no-clobber`
 
-# Standardising-publish
+# Standardising-publish-import
 
 **For command line use only**
 
-This workflow carries out the steps in the [Standardising](#Standardising) workflow, followed by the steps in the [Publish-copy](#Publish-copy) workflow. This is intended for bulk imagery transfers which do not require Visual QA before publication.
+This Workflow is intended for bulk imagery transfers which do not require Visual QA before publication.
+
+This workflow carries out the steps in the [Standardising](#Standardising) workflow, followed by the steps in the [Publish-copy](#Publish-copy) workflow. Then, optionally, the [Basemaps-Imagery-Import](../basemaps/README.md#imagery-import) process can be triggered by uncommenting the relevant sections of the Workflow file and supplying the appropriate extra parameters.
 
 ## Workflow Input Parameters
 
-### Mandatory Parameters - must be specified on the command line
+### Standardising-Publish Mandatory Parameters - must be specified on the command line
 
 | Parameter      | Type | Default | Description                                                                                                                                 |
 | -------------- | ---- | ------- | ------------------------------------------------------------------------------------------------------------------------------------------- |
@@ -229,29 +231,58 @@ This workflow carries out the steps in the [Standardising](#Standardising) workf
 | end-datetime   | str  |         | Imagery end date (flown to), must be in the format YYYY-MM-DD                                                                               |
 | scale          | str  |         | The scale of the TIFFs, e.g. 500                                                                                                            |
 
-### Optional Parameters - can be specified on the command line to override default value
+### Standardising-Publish Optional Parameters - can be specified on the command line to override default value
 
-| Parameter           | Type  | Default          | Description                                                                                                                                                                                                                                                         |
-| ------------------- | ----- | ---------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| cutline             | str   |                  | (Optional) location of a cutline file to cut the imagery to `.fgb` or `.geojson` (do not include if no cutline)                                                                                                                                                     |
-| compression         | str   | webp             | Standardised file format. Must be `webp` or `lzw`                                                                                                                                                                                                                   |
-| group               | int   | 50               | Applies to the standardising workflow. The number of files to group into the pods (testing has recommended using 50 for large datasets).                                                                                                                            |
-| include             | regex | .tiff?$          | Applies to the standardising workflow. A regular expression to match object path(s) or name(s) from within the source path to include in standardising\*.                                                                                                           |
-| copy-option         | str   | --no-clobber     | Applies to the standardising workflow. `--no-clobber` will not overwrite files if the name and the file size in bytes are the same. `--force` will overwrite all files. `--force-no-clobber` will only overwrite files of the same name that are of different sizes |
-| publish-include     | regex | .tiff?\$\|.json$ | Applies to the publishing workflow. A regular expression to match object path(s) or name(s) from within the source path to include in publishing\*.                                                                                                                 |
-| publish-copy-option | str   | --no-clobber     | Applies to the publishing workflow. `--no-clobber` will not overwrite files if the name and the file size in bytes are the same. `--force` will overwrite all files. `--force-no-clobber` will only overwrite files of the same name that are of different sizes    |
+| Parameter   | Type  | Default      | Description                                                                                                                                                                                                                                                                                                           |
+| ----------- | ----- | ------------ | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| cutline     | str   |              | (Optional) location of a cutline file to cut the imagery to `.fgb` or `.geojson` (do not include if no cutline)                                                                                                                                                                                                       |
+| compression | str   | webp         | Standardised file format. Must be `webp` or `lzw`                                                                                                                                                                                                                                                                     |
+| group       | int   | 50           | Applies to the standardising workflow. The number of files to group into the pods (testing has recommended using 50 for large datasets).                                                                                                                                                                              |
+| include     | regex | .tiff?$      | Applies to the standardising workflow. A regular expression to match object path(s) or name(s) from within the source path to include in standardising\*.                                                                                                                                                             |
+| copy-option | str   | --no-clobber | Applies to the standardising and publishing workflows and should not need to be changed. `--no-clobber` will not overwrite files if the name and the file size in bytes are the same. `--force` will overwrite all files. `--force-no-clobber` will only overwrite files of the same name that are of different sizes |
 
 \* This regex can be used to exclude paths as well, e.g. if there are RBG and RGBI directories, the following regex will only include TIFF files in the RGB directory: `RGB(?!I).*.tiff?$`.
 
-## Example
+### Standardising-Publish Fixed Parameters - can only be changed by editing the workflow file
 
-### Submitting from the command line using the `-p` (`--parameter`) option:
+These are hardcoded due to parameter naming collisions in the downstream WorkflowTemplates and will likely not need to be changed.
+
+| Parameter | Type  | Default          | Description                                                                                                                                         |
+| --------- | ----- | ---------------- | --------------------------------------------------------------------------------------------------------------------------------------------------- |
+| include   | regex | .tiff?\$\|.json$ | Applies to the publishing workflow. A regular expression to match object path(s) or name(s) from within the source path to include in publishing\*. |
+
+\* This regex can be used to exclude paths as well, e.g. if there are RBG and RGBI directories, the following regex will only include TIFF files in the RGB directory: `RGB(?!I).*.tiff?$`.
+
+### Basemaps-Imagery-Import Mandatory Parameters - must be specified on the command line if the Basemaps Imagery Import process will be run
+
+The following parameters are required. See [Basemaps Imagery Import README](../basemaps/README.md#imagery-import) for descriptions and values.
+
+- (TITLE - TBD)
+- category
+- name
+- tile-matrix
+- blend
+- aligned-level
+- create-pull-request
+
+### Basemaps-Imagery-Import Fixed Parameters - can only be changed by editing the workflow file
+
+These are hardcoded due to parameter naming collisions in the downstream WorkflowTemplates.
+
+| Parameter | Type | Default                                                                                | Description                                                                                                      |
+| --------- | ---- | -------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------- |
+| target    | str  | linz-basemaps                                                                          | S3 bucket that we want to import into. `linz-basemaps` for production and `linz-basemaps-staging` for dev.       |
+| cutline   | str  | s3://linz-basemaps-source/cutline/2020-05-07-cutline-nz-coasts-rural-and-urban.geojson | Location of the Basemaps cutline file. Default is aerial imagery, will need to be changed for satellite imagery. |
+
+## Examples
+
+### Submitting from the command line using the `-p` (`--parameter`) option (standardising-publish):
 
 ```bash
-argo submit topo-workflows/imagery/standardising-publish.yaml -n argo -p source="s3://linz-imagery-source-example/SNC50451/" -p target="s3://linz-imagery-staging/RGBi4/invercargill_urban_2022_0.1m/" -p scale="10000" -p group="29" -p cutline="s3://linz-topographic-upload/historical-imagery-cutlines/2023-01-16_84fd68f/SNC50451-combined.fgb" -p title="Marlborough / Wellington 0.75m SNC50451 (2004-2005)" -p description="Marlborough / Wellington 0.75m SNC50451 (2004-2005)" -p start-datetime="2004-12-27" -p end-datetime="2005-02-19"
+argo submit topo-workflows/imagery/standardising-publish.yaml -n argo -p source="s3://linz-imagery-source-example/SNC50451/" -p target="s3://linz-imagery-example/wellington/wellington_urban_2022_0.75m/" -p scale="10000" -p group="29" -p cutline="s3://linz-topographic-upload/historical-imagery-cutlines/2023-01-16_84fd68f/SNC50451-combined.fgb" -p title="Wellington 0.75m SNC50451 (2004-2005)" -p description="Wellington 0.75m SNC50451 (2004-2005)" -p start-datetime="2004-12-27" -p end-datetime="2005-02-19"
 ```
 
-### Submitting from the command line using a parameters yaml file and the `-f` (`--parameter-file`) option:
+### Submitting from the command line using a parameters yaml file and the `-f` (`--parameter-file`) option (standardising-publish):
 
 ```bash
 argo submit topo-workflows/imagery/standardising-publish.yaml -n argo -f params.yaml
@@ -261,14 +292,46 @@ _params.yaml_:
 
 ```yaml
 source: "s3://linz-imagery-source-example/SNC50451/"
-target: "s3://linz-imagery-staging/RGBi4/invercargill_urban_2022_0.1m/"
+target: "s3://linz-imagery-example/wellington/wellington_urban_2022_0.75m/"
 scale: "1000"
 group: "29"
 cutline: "s3://linz-topographic-upload/historical-imagery-cutlines/2023-01-16_84fd68f/SNC50451-combined.fgb"
-title: "Marlborough / Wellington 0.75m SNC50451 (2004-2005)"
-description: "Marlborough / Wellington 0.75m SNC50451 (2004-2005)"
+title: "Wellington 0.75m SNC50451 (2004-2005)"
+description: "Wellington 0.75m SNC50451 (2004-2005)"
 start-datetime: "2004-12-27"
 end-datetime: "2005-02-19"
+```
+
+### Submitting from the command line using the `-p` (`--parameter`) option (standardising-publish-import):
+
+```bash
+argo submit topo-workflows/imagery/standardising-publish.yaml -n argo -p source="s3://linz-imagery-source-example/SNC50451/" -p target="s3://linz-imagery-example/wellington/wellington_urban_2022_0.75m/" -p scale="10000" -p group="29" -p cutline="s3://linz-topographic-upload/historical-imagery-cutlines/2023-01-16_84fd68f/SNC50451-combined.fgb" -p title="Wellington 0.75m SNC50451 (2004-2005)" -p description="Wellington 0.75m SNC50451 (2004-2005)" -p start-datetime="2004-12-27" -p end-datetime="2005-02-19" -p category="Urban Aerial Photos" -p name="wellington_urban_2022_0.75m" -p tile-matrix="NZTM2000Quad/WebMercatorQuad" -p blend="20" -p aligned-level="6" -p create-pull-request="true"
+```
+
+### Submitting from the command line using a parameters yaml file and the `-f` (`--parameter-file`) option (standardising-publish-import):
+
+```bash
+argo submit topo-workflows/imagery/standardising-publish.yaml -n argo -f params.yaml
+```
+
+_params.yaml_:
+
+```yaml
+source: "s3://linz-imagery-source-example/SNC50451/"
+target: "s3://linz-imagery-example/wellington/wellington_urban_2022_0.75m/"
+scale: "1000"
+group: "29"
+cutline: "s3://linz-topographic-upload/historical-imagery-cutlines/2023-01-16_84fd68f/SNC50451-combined.fgb"
+title: "Wellington 0.75m SNC50451 (2004-2005)"
+description: "Wellington 0.75m SNC50451 (2004-2005)"
+start-datetime: "2004-12-27"
+end-datetime: "2005-02-19"
+ category: "Urban Aerial Photos"
+ name: "wellington_urban_2022_0.75m"
+ tile-matrix: "NZTM2000Quad/WebMercatorQuad"
+ blend: "20"
+ aligned-level: "6"
+ create-pull-request: "true"
 ```
 
 # Tileset-validate
