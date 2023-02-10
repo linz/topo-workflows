@@ -2,7 +2,7 @@
 apiVersion: argoproj.io/v1alpha1
 kind: Workflow
 metadata:
-  generateName: basemaps-create-overview-mem
+  name: basemaps-create-overview-
   namespace: argo
 spec:
   entrypoint: main
@@ -11,9 +11,9 @@ spec:
       - name: version-basemaps-cli
         value: "v6"
       - name: source
-        value: "s3://linz-workflow-artifacts/2023-02/08-imagery-standardising-d8sms/flat/"
+        value: ""
       - name: output
-        value: "s3://linz-workflow-artifacts/2023-02/08-imagery-standardising-d8sms/flat/"
+        value: ""
   templateDefaults:
     container:
       imagePullPolicy: Always
