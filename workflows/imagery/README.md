@@ -326,12 +326,12 @@ title: "Wellington 0.75m SNC50451 (2004-2005)"
 description: "Wellington 0.75m SNC50451 (2004-2005)"
 start-datetime: "2004-12-27"
 end-datetime: "2005-02-19"
- category: "Urban Aerial Photos"
- name: "wellington_urban_2022_0.75m"
- tile-matrix: "NZTM2000Quad/WebMercatorQuad"
- blend: "20"
- aligned-level: "6"
- create-pull-request: "true"
+category: "Urban Aerial Photos"
+name: "wellington_urban_2022_0.75m"
+tile-matrix: "NZTM2000Quad/WebMercatorQuad"
+blend: "20"
+aligned-level: "6"
+create-pull-request: "true"
 ```
 
 # Tileset-validate
