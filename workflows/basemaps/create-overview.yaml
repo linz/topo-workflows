@@ -38,7 +38,6 @@ spec:
         image: ghcr.io/linz/basemaps/cli:{{workflow.parameters.version-basemaps-cli}}
         resources:
           requests:
-            cpu: 15000m
             memory: 7.8Gi
         command: [node, index.cjs]
         env:
