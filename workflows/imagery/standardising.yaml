@@ -49,9 +49,10 @@ spec:
       - name: description
         value: "Orthophotography within the *Region Name* region captured in the *Year*-*Year* flying season."
       - name: producer
-        value: "AAM NZ"
+        value: "Unknown"
         enum:
           [
+            "Unknown",
             "AAM NZ",
             "Aerial Surveys",
             "Beca",
@@ -63,9 +64,10 @@ spec:
             "UAV Mapping NZ",
           ]
       - name: licensor
-        value: "Ashburton District Council"
+        value: "Unknown"
         enum:
           [
+            "Unknown",
             "Ashburton District Council",
             "Auckland Council",
             "BOPLASS Ltd",
