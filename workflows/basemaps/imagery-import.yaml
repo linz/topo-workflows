@@ -116,7 +116,7 @@ spec:
           - name: blend
           - name: aligned-level
       container:
-        image: ghcr.io/linz/basemaps/cli:{{workflow.parameters.version-basemaps-cli}}
+        image: ghcr.io/linz/basemaps/cli:{{=sprig.trim(workflow.parameters['version-basemaps-cli'])}}
         command: [node, index.cjs]
         env:
           - name: AWS_ROLE_CONFIG_PATH
@@ -128,15 +128,15 @@ spec:
             "-V",
             "make-cog",
             "--imagery",
-            "{{inputs.parameters.source}}",
+            "{{=sprig.trim(inputs.parameters.source)}}",
             "--name",
-            "{{inputs.parameters.name}}",
+            "{{=sprig.trim(inputs.parameters.name)}}",
             "--target",
             "{{inputs.parameters.target}}",
             "--tile-matrix",
             "{{inputs.parameters.tile-matrix}}",
             "--cutline",
-            "{{inputs.parameters.cutline}}",
+            "{{=sprig.trim(inputs.parameters.cutline)}}",
             "--blend",
             "{{inputs.parameters.blend}}",
             "--aligned-level",
@@ -165,7 +165,7 @@ spec:
           - name: job
           - name: names
       container:
-        image: ghcr.io/linz/basemaps/cli:{{workflow.parameters.version-basemaps-cli}}
+        image: ghcr.io/linz/basemaps/cli:{{=sprig.trim(workflow.parameters['version-basemaps-cli'])}}
         resources:
           requests:
             memory: 7.8Gi
@@ -196,7 +196,7 @@ spec:
         parameters:
           - name: path
       container:
-        image: ghcr.io/linz/basemaps/cli:{{workflow.parameters.version-basemaps-cli}}
+        image: ghcr.io/linz/basemaps/cli:{{=sprig.trim(workflow.parameters['version-basemaps-cli'])}}
         resources:
           requests:
             cpu: 3000m
@@ -220,7 +220,7 @@ spec:
           - name: layer
           - name: category
       container:
-        image: ghcr.io/linz/basemaps/cli:{{workflow.parameters.version-basemaps-cli}}
+        image: ghcr.io/linz/basemaps/cli:{{=sprig.trim(workflow.parameters['version-basemaps-cli'])}}
         command: [node, index.cjs]
         env:
           - name: GITHUB_API_TOKEN
