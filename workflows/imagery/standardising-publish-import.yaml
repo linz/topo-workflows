@@ -31,7 +31,7 @@ spec:
       - name: version-basemaps-cli
         value: "v6"
       - name: version-topo-imagery
-        value: "v0"
+        value: "v1"
   templateDefaults:
     container:
       imagePullPolicy: Always
