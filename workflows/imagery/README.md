@@ -288,7 +288,7 @@ These are hardcoded due to parameter naming collisions in the downstream Workflo
 ### Submitting from the command line using the `-p` (`--parameter`) option (standardising-publish):
 
 ```bash
-argo submit topo-workflows/imagery/standardising-publish-import.yaml -n argo -p source="s3://linz-imagery-source-example/aerial-imagery/new-zealand/christchurch_urban_2021_0.05m_RGB/" -p target="s3://linz-imagery-example/canterbury/christchurch_2021_0.05m/rgb/2193/" -p scale="500" -p group="29" -p cutline="s3://linz-imagery-cutline-example/historical-imagery-cutlines/2023-01-16_84fd68f/SNC50451-combined.fgb" -p title="Christchurch 0.05m Urban Aerial Photos (2021)" -p description="Orthophotography within the Canterbury region captured in the 2021 flying season." -p start-datetime="2021-11-02" -p end-datetime="2021-12-02"
+argo submit topo-workflows/imagery/standardising-publish-import.yaml -n argo -p source="s3://linz-imagery-source-example/aerial-imagery/new-zealand/christchurch_urban_2021_0.05m_RGB/" -p target="s3://linz-imagery-example/canterbury/christchurch_2021_0.05m/rgb/2193/" -p scale="500" -p group="29" -p cutline="s3://linz-imagery-cutline-example/historical-imagery-cutlines/2023-01-16_84fd68f/SNC50451-combined.fgb" -p title="Christchurch 0.05m Urban Aerial Photos (2021)" -p description="Orthophotography within the Canterbury region captured in the 2021 flying season." -p producer="Aerial Surveys" -p licensor="Toitū Te Whenua Land Information New Zealand" -p start-datetime="2021-11-02" -p end-datetime="2021-12-02"
 ```
 
 ### Submitting from the command line using a parameters yaml file and the `-f` (`--parameter-file`) option (standardising-publish):
@@ -307,6 +307,8 @@ group: "29"
 cutline: "s3://linz-imagery-cutline-example/historical-imagery-cutlines/2023-01-16_84fd68f/SNC50451-combined.fgb"
 title: "Christchurch 0.05m Urban Aerial Photos (2021)"
 description: "Orthophotography within the Canterbury region captured in the 2021 flying season."
+producer: "Aerial Surveys"
+licensor: "Toitū Te Whenua Land Information New Zealand"
 start-datetime: "2021-11-02"
 end-datetime: "2021-12-02"
 ```
