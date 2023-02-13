@@ -56,6 +56,11 @@ spec:
       imagePullPolicy: Always
   templates:
     - name: main
+      inputs:
+        parameters:
+          - name: source
+          - name: target
+          - name: cutline
       dag:
         tasks:
           - name: make-cog
@@ -63,15 +68,15 @@ spec:
             arguments:
               parameters:
                 - name: source
-                  value: "{{workflow.parameters.source}}"
+                  value: "{{inputs.parameters.source}}"
                 - name: name
                   value: "{{workflow.parameters.name}}"
                 - name: target
-                  value: "{{workflow.parameters.target}}"
+                  value: "{{inputs.parameters.target}}"
                 - name: tile-matrix
                   value: "{{workflow.parameters.tile-matrix}}"
                 - name: cutline
-                  value: "{{workflow.parameters.cutline}}"
+                  value: "{{inputs.parameters.cutline}}"
                 - name: blend
                   value: "{{workflow.parameters.blend}}"
                 - name: aligned-level
