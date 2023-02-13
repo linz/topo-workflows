@@ -251,7 +251,7 @@ spec:
               parameter: "{{tasks.get-location.outputs.parameters.location}}"
     - name: aws-list
       container:
-        image: "ghcr.io/linz/argo-tasks:{{workflow.parameters.version-argo-tasks}}"
+        image: "ghcr.io/linz/argo-tasks:{{=sprig.trim(workflow.parameters['version-argo-tasks'])}}"
         command: [node, /app/index.js]
         env:
           - name: AWS_ROLE_CONFIG_PATH
@@ -261,12 +261,12 @@ spec:
             "list",
             "--verbose",
             "--include",
-            "{{workflow.parameters.include}}",
+            "{{=sprig.trim(workflow.parameters.include)}}",
             "--group",
-            "{{workflow.parameters.group}}",
+            "{{=sprig.trim(workflow.parameters.group)}}",
             "--output",
             "/tmp/file_list.json",
-            "{{workflow.parameters.source}}",
+            "{{=sprig.trim(workflow.parameters.source)}}",
           ]
       outputs:
         parameters:
@@ -275,7 +275,7 @@ spec:
               path: /tmp/file_list.json
     - name: generate-ulid
       script:
-        image: "ghcr.io/linz/topo-imagery:{{workflow.parameters.version-topo-imagery}}"
+        image: "ghcr.io/linz/topo-imagery:{{=sprig.trim(workflow.parameters['version-topo-imagery'])}}"
         command: [python]
         source: |
           import ulid
@@ -296,7 +296,7 @@ spec:
           - name: file
           - name: collection-id
       container:
-        image: "ghcr.io/linz/topo-imagery:{{workflow.parameters.version-topo-imagery}}"
+        image: "ghcr.io/linz/topo-imagery:{{=sprig.trim(workflow.parameters['version-topo-imagery'])}}"
         resources:
           requests:
             memory: 7.8Gi
@@ -316,13 +316,13 @@ spec:
           - "--preset"
           - "{{workflow.parameters.compression}}"
           - "--start-datetime"
-          - "{{workflow.parameters.start-datetime}}"
+          - "{{=sprig.trim(workflow.parameters['start-datetime'])}}"
           - "--end-datetime"
-          - "{{workflow.parameters.end-datetime}}"
+          - "{{=sprig.trim(workflow.parameters['end-datetime'])}}"
           - "--collection-id"
           - "{{inputs.parameters.collection-id}}"
           - "--cutline"
-          - "{{workflow.parameters.cutline}}"
+          - "{{=sprig.trim(workflow.parameters.cutline)}}"
       outputs:
         artifacts:
           - name: standardised_tiffs
@@ -334,7 +334,7 @@ spec:
         parameters:
           - name: location
       container:
-        image: "ghcr.io/linz/argo-tasks:{{workflow.parameters.version-argo-tasks}}"
+        image: "ghcr.io/linz/argo-tasks:{{=sprig.trim(workflow.parameters['version-argo-tasks'])}}"
         command: [node, /app/index.js]
         env:
           - name: AWS_ROLE_CONFIG_PATH
@@ -368,7 +368,7 @@ spec:
         parameters:
           - name: file
       container:
-        image: "ghcr.io/linz/argo-tasks:{{workflow.parameters.version-argo-tasks}}"
+        image: "ghcr.io/linz/argo-tasks:{{=sprig.trim(workflow.parameters['version-argo-tasks'])}}"
         resources:
           requests:
             memory: 7.8Gi
@@ -390,7 +390,7 @@ spec:
           - name: collection-id
           - name: location
       container:
-        image: "ghcr.io/linz/topo-imagery:{{workflow.parameters.version-topo-imagery}}"
+        image: "ghcr.io/linz/topo-imagery:{{=sprig.trim(workflow.parameters['version-topo-imagery'])}}"
         resources:
           requests:
             memory: 7.8Gi
@@ -404,9 +404,9 @@ spec:
           - "--collection-id"
           - "{{inputs.parameters.collection-id}}"
           - "--title"
-          - "{{workflow.parameters.title}}"
+          - "{{=sprig.trim(workflow.parameters.title)}}"
           - "--description"
-          - "{{workflow.parameters.description}}"
+          - "{{=sprig.trim(workflow.parameters.description)}}"
           - "--producer"
           - "{{workflow.parameters.producer}}"
           - "--licensor"
@@ -418,7 +418,7 @@ spec:
         parameters:
           - name: location
       container:
-        image: "ghcr.io/linz/argo-tasks:{{workflow.parameters.version-argo-tasks}}"
+        image: "ghcr.io/linz/argo-tasks:{{=sprig.trim(workflow.parameters['version-argo-tasks'])}}"
         command: [node, /app/index.js]
         env:
           - name: AWS_ROLE_CONFIG_PATH
@@ -448,7 +448,7 @@ spec:
         parameters:
           - name: location
       container:
-        image: "ghcr.io/linz/basemaps/cli:{{workflow.parameters.version-basemaps-cli}}"
+        image: "ghcr.io/linz/basemaps/cli:{{=sprig.trim(workflow.parameters['version-basemaps-cli'])}}"
         resources:
           requests:
             cpu: 3000m
@@ -471,7 +471,7 @@ spec:
         parameters:
           - name: location
       container:
-        image: "ghcr.io/linz/basemaps/cli:{{workflow.parameters.version-basemaps-cli}}"
+        image: "ghcr.io/linz/basemaps/cli:{{=sprig.trim(workflow.parameters['version-basemaps-cli'])}}"
         command: [node, index.cjs]
         env:
           - name: AWS_ROLE_CONFIG_PATH
@@ -485,7 +485,7 @@ spec:
             "--output",
             "/tmp/url",
             "--title",
-            "{{workflow.parameters.title}}",
+            "{{=sprig.trim(workflow.parameters.title)}}",
             "--commit",
           ]
       outputs:
