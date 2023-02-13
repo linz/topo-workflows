@@ -66,7 +66,7 @@ spec:
           - name: source
           - name: include
       container:
-        image: "ghcr.io/linz/argo-tasks:{{workflow.parameters.version-argo-tasks}}"
+        image: "ghcr.io/linz/argo-tasks:{{=sprig.trim(workflow.parameters['version-argo-tasks'])}}"
         command: [node, /app/index.js]
         env:
           - name: AWS_ROLE_CONFIG_PATH
@@ -76,7 +76,7 @@ spec:
             "create-manifest",
             "--verbose",
             "--include",
-            "{{inputs.parameters.include}}",
+            "{{=sprig.trim(inputs.parameters.include)}}",
             "--group",
             "1000",
             "--group-size",
@@ -84,8 +84,8 @@ spec:
             "--output",
             "/tmp/file_list.json",
             "--target",
-            "{{workflow.parameters.target}}",
-            "{{inputs.parameters.source}}",
+            "{{=sprig.trim(workflow.parameters.target)}}",
+            "{{=sprig.trim(inputs.parameters.source)}}",
           ]
       outputs:
         parameters:
@@ -99,7 +99,7 @@ spec:
         parameters:
           - name: file
       container:
-        image: "ghcr.io/linz/argo-tasks:{{workflow.parameters.version-argo-tasks}}"
+        image: "ghcr.io/linz/argo-tasks:{{=sprig.trim(workflow.parameters['version-argo-tasks'])}}"
         resources:
           requests:
             memory: 7.8Gi
