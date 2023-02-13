@@ -52,7 +52,7 @@ spec:
         parameters:
           - name: layer
       container:
-        image: ghcr.io/linz/argo-tasks:{{workflow.parameters.version-argo-tasks}}
+        image: ghcr.io/linz/argo-tasks:{{=sprig.trim(workflow.parameters['version-argo-tasks'])}}
         command: [node, index.js]
         env:
           - name: AWS_ROLE_CONFIG_PATH
@@ -60,7 +60,7 @@ spec:
         args:
           [
             "lds-fetch-layer",
-            "{{inputs.parameters.layer}}",
+            "{{=sprig.trim(inputs.parameters.layer)}}",
             "--target",
             "/tmp/lds-layer",
           ]
@@ -90,7 +90,7 @@ spec:
           - name: flatGeobuf
             path: /tmp/flatGeobuf.fgb
       container:
-        image: ghcr.io/linz/basemaps/cli:{{workflow.parameters.version-basemaps-cli}}
+        image: ghcr.io/linz/basemaps/cli:{{=sprig.trim(workflow.parameters['version-basemaps-cli'])}}
         command: [node, index.cjs]
         env:
           - name: AWS_ROLE_CONFIG_PATH
@@ -102,13 +102,13 @@ spec:
             "--path",
             "/tmp/flatGeobuf.fgb",
             "--config",
-            "{{workflow.parameters.config}}",
+            "{{=sprig.trim(workflow.parameters.config)}}",
             "--output",
             "/tmp/mapsheet.json",
             "--include",
-            "{{workflow.parameters.include}}",
+            "{{=sprig.trim(workflow.parameters.include)}}",
             "--exclude",
-            "{{workflow.parameters.exclude}}",
+            "{{=sprig.trim(workflow.parameters.exclude)}}",
           ]
       outputs:
         artifacts:
