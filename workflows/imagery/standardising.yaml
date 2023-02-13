@@ -21,7 +21,7 @@ spec:
       - name: version-basemaps-cli
         value: "v6"
       - name: version-topo-imagery
-        value: "v0"
+        value: "v1"
       - name: source
         value: "s3://linz-imagery-staging/test/sample/"
       - name: include
