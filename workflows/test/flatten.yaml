@@ -51,7 +51,7 @@ spec:
           - name: uri
           - name: filter
       container:
-        image: ghcr.io/linz/argo-tasks:{{workflow.parameters.version-argo-tasks}}
+        image: ghcr.io/linz/argo-tasks:{{=sprig.trim(workflow.parameters['version-argo-tasks'])}}
         command: [node, /app/index.js]
         env:
           - name: AWS_ROLE_CONFIG_PATH
@@ -61,14 +61,14 @@ spec:
             "flatten",
             "--verbose",
             "--include",
-            "{{inputs.parameters.filter}}",
+            "{{=sprig.trim(inputs.parameters.filter)}}",
             "--group",
             "1000",
             "--group-size",
             "100Gi",
             "--output",
             "/tmp/file_list.json",
-            "{{inputs.parameters.uri}}",
+            "{{=sprig.trim(inputs.parameters.uri)}}",
           ]
       outputs:
         parameters:
@@ -82,7 +82,7 @@ spec:
         parameters:
           - name: file
       container:
-        image: ghcr.io/linz/argo-tasks:{{workflow.parameters.version-argo-tasks}}
+        image: ghcr.io/linz/argo-tasks:{{=sprig.trim(workflow.parameters['version-argo-tasks'])}}
         resources:
           requests:
             memory: 7.8Gi

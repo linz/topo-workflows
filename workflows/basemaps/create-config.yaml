@@ -30,7 +30,7 @@ spec:
         parameters:
           - name: location
       container:
-        image: ghcr.io/linz/basemaps/cli:{{workflow.parameters.version-basemaps-cli}}
+        image: ghcr.io/linz/basemaps/cli:{{=sprig.trim(workflow.parameters['version-basemaps-cli'])}}
         command: [node, index.cjs]
         env:
           - name: AWS_ROLE_CONFIG_PATH
@@ -40,7 +40,7 @@ spec:
             "-V",
             "create-config",
             "--path",
-            "{{inputs.parameters.location}}",
+            "{{=sprig.trim(inputs.parameters.location)}}",
             "--output",
             "/tmp/url",
             "--commit",

@@ -36,7 +36,7 @@ spec:
         parameters:
           - name: processed-imagery-path
       container:
-        image: ghcr.io/linz/argo-tasks:{{workflow.parameters.version-argo-tasks}}
+        image: ghcr.io/linz/argo-tasks:{{=sprig.trim(workflow.parameters['version-argo-tasks'])}}
         command: [node, /app/index.js]
         env:
           - name: AWS_ROLE_CONFIG_PATH
@@ -45,5 +45,5 @@ spec:
           [
             "tileset-validate",
             "--verbose",
-            "{{inputs.parameters.processed-imagery-path}}",
+            "{{=sprig.trim(inputs.parameters['processed-imagery-path'])}}",
           ]
