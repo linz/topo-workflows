@@ -279,7 +279,7 @@ These are hardcoded due to parameter naming collisions in the downstream Workflo
 ### Submitting from the command line using the `-p` (`--parameter`) option (standardising-publish):
 
 ```bash
-argo submit topo-workflows/imagery/standardising-publish.yaml -n argo -p source="s3://linz-imagery-source-example/SNC50451/" -p target="s3://linz-imagery-example/wellington/wellington_urban_2022_0.75m/rgb/2193/" -p scale="10000" -p group="29" -p cutline="s3://linz-topographic-upload/historical-imagery-cutlines/2023-01-16_84fd68f/SNC50451-combined.fgb" -p title="Wellington 0.75m SNC50451 (2004-2005)" -p description="Wellington 0.75m SNC50451 (2004-2005)" -p start-datetime="2004-12-27" -p end-datetime="2005-02-19"
+argo submit topo-workflows/imagery/standardising-publish.yaml -n argo -p source="s3://linz-imagery-source-example/aerial-imagery/new-zealand/christchurch_urban_2021_0.05m_RGB/" -p target="s3://linz-imagery-example/canterbury/christchurch_2021_0.05m/rgb/2193/" -p scale="500" -p group="29" -p cutline="s3://linz-imagery-cutline-example/historical-imagery-cutlines/2023-01-16_84fd68f/SNC50451-combined.fgb" -p title="Christchurch 0.05m Urban Aerial Photos (2021)" -p description="Orthophotography within the Canterbury region captured in the 2021 flying season." -p start-datetime="2021-11-02" -p end-datetime="2021-12-02"
 ```
 
 ### Submitting from the command line using a parameters yaml file and the `-f` (`--parameter-file`) option (standardising-publish):
@@ -291,21 +291,21 @@ argo submit topo-workflows/imagery/standardising-publish.yaml -n argo -f params.
 _params.yaml_:
 
 ```yaml
-source: "s3://linz-imagery-source-example/SNC50451/"
-target: "s3://linz-imagery-example/wellington/wellington_urban_2022_0.75m/rgb/2193/"
-scale: "1000"
+source: "s3://linz-imagery-source-example/aerial-imagery/new-zealand/christchurch_urban_2021_0.05m_RGB/"
+target: "s3://linz-imagery-example/canterbury/christchurch_2021_0.05m/rgb/2193/"
+scale: "500"
 group: "29"
-cutline: "s3://linz-topographic-upload/historical-imagery-cutlines/2023-01-16_84fd68f/SNC50451-combined.fgb"
-title: "Wellington 0.75m SNC50451 (2004-2005)"
-description: "Wellington 0.75m SNC50451 (2004-2005)"
-start-datetime: "2004-12-27"
-end-datetime: "2005-02-19"
+cutline: "s3://linz-imagery-cutline-example/historical-imagery-cutlines/2023-01-16_84fd68f/SNC50451-combined.fgb"
+title: "Christchurch 0.05m Urban Aerial Photos (2021)"
+description: "Orthophotography within the Canterbury region captured in the 2021 flying season."
+start-datetime: "2021-11-02"
+end-datetime: "2021-12-02"
 ```
 
 ### Submitting from the command line using the `-p` (`--parameter`) option (standardising-publish-import):
 
 ```bash
-argo submit topo-workflows/imagery/standardising-publish.yaml -n argo -p source="s3://linz-imagery-source-example/SNC50451/" -p target="s3://linz-imagery-example/wellington/wellington_urban_2022_0.75m/rgb/2193/" -p scale="10000" -p group="29" -p cutline="s3://linz-topographic-upload/historical-imagery-cutlines/2023-01-16_84fd68f/SNC50451-combined.fgb" -p title="Wellington 0.75m SNC50451 (2004-2005)" -p description="Wellington 0.75m SNC50451 (2004-2005)" -p start-datetime="2004-12-27" -p end-datetime="2005-02-19" -p category="Urban Aerial Photos" -p name="wellington_urban_2022_0.75m" -p tile-matrix="NZTM2000Quad/WebMercatorQuad" -p blend="20" -p aligned-level="6" -p create-pull-request="true"
+argo submit topo-workflows/imagery/standardising-publish.yaml -n argo -p source="s3://linz-imagery-source-example/aerial-imagery/new-zealand/christchurch_urban_2021_0.05m_RGB/" -p target="s3://linz-imagery-example/canterbury/christchurch_2021_0.05m/rgb/2193/" -p scale="500" -p group="29" -p cutline="s3://linz-imagery-cutline-example/historical-imagery-cutlines/2023-01-16_84fd68f/SNC50451-combined.fgb" -p title="Christchurch 0.05m Urban Aerial Photos (2021)" -p description="Orthophotography within the Canterbury region captured in the 2021 flying season." -p start-datetime="2021-11-02" -p end-datetime="2021-12-02" -p category="Urban Aerial Photos" -p name="christchurch_2021_0.05m" -p tile-matrix="NZTM2000Quad/WebMercatorQuad" -p blend="20" -p aligned-level="6" -p create-pull-request="true"
 ```
 
 ### Submitting from the command line using a parameters yaml file and the `-f` (`--parameter-file`) option (standardising-publish-import):
@@ -317,17 +317,17 @@ argo submit topo-workflows/imagery/standardising-publish.yaml -n argo -f params.
 _params.yaml_:
 
 ```yaml
-source: "s3://linz-imagery-source-example/SNC50451/"
-target: "s3://linz-imagery-example/wellington/wellington_urban_2022_0.75m/rgb/2193/"
-scale: "1000"
+source: "s3://linz-imagery-source-example/aerial-imagery/new-zealand/christchurch_urban_2021_0.05m_RGB/"
+target: "s3://linz-imagery-example/canterbury/christchurch_2021_0.05m/rgb/2193/"
+scale: "500"
 group: "29"
-cutline: "s3://linz-topographic-upload/historical-imagery-cutlines/2023-01-16_84fd68f/SNC50451-combined.fgb"
-title: "Wellington 0.75m SNC50451 (2004-2005)"
-description: "Wellington 0.75m SNC50451 (2004-2005)"
-start-datetime: "2004-12-27"
-end-datetime: "2005-02-19"
+cutline: "s3://linz-imagery-cutline-example/historical-imagery-cutlines/2023-01-16_84fd68f/SNC50451-combined.fgb"
+title: "Christchurch 0.05m Urban Aerial Photos (2021)"
+description: "Orthophotography within the Canterbury region captured in the 2021 flying season."
+start-datetime: "2021-11-02"
+end-datetime: "2021-12-02"
 category: "Urban Aerial Photos"
-name: "wellington_urban_2022_0.75m"
+name: "christchurch_2021_0.05m"
 tile-matrix: "NZTM2000Quad/WebMercatorQuad"
 blend: "20"
 aligned-level: "6"
