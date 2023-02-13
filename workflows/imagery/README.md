@@ -215,7 +215,7 @@ Access permissions are controlled by the [Bucket Sharing Config](https://github.
 
 This Workflow is intended for bulk imagery transfers which do not require Visual QA before publication.
 
-This workflow carries out the steps in the [Standardising](#Standardising) workflow, followed by the steps in the [Publish-copy](#Publish-copy) workflow. Then, optionally, the [Basemaps-Imagery-Import](../basemaps/README.md#imagery-import) process can be triggered by uncommenting the relevant sections of the Workflow file and supplying the appropriate extra parameters.
+This workflow carries out the steps in the [Standardising](#Standardising) workflow, followed by the steps in the [Publish-copy](#Publish-copy) workflow. Then, optionally, the [Basemaps-Imagery-Import](../basemaps/README.md#imagery-import) process can be run by uncommenting the relevant sections of the Workflow file and supplying the appropriate extra parameters.
 
 ## Workflow Input Parameters
 
@@ -255,9 +255,10 @@ These are hardcoded due to parameter naming collisions in the downstream Workflo
 
 ### Basemaps-Imagery-Import Mandatory Parameters - must be specified on the command line if the Basemaps Imagery Import process will be run
 
+Uncomment the relevant sections of the standardise-publish-import Workflow file and supply the appropriate extra parameters.
+
 The following parameters are required. See [Basemaps Imagery Import README](../basemaps/README.md#imagery-import) for descriptions and values.
 
-- (TITLE - TBD)
 - category
 - name
 - tile-matrix
@@ -266,6 +267,8 @@ The following parameters are required. See [Basemaps Imagery Import README](../b
 - create-pull-request
 
 ### Basemaps-Imagery-Import Fixed Parameters - can only be changed by editing the workflow file
+
+Uncomment the relevant sections of the standardise-publish-import Workflow file and supply the appropriate extra parameters.
 
 These are hardcoded due to parameter naming collisions in the downstream WorkflowTemplates.
 
