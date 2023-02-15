@@ -25,8 +25,9 @@ In addition, a Basemaps link is produced enabling visual QA.
 | cutline        | str   |                                                                                                     | (Optional) location of a cutline file to cut the imagery to `.fgb` or `.geojson` (leave blank if no cutline)                                                                                                                 |
 | title          | str   | \*Region/District/City\* \*GSD\* \*Urban/Rural\* Aerial Photos (\*Year-Year\*)                      | Collection title                                                                                                                                                                                                             |
 | description    | str   | Orthophotography within the \*Region Name\* region captured in the \*Year\*-\*Year\* flying season. | Collection description                                                                                                                                                                                                       |
-| producer       | enum  | none                                                                                                | Imagery producer                                                                                                                                                                                                             |
-| licensor       | enum  | none                                                                                                | Imagery licensor                                                                                                                                                                                                             |
+| producer       | enum  | Unknown                                                                                             | Imagery producer                                                                                                                                                                                                             |
+| licensor       | enum  | Unknown                                                                                             | Imagery licensor. :warning: Ignored if `licensor-list` takes effect.                                                                                                                                                         |
+| licensor-list  | str   |                                                                                                     | List of Imagery licensor. :warning: Takes effect only if more than one element separated by semicolon `;`.                                                                                                                   |
 | start-datetime | str   | YYYY-MM-DD                                                                                          | Imagery start date (flown from), must be in default formatting                                                                                                                                                               |
 | end-datetime   | str   | YYYY-MM-DD                                                                                          | Imagery end date (flown to), must be in default formatting                                                                                                                                                                   |
 | copy-option    | enum  | --no-clobber                                                                                        | `--no-clobber` will not overwrite files if the name and the file size in bytes are the same. `--force` will overwrite all files. `--force-no-clobber` will only overwrite files of the same name that are of different sizes |
@@ -47,6 +48,7 @@ In addition, a Basemaps link is produced enabling visual QA.
 | description    | Orthophotography within the Bay of Plenty region captured in the 2021-2022 flying season. |
 | producer       | Aerial Surveys                                                                            |
 | licensor       | Toitū Te Whenua Land Information New Zealand                                              |
+| licensor-list  | Waka Kotahi; Nelson City Council;Tasman District Council                                  |
 | start-datetime | 2021-12-02                                                                                |
 | end-datetime   | 2022-05-06                                                                                |
 | copy-option    | --no-clobber                                                                              |
@@ -225,17 +227,18 @@ This workflow carries out the steps in the [Standardising](#Standardising) workf
 
 ### Standardising-Publish Mandatory Parameters - must be specified on the command line
 
-| Parameter      | Type | Default | Description                                                                                                                                 |
-| -------------- | ---- | ------- | ------------------------------------------------------------------------------------------------------------------------------------------- |
-| source         | str  |         | the uri (path) to the input tiffs e.g. s3://linz-imagery-upload/test/sample                                                                 |
-| target         | str  |         | the uri (path) to the published tiffs in the format s3://linz-imagery-target-example/region/city-or-sub-region_year_resolution/product/crs/ |
-| title          | str  |         | Collection title in the format "\*Region/District/City\* \*GSD\* \*Urban/Rural\* Aerial Photos (\*Year-Year\*)"                             |
-| description    | str  |         | Collection description in the format "Orthophotography within the \*Region Name\* region captured in the \*Year\*-\*Year\* flying season."  |
-| producer       | str  |         | Imagery producer name :warning: The name has to be exactly one in the producer enum in `standardising.yaml`                                 |
-| licensor       | str  |         | Imagery licensor name :warning: The name has to be exactly one in the licensor enum in `standardising.yaml`                                 |
-| start-datetime | str  |         | Imagery start date (flown from), must be in the format YYYY-MM-DD formatting                                                                |
-| end-datetime   | str  |         | Imagery end date (flown to), must be in the format YYYY-MM-DD                                                                               |
-| scale          | str  |         | The scale of the TIFFs, e.g. 500                                                                                                            |
+| Parameter      | Type | Default | Description                                                                                                                                                     |
+| -------------- | ---- | ------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| source         | str  |         | the uri (path) to the input tiffs e.g. s3://linz-imagery-upload/test/sample                                                                                     |
+| target         | str  |         | the uri (path) to the published tiffs in the format s3://linz-imagery-target-example/region/city-or-sub-region_year_resolution/product/crs/                     |
+| title          | str  |         | Collection title in the format "\*Region/District/City\* \*GSD\* \*Urban/Rural\* Aerial Photos (\*Year-Year\*)"                                                 |
+| description    | str  |         | Collection description in the format "Orthophotography within the \*Region Name\* region captured in the \*Year\*-\*Year\* flying season."                      |
+| producer       | str  |         | Imagery producer name :warning: The name has to be exactly one in the producer enum in `standardising.yaml`                                                     |
+| licensor       | str  |         | Imagery licensor name :warning: The name has to be exactly one in the licensor enum in `standardising.yaml`. Use `licensor-list` instead if multiple licensors. |
+| licensor-list  | str  |         | List of imagery licensor name :warning: The names have to be exactly some of the licensor enum in `standardising.yaml` and separated by a semicolon.            |
+| start-datetime | str  |         | Imagery start date (flown from), must be in the format YYYY-MM-DD formatting                                                                                    |
+| end-datetime   | str  |         | Imagery end date (flown to), must be in the format YYYY-MM-DD                                                                                                   |
+| scale          | str  |         | The scale of the TIFFs, e.g. 500                                                                                                                                |
 
 ### Standardising-Publish Optional Parameters - can be specified on the command line to override default value
 
@@ -336,7 +339,8 @@ cutline: "s3://linz-imagery-cutline-example/historical-imagery-cutlines/2023-01-
 title: "Christchurch 0.05m Urban Aerial Photos (2021)"
 description: "Orthophotography within the Canterbury region captured in the 2021 flying season."
 producer: "Aerial Surveys"
-licensor: "Toitū Te Whenua Land Information New Zealand"
+licensor: ""
+licensor-list: "Waka Kotahi; Nelson City Council;Tasman District Council"
 start-datetime: "2021-11-02"
 end-datetime: "2021-12-02"
 category: "Urban Aerial Photos"
