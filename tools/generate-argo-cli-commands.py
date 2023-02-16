@@ -200,8 +200,6 @@ with open(PARAMETERS_CSV, "r") as csv_file:
                 title=row[ind_title],
             )
 
-        file_name = row[ind_title].lower().replace(" ", "-").replace(".", "_")
-
         params = {
             "source": row[ind_source],
             "target": row[ind_target],
@@ -247,6 +245,7 @@ with open(PARAMETERS_CSV, "r") as csv_file:
             )
             continue
 
+        file_name = row[ind_title].lower().replace(" ", "-").replace(".", "_")
         command_list.append(command.format(file_name))
 
         with open(f"./{file_name}.yaml", "w", encoding="utf-8") as output:
