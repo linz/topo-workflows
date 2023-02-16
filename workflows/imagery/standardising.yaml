@@ -163,7 +163,7 @@ spec:
             "Whangārei District Council",
           ]
       - name: licensor-list
-        description: "(Optional) Separate the licensor names by a semi-colon (;). It has no affect unless a semicolon-delimited list is entered."
+        description: "(Optional) Separate the licensor names by a semi-colon (;). It has no effect unless a semicolon-delimited list is entered."
         value: ""
       - name: start-datetime
         value: "YYYY-MM-DD"
