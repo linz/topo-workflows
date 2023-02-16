@@ -181,7 +181,7 @@ with open(PARAMETERS_CSV, "r") as csv_file:
     ind_enddate = header.index("end_datetime")
     ind_basemaps = header.index("basemaps s3 path")
 
-    command = 'argo submit ~/dev/topo-workflows/workflows/imagery/standardising-publish-import.yaml -n argo -f ./{0}.yaml\n'
+    command = "argo submit ~/dev/topo-workflows/workflows/imagery/standardising-publish-import.yaml -n argo -f ./{0}.yaml\n"
 
     for row in reader:
         if not row[ind_source].startswith(SOURCE):
