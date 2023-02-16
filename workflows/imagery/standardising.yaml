@@ -162,6 +162,9 @@ spec:
             "Whanganui District Council",
             "Whangārei District Council",
           ]
+      - name: licensor-list
+        description: "(Optional) Separate the licensor names by a semi-colon (;). It has no effect unless a semicolon-delimited list is entered."
+        value: ""
       - name: start-datetime
         value: "YYYY-MM-DD"
       - name: end-datetime
@@ -411,6 +414,8 @@ spec:
           - "{{workflow.parameters.producer}}"
           - "--licensor"
           - "{{workflow.parameters.licensor}}"
+          - "--licensor-list"
+          - "{{=sprig.trim(workflow.parameters['licensor-list'])}}"
           - "--concurrency"
           - "25"
     - name: stac-validate
