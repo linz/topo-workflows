@@ -199,9 +199,8 @@ with open(PARAMETERS_CSV, "r") as csv_file:
                 source=row[ind_source],
                 title=row[ind_title],
             )
-
         params = {
-            "source": row[ind_source],
+            "source": row[ind_source].rstrip("/"),
             "target": row[ind_target],
             "scale": _validate_scale(row[ind_scale]),
             "title": row[ind_title],
@@ -217,20 +216,21 @@ with open(PARAMETERS_CSV, "r") as csv_file:
             params["licensor"] = ""
         else:
             params["licensor"] = licensor
+            params["licensor-list"] = ""
 
-        if not params["producer"]:
+        if not params["licensor"] and params["licensor-list"] == "":
             get_log().warning(
-                "skipped: invalid producer",
-                producer=row[ind_producer],
+                "skipped: invalid licensor",
+                licensor=row[ind_licensor],
                 source=row[ind_source],
                 title=row[ind_title],
             )
             continue
 
-        if not params["licensor"] and not params["licensor-list"]:
+        if not params["producer"]:
             get_log().warning(
-                "skipped: invalid licensor",
-                licensor=row[ind_licensor],
+                "skipped: invalid producer",
+                producer=row[ind_producer],
                 source=row[ind_source],
                 title=row[ind_title],
             )
@@ -255,6 +255,7 @@ with open(PARAMETERS_CSV, "r") as csv_file:
                 default_flow_style=False,
                 sort_keys=False,
                 allow_unicode=True,
+                width=1000,
             )
 
 with open("standardise-publish.sh", "w") as script:
