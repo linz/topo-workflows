@@ -8,6 +8,7 @@ from linz_logger import get_log
 SOURCE = "s3://linz-data-lake-raster-prod/"
 PARAMETERS_CSV = "./imagery-standardising-parameters-bulk-process.csv"
 PRODUCERS = [
+    "Unknown",
     "AAM NZ",
     "Aerial Surveys",
     "Beca",
@@ -69,6 +70,7 @@ LICENSORS = [
     "Nelson City Council",
     "New Plymouth District Council",
     "Northland Regional Council",
+    "Northland Aerial Imagery Consortium (NAIC)",
     "Ōpōtiki District Council",
     "Ōtorohanga District Council",
     "Otago Regional Council",
@@ -92,6 +94,7 @@ LICENSORS = [
     "Tauranga City Council",
     "Terralink International",
     "Thames-Coromandel District Council",
+    "The Southland Consortium",
     "Timaru District Council",
     "Toitū Te Whenua Land Information New Zealand",
     "Upper Hutt City Council",
@@ -137,7 +140,7 @@ def _validate_licensor(licensor: str) -> Optional[str]:
         return "Canterbury Aerial Imagery Consortium (CAI)"
     elif licensor == "Hawke's Bay Local Authority Shared Services (HBLASS)":
         return "Hawke's Bay Local Authority Shared Services (HB LASS)"
-    elif "and" in licensor:
+    elif " and " in licensor:
         return licensor.replace(" and ", ";")
     return None
 
@@ -178,7 +181,7 @@ with open(PARAMETERS_CSV, "r") as csv_file:
     ind_enddate = header.index("end_datetime")
     ind_basemaps = header.index("basemaps s3 path")
 
-    command = 'argo submit ~/dev/topo-workflows/workflows/imagery/standardising-publish-import.yaml -n argo -f "./{0}.yaml"\n'
+    command = 'argo submit ~/dev/topo-workflows/workflows/imagery/standardising-publish-import.yaml -n argo -f ./{0}.yaml\n'
 
     for row in reader:
         if not row[ind_source].startswith(SOURCE):
@@ -245,7 +248,7 @@ with open(PARAMETERS_CSV, "r") as csv_file:
             )
             continue
 
-        file_name = row[ind_title].lower().replace(" ", "-").replace(".", "_")
+        file_name = row[ind_target].rstrip("/rgb/2193/").split("/")[-1]
         command_list.append(command.format(file_name))
 
         with open(f"./{file_name}.yaml", "w", encoding="utf-8") as output:
@@ -253,6 +256,7 @@ with open(PARAMETERS_CSV, "r") as csv_file:
                 params,
                 output,
                 default_flow_style=False,
+                default_style='"',
                 sort_keys=False,
                 allow_unicode=True,
                 width=1000,
