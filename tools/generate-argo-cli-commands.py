@@ -6,6 +6,7 @@ from linz_logger import get_log
 
 # nb: CHANGE if working from a different source
 SOURCE = "s3://linz-data-lake-raster-prod/"
+PARAMETERS_CSV = "./imagery-standardising-parameters-bulk-process.csv"
 PRODUCERS = [
     "AAM NZ",
     "Aerial Surveys",
@@ -161,7 +162,7 @@ def _validate_scale(scale: str) -> Optional[str]:
     return None
 
 
-with open("./imagery-standardising-parameters-bulk-process.csv", "r") as csv_file:
+with open(PARAMETERS_CSV, "r") as csv_file:
     reader = csv.reader(csv_file)
     header = next(reader)
 
