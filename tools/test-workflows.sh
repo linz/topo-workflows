@@ -16,5 +16,5 @@
 argo submit ~/dev/topo-workflows/workflows/imagery/standardising-publish-import.yaml -n argo -f ./tasman_2009-2010_0.5m.yaml
 argo submit ~/dev/topo-workflows/workflows/imagery/standardising-publish-import.yaml -n argo -f ./tasman_2004-2005_1m.yaml
 argo submit ~/dev/topo-workflows/workflows/imagery/standardising-publish-import.yaml -n argo -f ./tasman_2003_1m.yaml
-argo submit ~/dev/topo-workflows/workflows/imagery/standardising-publish-import.yaml -n argo -f ./hurunui_2013_0.125m.yaml
-argo submit ~/dev/topo-workflows/workflows/imagery/standardising-publish-import.yaml -n argo -f ./canterbury_2013-2014_0.4m.yaml
+# argo submit ~/dev/topo-workflows/workflows/imagery/standardising-publish-import.yaml -n argo -f ./hurunui_2013_0.125m.yaml
+# argo submit ~/dev/topo-workflows/workflows/imagery/standardising-publish-import.yaml -n argo -f ./canterbury_2013-2014_0.4m.yaml
