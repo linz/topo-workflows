@@ -124,8 +124,8 @@ command_list = []
 def _format_date(date: str) -> str:
     fd_lst = date.split("/")
     year = fd_lst[2]
-    month = f"{int(fd_lst[0]):02}"
-    day = f"{int(fd_lst[1]):02}"
+    day = f"{int(fd_lst[0]):02}"
+    month = f"{int(fd_lst[1]):02}"
     return f"{year}-{month}-{day}"
 
 
@@ -181,7 +181,7 @@ with open(PARAMETERS_CSV, "r") as csv_file:
     ind_enddate = header.index("end_datetime")
     ind_basemaps = header.index("basemaps s3 path")
 
-    command = "argo submit ~/dev/topo-workflows/workflows/imagery/standardising-publish-import.yaml -n argo -f ./{0}.yaml\n"
+    command = "argo submit ~/dev/topo-workflows/workflows/imagery/standardising-publish-import.yaml -n argo -f ./{0}.yaml --generate-name ispi-{1}-\n"
 
     for row in reader:
         if not row[ind_source].startswith(SOURCE):
@@ -251,7 +251,7 @@ with open(PARAMETERS_CSV, "r") as csv_file:
             continue
 
         file_name = row[ind_target].rstrip("/rgb/2193/").split("/")[-1]
-        command_list.append(command.format(file_name))
+        command_list.append(command.format(file_name, file_name.replace("_", "-").replace(".", "-")))
 
         with open(f"./{file_name}.yaml", "w", encoding="utf-8") as output:
             yaml.dump(
