@@ -206,6 +206,7 @@ with open(PARAMETERS_CSV, "r") as csv_file:
             "source": row[ind_source].rstrip("/"),
             "target": row[ind_target],
             "version-basemaps-cli": "latest",
+            "version-topo-imagery":"v1.1.0-3-g8fe8211",
             "scale": _validate_scale(row[ind_scale]),
             "title": row[ind_title],
             "description": row[ind_description],
