@@ -203,7 +203,7 @@ with open(PARAMETERS_CSV, "r") as csv_file:
                 title=row[ind_title],
             )
         params = {
-            "source": row[ind_source].rstrip("/"),
+            "source": row[ind_source].rstrip("/") + "/",
             "target": row[ind_target],
             "version-basemaps-cli": "latest",
             "version-topo-imagery":"v1.1.0-3-g8fe8211",
