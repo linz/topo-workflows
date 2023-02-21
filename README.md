@@ -230,7 +230,3 @@ These tags are intended to be use in production as they will be published for ea
 ### Using different versions
 
 For each `Workflow` and `WorkflowTemplate`, there is a parameter `version-*` that allows to specify the version of the LINZ container to use.
-
-## Versioning
-
-Argo vanilla does not manage `Workflow` and `WorkflowTemplate` semantic versioning. We decided to version our workflows using a major version style (`vX`). This version is related to the structure of the workflow (for example, adding or modifying a step or parameter) rather than the external applications (i.e. containers commands) that are called.
