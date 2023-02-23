@@ -450,6 +450,8 @@ spec:
             valueFrom:
               path: "/tmp/location"
     - name: create-overview
+      retryStrategy:
+        limit: "2"
       inputs:
         parameters:
           - name: location
