@@ -34,6 +34,7 @@ spec:
           - "2000"
           - "5000"
           - "10000"
+          - "50000"
       - name: group
         value: "50"
       - name: compression
@@ -56,6 +57,7 @@ spec:
             "AAM NZ",
             "Aerial Surveys",
             "Beca",
+            "European Space Agency",
             "GeoSmart",
             "Landpro",
             "Maxar",
