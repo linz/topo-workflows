@@ -35,6 +35,7 @@ spec:
           - "5000"
           - "10000"
           - "50000"
+          - "None"
       - name: group
         value: "50"
       - name: compression
