@@ -31,6 +31,8 @@ In addition, a Basemaps link is produced enabling visual QA.
 | start-datetime | str   | YYYY-MM-DD                                                                                          | Imagery start date (flown from), must be in default formatting                                                                                                                                                               |
 | end-datetime   | str   | YYYY-MM-DD                                                                                          | Imagery end date (flown to), must be in default formatting                                                                                                                                                                   |
 | copy-option    | enum  | --no-clobber                                                                                        | `--no-clobber` will not overwrite files if the name and the file size in bytes are the same. `--force` will overwrite all files. `--force-no-clobber` will only overwrite files of the same name that are of different sizes |
+| source-espg    | str   | 2193                                                                                                | The EPSP code of the source imagery                                                                                                                                                                                          |
+| target-espg    | str   | 2193                                                                                                | The target EPSP code - if different to source the imagery will be reprojected                                                                                                                                                |
 
 \* This regex can be used to exclude paths as well, e.g. if there are RBG and RGBI directories, the following regex will only include TIFF files in the RGB directory: `RGB(?!I).*.tiff?$`. For more complicated exclusions, there is an `--exclude` parameter, which would need to be added to the Argo WorkflowTemplate.
 
@@ -52,6 +54,8 @@ In addition, a Basemaps link is produced enabling visual QA.
 | start-datetime | 2021-12-02                                                                                |
 | end-datetime   | 2022-05-06                                                                                |
 | copy-option    | --no-clobber                                                                              |
+| source-epsg    | 2193                                                                                      |
+| target-epsg    | 2193                                                                                      |
 
 ## Workflow Outputs
 
@@ -249,6 +253,8 @@ This workflow carries out the steps in the [Standardising](#Standardising) workf
 | group       | int   | 50           | Applies to the standardising workflow. The number of files to group into the pods (testing has recommended using 50 for large datasets).                                                                                                                                                                              |
 | include     | regex | .tiff?$      | Applies to the standardising workflow. A regular expression to match object path(s) or name(s) from within the source path to include in standardising\*.                                                                                                                                                             |
 | copy-option | str   | --no-clobber | Applies to the standardising and publishing workflows and should not need to be changed. `--no-clobber` will not overwrite files if the name and the file size in bytes are the same. `--force` will overwrite all files. `--force-no-clobber` will only overwrite files of the same name that are of different sizes |
+| source-epsg | str   | 2193         | The EPSG code of the source imagery.                                                                                                                                                                                                                                                                                  |
+| target-epsg | str   | 2193         | The Target EPSG code, if different to source-epsg the imagery will be reprojected.                                                                                                                                                                                                                                    |
 
 \* This regex can be used to exclude paths as well, e.g. if there are RBG and RGBI directories, the following regex will only include TIFF files in the RGB directory: `RGB(?!I).*.tiff?$`.
 

@@ -36,6 +36,10 @@ spec:
           - "10000"
           - "50000"
           - "None"
+      - name: source-epsg
+        value: "2193"
+      - name: target-epsg
+        value: "2193"
       - name: group
         value: "50"
       - name: compression
@@ -330,6 +334,10 @@ spec:
           - "{{inputs.parameters.collection-id}}"
           - "--cutline"
           - "{{=sprig.trim(workflow.parameters.cutline)}}"
+          - "--source-epsg"
+          - "{{=sprig.trim(workflow.parameters.source-epsg)}}"
+          - "--target-epsg"
+          - "{{=sprig.trim(workflow.parameters.target-epsg)}}"
       outputs:
         artifacts:
           - name: standardised_tiffs
