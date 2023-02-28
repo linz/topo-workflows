@@ -2,7 +2,7 @@
 apiVersion: argoproj.io/v1alpha1
 kind: WorkflowTemplate
 metadata:
-  name: test-imagery-standardising-ecr
+  name: imagery-standardising-ecr
   namespace: argo
 spec:
   parallelism: 50
