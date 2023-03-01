@@ -335,9 +335,9 @@ spec:
           - "--cutline"
           - "{{=sprig.trim(workflow.parameters.cutline)}}"
           - "--source-epsg"
-          - "{{=sprig.trim(workflow.parameters.source-epsg)}}"
+          - "{{=sprig.trim(workflow.parameters['source-epsg'])}}"
           - "--target-epsg"
-          - "{{=sprig.trim(workflow.parameters.target-epsg)}}"
+          - "{{=sprig.trim(workflow.parameters['target-epsg'])}}"
       outputs:
         artifacts:
           - name: standardised_tiffs
