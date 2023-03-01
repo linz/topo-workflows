@@ -20,6 +20,10 @@ spec:
         value: ""
       - name: compression
         value: "webp"
+      - name: source-epsg
+        value: "2193"
+      - name: target-epsg
+        value: "2193"
       - name: group
         value: "50"
       - name: copy-option
