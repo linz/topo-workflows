@@ -23,7 +23,7 @@ spec:
       - name: version-topo-imagery
         value: "v1"
       - name: source
-        value: "s3://linz-topographic-upload/earthscanner/2023-02-JL1KF01B-sample-zip/JL1KF01B_PMSL3_20230221054314_200135719_101_0035_001_L3C"
+        value: "s3://linz-topographic-upload/earthscanner/2023-02-JL1KF01B-sample-zip/"
       - name: include
         value: ".zip$"
       - name: scale
@@ -206,62 +206,62 @@ spec:
                   value: "{{tasks.generate-ulid.outputs.parameters.ulid}}"
             depends: "aws-list && generate-ulid"
             withParam: "{{tasks.aws-list.outputs.parameters.files}}"
-          # - name: flatten
-          #   template: flatten
-          #   arguments:
-          #     parameters:
-          #       - name: location
-          #         value: "{{tasks.get-location.outputs.parameters.location}}"
-          #   depends: "get-location && standardise-validate"
-          # - name: flatten-copy
-          #   template: flatten-copy
-          #   arguments:
-          #     parameters:
-          #       - name: file
-          #         value: "{{item}}"
-          #   depends: "flatten"
-          #   withParam: "{{tasks.flatten.outputs.parameters.files}}"
-          # - name: create-collection
-          #   template: create-collection
-          #   arguments:
-          #     parameters:
-          #       - name: collection-id
-          #         value: "{{tasks.generate-ulid.outputs.parameters.ulid}}"
-          #       - name: location
-          #         value: "{{tasks.get-location.outputs.parameters.location}}"
-          #   depends: "flatten-copy"
-          # - name: stac-validate
-          #   template: stac-validate
-          #   arguments:
-          #     parameters:
-          #       - name: location
-          #         value: "{{tasks.get-location.outputs.parameters.location}}"
-          #     artifacts:
-          #       - name: stac-result
-          #         raw:
-          #           data: "{{tasks.stac-validate.outputs.result}}"
-          #   depends: "create-collection"
-          # - name: get-location
-          #   template: get-location
-          # - name: create-overview
-          #   arguments:
-          #     parameters:
-          #       - name: location
-          #         value: "{{tasks.get-location.outputs.parameters.location}}"
-          #   template: create-overview
-          #   depends: "get-location && flatten-copy"
-          # - name: create-config
-          #   arguments:
-          #     parameters:
-          #       - name: location
-          #         value: "{{tasks.get-location.outputs.parameters.location}}"
-          #   template: create-config
-          #   depends: "get-location && create-overview"
-      # outputs:
-      #   parameters:
-      #     - name: target
-      #       valueFrom:
-      #         parameter: "{{tasks.get-location.outputs.parameters.location}}"
+          - name: flatten
+            template: flatten
+            arguments:
+              parameters:
+                - name: location
+                  value: "{{tasks.get-location.outputs.parameters.location}}"
+            depends: "get-location && standardise-validate"
+          - name: flatten-copy
+            template: flatten-copy
+            arguments:
+              parameters:
+                - name: file
+                  value: "{{item}}"
+            depends: "flatten"
+            withParam: "{{tasks.flatten.outputs.parameters.files}}"
+          - name: create-collection
+            template: create-collection
+            arguments:
+              parameters:
+                - name: collection-id
+                  value: "{{tasks.generate-ulid.outputs.parameters.ulid}}"
+                - name: location
+                  value: "{{tasks.get-location.outputs.parameters.location}}"
+            depends: "flatten-copy"
+          - name: stac-validate
+            template: stac-validate
+            arguments:
+              parameters:
+                - name: location
+                  value: "{{tasks.get-location.outputs.parameters.location}}"
+              artifacts:
+                - name: stac-result
+                  raw:
+                    data: "{{tasks.stac-validate.outputs.result}}"
+            depends: "create-collection"
+          - name: get-location
+            template: get-location
+          - name: create-overview
+            arguments:
+              parameters:
+                - name: location
+                  value: "{{tasks.get-location.outputs.parameters.location}}"
+            template: create-overview
+            depends: "get-location && flatten-copy"
+          - name: create-config
+            arguments:
+              parameters:
+                - name: location
+                  value: "{{tasks.get-location.outputs.parameters.location}}"
+            template: create-config
+            depends: "get-location && create-overview"
+      outputs:
+        parameters:
+          - name: target
+            valueFrom:
+              parameter: "{{tasks.get-location.outputs.parameters.location}}"
     - name: aws-list
       container:
         image: "ghcr.io/linz/argo-tasks:{{=sprig.trim(workflow.parameters['version-argo-tasks'])}}"
@@ -366,15 +366,19 @@ spec:
             -scale 0 1500 0 255 \
             -b 3 -b 2 -b 1 \
             -colorinterp red,green,blue \
-            $INPUT_TIFF $INPUT_TIFF.cog.tiff
+            $INPUT_TIFF $INPUT_TIFF.color.tiff
 
           # tiff from the zip is no longer needed, clear it up to save space
           rm $INPUT_TIFF
 
+          # remove the black edges
+          nearblack -of gtiff $INPUT_TIFF.color.tiff -setalpha -o $INPUT_TIFF.alpha.tiff
+          rm $INPUT_TIFF.color.tiff
+
           ogr2ogr cutline.fgb *.dbf -where "productId = '${PRODUCT_ID}'"
           
           python /app/scripts/standardise_validate.py \
-            --source $INPUT_TIFF.cog.tiff \
+            --source $INPUT_TIFF.alpha.tiff \
             --scale {{workflow.parameters.scale}} \
             --preset {{workflow.parameters.compression}} \
             --start-datetime "{{=sprig.trim(workflow.parameters['start-datetime'])}}" \
