@@ -323,6 +323,8 @@ spec:
         source: |
           # ensure the script dies if something goes wrong
           set -e
+          set -o xtrace
+
           apt install jq wget -y
 
           # grab s5cmd so we can get files from s3
@@ -331,25 +333,29 @@ spec:
 
           # parameters are a list of tiffs, this could be expanded into a loop if needed
           SOURCE_FILE=$(echo '{{inputs.parameters.file}}' | jq '.[0]' -r)
-          echo $SOURCE_FILE
-          ./s5cmd cp $SOURCE_FILE .
+          echo "$SOURCE_FILE"
+          ./s5cmd cp "$SOURCE_FILE" .
 
-          ZIP_NAME=$(basename $SOURCE_FILE)
+          ZIP_NAME=$(basename "$SOURCE_FILE")
 
           ls *.zip
-          unzip $ZIP_NAME
+          unzip "$ZIP_NAME"
           # no need to keep the zip after its extracted
-          rm $ZIP_NAME 
+          rm "$ZIP_NAME" 
 
-          INPUT_TIFF=$(ls -1 JL1KF01B*/*.tif)
+          ls  -R JL1K*
+
+          INPUT_TIFF=$(ls -1 JL1K*/*.tif)
+          TIFF_NAME=$(basename $INPUT_TIFF)
           echo $INPUT_TIFF
+
 
           # Grab the metadata with the cutlines 
           ./s5cmd cp s3://linz-topographic-upload/earthscanner/EarthScanner_Tiles_Metadata_FullCapture.zip .
           unzip EarthScanner_Tiles_Metadata_FullCapture.zip
 
-          SENSOR_NAME=$(echo $ZIP_NAME | cut -f2 -d'_') # Get the "PMSR6" from the file name
-          SCENE_NAME=$(echo $ZIP_NAME | cut -f5-7 -d'_') # get the scene id 101_0034_001
+          SENSOR_NAME=$(echo $TIFF_NAME | cut -f2 -d'_') # Get the "PMSR6" from the file name
+          SCENE_NAME=$(echo $TIFF_NAME | cut -f5-7 -d'_') # get the scene id 101_0034_001
           echo "Sensor:" $SENSOR_NAME "Scene:" $SCENE_NAME
 
           PRODUCT_ID=$(ogrinfo -ro -al *.dbf | grep productId | grep $SENSOR_NAME | grep $SCENE_NAME | cut -f6- -d' ' )
@@ -372,13 +378,13 @@ spec:
           # rm $INPUT_TIFF
 
           # remove the black edges
-          nearblack -of gtiff $INPUT_TIFF.tiff -setalpha -o $INPUT_TIFF.alpha.tiff
-          rm $INPUT_TIFF.color.tiff
+          nearblack -of gtiff $INPUT_TIFF -setalpha -o $TIFF_NAME
+          # rm $INPUT_TIFF.color.tiff
 
           ogr2ogr cutline.fgb *.dbf -where "productId = '${PRODUCT_ID}'"
           
           python /app/scripts/standardise_validate.py \
-            --source $INPUT_TIFF.alpha.tiff \
+            --source $TIFF_NAME \
             --scale {{workflow.parameters.scale}} \
             --preset {{workflow.parameters.compression}} \
             --start-datetime "{{=sprig.trim(workflow.parameters['start-datetime'])}}" \
