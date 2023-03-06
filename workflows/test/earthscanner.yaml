@@ -391,8 +391,7 @@ spec:
             --end-datetime "{{=sprig.trim(workflow.parameters['end-datetime'])}}" \
             --collection-id "{{inputs.parameters.collection-id}}" \
             --source-epsg "{{=sprig.trim(workflow.parameters['source-epsg'])}}" \
-            --target-epsg "{{=sprig.trim(workflow.parameters['target-epsg'])}}" \
-            --cutline cutline.fgb
+            --target-epsg "{{=sprig.trim(workflow.parameters['target-epsg'])}}"
 
       outputs:
         artifacts:
@@ -420,7 +419,7 @@ spec:
             "--group",
             "1000",
             "--group-size",
-            "100Gi",
+            "50Gi",
             "--output",
             "/tmp/file_list.json",
             "--target",
