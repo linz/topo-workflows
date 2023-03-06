@@ -93,7 +93,7 @@ spec:
             "{{=sprig.trim(workflow.parameters.target)}}",
             "{{=sprig.trim(inputs.parameters.source)}}",
             "--transform",
-            "{{=sprig.trim(workflow.parameters.transform)}}"
+            "{{=sprig.trim(workflow.parameters.transform)}}",
           ]
       outputs:
         parameters:
