@@ -5,7 +5,7 @@ metadata:
   generateName: test-earthscanner-
   namespace: argo
 spec:
-  parallelism: 50
+  parallelism: 100
   nodeSelector:
     karpenter.sh/capacity-type: "spot"
   entrypoint: main
