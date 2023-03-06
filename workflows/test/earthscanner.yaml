@@ -23,7 +23,7 @@ spec:
       - name: version-topo-imagery
         value: "v1"
       - name: source
-        value: "s3://linz-topographic-upload/earthscanner/2023-03-JL1KF01B-raw/"
+        value: "s3://linz-satellite-imagery-staging/earthscanner/2023-02-21/L3D/"
       - name: include
         value: ".zip$"
       - name: scale
@@ -176,9 +176,9 @@ spec:
         description: "(Optional) Separate the licensor names by a semi-colon (;). It has no effect unless a semicolon-delimited list is entered."
         value: ""
       - name: start-datetime
-        value: "1990-02-20"
+        value: "2023-02-21"
       - name: end-datetime
-        value: "1990-02-20"
+        value: "2023-02-21"
       - name: copy-option
         value: "--no-clobber"
         enum:
@@ -504,7 +504,7 @@ spec:
           ]
     - name: get-location
       script:
-        image: node:alpine
+        image: "ghcr.io/linz/argo-tasks:{{=sprig.trim(workflow.parameters['version-argo-tasks'])}}"
         command: [node]
         source: |
           const fs = require('fs');
