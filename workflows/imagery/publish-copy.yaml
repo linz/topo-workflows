@@ -25,6 +25,12 @@ spec:
           - "--no-clobber"
           - "--force"
           - "--force-no-clobber"
+      - name: group
+        value: "1000"
+      - name: group-size
+        value: "100Gi"
+      - name: transform
+        value: ""
   templateDefaults:
     container:
       imagePullPolicy: Always
@@ -78,14 +84,16 @@ spec:
             "--include",
             "{{=sprig.trim(inputs.parameters.include)}}",
             "--group",
-            "1000",
+            "{{=sprig.trim(workflow.parameters.group)}}",
             "--group-size",
-            "100Gi",
+            "{{=sprig.trim(workflow.parameters['group-size'])}}",
             "--output",
             "/tmp/file_list.json",
             "--target",
             "{{=sprig.trim(workflow.parameters.target)}}",
             "{{=sprig.trim(inputs.parameters.source)}}",
+            "--transform",
+            "{{=sprig.trim(workflow.parameters.transform)}}"
           ]
       outputs:
         parameters:
