@@ -351,17 +351,17 @@ spec:
 
 
           # Grab the metadata with the cutlines 
-          ./s5cmd cp s3://linz-topographic-upload/earthscanner/EarthScanner_Tiles_Metadata_FullCapture.zip .
-          unzip EarthScanner_Tiles_Metadata_FullCapture.zip
+          # ./s5cmd cp s3://linz-topographic-upload/earthscanner/EarthScanner_Tiles_Metadata_FullCapture.zip .
+          # unzip EarthScanner_Tiles_Metadata_FullCapture.zip
 
-          SENSOR_NAME=$(echo $TIFF_NAME | cut -f2 -d'_') # Get the "PMSR6" from the file name
-          SCENE_NAME=$(echo $TIFF_NAME | cut -f5-7 -d'_') # get the scene id 101_0034_001
-          echo "Sensor:" $SENSOR_NAME "Scene:" $SCENE_NAME
+          # SENSOR_NAME=$(echo $TIFF_NAME | cut -f2 -d'_') # Get the "PMSR6" from the file name
+          # SCENE_NAME=$(echo $TIFF_NAME | cut -f5-7 -d'_') # get the scene id 101_0034_001
+          # echo "Sensor:" $SENSOR_NAME "Scene:" $SCENE_NAME
 
-          PRODUCT_ID=$(ogrinfo -ro -al *.dbf | grep productId | grep $SENSOR_NAME | grep $SCENE_NAME | cut -f6- -d' ' )
-          echo "Product:" $PRODUCT_ID
+          # PRODUCT_ID=$(ogrinfo -ro -al *.dbf | grep productId | grep $SENSOR_NAME | grep $SCENE_NAME | cut -f6- -d' ' )
+          # echo "Product:" $PRODUCT_ID
 
-          # # Conver the tiff into a byte re-ordering the bands that are wrong
+          # Convert the tiff into a byte re-ordering the bands that are wrong
           gdal_translate \
             -of GTiff \
             -co TILED=YES \
@@ -380,10 +380,10 @@ spec:
           rm $INPUT_TIFF
 
           # remove the black edges
-          nearblack -of gtiff $INPUT_TIFF.color.tiff -setalpha -o $TIFF_NAME -co NUM_THREADS=ALL_CPUS -co COMPRESS=zstd -co TILED=yes
+          nearblack -of gtiff $INPUT_TIFF.color.tiff -setalpha -o $TIFF_NAME
           rm $INPUT_TIFF.color.tiff
 
-          ogr2ogr cutline.fgb *.dbf -where "productId = '${PRODUCT_ID}'"
+          # ogr2ogr cutline.fgb *.dbf -where "productId = '${PRODUCT_ID}'"
           
           python /app/scripts/standardise_validate.py \
             --source $TIFF_NAME \
