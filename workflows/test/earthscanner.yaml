@@ -2,10 +2,10 @@
 apiVersion: argoproj.io/v1alpha1
 kind: Workflow
 metadata:
-  generateName: test-earthscanner-
+  generateName: test-earthscanner-l3c-
   namespace: argo
 spec:
-  parallelism: 100
+  parallelism: 50
   nodeSelector:
     karpenter.sh/capacity-type: "spot"
   entrypoint: main
@@ -23,7 +23,7 @@ spec:
       - name: version-topo-imagery
         value: "v1"
       - name: source
-        value: "s3://linz-satellite-imagery-staging/earthscanner/2023-02-21/L3D/"
+        value: "s3://linz-satellite-imagery-staging/earthscanner/2023-02-21/L3C/"
       - name: include
         value: ".zip$"
       - name: scale
@@ -51,7 +51,7 @@ spec:
         description: "(Optional) location of a cutline file to cut the imagery to .fgb or .geojson"
         value: ""
       - name: title
-        value: "Earthscanner 0.5m (2023)"
+        value: "Earthscanner L3C 0.5m (2023)"
       - name: description
         value: "Orthophotography within the *Region Name* region captured in the *Year*-*Year* flying season."
       - name: producer
@@ -362,24 +362,26 @@ spec:
           echo "Product:" $PRODUCT_ID
 
           # # Conver the tiff into a byte re-ordering the bands that are wrong
-          # gdal_translate \
-          #   -of GTiff \
-          #   -co TILED=YES \
-          #   -co NUM_THREADS=all_cpus \
-          #   -co COMPRESS=zstd \
-          #   -co BIGTIFF=YES \
-          #   -ot byte \
-          #   -scale 0 1500 0 255 \
-          #   -b 3 -b 2 -b 1 \
-          #   -colorinterp red,green,blue \
-          #   $INPUT_TIFF $INPUT_TIFF.color.tiff
+          gdal_translate \
+            -of GTiff \
+            -co TILED=YES \
+            -co NUM_THREADS=all_cpus \
+            -co COMPRESS=zstd \
+            -co BIGTIFF=YES \
+            -ot byte \
+            -scale 200 2500 0 255 \
+            -scale 300 2100 0 255 \
+            -scale 300 1700 0 255 \
+            -b 3 -b 2 -b 1 \
+            -colorinterp red,green,blue \
+            $INPUT_TIFF $INPUT_TIFF.color.tiff
 
           # # tiff from the zip is no longer needed, clear it up to save space
-          # rm $INPUT_TIFF
+          rm $INPUT_TIFF
 
           # remove the black edges
-          nearblack -of gtiff $INPUT_TIFF -setalpha -o $TIFF_NAME
-          # rm $INPUT_TIFF.color.tiff
+          nearblack -of gtiff $INPUT_TIFF.color.tiff -setalpha -o $TIFF_NAME -co NUM_THREADS=ALL_CPUS -co COMPRESS=zstd -co TILED=yes
+          rm $INPUT_TIFF.color.tiff
 
           ogr2ogr cutline.fgb *.dbf -where "productId = '${PRODUCT_ID}'"
           
