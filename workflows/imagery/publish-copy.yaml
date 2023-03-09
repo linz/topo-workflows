@@ -30,7 +30,7 @@ spec:
       - name: group-size
         value: "100Gi"
       - name: transform
-        value: ""
+        value: "f"
   templateDefaults:
     container:
       imagePullPolicy: Always

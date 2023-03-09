@@ -194,6 +194,9 @@ Access permissions are controlled by the [Bucket Sharing Config](https://github.
 | target      | str   | s3://linz-imagery-staging/test/sample_target/ | The URIs (paths) to the s3 target location                                                                                                                                                                                   |
 | include     | regex | .tiff?\$\|.json\$\|.tfw\$                     | A regular expression to match object path(s) or name(s) from within the source path to include in the copy.                                                                                                                  |
 | copy-option | enum  | --no-clobber                                  | `--no-clobber` will not overwrite files if the name and the file size in bytes are the same. `--force` will overwrite all files. `--force-no-clobber` will only overwrite files of the same name that are of different sizes |
+| group       | int   | 1000                                          | The maximum number of files for each pod to copy (will use the lesser of `group` and `group-size`)                                                                                                                           |
+| group-size  | str   | 100Gi                                         | The maximum group size of files for each pod to copy (will use the lesser of `group` and `group-size`).                                                                                                                      |
+| transform   | str   | `f`                                           | Substring to be transformed from source to target to renamed filenames, e.g. `f.replace("text to replace", "new_text_to_use")`. Leave as `f` for no transformation.                                                          |
 
 ## Examples
 
