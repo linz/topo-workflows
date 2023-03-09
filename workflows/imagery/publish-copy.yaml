@@ -84,16 +84,16 @@ spec:
             "--include",
             "{{=sprig.trim(inputs.parameters.include)}}",
             "--group",
-            "{{=sprig.trim(workflow.parameters.group)}}",
+            "{{=sprig.trim(inputs.parameters.group)}}",
             "--group-size",
-            "{{=sprig.trim(workflow.parameters['group-size'])}}",
+            "{{=sprig.trim(inputs.parameters['group-size'])}}",
             "--output",
             "/tmp/file_list.json",
             "--target",
             "{{=sprig.trim(workflow.parameters.target)}}",
             "{{=sprig.trim(inputs.parameters.source)}}",
             "--transform",
-            "{{=sprig.trim(workflow.parameters.transform)}}",
+            "{{=sprig.trim(inputs.parameters.transform)}}",
           ]
       outputs:
         parameters:

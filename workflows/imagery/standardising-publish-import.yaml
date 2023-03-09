@@ -56,6 +56,12 @@ spec:
                   value: "{{steps.standardise.outputs.parameters.target}}flat/"
                 - name: include
                   value: ".tiff?$|.json$"
+                - name: group
+                  value: "1000"
+                - name: group-size
+                  value: "100Gi"
+                - name: transform
+                  value: "f"
         # - - name: import # uncomment this stanza for basemaps imagery import and amend as necessary. All other inputs should be workflow parameters
         #     templateRef:
         #       name: basemaps-imagery-import
