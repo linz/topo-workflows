@@ -30,6 +30,8 @@ spec:
         value: "--no-clobber"
       - name: include
         value: ".tiff?$"
+      - name: transform
+        value: "f"
       - name: version-argo-tasks
         value: "v2"
       - name: version-basemaps-cli
@@ -60,8 +62,6 @@ spec:
                   value: "1000"
                 - name: group-size
                   value: "100Gi"
-                - name: transform
-                  value: "f"
         # - - name: import # uncomment this stanza for basemaps imagery import and amend as necessary. All other inputs should be workflow parameters
         #     templateRef:
         #       name: basemaps-imagery-import

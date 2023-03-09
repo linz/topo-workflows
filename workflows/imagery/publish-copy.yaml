@@ -40,6 +40,8 @@ spec:
         parameters:
           - name: source
           - name: include
+          - name: group
+          - name: group-size
       dag:
         tasks:
           - name: create-manifest
@@ -52,6 +54,10 @@ spec:
                   value: "{{workflow.parameters.target}}"
                 - name: include
                   value: "{{inputs.parameters.include}}"
+                - name: group
+                  value: "{{inputs.parameters.group}}"
+                - name: group-size
+                  value: "{{inputs.parameters.group-size}}"
                 - name: version-argo-tasks
                   value: "{{workflow.parameters.version-argo-tasks}}"
           - name: copy
@@ -71,6 +77,8 @@ spec:
         parameters:
           - name: source
           - name: include
+          - name: group
+          - name: group-size
       container:
         image: "ghcr.io/linz/argo-tasks:{{=sprig.trim(workflow.parameters['version-argo-tasks'])}}"
         command: [node, /app/index.js]
@@ -93,7 +101,7 @@ spec:
             "{{=sprig.trim(workflow.parameters.target)}}",
             "{{=sprig.trim(inputs.parameters.source)}}",
             "--transform",
-            "{{=sprig.trim(inputs.parameters.transform)}}",
+            "{{=sprig.trim(workflow.parameters.transform)}}",
           ]
       outputs:
         parameters:
