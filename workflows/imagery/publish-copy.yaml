@@ -25,6 +25,12 @@ spec:
           - "--no-clobber"
           - "--force"
           - "--force-no-clobber"
+      - name: group
+        value: "1000"
+      - name: group-size
+        value: "100Gi"
+      - name: transform
+        value: "f"
   templateDefaults:
     container:
       imagePullPolicy: Always
@@ -34,6 +40,8 @@ spec:
         parameters:
           - name: source
           - name: include
+          - name: group
+          - name: group-size
       dag:
         tasks:
           - name: create-manifest
@@ -46,6 +54,10 @@ spec:
                   value: "{{workflow.parameters.target}}"
                 - name: include
                   value: "{{inputs.parameters.include}}"
+                - name: group
+                  value: "{{inputs.parameters.group}}"
+                - name: group-size
+                  value: "{{inputs.parameters.group-size}}"
                 - name: version-argo-tasks
                   value: "{{workflow.parameters.version-argo-tasks}}"
           - name: copy
@@ -65,6 +77,8 @@ spec:
         parameters:
           - name: source
           - name: include
+          - name: group
+          - name: group-size
       container:
         image: "ghcr.io/linz/argo-tasks:{{=sprig.trim(workflow.parameters['version-argo-tasks'])}}"
         command: [node, /app/index.js]
@@ -78,14 +92,16 @@ spec:
             "--include",
             "{{=sprig.trim(inputs.parameters.include)}}",
             "--group",
-            "1000",
+            "{{=sprig.trim(inputs.parameters.group)}}",
             "--group-size",
-            "100Gi",
+            "{{=sprig.trim(inputs.parameters['group-size'])}}",
             "--output",
             "/tmp/file_list.json",
             "--target",
             "{{=sprig.trim(workflow.parameters.target)}}",
             "{{=sprig.trim(inputs.parameters.source)}}",
+            "--transform",
+            "{{=sprig.trim(workflow.parameters.transform)}}",
           ]
       outputs:
         parameters:
