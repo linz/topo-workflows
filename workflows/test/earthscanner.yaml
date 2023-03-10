@@ -387,7 +387,7 @@ spec:
             "--flatten",
             "--verbose",
             "--include",
-            ".tiff?$|.json$",
+            ".tiff?$|.json$|.xml$|.jpeg$",
             "--group",
             "1000",
             "--group-size",
