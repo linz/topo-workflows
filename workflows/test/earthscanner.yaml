@@ -347,6 +347,10 @@ spec:
 
           ls  -R JL1K*
 
+          # copy xml and jpg files to output in /tmp
+          mv JL1K*/*.xml /tmp/
+          mv JL1K*/*.jpg /tmp/
+
           INPUT_TIFF=$(ls -1 JL1K*/*.tif)
           TIFF_NAME=$(basename $INPUT_TIFF)
           echo $INPUT_TIFF
