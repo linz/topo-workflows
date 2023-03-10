@@ -221,42 +221,42 @@ spec:
                   value: "{{item}}"
             depends: "flatten"
             withParam: "{{tasks.flatten.outputs.parameters.files}}"
-          - name: create-collection
-            template: create-collection
-            arguments:
-              parameters:
-                - name: collection-id
-                  value: "{{tasks.generate-ulid.outputs.parameters.ulid}}"
-                - name: location
-                  value: "{{tasks.get-location.outputs.parameters.location}}"
-            depends: "flatten-copy"
-          - name: stac-validate
-            template: stac-validate
-            arguments:
-              parameters:
-                - name: location
-                  value: "{{tasks.get-location.outputs.parameters.location}}"
-              artifacts:
-                - name: stac-result
-                  raw:
-                    data: "{{tasks.stac-validate.outputs.result}}"
-            depends: "create-collection"
+          # - name: create-collection
+          #   template: create-collection
+          #   arguments:
+          #     parameters:
+          #       - name: collection-id
+          #         value: "{{tasks.generate-ulid.outputs.parameters.ulid}}"
+          #       - name: location
+          #         value: "{{tasks.get-location.outputs.parameters.location}}"
+          #   depends: "flatten-copy"
+          # - name: stac-validate
+          #   template: stac-validate
+          #   arguments:
+          #     parameters:
+          #       - name: location
+          #         value: "{{tasks.get-location.outputs.parameters.location}}"
+          #     artifacts:
+          #       - name: stac-result
+          #         raw:
+          #           data: "{{tasks.stac-validate.outputs.result}}"
+          #   depends: "create-collection"
           - name: get-location
             template: get-location
-          - name: create-overview
-            arguments:
-              parameters:
-                - name: location
-                  value: "{{tasks.get-location.outputs.parameters.location}}"
-            template: create-overview
-            depends: "get-location && flatten-copy"
-          - name: create-config
-            arguments:
-              parameters:
-                - name: location
-                  value: "{{tasks.get-location.outputs.parameters.location}}"
-            template: create-config
-            depends: "get-location && create-overview"
+          # - name: create-overview
+          #   arguments:
+          #     parameters:
+          #       - name: location
+          #         value: "{{tasks.get-location.outputs.parameters.location}}"
+          #   template: create-overview
+          #   depends: "get-location && flatten-copy"
+          # - name: create-config
+          #   arguments:
+          #     parameters:
+          #       - name: location
+          #         value: "{{tasks.get-location.outputs.parameters.location}}"
+          #   template: create-config
+          #   depends: "get-location && create-overview"
       outputs:
         parameters:
           - name: target
@@ -272,6 +272,8 @@ spec:
         args:
           [
             "list",
+            "--limit",
+            "1",
             "--verbose",
             "--include",
             "{{=sprig.trim(workflow.parameters.include)}}",
@@ -351,35 +353,13 @@ spec:
 
           # Convert the tiff into a byte re-ordering the bands that are wrong
           gdal_translate \
-            -of GTiff \
-            -co TILED=YES \
+            -of COG \
+            -co COMPRESS=lzw \
+            -co PREDICTOR=yes \
+            -co BLOCKSIZE=512 \
             -co NUM_THREADS=all_cpus \
-            -co COMPRESS=zstd \
             -co BIGTIFF=YES \
-            -ot byte \
-            -scale 200 2500 0 255 \
-            -scale 300 2100 0 255 \
-            -scale 300 1700 0 255 \
-            -b 3 -b 2 -b 1 \
-            -colorinterp red,green,blue \
-            $INPUT_TIFF $INPUT_TIFF.color.tiff
-
-          # tiff from the zip is no longer needed, clear it up to save space
-          rm $INPUT_TIFF
-
-          # remove the black edges
-          nearblack -of gtiff $INPUT_TIFF.color.tiff -setalpha -o $TIFF_NAME
-          rm $INPUT_TIFF.color.tiff
-          
-          python /app/scripts/standardise_validate.py \
-            --source $TIFF_NAME \
-            --scale {{workflow.parameters.scale}} \
-            --preset {{workflow.parameters.compression}} \
-            --start-datetime "{{=sprig.trim(workflow.parameters['start-datetime'])}}" \
-            --end-datetime "{{=sprig.trim(workflow.parameters['end-datetime'])}}" \
-            --collection-id "{{inputs.parameters.collection-id}}" \
-            --source-epsg "{{=sprig.trim(workflow.parameters['source-epsg'])}}" \
-            --target-epsg "{{=sprig.trim(workflow.parameters['target-epsg'])}}"
+            $INPUT_TIFF /tmp/${TIFF_NAME}f
 
       outputs:
         artifacts:
