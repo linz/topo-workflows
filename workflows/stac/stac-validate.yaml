@@ -45,5 +45,5 @@ spec:
           [
             "stac-validate",
             "--recursive",
-            "{{=sprig.trim(inputs.parameters.stac-file-path)}}",
+            "{{=sprig.trim(inputs.parameters['stac-file-path'])}}",
           ]
