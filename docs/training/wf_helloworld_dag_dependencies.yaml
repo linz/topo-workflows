@@ -1,0 +1,53 @@
+---
+apiVersion: argoproj.io/v1alpha1
+kind: Workflow
+metadata:
+  generateName: test-name-hello-world-
+  namespace: argo
+spec:
+  entrypoint: main
+  arguments:
+    parameters:
+      - name: message1
+        value: "hello world 1"
+      - name: message2
+        value: "hello world 2"
+  templates:
+    - name: main
+      dag:
+        tasks:
+          - name: say-hello-task1
+            template: say-hello-template
+            arguments:
+              parameters:
+                - name: message
+                  value: "{{workflow.parameters.message1}}"
+          - name: say-hello-task2
+            template: say-hello-template
+            arguments:
+              parameters:
+                - name: message
+                  value: "{{workflow.parameters.message2}}"
+            depends: "say-hello-task1"
+          - name: say-hello-task3
+            template: say-hello-template
+            arguments:
+              parameters:
+                - name: message
+                  value: "say hello task 3"
+            depends: "say-hello-task1"
+          - name: say-hello-task4
+            template: say-hello-template
+            arguments:
+              parameters:
+                - name: message
+                  value: "say hello task 4"
+            depends: "say-hello-task2 && say-hello-task3"
+    - name: say-hello-template
+      inputs:
+        parameters:
+          - name: message
+      container:
+        image: "019359803926.dkr.ecr.ap-southeast-2.amazonaws.com/eks:topo-imagery-v1"
+        command: [echo]
+        args: ["{{inputs.parameters.message}}"]
