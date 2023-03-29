@@ -6,8 +6,8 @@
 
 - Introduction to the tech ecosystem: containerisation, Kubernetes, Argo Workflows
 - The structure of an Argo workflow; workflow concepts
-- Building and running workflows from the UI
-- Building and running workflows from the command line
+- Creating and running workflows from the UI
+- Creating and running workflows from the command line
 - Monitoring your running workflows - how to view logs and get Kubernetes events
 - How the Topo workflows are structured – example using the standardising workflow
 - The codebase (containers) behind the Topo workflows
@@ -18,7 +18,7 @@
 
 ### AWS CLI v2
 
-https://docs.aws.amazon.com/cli/latest/userguide/getting-started-install.html
+[https://docs.aws.amazon.com/cli/latest/userguide/getting-started-install.html](https://docs.aws.amazon.com/cli/latest/userguide/getting-started-install.html)
 
 ### Install Git CLI and clone the Topo Workflows GitHub repository
 
@@ -32,11 +32,11 @@ This will create a copy of the Topo Workflows repository locally.
 
 ### `kubectl`
 
-https://kubernetes.io/docs/tasks/tools/
+[https://kubernetes.io/docs/tasks/tools/](https://kubernetes.io/docs/tasks/tools/)
 
 ### Argo CLI
 
-https://github.com/argoproj/argo-workflows/releases/
+[https://github.com/argoproj/argo-workflows/releases/](https://github.com/argoproj/argo-workflows/releases/)
 
 ## Argo Workflows, Kubernetes and AWS Elastic Kubernetes Service
 
@@ -146,6 +146,34 @@ spec:
         args: ["{{inputs.parameters.message}}"]
 ```
 
+### Creating and running workflows from the CLI
+
+In a terminal window, log in to `li-topo-prod` using AWS CLI.
+
+Check your connection to Argo:
+
+```bash
+kubectl get pods -n argo
+argo list -n argo
+```
+
+For Argo CLI, you can set the environment variable `ARGO_NAMESPACE=argo` so you don’t have to specify the namespace in your argo commands.
+
+You can also do that for kubectl if you want to:
+`kubectl config set-context --current --namespace=argo`
+
+#### CLI "hello world" example
+
+`argo submit docs/training/wf_helloworld.yaml -n argo --watch`
+
+#### CLI "hello world" example with argument parameters
+
+`argo submit docs/training/wf_helloworld_args.yaml p message1="hello world" --watch`
+
+#### Monitoring your running workflows - how to view logs and get Kubernetes events
+
+Content TBA
+
 #### UI "hello world" example with arguments containing two tasks
 
 > Instructor notes:
@@ -194,9 +222,9 @@ spec:
         args: ["{{inputs.parameters.message}}"]
 ```
 
-Submit the workflow through the UI.
+Submit the workflow through the CLI.
 
-#### DAG example - dependent tasks
+### DAG example - dependent tasks
 
 > Instructor notes:
 >
@@ -261,72 +289,34 @@ spec:
 >
 > Fanning in and fanning out. Power of Argo Workflows - can automate this to create multiple parallel tasks
 
-## Creating and running workflows from the CLI
+### DAG example - parallelising a task to run in multiple pods
 
-### CLI "hello world" example
-
-`argo submit docs/training/wf_helloworld.yaml -n argo --watch`
-
-#### CLI "hello world" example with argument parameters
-
-`argo submit docs/training/wf_helloworld_args.yaml -n argo p message1="hello world" --watch`
+Content TBA
 
 ## Inputs and Outputs - passing information between tasks in a Workflow
 
-## How the Topo workflows are structured – example using the standardising workflow
+Content TBA
+
+## A Workflow example using the standardising workflow
 
 ![Standardising Workflow Structure](standardising_structure.png)
 
 ## Referencing other Workflows
 
+Content TBA
+
 ## The codebase and containers behind the Topo workflows
 
-### Topo Workflows
-
-### Topo Imagery
-
-### Argo Tasks
-
-### Basemaps-cli
+| **Container**                                                                    | **Purpose**                                                                       |
+| -------------------------------------------------------------------------------- | --------------------------------------------------------------------------------- |
+| [topo-imagery](https://github.com/linz/topo-imagery/pkgs/container/topo-imagery) | Python scripts that need to use the GDAL library and geospatial Python libraries. |
+| [argo-tasks](https://github.com/linz/argo-tasks/pkgs/container/argo-tasks)       | Reusable utility tasks written in TypeScript.                                     |
+| [basemaps-cli](https://github.com/linz/basemaps/pkgs/container/basemaps%2Fcli)   | Controls Basemaps configuration.                                                  |
 
 ## Running a real world workflow – historical imagery or raster data store workflows
 
+Setting up the bulk workflow runs - Megan's script
+
 ## How to get help from TDE
 
-> Move further down
-
-```yaml
-apiVersion: argoproj.io/v1alpha1
-kind: Workflow
-metadata:
-  generateName: test-name-hello-world-parameters-
-spec:
-  entrypoint: main
-  arguments:
-    parameters:
-      - name: message1
-        value: "hello world 1"
-      - name: message2
-        value: "hello world 2"
-  templates:
-    - name: main
-      steps:
-        - name: task1
-          template: whalesay
-          arguments:
-            parameters:
-              [{ name: message, value: "{{workflow.parameters.message1}}" }]
-        - name: task2
-          template: whalesay
-          arguments:
-            parameters:
-              [{ name: message, value: "{{workflow.parameters.message2}}" }]
-    - name: whalesay
-      inputs:
-        parameters:
-          - name: message
-      container:
-        image: docker/whalesay:latest
-        command: [cowsay]
-        args: ["{{inputs.parameters.message}}"]
-```
+Ask on the `#team=topo-data-engineering` Slack channel :smiley:
