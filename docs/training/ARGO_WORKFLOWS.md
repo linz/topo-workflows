@@ -170,9 +170,12 @@ You can also do that for kubectl if you want to:
 
 `argo submit docs/training/wf_helloworld_args.yaml p message1="hello world" --watch`
 
-#### Monitoring your running workflows - how to view logs and get Kubernetes events
+#### Monitoring your running workflows - how to view logs and get events
 
-Content TBA
+- [Argo CLI documentation](https://argoproj.github.io/argo-workflows/cli/argo/)
+- [Kubernetes Cheat Sheet](https://kubernetes.io/docs/reference/kubectl/cheatsheet/)
+
+More TBA get events get logs
 
 #### UI "hello world" example with arguments containing two tasks
 
@@ -291,19 +294,25 @@ spec:
 
 ### DAG example - parallelising a task to run in multiple pods
 
-Content TBA
+_Content TBA_
 
 ## Inputs and Outputs - passing information between tasks in a Workflow
 
-Content TBA
+_Content TBA_
 
-## A Workflow example using the standardising workflow
+## A Workflow example: standardising workflow
+
+General structure:
 
 ![Standardising Workflow Structure](standardising_structure.png)
 
-## Referencing other Workflows
+Go through the Standardising YAML file in more detail - any questions?
 
-Content TBA
+## Referencing other Workflows/WorkflowTemplates
+
+> Instructor notes:
+>
+> This is possible and is done in the standardising-publish-import but it is a more advanced topic and will not be covered in this workshop.
 
 ## The codebase and containers behind the Topo workflows
 
@@ -315,8 +324,10 @@ Content TBA
 
 ## Running a real world workflow – historical imagery or raster data store workflows
 
-Setting up the bulk workflow runs - Megan's script
+Setting up the bulk workflow runs - Megan's script - Content TBA\_
 
 ## How to get help from TDE
 
-Ask on the `#team=topo-data-engineering` Slack channel :smiley:
+Ask on the `#team=topo-data-engineering` Slack channel :smile:
+
+If you have a question about a particular Workflow that has run on Argo, you can tag `@squad-de-dev` in the relevant thread in the `#alert-argo-workflows` Slack channel.
