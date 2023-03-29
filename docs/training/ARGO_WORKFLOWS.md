@@ -80,10 +80,6 @@ metadata:
   namespace: argo
 spec:
   entrypoint: main
-  arguments:
-    parameters:
-      - name: message
-        value: "hello world"
   templates:
     - name: main
       dag:
@@ -93,7 +89,7 @@ spec:
             arguments:
               parameters:
                 - name: message
-                  value: "{{workflow.parameters.message}}"
+                  value: "hello world"
     - name: say-hello-template
       inputs:
         parameters:
@@ -323,10 +319,6 @@ Go through the Standardising YAML file in more detail - any questions?
 | [topo-imagery](https://github.com/linz/topo-imagery/pkgs/container/topo-imagery) | Python scripts that need to use the GDAL library and geospatial Python libraries. |
 | [argo-tasks](https://github.com/linz/argo-tasks/pkgs/container/argo-tasks)       | Reusable utility tasks written in TypeScript.                                     |
 | [basemaps-cli](https://github.com/linz/basemaps/pkgs/container/basemaps%2Fcli)   | Controls Basemaps configuration.                                                  |
-
-## Running a real world workflow – historical imagery or raster data store workflows
-
-Setting up the bulk workflow runs - Megan's script - Content TBA\_
 
 ## How to get help from TDE
 
