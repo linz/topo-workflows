@@ -7,12 +7,13 @@
 - Getting help from TDE
 - Introduction to the tech ecosystem: containerisation, Kubernetes, Argo Workflows
 - The structure of an Argo workflow; workflow concepts
+- The codebase and containers behind the Topo workflows
 - Creating and running workflows from the UI
 - Creating and running workflows from the command line
 - Monitoring your running workflows - how to view logs and get Kubernetes events
 - How the Topo workflows are structured – example using the standardising workflow
+- Other features
 - The codebase (containers) behind the Topo workflows
-- Running a real world workflow – historical imagery or raster data store workflows
 
 ## Workshop Pre-Requisites
 
@@ -46,26 +47,43 @@ If you have a question about a particular Workflow that has run on Argo, you can
 
 ## Introduction to the tech ecosystem: containerisation, Argo Workflows, Kubernetes and AWS Elastic Kubernetes Service
 
-_mention containerisation_
+A workflow running in Argo:
 
-[Argo Configuration Guide - Introduction to Argo Workflows](../../CONFIGURATION.md#IntroductiontotheArgoWorkflowsEnvironment)
+![Argo Workflow UI](workflow_ui.png)
+
+The infrastructure running Argo Workflows:
 
 ![Kubernetes and Argo Workflows](pods.png)
 
-## What is a workflow?
+For more in-depth information, see:
+[Argo Configuration Guide - Introduction to Argo Workflows](../../CONFIGURATION.md#IntroductiontotheArgoWorkflowsEnvironment)
+
+## What is a Workflow?
 
 A workflow is a grouping of tasks to be run. It is a YAML (or JSON) document that specifies the tasks to be carried out and the settings that should be applied to the workflow and the tasks. The workflow document is submitted to Argo and is scheduled and run using AWS EC2 resources that are dynamically requested and assigned.
 
-Workfow concepts (see diagram below):
+Workflow concepts (see diagram below):
 
 - Workflow
 - WorkflowSpec
 - Templates (e.g. container, script)
-- Template Invocators
+- Template Invocators (e.g. dag: task)
 
 ![Simplified Workflow Structure](wf_structure.png)
 
 This diagram is simplified and we will look at a more detailed, real-world, example later on.
+
+## The codebase and containers behind the Topo workflows
+
+Templates specify a container image to use, which a pod will run in.
+
+All the examples in this workshop will use our Topo containers.
+
+| **Container**                                                                    | **Purpose**                                                                       |
+| -------------------------------------------------------------------------------- | --------------------------------------------------------------------------------- |
+| [topo-imagery](https://github.com/linz/topo-imagery/pkgs/container/topo-imagery) | Python scripts that need to use the GDAL library and geospatial Python libraries. |
+| [argo-tasks](https://github.com/linz/argo-tasks/pkgs/container/argo-tasks)       | Reusable utility tasks written in TypeScript.                                     |
+| [basemaps-cli](https://github.com/linz/basemaps/pkgs/container/basemaps%2Fcli)   | Controls Basemaps configuration.                                                  |
 
 ## Creating and running workflows
 
@@ -96,21 +114,16 @@ spec:
     - name: main
       dag:
         tasks:
-          - name: say-hello-task
+          - name: say-hello-step
             template: say-hello-template
-            arguments:
-              parameters:
-                - name: message
-                  value: "hello world"
     - name: say-hello-template
-      inputs:
-        parameters:
-          - name: message
       container:
         image: "019359803926.dkr.ecr.ap-southeast-2.amazonaws.com/eks:topo-imagery-v1"
         command: [echo]
-        args: ["{{inputs.parameters.message}}"]
+        args: ["hello world"]
 ```
+
+`wf_helloworld.yaml`
 
 Submit the workflow through the UI.
 
@@ -152,6 +165,8 @@ spec:
         command: [echo]
         args: ["{{inputs.parameters.message}}"]
 ```
+
+`wf_helloworld_args.yaml`
 
 ### Creating and running workflows from the CLI
 
@@ -227,7 +242,7 @@ The logs and events that are output by the Argo Workflows ecosystem are accessib
 
 This workflow will run two tasks at the same time. In this case we are using the same "say-hello-template" template. These tasks could reference different templates.
 
-Add another step to `wf_helloworld_args.yaml` and another parameter for it.
+Add another task to `wf_helloworld_args.yaml` and another parameter for it.
 
 ```yaml
 ---
@@ -270,6 +285,8 @@ spec:
         args: ["{{inputs.parameters.message}}"]
 ```
 
+`wf_helloworld_args_tasks.yaml`
+
 Submit the workflow through the CLI.
 
 ### DAG example - dependent tasks
@@ -279,7 +296,7 @@ Submit the workflow through the CLI.
 apiVersion: argoproj.io/v1alpha1
 kind: Workflow
 metadata:
-  generateName: test-name-hello-world-
+  generateName: test-name-hello-world-dag-
   namespace: argo
 spec:
   entrypoint: main
@@ -330,6 +347,8 @@ spec:
         args: ["{{inputs.parameters.message}}"]
 ```
 
+`wf_helloworld_dag.yaml`
+
 ### Inputs and Outputs - passing information between tasks in a Workflow
 
 The outputs of one task can be passed as inputs to other tasks using parameters, artifacts, or custom code.
@@ -343,7 +362,7 @@ The example below uses "item" to run pods in parallel. "Item" expands a single w
 apiVersion: argoproj.io/v1alpha1
 kind: Workflow
 metadata:
-  generateName: test-stac-validate-collections-
+  generateName: test-output-parallel-
 spec:
   parallelism: 20
   nodeSelector:
@@ -421,6 +440,8 @@ spec:
           echo $PATH_OUT
 ```
 
+`wf_output_parallel.yaml`
+
 ## A Workflow example: standardising workflow
 
 General structure:
@@ -436,10 +457,4 @@ Go through the Standardising YAML file in more detail - any questions?
 - Referencing other Workflows/WorkflowTemplates
 - Sprig
 
-## The codebase and containers behind the Topo workflows
-
-| **Container**                                                                    | **Purpose**                                                                       |
-| -------------------------------------------------------------------------------- | --------------------------------------------------------------------------------- |
-| [topo-imagery](https://github.com/linz/topo-imagery/pkgs/container/topo-imagery) | Python scripts that need to use the GDAL library and geospatial Python libraries. |
-| [argo-tasks](https://github.com/linz/argo-tasks/pkgs/container/argo-tasks)       | Reusable utility tasks written in TypeScript.                                     |
-| [basemaps-cli](https://github.com/linz/basemaps/pkgs/container/basemaps%2Fcli)   | Controls Basemaps configuration.                                                  |
+** link to the training modules **

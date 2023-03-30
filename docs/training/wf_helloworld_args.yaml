@@ -2,7 +2,7 @@
 apiVersion: argoproj.io/v1alpha1
 kind: Workflow
 metadata:
-  generateName: test-name-hello-world-
+  generateName: test-name-hello-world-args-
   namespace: argo
 spec:
   entrypoint: main
@@ -14,7 +14,7 @@ spec:
     - name: main
       dag:
         tasks:
-          - name: say-hello-step
+          - name: say-hello-task
             template: say-hello-template
             arguments:
               parameters:
