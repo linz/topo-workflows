@@ -62,7 +62,7 @@ For more in-depth information, see:
 
 A workflow is a grouping of tasks to be run. It is a YAML (or JSON) document that specifies the tasks to be carried out and the settings that should be applied to the workflow and the tasks. The workflow document is submitted to Argo and is scheduled and run using AWS EC2 resources that are dynamically requested and assigned.
 
-Workflow concepts (see diagram below):
+Workflow structure concepts (see diagram below):
 
 - Workflow
 - WorkflowSpec
@@ -75,7 +75,7 @@ This diagram is simplified and we will look at a more detailed, real-world, exam
 
 ## The codebase and containers behind the Topo workflows
 
-Templates specify a container image to use, which a pod will run in.
+Templates specify a container image for a pod to use.
 
 All the examples in this workshop will use our Topo containers.
 
@@ -129,7 +129,22 @@ Submit the workflow through the UI.
 
 #### "hello world" example with argument parameter
 
-Parameters are passed through from the workflow spec to the templates.
+**Parameters** are fundamental to Argo Workflows. They are used to pass information throughout the Workflow, for example argument parameters are passed through from the workflow spec to the templates. Input parameters in templates can get information from workflow parameters and the output parameters from other templates.
+
+Parameters are referenced using **Argo variables**.
+
+For example, a workflow argument parameter might look like this:
+
+```yaml
+spec:
+  entrypoint: main
+  arguments:
+    parameters:
+      - name: message
+        value: "hello world"
+```
+
+The parameter can be referenced in the workflow as `"{{workflow.parameters.message}}"`
 
 Create a new file called `wf_helloworld_args.yaml` containing the following YAML:
 
@@ -291,6 +306,8 @@ Submit the workflow through the CLI.
 
 ### DAG example - dependent tasks
 
+`depends` is used to make sure that dag tasks run in a particular order.
+
 ```yaml
 ---
 apiVersion: argoproj.io/v1alpha1
@@ -352,6 +369,9 @@ spec:
 ### Inputs and Outputs - passing information between tasks in a Workflow
 
 The outputs of one task can be passed as inputs to other tasks using parameters, artifacts, or custom code.
+
+For more in-depth information, see:
+[Argo Configuration Guide - Introduction to Argo Workflows](../../CONFIGURATION.md#IntroductiontotheArgoWorkflowsEnvironment)
 
 ### Parallelising a task to run in multiple pods
 
@@ -457,4 +477,19 @@ Go through the Standardising YAML file in more detail - any questions?
 - Referencing other Workflows/WorkflowTemplates
 - Sprig
 
-** link to the training modules **
+## Argo Workflows Resources
+
+[Argo Workflows User Guide](https://argoproj.github.io/argo-workflows/workflow-concepts/)
+
+[Argo Workflows Examples](https://github.com/argoproj/argo-workflows/tree/master/examples)
+
+[Argo Workflows Online Training Courses(https://killercoda.com/pipekit/course/argo-workflows/)
+Recommended for further information about:
+
+- Templates
+- Inputs and Outputs
+- Reusing Workflows
+
+## Need more help?
+
+Ask on the `#team=topo-data-engineering` Slack channel :smile:
