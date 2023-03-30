@@ -41,7 +41,7 @@ This will create a copy of the Topo Workflows repository locally.
 
 ## Getting help from TDE
 
-Ask on the `#team=topo-data-engineering` Slack channel :smile:
+Ask on the `#team-topo-data-engineering` Slack channel :smile:
 
 If you have a question about a particular Workflow that has run on Argo, you can tag `@squad-de-dev` in the relevant thread in the `#alert-argo-workflows` Slack channel.
 
@@ -492,4 +492,4 @@ Recommended for further information about:
 
 ## Need more help?
 
-Ask on the `#team=topo-data-engineering` Slack channel :smile:
+Ask on the `#team-topo-data-engineering` Slack channel :smile:
