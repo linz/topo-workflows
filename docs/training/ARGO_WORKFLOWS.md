@@ -168,12 +168,48 @@ You can also do that for kubectl if you want to:
 
 `argo submit docs/training/wf_helloworld_args.yaml p message1="hello world" --watch`
 
+> **_Resources:_** [Argo CLI documentation](https://argoproj.github.io/argo-workflows/cli/argo/) - [Kubernetes Cheat Sheet](https://kubernetes.io/docs/reference/kubectl/cheatsheet/)
+
 #### Monitoring your running workflows - how to view logs and get events
 
-- [Argo CLI documentation](https://argoproj.github.io/argo-workflows/cli/argo/)
-- [Kubernetes Cheat Sheet](https://kubernetes.io/docs/reference/kubectl/cheatsheet/)
+##### Slack
 
-More TBA get events get logs
+Some generic and specific alerts have been configured to happen in `#alert-argo-workflows`:
+
+- Workflow Started/Completed/Failed
+- Non Visual QA report / Basemaps links
+
+##### Argo UI
+
+The application logs are accessible in the Argo UI Workflow page in the task description (by clicking on one of the task/pod - `SUMMARY` tab):
+![Workflows logs](argo_ui_show_logs.png)
+They are also downloadable in the `INPUTS/OUTPUTS` tab as `main.log`.
+
+##### Pod
+
+You can view the logs for a pods in "live" with the following command:
+
+```bash
+kubectl logs POD_NAME -n NAMESPACE --follow
+```
+
+##### Kubernetes events
+
+Events represent a state change of a k8s resource (examples: `Pod CREATED`, `Container PULLED` or `WorkflowRunning`). The events are available during 60 minutes with the following command:
+
+```bash
+kubectl get events -n argo
+```
+
+Some filters can be applied:
+
+- `--sort-by=.metadata.creationTimestamp` to sort them in chronological order
+- `--types=Warning` to show only the warnings
+  Older events (more than 60 minutes) are still available in Elastic Search (see next section).
+
+##### Elastic Search
+
+The logs and events that are output by the Argo Workflows ecosystem are accessible inside Elastic Search. Elastic Search allows the user to execute queries. It contains application logs and system events at the same place.
 
 #### UI "hello world" example with arguments containing two tasks
 
