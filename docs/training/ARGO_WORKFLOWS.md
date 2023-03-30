@@ -183,6 +183,7 @@ Some generic and specific alerts have been configured to happen in `#alert-argo-
 
 The application logs are accessible in the Argo UI Workflow page in the task description (by clicking on one of the task/pod - `SUMMARY` tab):
 ![Workflows logs](argo_ui_show_logs.png)
+
 They are also downloadable in the `INPUTS/OUTPUTS` tab as `main.log`.
 
 ##### Pod
