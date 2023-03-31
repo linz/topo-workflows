@@ -2,7 +2,7 @@
 apiVersion: argoproj.io/v1alpha1
 kind: Workflow
 metadata:
-  generateName: test-name-hello-world-args-
+  generateName: test-hello-world-args-
   namespace: argo
 spec:
   entrypoint: main
