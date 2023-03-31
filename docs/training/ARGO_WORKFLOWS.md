@@ -207,7 +207,7 @@ You can also do that for kubectl if you want to:
 
 #### CLI "hello world" example with argument parameters
 
-`argo submit docs/training/wf_helloworld_args.yaml p message1="hello world" --watch`
+`argo submit docs/training/wf_helloworld_args.yaml p message="hello hello hello world" --watch`
 
 > **_Resources:_** [Argo CLI documentation](https://argoproj.github.io/argo-workflows/cli/argo/) - [Kubernetes Cheat Sheet](https://kubernetes.io/docs/reference/kubectl/cheatsheet/)
 
