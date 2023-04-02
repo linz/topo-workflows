@@ -73,7 +73,7 @@ Environment variables can be set in the containers as below, which is setting th
 
 ```yaml
 container:
-  image: ghcr.io/linz/argo-tasks:v1.0.0-42-gdbb002b
+  image: 019359803926.dkr.ecr.ap-southeast-2.amazonaws.com/eks:argo-tasks-latest
   command: [node, /app/index.js]
   env:
     - name: AWS_ROLE_CONFIG_PATH
@@ -149,7 +149,7 @@ Two example workflow tasks requesting specific resources (memory and CPU) from t
     parameters:
       - name: file
   container:
-    image: ghcr.io/linz/argo-tasks:v1.0.0-42-gdbb002b
+    image: 019359803926.dkr.ecr.ap-southeast-2.amazonaws.com/eks:argo-tasks-latest
     resources:
       requests:
         memory: 7.8Gi

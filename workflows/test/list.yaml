@@ -32,7 +32,7 @@ spec:
           - name: uri
           - name: include
       container:
-        image: ghcr.io/linz/argo-tasks:{{workflow.parameters.version-argo-tasks}}
+        image: 019359803926.dkr.ecr.ap-southeast-2.amazonaws.com/eks:argo-tasks-{{workflow.parameters.version-argo-tasks}}
         command: [node, /app/index.js]
         env:
           - name: AWS_ROLE_CONFIG_PATH
