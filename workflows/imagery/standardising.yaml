@@ -264,7 +264,7 @@ spec:
               parameter: "{{tasks.get-location.outputs.parameters.location}}"
     - name: aws-list
       container:
-        image: "ghcr.io/linz/argo-tasks:{{=sprig.trim(workflow.parameters['version-argo-tasks'])}}"
+        image: "019359803926.dkr.ecr.ap-southeast-2.amazonaws.com/eks:argo-tasks-{{=sprig.trim(workflow.parameters['version-argo-tasks'])}}"
         command: [node, /app/index.js]
         env:
           - name: AWS_ROLE_CONFIG_PATH
@@ -288,7 +288,7 @@ spec:
               path: /tmp/file_list.json
     - name: generate-ulid
       script:
-        image: "ghcr.io/linz/topo-imagery:{{=sprig.trim(workflow.parameters['version-topo-imagery'])}}"
+        image: "019359803926.dkr.ecr.ap-southeast-2.amazonaws.com/eks:topo-imagery-{{=sprig.trim(workflow.parameters['version-topo-imagery'])}}"
         command: [python]
         source: |
           import ulid
@@ -309,7 +309,7 @@ spec:
           - name: file
           - name: collection-id
       container:
-        image: "ghcr.io/linz/topo-imagery:{{=sprig.trim(workflow.parameters['version-topo-imagery'])}}"
+        image: "019359803926.dkr.ecr.ap-southeast-2.amazonaws.com/eks:topo-imagery-{{=sprig.trim(workflow.parameters['version-topo-imagery'])}}"
         resources:
           requests:
             memory: 7.8Gi
@@ -351,7 +351,7 @@ spec:
         parameters:
           - name: location
       container:
-        image: "ghcr.io/linz/argo-tasks:{{=sprig.trim(workflow.parameters['version-argo-tasks'])}}"
+        image: "019359803926.dkr.ecr.ap-southeast-2.amazonaws.com/eks:argo-tasks-{{=sprig.trim(workflow.parameters['version-argo-tasks'])}}"
         command: [node, /app/index.js]
         env:
           - name: AWS_ROLE_CONFIG_PATH
@@ -385,7 +385,7 @@ spec:
         parameters:
           - name: file
       container:
-        image: "ghcr.io/linz/argo-tasks:{{=sprig.trim(workflow.parameters['version-argo-tasks'])}}"
+        image: "019359803926.dkr.ecr.ap-southeast-2.amazonaws.com/eks:argo-tasks-{{=sprig.trim(workflow.parameters['version-argo-tasks'])}}"
         resources:
           requests:
             memory: 7.8Gi
@@ -407,7 +407,7 @@ spec:
           - name: collection-id
           - name: location
       container:
-        image: "ghcr.io/linz/topo-imagery:{{=sprig.trim(workflow.parameters['version-topo-imagery'])}}"
+        image: "019359803926.dkr.ecr.ap-southeast-2.amazonaws.com/eks:topo-imagery-{{=sprig.trim(workflow.parameters['version-topo-imagery'])}}"
         resources:
           requests:
             memory: 7.8Gi
@@ -437,7 +437,7 @@ spec:
         parameters:
           - name: location
       container:
-        image: "ghcr.io/linz/argo-tasks:{{=sprig.trim(workflow.parameters['version-argo-tasks'])}}"
+        image: "019359803926.dkr.ecr.ap-southeast-2.amazonaws.com/eks:argo-tasks-{{=sprig.trim(workflow.parameters['version-argo-tasks'])}}"
         command: [node, /app/index.js]
         env:
           - name: AWS_ROLE_CONFIG_PATH
