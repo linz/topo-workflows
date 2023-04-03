@@ -1,14 +1,16 @@
 import csv
-from typing import List, Optional
+from typing import Dict, List, Optional
 
 import yaml
 from linz_logger import get_log
 
-# nb: CHANGE if working from a different source
-# SOURCE = "s3://linz-data-lake-raster-prod/"
+# #######################################
+# USER PARAMETERS:
 SOURCE = "s3://linz-raster-data-store/"
-
 PARAMETERS_CSV = "./imagery-standardising-parameters-bulk-process.csv"
+# #######################################
+
+# read in enums from workflow template
 with open("../workflows/imagery/standardising.yaml", "r") as f:
     workflow = yaml.load(f, Loader=yaml.loader.SafeLoader)
     for parameter in workflow["spec"]["arguments"]["parameters"]:
@@ -18,9 +20,6 @@ with open("../workflows/imagery/standardising.yaml", "r") as f:
             LICENSORS = parameter["enum"]
         if parameter["name"] == "scale":
             SCALES = parameter["enum"]
-
-spi_list = []
-sp_list = []
 
 
 def _format_date(date: str) -> str:
@@ -57,137 +56,159 @@ def _validate_licensor(licensor: str) -> Optional[str]:
     return None
 
 
-def _validate_producer(producer: str) -> Optional[str]:
+def _add_licensor(row: List[str], index: Dict[str, int]) -> Dict[str, str]:
+    licensor = _validate_licensor(row[index["licensor"]])
+    if not licensor:
+        get_log().warning(
+            "skipped: invalid licensor",
+            licensor=row[index["licensor"]],
+            source=row[index["source"]],
+            title=row[index["title"]],
+        )
+        return {}
+    elif licensor and ";" in licensor:
+        return {"licensor-list": licensor, "licensor": ""}
+    else:
+        return {"licensor": licensor, "licensor-list": ""}
+
+
+def _get_valid_producer(producer: str) -> Dict[str, str]:
     if producer in PRODUCERS:
-        return producer
+        return {"producer": producer}
     elif producer == "NZ Aerial Mapping Ltd":
-        return "NZ Aerial Mapping"
+        return {"producer": "NZ Aerial Mapping"}
     elif producer == "Aerial Surveys Ltd" or producer == "Aerial Surveys Limited":
-        return "Aerial Surveys"
+        return {"producer": "Aerial Surveys"}
     elif producer == "AAM NZ Limited":
-        return "AAM NZ"
+        return {"producer": "AAM NZ"}
     elif producer == "Landpro Ltd":
-        return "Landpro"
+        return {"producer": "Landpro"}
     elif producer == "UAV Mapping NZ Ltd":
-        return "UAV Mapping NZ"
-    return None
+        return {"producer": "UAV Mapping NZ"}
+    return {}
 
 
-def _validate_scale(scale: str) -> Optional[str]:
+def _get_valid_scale(scale: str) -> Dict[str, str]:
     if scale in SCALES:
-        return scale
-    return None
+        return {"scale": scale}
+    return {}
+
+
+def _index_csv(header: List[str]) -> Dict[str, int]:
+    ind = {}
+    ind["comment"] = header.index("Comment")
+    ind["source"] = header.index("source")
+    ind["target"] = header.index("target")
+    ind["scale"] = header.index("scale")
+    ind["title"] = header.index("Title")
+    ind["licensor"] = header.index("licensor(s)")
+    ind["producer"] = header.index("producer(s)")
+    ind["description"] = header.index("description")
+    ind["startdate"] = header.index("start_datetime")
+    ind["enddate"] = header.index("end_datetime")
+    ind["basemaps"] = header.index("basemaps s3 path")
+    return ind
+
+
+def _add_bm_params(target: str, row: List[str], index: Dict[str, int]) -> Dict[str, str]:
+    get_log().info(
+        "basemaps import required",
+        source=row[index["source"]],
+        title=row[index["title"]],
+    )
+    return {
+        "category": "Urban Aerial Photos",
+        "name": "target".rstrip("/rgb/2193/").split("/")[-1],
+        "tile-matrix": "NZTM2000Quad/WebMercatorQuad",
+        "blend": "20",
+        "aligned-level": "6",
+        "create-pull-request": "true",
+    }
+
+
+def _validate_params(params: Dict[str, str], row: List[str], index: Dict[str, int]) -> bool:
+    if not params["scale"]:
+        get_log().warning(
+            "skipped: invalid scale",
+            scale=row[index["scale"]],
+            source=row[index["source"]],
+            title=row[index["title"]],
+        )
+        return False
+    if not params["producer"]:
+        get_log().warning(
+            "skipped: invalid producer",
+            producer=row[index["producer"]],
+            source=row[index["source"]],
+            title=row[index["title"]],
+        )
+        return False
+    return True
+
+
+def _write_params(params: Dict[str, str], file: str) -> None:
+    with open(f"./{file}.yaml", "w", encoding="utf-8") as output:
+        yaml.dump(
+            params,
+            output,
+            default_flow_style=False,
+            default_style='"',
+            sort_keys=False,
+            allow_unicode=True,
+            width=1000,
+        )
+
 
 def main() -> None:
+    spi_list = []
+    sp_list = []
+
+    command = "argo submit ~/dev/topo-workflows/workflows/imagery/standardising-publish-import.yaml -n argo -f ./{0}.yaml --generate-name ispi-{1}-\n"
+
     with open(PARAMETERS_CSV, "r") as csv_file:
         reader = csv.reader(csv_file)
         header = next(reader)
-
-        ind_comment = header.index("Comment")
-        ind_source = header.index("source")
-        ind_target = header.index("target")
-        ind_scale = header.index("scale")
-        ind_title = header.index("Title")
-        ind_licensor = header.index("licensor(s)")
-        ind_producer = header.index("producer(s)")
-        ind_description = header.index("description")
-        ind_startdate = header.index("start_datetime")
-        ind_enddate = header.index("end_datetime")
-        ind_basemaps = header.index("basemaps s3 path")
-
-        command = "argo submit ~/dev/topo-workflows/workflows/imagery/standardising-publish-import.yaml -n argo -f ./{0}.yaml --generate-name ispi-{1}-\n"
+        index = _index_csv(header)
 
         for row in reader:
-            if not row[ind_source].startswith(SOURCE):
+            if not row[index["source"]].startswith(SOURCE):
                 continue
 
-            if row[ind_comment] != "":
+            if row[index["comment"]] != "":
                 get_log().warning(
                     "skipped: comment",
-                    comment=row[ind_comment],
-                    source=row[ind_source],
-                    title=row[ind_title],
+                    comment=row[index["comment"]],
+                    source=row[index["source"]],
+                    title=row[index["title"]],
                 )
                 continue
 
-            params = {
-                "source": row[ind_source].rstrip("/") + "/",
-                "target": row[ind_target],
-                "scale": _validate_scale(row[ind_scale]),
-                "title": row[ind_title],
-                "description": row[ind_description],
-                "producer": _validate_producer(row[ind_producer]),
-                "start-datetime": _format_date(row[ind_startdate]),
-                "end-datetime": _format_date(row[ind_enddate]),
-            }
-
-            licensor = _validate_licensor(row[ind_licensor])
-            if licensor and ";" in licensor:
-                params["licensor-list"] = licensor
-                params["licensor"] = ""
-            else:
-                params["licensor"] = licensor
-                params["licensor-list"] = ""
-
-            if not params["licensor"] and params["licensor-list"] == "":
-                get_log().warning(
-                    "skipped: invalid licensor",
-                    licensor=row[ind_licensor],
-                    source=row[ind_source],
-                    title=row[ind_title],
-                )
-                continue
-
-            if not params["producer"]:
-                get_log().warning(
-                    "skipped: invalid producer",
-                    producer=row[ind_producer],
-                    source=row[ind_source],
-                    title=row[ind_title],
-                )
-                continue
-
-            if not params["scale"]:
-                get_log().warning(
-                    "skipped: invalid scale",
-                    scale=f"{row[ind_scale]}",
-                    source=row[ind_source],
-                    title=row[ind_title],
-                )
-                continue
-
-            file_name = row[ind_target].rstrip("/rgb/2193/").split("/")[-1]
+            file_name = row[index["target"]].rstrip("/rgb/2193/").split("/")[-1]
             formatted_file_name = file_name.replace("_", "-").replace(".", "-")
 
-            if row[ind_basemaps] == "":
-                get_log().info(
-                    "basemaps import required",
-                    source=row[ind_source],
-                    title=row[ind_title],
-                )
-                bm_params = {
-                    "category": "Urban Aerial Photos",
-                    "name": params["target"].rstrip("/rgb/2193/").split("/")[-1],
-                    "tile-matrix": "NZTM2000Quad/WebMercatorQuad",
-                    "blend": "20",
-                    "aligned-level": "6",
-                    "create-pull-request": "true"
-                }
-                params = {**params, **bm_params}
+            params = {
+                "source": row[index["source"]].rstrip("/") + "/",
+                "target": row[index["target"]],
+                "title": row[index["title"]],
+                "description": row[index["description"]],
+                "start-datetime": _format_date(row[index["startdate"]]),
+                "end-datetime": _format_date(row[index["enddate"]]),
+            }
+
+            params = {**params, **_add_licensor(row, index)}
+            params = {**params, **_get_valid_producer(row[index["producer"]])}
+            params = {**params, **_get_valid_scale(row[index["scale"]])}
+
+            if not _validate_params(params, row, index):
+                continue
+
+            if row[index["basemaps"]] == "":
+                params = {**params, **_add_bm_params(params["target"], row, index)}
                 spi_list.append(command.format(formatted_file_name, formatted_file_name))
             else:
                 sp_list.append(command.format(formatted_file_name, formatted_file_name))
 
-            with open(f"./{formatted_file_name}.yaml", "w", encoding="utf-8") as output:
-                yaml.dump(
-                    params,
-                    output,
-                    default_flow_style=False,
-                    default_style='"',
-                    sort_keys=False,
-                    allow_unicode=True,
-                    width=1000,
-                )
+            _write_params(params, formatted_file_name)
 
     with open("standardise-publish.sh", "w") as script:
         script.write("#!/bin/bash\n\n")
@@ -196,5 +217,6 @@ def main() -> None:
     with open("standardise-publish-import.sh", "w") as script:
         script.write("#!/bin/bash\n\n")
         script.writelines(spi_list)
+
 
 main()
