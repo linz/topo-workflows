@@ -15,11 +15,11 @@ This script sets up for the automated processing of numerous imagery datasets us
 **Setup:**
 
 Download the [parameters csv](https://linzsrm.sharepoint.com/:x:/r/sites/Topography/_layouts/15/Doc.aspx?sourcedoc=%7B508567E2-EF88-458B-9115-0FC719CAA540%7D&file=imagery-standardising-parameters-bulk-process.xlsx&action=default&mobileredirect=true) from sharepoint, store as `imagery-standardising-parameters-bulk-process.csv` in `./tools/`  
- _nb: you may have to convert this from xlsx to csv, this can be done many places [online](https://cloudconvert.com/xlsx-to-csv)._
+ _nb: you will have to convert this from xlsx to csv, this can be done many places [online](https://cloudconvert.com/xlsx-to-csv)._
 
 **Instructions:**
 
-1. Update the `SOURCE` variable in generate-argo-cli-commands.py
+1. If necessary, update the `SOURCE` variable in generate-argo-cli-commands.py
 2. Run:
 
 ```bash
