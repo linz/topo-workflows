@@ -51,6 +51,12 @@ def _validate_licensor(licensor: str) -> Optional[str]:
         return "Northland Aerial Imagery Consortium (NAIC)"
     if licensor == "AAM NZ Limited":
         return "AAM NZ"
+    if (
+        licensor == "Manawatū-Whanganui LASS Ltd-Whanganui LASS Ltd"
+        or licensor == "Manawatū-Whanganui LASS Ltd"
+        or licensor == "Manawatū-Whanganui LASS Ltd District Council"
+    ):
+        return "Manawatū-Whanganui LASS"
     if " and " in licensor:
         return licensor.replace(" and ", ";")
     return None
