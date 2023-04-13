@@ -9,11 +9,11 @@ Uses the [argo-tasks](https://github.com/linz/argo-tasks#stac-validate) containe
 
 ## Workflow Input Parameters
 
-| Parameter      | Type  | Default                                       | Description                                                                                                      |
-| -------------- | ----- | --------------------------------------------- | ---------------------------------------------------------------------------------------------------------------- |
-| uri            | str   | s3://linz-imagery-staging/test/stac-validate/ | The full AWS S3 URI (path) to the STAC file(s)                                                                   |
-| include        | regex | `collection.json$`                            | Regular expression to match object path(s) or name(s) from within the source path to include in STAC validation. |
-| checksum       | enum  | false                                         | Set to "true" to validate the checksums of linked asset files.                                                   |
+| Parameter | Type  | Default                                       | Description                                                                                                      |
+| --------- | ----- | --------------------------------------------- | ---------------------------------------------------------------------------------------------------------------- |
+| uri       | str   | s3://linz-imagery-staging/test/stac-validate/ | The full AWS S3 URI (path) to the STAC file(s)                                                                   |
+| include   | regex | `collection.json$`                            | Regular expression to match object path(s) or name(s) from within the source path to include in STAC validation. |
+| checksum  | enum  | false                                         | Set to "true" to validate the checksums of linked asset files.                                                   |
 
 The `--recursive` flag is specified inside the STAC Validate WorkflowTemplate. Linked STAC items linked to from a STAC collection will also be validated.
 
