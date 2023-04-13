@@ -11,11 +11,15 @@ Uses the [argo-tasks](https://github.com/linz/argo-tasks#stac-validate) containe
 
 | Parameter      | Type | Default                                                      | Description                          |
 | -------------- | ---- | ------------------------------------------------------------ | ------------------------------------ |
-| stac-file-path | str  | s3://linz-imagery-staging/test/stac-validate/collection.json | The URIs (paths) to the STAC file(s) |
+| uri | str  | s3://linz-imagery-staging/test/stac-validate/ | The full AWS S3 URI (path) to the STAC file(s) |
+| include | regex  | `collection.json$` | A regular expression to match object path(s) or name(s) from within the source path to include in STAC validation. |
+| checksum | enum  | false | Set to "true" to validate the checksums of linked asset files. |
 
-The STAC Validate workflow has one input parameter `stac-file-path`, the full AWS S3 file path(s) to be validated. Separate multiple files with a space. Access permissions are controlled by the [Bucket Sharing Config](https://github.com/linz/topo-aws-infrastructure/blob/master/src/stacks/bucket.sharing.ts) which gives Argo Workflows access to the S3 buckets we use.
+The `--recursive` flag is specified inside the STAC Validate WorkflowTemplate. Linked STAC items linked to from a STAC collection will also be validated.
 
-The flag `--recursive` is specified inside the STAC Validate WorkflowTemplate, so any linked files will also be validated. If the path is a STAC Collection, e.g. `s3://linz-imagery-staging/test/stac-validate/collection.json` then linked STAC items will also be validated.
+The STAC Validate Workflow will validate each collection (and linked items/assets) in a separate pod so that multiple collections can be processed in parallel.
+
+Access permissions are controlled by the [Bucket Sharing Config](https://github.com/linz/topo-aws-infrastructure/blob/master/src/stacks/bucket.sharing.ts) which gives Argo Workflows access to the S3 buckets we use.
 
 ## Workflow Outputs
 
