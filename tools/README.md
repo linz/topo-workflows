@@ -46,3 +46,41 @@ If created, `standardise-publish-import.sh` will require you to uncomment some l
 ```bash
 sh standardise-publish-import.sh
 ```
+
+## satellite.py
+
+**Date:** 14/03/2023
+
+**Related Jira Tickets:** [TDE-702](https://toitutewhenua.atlassian.net/jira/software/c/projects/TDE/boards/768?modal=detail&selectedIssue=TDE-702);
+
+**Description:**  
+This script sets up for the automated processing of numerous satellite imagery datasets using the argo cli.
+
+**Setup:**
+
+Download the [satellite parameters csv](https://linzsrm.sharepoint.com/:x:/s/Topography/EWJbNu3v9TlPq01Xbow1KtYBX9CvhO6VzsRSvVA-x0h--g?e=ILQYPX) from sharepoint, store as `satellite-imagery-parameters.csv` in `./tools/`  
+ _nb: you will have to convert this from xlsx to csv, this can be done many places [online](https://cloudconvert.com/xlsx-to-csv)._
+
+**Instructions:**
+
+1. If necessary, update the `SOURCE` variable in satellite.py
+2. Run:
+
+```bash
+cd ./tools
+python3 satellite.py > log.txt
+```
+
+**Output:**
+
+- **region-year-scale.yaml:** workflow parameters for this dataset
+- **standardise-publish.sh:** bash script to 'deploy' argo workflows
+- ~~standardise-publish-import.sh:~~ It is currently assumed there will be no basemaps import.
+- **logs.txt:** Contains important logs about skipped datasets.
+
+**Submitting:**  
+`standardise-publish.sh` is set up and ready to go, just run:
+
+```bash
+sh standardise-publish.sh
+```

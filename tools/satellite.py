@@ -127,7 +127,6 @@ def _write_params(params: Dict[str, str], file: str) -> None:
 
 
 def main() -> None:
-    spi_list = []
     sp_list = []
 
     command = 'argo submit ~/dev/topo-workflows/workflows/imagery/standardising-publish-import.yaml -n argo -f "./{0}.yaml" --generate-name ispi-{1}-\n'
@@ -181,10 +180,6 @@ def main() -> None:
     with open("standardise-publish.sh", "w") as script:
         script.write("#!/bin/bash\n\n")
         script.writelines(sp_list)
-
-    with open("standardise-publish-import.sh", "w") as script:
-        script.write("#!/bin/bash\n\n")
-        script.writelines(spi_list)
 
 
 main()
