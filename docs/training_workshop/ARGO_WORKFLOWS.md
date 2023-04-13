@@ -2,18 +2,27 @@
 
 ## Workshop Aims
 
+To learn how to build, run and monitor Argo workflows in order to be able to create new scripts.
+
 ## Workshop Contents
 
-- Getting help from TDE
-- Introduction to the tech ecosystem: containerisation, Kubernetes, Argo Workflows
-- The structure of an Argo workflow; workflow concepts
-- The codebase and containers behind the Topo workflows
-- Creating and running workflows from the UI
-- Creating and running workflows from the command line
-- Monitoring your running workflows - how to view logs and get Kubernetes events
-- How the Topo workflows are structured – example using the standardising workflow
-- Other features
-- The codebase (containers) behind the Topo workflows
+- [Workshop Pre-Requisites](#workshop-pre-requisites)
+- [Getting help from TDE](#getting-help-from-tde)
+- [Introduction to the tech ecosystem: containerisation, Kubernetes, Argo Workflows](#introduction-to-the-tech-ecosystem-containerisation-argo-workflows-kubernetes-and-aws-elastic-kubernetes-service)
+- [The structure of an Argo workflow](#what-is-a-workflow)
+- [The codebase and containers behind the Topo workflows](#the-codebase-and-containers-behind-the-topo-workflows)
+- [Creating and running workflows from the UI](#creating-and-running-workflows)
+- [Creating and running workflows from the command line](#creating-and-running-workflows-from-the-cli)
+- [Monitoring your running workflows - how to view logs and get Kubernetes events](#monitoring-your-running-workflows---how-to-view-logs-and-get-events)
+- [Workflow Concepts: more exercises](#workflow-concepts---more-exercises)
+  - [Arguments and multiple tasks](#ui-hello-world-example-with-arguments-containing-two-tasks)
+  - [DAGs and dependent tasks](#dag-example---dependent-tasks)
+  - [Inputs and Outputs](#inputs-and-outputs---passing-information-between-tasks-in-a-workflow)
+  - [Parallelisation](#parallelising-a-task-to-run-in-multiple-pods)
+- [How the Topo workflows are structured – example using the standardising workflow](#a-workflow-example-standardising-workflow)
+- [Other features to note beyond the scope of this workshop](#other-features-to-note-beyond-the-scope-of-this-workshop)
+- [Argo Workflows Resources](#argo-workflows-resources)
+- [Need more help?](#need-more-help)
 
 ## Workshop Pre-Requisites
 
@@ -49,11 +58,11 @@ If you have a question about a particular Workflow that has run on Argo, you can
 
 A workflow running in Argo:
 
-![Argo Workflow UI](workflow_ui.png)
+![Argo Workflow UI](images/workflow_ui.png)
 
 The infrastructure running Argo Workflows:
 
-![Kubernetes and Argo Workflows](pods.png)
+![Kubernetes and Argo Workflows](images/pods.png)
 
 For more in-depth information, see:
 [Argo Configuration Guide - Introduction to Argo Workflows](../../CONFIGURATION.md#IntroductiontotheArgoWorkflowsEnvironment)
@@ -69,7 +78,7 @@ Workflow structure concepts (see diagram below):
 - Templates (e.g. container, script)
 - Template Invocators (e.g. dag: task)
 
-![Simplified Workflow Structure](wf_structure.png)
+![Simplified Workflow Structure](images/wf_structure.png)
 
 This diagram is simplified and we will look at a more detailed, real-world, example later on.
 
@@ -93,28 +102,30 @@ A note: `Workflows` and `WorkflowTemplates`.
 
 We are working with documents of the kind "Workflow" in this workshop. Workflows can be submitted directly, or can be submitted using a "WorkflowTemplate". This is useful for Workflows that will run with different parameters but are otherwise running the same tasks.
 
-#### UI "hello world" example
+### UI "hello world" example
 
 There are simpler ways to do this, but this is more consistent with our workflows. For example: we could specify the container in the main template as there is only one task.
 
 Also, we are going to use DAG (directed acyclic graph) and "tasks", instead of "steps". Steps are similar to using dag/tasks, but not as flexible, taking the form of a list of lists.
 
-Create a new file called `wf_helloworld.yaml` containing the following YAML:
+Create a new file called `wf_hello_world.yaml` containing the following YAML:
 
 ```yaml
 ---
 apiVersion: argoproj.io/v1alpha1
 kind: Workflow
 metadata:
-  generateName: test-name-hello-world-
+  generateName: test-hello-world-
   namespace: argo
 spec:
+  nodeSelector:
+    karpenter.sh/capacity-type: "spot"
   entrypoint: main
   templates:
     - name: main
       dag:
         tasks:
-          - name: say-hello-step
+          - name: say-hello-task
             template: say-hello-template
     - name: say-hello-template
       container:
@@ -123,13 +134,35 @@ spec:
         args: ["hello world"]
 ```
 
-`wf_helloworld.yaml`
+Example workflow file: [wf_hello_world.yaml](example_workflows/wf_hello_world.yaml)
 
-Submit the workflow through the UI.
+**Spot Instances**:
 
-#### "hello world" example with argument parameter
+You will see the following specified in the example workflows for this workshop. There are two types of AWS EC2 machine requests, "spot" and "on-demand". Spot instances cost less to run, but they may not be available as promptly as on-demand.
+
+```yaml
+nodeSelector:
+  karpenter.sh/capacity-type: "spot"
+```
+
+Note: prefixing the name of the workflow with `test-` prevents alerts for the workflow being sent to the `#alert-argo-workflows` Slack channel.
+
+Submit the workflow through the UI:
+"+ SUBMIT NEW WORKFLOW" > "Edit using full workflow options" > "UPLOAD FILE" > "+ CREATE".
+
+![Submitting a new workflow](images/argo_ui_submit_new_workflow.png)
+
+The completed workflow should look like this in the Argo UI:
+
+![Hello World example](images/wf_hello_world.png)
+
+### "hello world" example with argument parameter
 
 **Parameters** are fundamental to Argo Workflows. They are used to pass information throughout the Workflow, for example argument parameters are passed through from the workflow spec to the templates. Input parameters in templates can get information from workflow parameters and the output parameters from other templates.
+
+Below is an example of parameters when submitting the Standardising workflow in the UI:
+
+![Standardising workflow parameters](images/standardising_parameters.png)
 
 Parameters are referenced using **Argo variables**.
 
@@ -144,18 +177,20 @@ spec:
         value: "hello world"
 ```
 
-The parameter can be referenced in the workflow as `"{{workflow.parameters.message}}"`
+The parameter can be referenced in the workflow using Argo variables as `"{{workflow.parameters.message}}"`
 
-Create a new file called `wf_helloworld_args.yaml` containing the following YAML:
+Create a new file called `wf_hello_world_args.yaml` containing the following YAML:
 
 ```yaml
 ---
 apiVersion: argoproj.io/v1alpha1
 kind: Workflow
 metadata:
-  generateName: test-name-hello-world-
+  generateName: test-hello-world-args-
   namespace: argo
 spec:
+  nodeSelector:
+    karpenter.sh/capacity-type: "spot"
   entrypoint: main
   arguments:
     parameters:
@@ -181,9 +216,17 @@ spec:
         args: ["{{inputs.parameters.message}}"]
 ```
 
-`wf_helloworld_args.yaml`
+Example workflow file: [wf_hello_world_args.yaml](example_workflows/wf_hello_world_args.yaml)
+
+Submit it through the UI.
+
+The completed workflow should look like this in the Argo UI:
+
+![Hello World Args example](images/wf_hello_world_args.png)
 
 ### Creating and running workflows from the CLI
+
+Submitting Workflows through the CLI is particularly useful if you need to run many similar workflows with different parameters.
 
 In a terminal window, log in to `li-topo-prod` using AWS CLI.
 
@@ -201,33 +244,63 @@ For Argo CLI, you can set the environment variable `ARGO_NAMESPACE=argo` so you 
 You can also do that for kubectl if you want to:
 `kubectl config set-context --current --namespace=argo`
 
-#### CLI "hello world" example
+### CLI "hello world" example
 
-`argo submit docs/training/wf_helloworld.yaml -n argo --watch`
+```bash
+argo submit docs/training_workshop/example_workflows/wf_hello_world.yaml -n argo --watch
+```
 
-#### CLI "hello world" example with argument parameters
+![Hello World CLI example](images/cli_hello_world.png)
 
-`argo submit docs/training/wf_helloworld_args.yaml p message1="hello world" --watch`
+### CLI "hello world" example with argument parameters
+
+```bash
+argo submit docs/training_workshop/example_workflows/wf_hello_world_args.yaml -p message1="hello world" --watch
+```
+
+![Hello World Args CLI example](images/cli_hello_world_args.png)
+
+**Using a parameters file:** If there are many parameters in a workflow, the parameters can be placed in a separate YAML file which can be referenced when submitting the workflow on the CLI. For example:
+
+```bash
+argo submit topo-workflows/imagery/standardising-publish-import.yaml -n argo -f params.yaml
+```
+
+_params.yaml_:
+
+```yaml
+source: "s3://linz-imagery-source-example/aerial-imagery/new-zealand/christchurch_urban_2021_0.05m_RGB/"
+target: "s3://linz-imagery-example/canterbury/christchurch_2021_0.05m/rgb/2193/"
+scale: "500"
+group: "29"
+cutline: "s3://linz-imagery-cutline-example/historical-imagery-cutlines/2023-01-16_84fd68f/SNC50451-combined.fgb"
+title: "Christchurch 0.05m Urban Aerial Photos (2021)"
+description: "Orthophotography within the Canterbury region captured in the 2021 flying season."
+producer: "Aerial Surveys"
+licensor: "Toitū Te Whenua Land Information New Zealand"
+start-datetime: "2021-11-02"
+end-datetime: "2021-12-02"
+```
 
 > **_Resources:_** [Argo CLI documentation](https://argoproj.github.io/argo-workflows/cli/argo/) - [Kubernetes Cheat Sheet](https://kubernetes.io/docs/reference/kubectl/cheatsheet/)
 
-#### Monitoring your running workflows - how to view logs and get events
+### Monitoring your running workflows - how to view logs and get events
 
-##### Slack
+### Slack
 
 Some generic and specific alerts have been configured to happen in `#alert-argo-workflows`:
 
 - Workflow Started/Completed/Failed
 - Non Visual QA report / Basemaps links
 
-##### Argo UI
+### Argo UI
 
 The application logs are accessible in the Argo UI Workflow page in the task description (by clicking on one of the task/pod - `SUMMARY` tab):
-![Workflows logs](argo_ui_show_logs.png)
+![Workflows logs](images/argo_ui_show_logs.png)
 
 They are also downloadable in the `INPUTS/OUTPUTS` tab as `main.log`.
 
-##### Pod
+### Pod
 
 You can view the logs for a pods in "live" with the following command:
 
@@ -235,7 +308,7 @@ You can view the logs for a pods in "live" with the following command:
 kubectl logs POD_NAME -n NAMESPACE --follow
 ```
 
-##### Kubernetes events
+### Kubernetes events
 
 Events represent a state change of a k8s resource (examples: `Pod CREATED`, `Container PULLED` or `WorkflowRunning`). The events are available during 60 minutes with the following command:
 
@@ -249,24 +322,28 @@ Some filters can be applied:
 - `--types=Warning` to show only the warnings
   Older events (more than 60 minutes) are still available in Elastic Search (see next section).
 
-##### Elastic Search
+### Elastic Search
 
 The logs and events that are output by the Argo Workflows ecosystem are accessible inside Elastic Search. Elastic Search allows the user to execute queries. It contains application logs and system events at the same place.
 
-#### UI "hello world" example with arguments containing two tasks
+## Workflow Concepts - more exercises
+
+### UI "hello world" example with arguments containing two tasks
 
 This workflow will run two tasks at the same time. In this case we are using the same "say-hello-template" template. These tasks could reference different templates.
 
-Add another task to `wf_helloworld_args.yaml` and another parameter for it.
+Add another task to `wf_hello_world_args.yaml` and another parameter for it.
 
 ```yaml
 ---
 apiVersion: argoproj.io/v1alpha1
 kind: Workflow
 metadata:
-  generateName: test-name-hello-world-
+  generateName: test-hello-world-args-tasks-
   namespace: argo
 spec:
+  nodeSelector:
+    karpenter.sh/capacity-type: "spot"
   entrypoint: main
   arguments:
     parameters:
@@ -300,9 +377,13 @@ spec:
         args: ["{{inputs.parameters.message}}"]
 ```
 
-`wf_helloworld_args_tasks.yaml`
+Example workflow file: [wf_hello_world_args_tasks.yaml](example_workflows/wf_hello_world_args_tasks.yaml)
 
 Submit the workflow through the CLI.
+
+The completed workflow should look like this in the Argo UI:
+
+![Hello World Args and Tasks example](images/wf_hello_world_args_tasks.png)
 
 ### DAG example - dependent tasks
 
@@ -313,9 +394,11 @@ Submit the workflow through the CLI.
 apiVersion: argoproj.io/v1alpha1
 kind: Workflow
 metadata:
-  generateName: test-name-hello-world-dag-
+  generateName: test-hello-world-dag-
   namespace: argo
 spec:
+  nodeSelector:
+    karpenter.sh/capacity-type: "spot"
   entrypoint: main
   arguments:
     parameters:
@@ -350,6 +433,7 @@ spec:
           - name: say-hello-task4
             template: say-hello-template
             arguments:
+`wf_hello_world_args_tasks.yaml`
               parameters:
                 - name: message
                   value: "say hello task 4"
@@ -364,7 +448,13 @@ spec:
         args: ["{{inputs.parameters.message}}"]
 ```
 
-`wf_helloworld_dag.yaml`
+Example workflow file: [wf_hello_world_dag.yaml](example_workflows/wf_hello_world_dag.yaml)
+
+Submit the workflow.
+
+The completed workflow should look like this in the Argo UI:
+
+![Hello World DAG example](images/wf_hello_world_dag.png)
 
 ### Inputs and Outputs - passing information between tasks in a Workflow
 
@@ -375,7 +465,7 @@ For more in-depth information, see:
 
 ### Parallelising a task to run in multiple pods
 
-The example below uses "item" to run pods in parallel. "Item" expands a single workflow task into multiple parallel steps using a list output from a previous task. It also passes the output from the `aws-list` task to the `stac-print-path` task.
+The example below uses `{{item}}` to run pods in parallel. This expands a single workflow task into multiple parallel steps using a list output from a previous task. It also passes the output from the `aws-list` task to the `stac-print-path` task.
 
 ```yaml
 ---
@@ -384,6 +474,8 @@ kind: Workflow
 metadata:
   generateName: test-output-parallel-
 spec:
+  nodeSelector:
+    karpenter.sh/capacity-type: "spot"
   parallelism: 20
   nodeSelector:
     karpenter.sh/capacity-type: "spot"
@@ -460,30 +552,49 @@ spec:
           echo $PATH_OUT
 ```
 
-`wf_output_parallel.yaml`
+Example workflow file: [wf_output_parallel.yaml](example_workflows/wf_output_parallel.yaml)
 
-## A Workflow example: standardising workflow
+The output should look like this in the Argo UI:
 
-General structure:
+![Parallel Output](images/parallel_output.png)
 
-![Standardising Workflow Structure](standardising_structure.png)
+### A note about performance and scaling workflows
 
-Go through the Standardising YAML file in more detail - any questions?
+> Refer to the [Argo Configuration Guide](../../CONFIGURATION.md) to learn about how to optimise the performance of your workflows.
+
+## A Workflow example: Standardising Workflow
+
+General structure (YAML):
+
+![Standardising Workflow Structure - YAML](images/standardising_structure.png)
+
+Compare the structure shown above with the Argo Workflows UI view:
+
+![Standardising Workflow Structure - GUI](images/standardising_argo_ui.png)
+
+Now check out in the YAML file [standardising.yaml](../../workflows/imagery/standardising.yaml):
+
+- how inputs and outputs are passed between tasks
+- dependencies
+- the use of multiple containers
+- the use of Argo variables to substitute values
 
 ## Other features to note (beyond the scope of this Workshop)
 
+Once you are confident submitting and creating basic workflows, explore the following concepts online:
+
 - Artifacts
 - Conditionals
-- Referencing other Workflows/WorkflowTemplates
-- Sprig
+- Referencing other Workflows/WorkflowTemplates. For an example, see [standardising-publish-import.yaml](../../workflows/imagery/standardising-publish-import.yaml)
+- Sprig scripting
 
 ## Argo Workflows Resources
 
-[Argo Workflows User Guide](https://argoproj.github.io/argo-workflows/workflow-concepts/)
+> [Argo Workflows User Guide](https://argoproj.github.io/argo-workflows/workflow-concepts/)
 
-[Argo Workflows Examples](https://github.com/argoproj/argo-workflows/tree/master/examples)
+> [Argo Workflows Examples](https://github.com/argoproj/argo-workflows/tree/master/examples)
 
-[Argo Workflows Online Training Courses(https://killercoda.com/pipekit/course/argo-workflows/)
+[Argo Workflows Online Training Courses(<https://killercoda.com/pipekit/course/argo-workflows/>)
 Recommended for further information about:
 
 - Templates

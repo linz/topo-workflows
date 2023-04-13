@@ -2,15 +2,17 @@
 apiVersion: argoproj.io/v1alpha1
 kind: Workflow
 metadata:
-  generateName: test-name-hello-world-
+  generateName: test-hello-world-
   namespace: argo
 spec:
+  nodeSelector:
+    karpenter.sh/capacity-type: "spot"
   entrypoint: main
   templates:
     - name: main
       dag:
         tasks:
-          - name: say-hello-step
+          - name: say-hello-task
             template: say-hello-template
     - name: say-hello-template
       container:
