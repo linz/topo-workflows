@@ -561,14 +561,20 @@ Compare the structure shown above with the Argo Workflows UI view:
 
 ![Standardising Workflow Structure - GUI](images/standardising_argo_ui.png)
 
+Now check out in the YAML file [standardising.yaml](../../workflows/imagery/standardising.yaml):
+
+- how inputs and outputs are passed between tasks
+- dependencies
+- the use of multiple containers
+- the use of Argo variables to substitute values
+
 ## Other features to note (beyond the scope of this Workshop)
 
 Once you are confident submitting and creating basic workflows, explore the following concepts online:
 
 - Artifacts
 - Conditionals
-- Referencing other Workflows/WorkflowTemplates (for an example, see standardising-publish-import.yaml)
-  [Standardising-Publish-Import Workflow](../../workflows/imagery/standardising-publish-import.yaml)
+- Referencing other Workflows/WorkflowTemplates. For an example, see [standardising-publish-import.yaml](../../workflows/imagery/standardising-publish-import.yaml)
 - Sprig scripting
 
 ## Argo Workflows Resources
