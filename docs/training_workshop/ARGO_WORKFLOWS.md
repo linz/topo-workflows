@@ -49,11 +49,11 @@ If you have a question about a particular Workflow that has run on Argo, you can
 
 A workflow running in Argo:
 
-![Argo Workflow UI](workflow_ui.png)
+![Argo Workflow UI](images/workflow_ui.png)
 
 The infrastructure running Argo Workflows:
 
-![Kubernetes and Argo Workflows](pods.png)
+![Kubernetes and Argo Workflows](images/pods.png)
 
 For more in-depth information, see:
 [Argo Configuration Guide - Introduction to Argo Workflows](../../CONFIGURATION.md#IntroductiontotheArgoWorkflowsEnvironment)
@@ -69,7 +69,7 @@ Workflow structure concepts (see diagram below):
 - Templates (e.g. container, script)
 - Template Invocators (e.g. dag: task)
 
-![Simplified Workflow Structure](wf_structure.png)
+![Simplified Workflow Structure](images/wf_structure.png)
 
 This diagram is simplified and we will look at a more detailed, real-world, example later on.
 
@@ -99,14 +99,14 @@ There are simpler ways to do this, but this is more consistent with our workflow
 
 Also, we are going to use DAG (directed acyclic graph) and "tasks", instead of "steps". Steps are similar to using dag/tasks, but not as flexible, taking the form of a list of lists.
 
-Create a new file called `wf_helloworld.yaml` containing the following YAML:
+Create a new file called `wf_hello_world.yaml` containing the following YAML:
 
 ```yaml
 ---
 apiVersion: argoproj.io/v1alpha1
 kind: Workflow
 metadata:
-  generateName: test-name-hello-world-
+  generateName: test-hello-world-
   namespace: argo
 spec:
   nodeSelector:
@@ -116,7 +116,7 @@ spec:
     - name: main
       dag:
         tasks:
-          - name: say-hello-step
+          - name: say-hello-task
             template: say-hello-template
     - name: say-hello-template
       container:
@@ -125,7 +125,7 @@ spec:
         args: ["hello world"]
 ```
 
-`wf_helloworld.yaml`
+Example workflow file: [wf_hello_world.yaml](example_workflows/wf_hello_world.yaml)
 
 **Spot Instances**:
 
@@ -141,7 +141,11 @@ Note: prefixing the name of the workflow with `test-` prevents alerts for the wo
 Submit the workflow through the UI:
 "+ SUBMIT NEW WORKFLOW" > "Edit using full workflow options" > "UPLOAD FILE" > "+ CREATE".
 
-![Submitting a new workflow](argo_ui_submit_new_workflow.png)
+![Submitting a new workflow](images/argo_ui_submit_new_workflow.png)
+
+The completed workflow should look like this in the Argo UI:
+
+![Hello World example](images/wf_hello_world.png)
 
 ### "hello world" example with argument parameter
 
@@ -149,7 +153,7 @@ Submit the workflow through the UI:
 
 Below is an example of parameters when submitting the Standardising workflow in the UI:
 
-![Standardising workflow parameters](standardising_parameters.png)
+![Standardising workflow parameters](images/standardising_parameters.png)
 
 Parameters are referenced using **Argo variables**.
 
@@ -166,14 +170,14 @@ spec:
 
 The parameter can be referenced in the workflow using Argo variables as `"{{workflow.parameters.message}}"`
 
-Create a new file called `wf_helloworld_args.yaml` containing the following YAML:
+Create a new file called `wf_hello_world_args.yaml` containing the following YAML:
 
 ```yaml
 ---
 apiVersion: argoproj.io/v1alpha1
 kind: Workflow
 metadata:
-  generateName: test-name-hello-world-
+  generateName: test-hello-world-args-
   namespace: argo
 spec:
   nodeSelector:
@@ -203,7 +207,13 @@ spec:
         args: ["{{inputs.parameters.message}}"]
 ```
 
-`wf_helloworld_args.yaml`
+Example workflow file: [wf_hello_world_args.yaml](example_workflows/wf_hello_world_args.yaml)
+
+Submit it through the UI.
+
+The completed workflow should look like this in the Argo UI:
+
+![Hello World example](images/wf_hello_world_args.png)
 
 ### Creating and running workflows from the CLI
 
@@ -225,11 +235,11 @@ You can also do that for kubectl if you want to:
 
 ### CLI "hello world" example
 
-`argo submit docs/training/wf_helloworld.yaml -n argo --watch`
+`argo submit docs/training/wf_hello_world.yaml -n argo --watch`
 
 ### CLI "hello world" example with argument parameters
 
-`argo submit docs/training/wf_helloworld_args.yaml p message1="hello world" --watch`
+`argo submit docs/training/wf_hello_world_args.yaml p message1="hello world" --watch`
 
 > **_Resources:_** [Argo CLI documentation](https://argoproj.github.io/argo-workflows/cli/argo/) - [Kubernetes Cheat Sheet](https://kubernetes.io/docs/reference/kubectl/cheatsheet/)
 
@@ -245,7 +255,7 @@ Some generic and specific alerts have been configured to happen in `#alert-argo-
 ### Argo UI
 
 The application logs are accessible in the Argo UI Workflow page in the task description (by clicking on one of the task/pod - `SUMMARY` tab):
-![Workflows logs](argo_ui_show_logs.png)
+![Workflows logs](images/argo_ui_show_logs.png)
 
 They are also downloadable in the `INPUTS/OUTPUTS` tab as `main.log`.
 
@@ -279,14 +289,14 @@ The logs and events that are output by the Argo Workflows ecosystem are accessib
 
 This workflow will run two tasks at the same time. In this case we are using the same "say-hello-template" template. These tasks could reference different templates.
 
-Add another task to `wf_helloworld_args.yaml` and another parameter for it.
+Add another task to `wf_hello_world_args.yaml` and another parameter for it.
 
 ```yaml
 ---
 apiVersion: argoproj.io/v1alpha1
 kind: Workflow
 metadata:
-  generateName: test-name-hello-world-
+  generateName: test-hello-world-args-tasks-
   namespace: argo
 spec:
   nodeSelector:
@@ -324,9 +334,13 @@ spec:
         args: ["{{inputs.parameters.message}}"]
 ```
 
-`wf_helloworld_args_tasks.yaml`
+Example workflow file: [wf_hello_world_args_tasks.yaml](example_workflows/wf_hello_world_args_tasks.yaml)
 
 Submit the workflow through the CLI.
+
+The completed workflow should look like this in the Argo UI:
+
+![Hello World example](images/wf_hello_world_args_tasks.png)
 
 ### DAG example - dependent tasks
 
@@ -337,7 +351,7 @@ Submit the workflow through the CLI.
 apiVersion: argoproj.io/v1alpha1
 kind: Workflow
 metadata:
-  generateName: test-name-hello-world-dag-
+  generateName: test-hello-world-dag-
   namespace: argo
 spec:
   nodeSelector:
@@ -376,6 +390,7 @@ spec:
           - name: say-hello-task4
             template: say-hello-template
             arguments:
+`wf_hello_world_args_tasks.yaml`
               parameters:
                 - name: message
                   value: "say hello task 4"
@@ -390,7 +405,13 @@ spec:
         args: ["{{inputs.parameters.message}}"]
 ```
 
-`wf_helloworld_dag.yaml`
+Example workflow file: [wf_hello_world_dag.yaml](example_workflows/wf_hello_world_dag.yaml)
+
+Submit the workflow.
+
+The completed workflow should look like this in the Argo UI:
+
+![Hello World example](images/wf_hello_world_dag.png)
 
 ### Inputs and Outputs - passing information between tasks in a Workflow
 
@@ -488,25 +509,25 @@ spec:
           echo $PATH_OUT
 ```
 
-`wf_output_parallel.yaml`
+Example workflow file: [wf_output_parallel.yaml](example_workflows/wf_output_parallel.yaml)
 
 The output should look like this in the Argo UI:
 
-![Parallel Output](parallel_output.png)
+![Parallel Output](images/parallel_output.png)
 
 ### A note about performance and scaling workflows
 
-Refer to the [Argo Configuration Guide](../../CONFIGURATION.md) to learn about how to optimise the performance of your workflows.
+> Refer to the [Argo Configuration Guide](../../CONFIGURATION.md) to learn about how to optimise the performance of your workflows.
 
 ## A Workflow example: Standardising Workflow
 
 General structure (YAML):
 
-![Standardising Workflow Structure - YAML](standardising_structure.png)
+![Standardising Workflow Structure - YAML](images/standardising_structure.png)
 
 Compare the structure shown above with the Argo Workflows UI view:
 
-![Standardising Workflow Structure - GUI](standardising_argo_ui.png)
+![Standardising Workflow Structure - GUI](images/standardising_argo_ui.png)
 
 ## Other features to note (beyond the scope of this Workshop)
 
@@ -520,9 +541,9 @@ Once you are confident submitting and creating basic workflows, explore the foll
 
 ## Argo Workflows Resources
 
-[Argo Workflows User Guide](https://argoproj.github.io/argo-workflows/workflow-concepts/)
+> [Argo Workflows User Guide](https://argoproj.github.io/argo-workflows/workflow-concepts/)
 
-[Argo Workflows Examples](https://github.com/argoproj/argo-workflows/tree/master/examples)
+> [Argo Workflows Examples](https://github.com/argoproj/argo-workflows/tree/master/examples)
 
 [Argo Workflows Online Training Courses(<https://killercoda.com/pipekit/course/argo-workflows/>)
 Recommended for further information about:

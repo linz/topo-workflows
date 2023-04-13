@@ -2,7 +2,7 @@
 apiVersion: argoproj.io/v1alpha1
 kind: Workflow
 metadata:
-  generateName: test-name-hello-world-dag-
+  generateName: test-hello-world-dag-
   namespace: argo
 spec:
   nodeSelector:
