@@ -93,7 +93,7 @@ A note: `Workflows` and `WorkflowTemplates`.
 
 We are working with documents of the kind "Workflow" in this workshop. Workflows can be submitted directly, or can be submitted using a "WorkflowTemplate". This is useful for Workflows that will run with different parameters but are otherwise running the same tasks.
 
-#### UI "hello world" example
+### UI "hello world" example
 
 There are simpler ways to do this, but this is more consistent with our workflows. For example: we could specify the container in the main template as there is only one task.
 
@@ -125,11 +125,18 @@ spec:
 
 `wf_helloworld.yaml`
 
-Submit the workflow through the UI.
+Submit the workflow through the UI:
+"+ SUBMIT NEW WORKFLOW" > "Edit using full workflow options" > "UPLOAD FILE" > "+ CREATE".
 
-#### "hello world" example with argument parameter
+![Submitting a new workflow](argo_ui_submit_new_workflow.png)
+
+### "hello world" example with argument parameter
 
 **Parameters** are fundamental to Argo Workflows. They are used to pass information throughout the Workflow, for example argument parameters are passed through from the workflow spec to the templates. Input parameters in templates can get information from workflow parameters and the output parameters from other templates.
+
+Below is an example of parameters when submitting the Standardising workflow in the UI:
+
+![Standardising workflow parameters](argo_ui_submit_new_workflow.png)
 
 Parameters are referenced using **Argo variables**.
 
@@ -144,7 +151,7 @@ spec:
         value: "hello world"
 ```
 
-The parameter can be referenced in the workflow as `"{{workflow.parameters.message}}"`
+The parameter can be referenced in the workflow using Argo variables as `"{{workflow.parameters.message}}"`
 
 Create a new file called `wf_helloworld_args.yaml` containing the following YAML:
 
@@ -201,33 +208,33 @@ For Argo CLI, you can set the environment variable `ARGO_NAMESPACE=argo` so you 
 You can also do that for kubectl if you want to:
 `kubectl config set-context --current --namespace=argo`
 
-#### CLI "hello world" example
+### CLI "hello world" example
 
 `argo submit docs/training/wf_helloworld.yaml -n argo --watch`
 
-#### CLI "hello world" example with argument parameters
+### CLI "hello world" example with argument parameters
 
 `argo submit docs/training/wf_helloworld_args.yaml p message1="hello world" --watch`
 
 > **_Resources:_** [Argo CLI documentation](https://argoproj.github.io/argo-workflows/cli/argo/) - [Kubernetes Cheat Sheet](https://kubernetes.io/docs/reference/kubectl/cheatsheet/)
 
-#### Monitoring your running workflows - how to view logs and get events
+### Monitoring your running workflows - how to view logs and get events
 
-##### Slack
+### Slack
 
 Some generic and specific alerts have been configured to happen in `#alert-argo-workflows`:
 
 - Workflow Started/Completed/Failed
 - Non Visual QA report / Basemaps links
 
-##### Argo UI
+### Argo UI
 
 The application logs are accessible in the Argo UI Workflow page in the task description (by clicking on one of the task/pod - `SUMMARY` tab):
 ![Workflows logs](argo_ui_show_logs.png)
 
 They are also downloadable in the `INPUTS/OUTPUTS` tab as `main.log`.
 
-##### Pod
+### Pod
 
 You can view the logs for a pods in "live" with the following command:
 
@@ -235,7 +242,7 @@ You can view the logs for a pods in "live" with the following command:
 kubectl logs POD_NAME -n NAMESPACE --follow
 ```
 
-##### Kubernetes events
+### Kubernetes events
 
 Events represent a state change of a k8s resource (examples: `Pod CREATED`, `Container PULLED` or `WorkflowRunning`). The events are available during 60 minutes with the following command:
 
@@ -249,11 +256,11 @@ Some filters can be applied:
 - `--types=Warning` to show only the warnings
   Older events (more than 60 minutes) are still available in Elastic Search (see next section).
 
-##### Elastic Search
+### Elastic Search
 
 The logs and events that are output by the Argo Workflows ecosystem are accessible inside Elastic Search. Elastic Search allows the user to execute queries. It contains application logs and system events at the same place.
 
-#### UI "hello world" example with arguments containing two tasks
+### UI "hello world" example with arguments containing two tasks
 
 This workflow will run two tasks at the same time. In this case we are using the same "say-hello-template" template. These tasks could reference different templates.
 
@@ -464,18 +471,23 @@ spec:
 
 ## A Workflow example: standardising workflow
 
-General structure:
+General structure (YAML):
 
-![Standardising Workflow Structure](standardising_structure.png)
+![Standardising Workflow Structure - YAML](standardising_structure.png)
 
-Go through the Standardising YAML file in more detail - any questions?
+Compare the structure shown above with the Argo Workflows UI view:
+
+![Standardising Workflow Structure - GUI](standardising_argo_ui.png)
 
 ## Other features to note (beyond the scope of this Workshop)
 
+Once you are confident submitting and creating basic workflows, explore the following concepts online:
+
 - Artifacts
 - Conditionals
-- Referencing other Workflows/WorkflowTemplates
-- Sprig
+- Referencing other Workflows/WorkflowTemplates (for an example, see standardising-publish-import.yaml)
+  [Standardising-Publish-Import Workflow](../../workflows/imagery/standardising-publish-import.yaml)
+- Sprig scripting
 
 ## Argo Workflows Resources
 
@@ -483,7 +495,7 @@ Go through the Standardising YAML file in more detail - any questions?
 
 [Argo Workflows Examples](https://github.com/argoproj/argo-workflows/tree/master/examples)
 
-[Argo Workflows Online Training Courses(https://killercoda.com/pipekit/course/argo-workflows/)
+[Argo Workflows Online Training Courses(<https://killercoda.com/pipekit/course/argo-workflows/>)
 Recommended for further information about:
 
 - Templates
