@@ -6,16 +6,17 @@ To learn how to build, run and monitor Argo workflows in order to be able to cre
 
 ## Workshop Contents
 
-- Getting help from TDE
-- Introduction to the tech ecosystem: containerisation, Kubernetes, Argo Workflows
-- The structure of an Argo workflow; workflow concepts
-- The codebase and containers behind the Topo workflows
-- Creating and running workflows from the UI
-- Creating and running workflows from the command line
-- Monitoring your running workflows - how to view logs and get Kubernetes events
-- How the Topo workflows are structured – example using the standardising workflow
-- Other features
-- The codebase (containers) behind the Topo workflows
+- [Workshop Pre-Requisites](#workshop-pre-requisites)
+- [Getting help from TDE](#getting-help-from-tde)
+- [Introduction to the tech ecosystem: containerisation, Kubernetes, Argo Workflows](#introduction-to-the-tech-ecosystem-containerisation-argo-workflows-kubernetes-and-aws-elastic-kubernetes-service)
+- [The structure of an Argo workflow; workflow concepts](#what-is-a-workflow)
+- [The codebase and containers behind the Topo workflows](#the-codebase-and-containers-behind-the-topo-workflows)
+- [Creating and running workflows from the UI](#creating-and-running-workflows)
+- [Creating and running workflows from the command line](#creating-and-running-workflows-from-the-cli)
+- [Monitoring your running workflows - how to view logs and get Kubernetes events](#monitoring-your-running-workflows---how-to-view-logs-and-get-events)
+- [How the Topo workflows are structured – example using the standardising workflow](#a-workflow-example-standardising-workflow)
+- [Other features to note beyond the scope of this workshop](#other-features-to-note-beyond-the-scope-of-this-workshop)
+- [Need more help?](#need-more-help)
 
 ## Workshop Pre-Requisites
 
