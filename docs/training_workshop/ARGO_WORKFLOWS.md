@@ -2,6 +2,8 @@
 
 ## Workshop Aims
 
+To learn how to build, run and monitor Argo workflows in order to be able to create new scripts.
+
 ## Workshop Contents
 
 - Getting help from TDE
