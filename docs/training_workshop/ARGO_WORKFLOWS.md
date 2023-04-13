@@ -213,9 +213,11 @@ Submit it through the UI.
 
 The completed workflow should look like this in the Argo UI:
 
-![Hello World example](images/wf_hello_world_args.png)
+![Hello World Args example](images/wf_hello_world_args.png)
 
 ### Creating and running workflows from the CLI
+
+Submitting Workflows through the CLI is particularly useful if you need to run many similar workflows with different parameters.
 
 In a terminal window, log in to `li-topo-prod` using AWS CLI.
 
@@ -235,15 +237,41 @@ You can also do that for kubectl if you want to:
 
 ### CLI "hello world" example
 
-`argo submit docs/training_workshop/example_workflows/wf_hello_world.yaml -n argo --watch`
+```bash
+argo submit docs/training_workshop/example_workflows/wf_hello_world.yaml -n argo --watch
+```
 
 ![Hello World CLI example](images/cli_hello_world.png)
 
 ### CLI "hello world" example with argument parameters
 
-`argo submit docs/training_workshop/example_workflows/wf_hello_world_args.yaml -p message1="hello world" --watch`
+```bash
+argo submit docs/training_workshop/example_workflows/wf_hello_world_args.yaml -p message1="hello world" --watch
+```
 
-![Hello World CLI example](images/cli_hello_world_args.png)
+![Hello World Args CLI example](images/cli_hello_world_args.png)
+
+**Using a parameters file:** If there are many parameters in a workflow, the parameters can be placed in a separate YAML file which can be referenced when submitting the workflow on the CLI. For example:
+
+```bash
+argo submit topo-workflows/imagery/standardising-publish-import.yaml -n argo -f params.yaml
+```
+
+_params.yaml_:
+
+```yaml
+source: "s3://linz-imagery-source-example/aerial-imagery/new-zealand/christchurch_urban_2021_0.05m_RGB/"
+target: "s3://linz-imagery-example/canterbury/christchurch_2021_0.05m/rgb/2193/"
+scale: "500"
+group: "29"
+cutline: "s3://linz-imagery-cutline-example/historical-imagery-cutlines/2023-01-16_84fd68f/SNC50451-combined.fgb"
+title: "Christchurch 0.05m Urban Aerial Photos (2021)"
+description: "Orthophotography within the Canterbury region captured in the 2021 flying season."
+producer: "Aerial Surveys"
+licensor: "Toitū Te Whenua Land Information New Zealand"
+start-datetime: "2021-11-02"
+end-datetime: "2021-12-02"
+```
 
 > **_Resources:_** [Argo CLI documentation](https://argoproj.github.io/argo-workflows/cli/argo/) - [Kubernetes Cheat Sheet](https://kubernetes.io/docs/reference/kubectl/cheatsheet/)
 
@@ -344,7 +372,7 @@ Submit the workflow through the CLI.
 
 The completed workflow should look like this in the Argo UI:
 
-![Hello World example](images/wf_hello_world_args_tasks.png)
+![Hello World Args and Tasks example](images/wf_hello_world_args_tasks.png)
 
 ### DAG example - dependent tasks
 
@@ -415,7 +443,7 @@ Submit the workflow.
 
 The completed workflow should look like this in the Argo UI:
 
-![Hello World example](images/wf_hello_world_dag.png)
+![Hello World DAG example](images/wf_hello_world_dag.png)
 
 ### Inputs and Outputs - passing information between tasks in a Workflow
 
