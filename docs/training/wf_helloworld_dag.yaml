@@ -5,6 +5,8 @@ metadata:
   generateName: test-name-hello-world-dag-
   namespace: argo
 spec:
+  nodeSelector:
+    karpenter.sh/capacity-type: "spot"
   entrypoint: main
   arguments:
     parameters:

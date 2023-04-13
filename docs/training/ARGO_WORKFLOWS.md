@@ -109,6 +109,8 @@ metadata:
   generateName: test-name-hello-world-
   namespace: argo
 spec:
+  nodeSelector:
+    karpenter.sh/capacity-type: "spot"
   entrypoint: main
   templates:
     - name: main
@@ -125,6 +127,17 @@ spec:
 
 `wf_helloworld.yaml`
 
+**Spot Instances**:
+
+You will see the following specified in the example workflows for this workshop. There are two types of AWS EC2 machine requests, "spot" and "on-demand". Spot instances cost less to run, but they may not be available as promptly as on-demand.
+
+```yaml
+nodeSelector:
+  karpenter.sh/capacity-type: "spot"
+```
+
+Note: prefixing the name of the workflow with `test-` prevents alerts for the workflow being sent to the `#alert-argo-workflows` Slack channel.
+
 Submit the workflow through the UI:
 "+ SUBMIT NEW WORKFLOW" > "Edit using full workflow options" > "UPLOAD FILE" > "+ CREATE".
 
@@ -136,7 +149,7 @@ Submit the workflow through the UI:
 
 Below is an example of parameters when submitting the Standardising workflow in the UI:
 
-![Standardising workflow parameters](argo_ui_submit_new_workflow.png)
+![Standardising workflow parameters](standardising_parameters.png)
 
 Parameters are referenced using **Argo variables**.
 
@@ -163,6 +176,8 @@ metadata:
   generateName: test-name-hello-world-
   namespace: argo
 spec:
+  nodeSelector:
+    karpenter.sh/capacity-type: "spot"
   entrypoint: main
   arguments:
     parameters:
@@ -274,6 +289,8 @@ metadata:
   generateName: test-name-hello-world-
   namespace: argo
 spec:
+  nodeSelector:
+    karpenter.sh/capacity-type: "spot"
   entrypoint: main
   arguments:
     parameters:
@@ -323,6 +340,8 @@ metadata:
   generateName: test-name-hello-world-dag-
   namespace: argo
 spec:
+  nodeSelector:
+    karpenter.sh/capacity-type: "spot"
   entrypoint: main
   arguments:
     parameters:
@@ -382,7 +401,7 @@ For more in-depth information, see:
 
 ### Parallelising a task to run in multiple pods
 
-The example below uses "item" to run pods in parallel. "Item" expands a single workflow task into multiple parallel steps using a list output from a previous task. It also passes the output from the `aws-list` task to the `stac-print-path` task.
+The example below uses `{{item}}` to run pods in parallel. This expands a single workflow task into multiple parallel steps using a list output from a previous task. It also passes the output from the `aws-list` task to the `stac-print-path` task.
 
 ```yaml
 ---
@@ -391,6 +410,8 @@ kind: Workflow
 metadata:
   generateName: test-output-parallel-
 spec:
+  nodeSelector:
+    karpenter.sh/capacity-type: "spot"
   parallelism: 20
   nodeSelector:
     karpenter.sh/capacity-type: "spot"
@@ -469,7 +490,15 @@ spec:
 
 `wf_output_parallel.yaml`
 
-## A Workflow example: standardising workflow
+The output should look like this in the Argo UI:
+
+![Parallel Output](parallel_output.png)
+
+### A note about performance and scaling workflows
+
+Refer to the [Argo Configuration Guide](../../CONFIGURATION.md) to learn about how to optimise the performance of your workflows.
+
+## A Workflow example: Standardising Workflow
 
 General structure (YAML):
 
