@@ -9,13 +9,19 @@ To learn how to build, run and monitor Argo workflows in order to be able to cre
 - [Workshop Pre-Requisites](#workshop-pre-requisites)
 - [Getting help from TDE](#getting-help-from-tde)
 - [Introduction to the tech ecosystem: containerisation, Kubernetes, Argo Workflows](#introduction-to-the-tech-ecosystem-containerisation-argo-workflows-kubernetes-and-aws-elastic-kubernetes-service)
-- [The structure of an Argo workflow; workflow concepts](#what-is-a-workflow)
+- [The structure of an Argo workflow](#what-is-a-workflow)
 - [The codebase and containers behind the Topo workflows](#the-codebase-and-containers-behind-the-topo-workflows)
 - [Creating and running workflows from the UI](#creating-and-running-workflows)
 - [Creating and running workflows from the command line](#creating-and-running-workflows-from-the-cli)
 - [Monitoring your running workflows - how to view logs and get Kubernetes events](#monitoring-your-running-workflows---how-to-view-logs-and-get-events)
+- [Workflow Concepts: more exercises](#workflow-concepts---more-exercises)
+  - [Arguments and multiple tasks](#ui-hello-world-example-with-arguments-containing-two-tasks)
+  - [DAGs and dependent tasks](#dag-example---dependent-tasks)
+  - [Inputs and Outputs](#inputs-and-outputs---passing-information-between-tasks-in-a-workflow)
+  - [Parallelisation](#parallelising-a-task-to-run-in-multiple-pods)
 - [How the Topo workflows are structured – example using the standardising workflow](#a-workflow-example-standardising-workflow)
 - [Other features to note beyond the scope of this workshop](#other-features-to-note-beyond-the-scope-of-this-workshop)
+- [Argo Workflows Resources](#argo-workflows-resources)
 - [Need more help?](#need-more-help)
 
 ## Workshop Pre-Requisites
@@ -319,6 +325,8 @@ Some filters can be applied:
 ### Elastic Search
 
 The logs and events that are output by the Argo Workflows ecosystem are accessible inside Elastic Search. Elastic Search allows the user to execute queries. It contains application logs and system events at the same place.
+
+## Workflow Concepts - more exercises
 
 ### UI "hello world" example with arguments containing two tasks
 
