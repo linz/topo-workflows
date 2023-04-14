@@ -41,16 +41,6 @@ spec:
                   value: "{{item}}"
             depends: aws-list-collections
             withParam: "{{tasks.aws-list-collections.outputs.parameters.files}}"
-            when: "{{workflow.parameters.checksum}} == false"
-          - name: stac-validate-collections-checksum
-            template: stac-validate-collections-checksum
-            arguments:
-              parameters:
-                - name: file
-                  value: "{{item}}"
-            depends: aws-list-collections
-            withParam: "{{tasks.aws-list-collections.outputs.parameters.files}}"
-            when: "{{workflow.parameters.checksum}} == true"
     - name: aws-list-collections
       container:
         image: "019359803926.dkr.ecr.ap-southeast-2.amazonaws.com/eks:argo-tasks-{{=sprig.trim(workflow.parameters['version-argo-tasks'])}}"
@@ -85,30 +75,6 @@ spec:
         image: "019359803926.dkr.ecr.ap-southeast-2.amazonaws.com/eks:argo-tasks-{{=sprig.trim(workflow.parameters['version-argo-tasks'])}}"
         resources:
           requests:
-            cpu: 3000m
-            memory: 7.8Gi
-        command: [node, /app/index.js]
-        env:
-          - name: AWS_ROLE_CONFIG_PATH
-            value: s3://linz-bucket-config/config.json
-        args:
-          [
-            "stac-validate",
-            "--concurrency",
-            "100",
-            "--recursive",
-            "{{inputs.parameters.file}}",
-          ]
-    - name: stac-validate-collections-checksum
-      retryStrategy:
-        limit: "2"
-      inputs:
-        parameters:
-          - name: file
-      container:
-        image: "019359803926.dkr.ecr.ap-southeast-2.amazonaws.com/eks:argo-tasks-{{=sprig.trim(workflow.parameters['version-argo-tasks'])}}"
-        resources:
-          requests:
             cpu: 15000m
             memory: 7.8Gi
         command: [node, /app/index.js]
@@ -119,8 +85,8 @@ spec:
           [
             "stac-validate",
             "--concurrency",
-            "120",
+            "50",
             "--recursive",
-            "--checksum",
+            "--checksum={{workflow.parameters.checksum}}",
             "{{inputs.parameters.file}}",
           ]
