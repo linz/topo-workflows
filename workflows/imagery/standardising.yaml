@@ -244,6 +244,7 @@ spec:
           - name: get-location
             template: get-location
           - name: create-overview
+            when: "'{{workflow.parameters.target-epsg}}' =~ '2193|3857'"
             arguments:
               parameters:
                 - name: location
@@ -251,6 +252,7 @@ spec:
             template: create-overview
             depends: "get-location && flatten-copy"
           - name: create-config
+            when: "'{{workflow.parameters.target-epsg}}' =~ '2193|3857'"
             arguments:
               parameters:
                 - name: location
