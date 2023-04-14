@@ -36,7 +36,7 @@ spec:
         parameters:
           - name: stac-file-path
       container:
-        image: ghcr.io/linz/argo-tasks:{{=sprig.trim(workflow.parameters['version-argo-tasks'])}}
+        image: 019359803926.dkr.ecr.ap-southeast-2.amazonaws.com/eks:argo-tasks-{{=sprig.trim(workflow.parameters['version-argo-tasks'])}}
         command: [node, /app/index.js]
         env:
           - name: AWS_ROLE_CONFIG_PATH
@@ -45,5 +45,5 @@ spec:
           [
             "stac-validate",
             "--recursive",
-            "{{=sprig.trim(inputs.parameters.stac-file-path)}}",
+            "{{=sprig.trim(inputs.parameters['stac-file-path'])}}",
           ]

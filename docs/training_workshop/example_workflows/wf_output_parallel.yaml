@@ -1,16 +1,18 @@
+---
 apiVersion: argoproj.io/v1alpha1
 kind: Workflow
 metadata:
-  generateName: test-aws-list-
+  generateName: test-output-parallel-
 spec:
+  parallelism: 20
+  nodeSelector:
+    karpenter.sh/capacity-type: "spot"
   serviceAccountName: workflow-runner-sa
   entrypoint: main
   arguments:
     parameters:
-      - name: version-argo-tasks
-        value: "latest"
       - name: uri
-        value: "s3://linz-imagery-staging/test/sample/"
+        value: "s3://linz-imagery-staging/test/stac-validate/"
   templateDefaults:
     container:
       imagePullPolicy: Always
@@ -25,14 +27,22 @@ spec:
                 - name: uri
                   value: "{{workflow.parameters.uri}}"
                 - name: include
-                  value: ".tiff?$"
+                  value: "json$"
+          - name: stac-print-path
+            template: stac-print-path
+            arguments:
+              parameters:
+                - name: file
+                  value: "{{item}}"
+            depends: "aws-list"
+            withParam: "{{tasks.aws-list.outputs.parameters.files}}"
     - name: aws-list
       inputs:
         parameters:
           - name: uri
           - name: include
       container:
-        image: 019359803926.dkr.ecr.ap-southeast-2.amazonaws.com/eks:argo-tasks-{{workflow.parameters.version-argo-tasks}}
+        image: "019359803926.dkr.ecr.ap-southeast-2.amazonaws.com/eks:argo-tasks-v2"
         command: [node, /app/index.js]
         env:
           - name: AWS_ROLE_CONFIG_PATH
@@ -44,7 +54,7 @@ spec:
             "--include",
             "{{inputs.parameters.include}}",
             "--group",
-            "2",
+            "4",
             "--output",
             "/tmp/file_list.json",
             "{{inputs.parameters.uri}}",
@@ -54,3 +64,17 @@ spec:
           - name: files
             valueFrom:
               path: /tmp/file_list.json
+    - name: stac-print-path
+      inputs:
+        parameters:
+          - name: file
+      script:
+        image: "019359803926.dkr.ecr.ap-southeast-2.amazonaws.com/eks:argo-tasks-v2"
+        env:
+          - name: AWS_ROLE_CONFIG_PATH
+            value: s3://linz-bucket-config/config.json
+        command:
+          - "bash"
+        source: |
+          PATH_OUT=$(echo "{{inputs.parameters.file}}" | sed 's/,/ /g; s/\[/ /g; s/\]/ /g')
+          echo $PATH_OUT
