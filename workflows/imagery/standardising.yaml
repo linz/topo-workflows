@@ -204,23 +204,10 @@ spec:
                   value: "{{item}}"
                 - name: collection-id
                   value: "{{tasks.generate-ulid.outputs.parameters.ulid}}"
-            depends: "aws-list && generate-ulid"
+                - name: target
+                  value: "{{tasks.get-location.outputs.parameters.location}}flat/"
+            depends: "aws-list && generate-ulid && get-location"
             withParam: "{{tasks.aws-list.outputs.parameters.files}}"
-          - name: flatten
-            template: flatten
-            arguments:
-              parameters:
-                - name: location
-                  value: "{{tasks.get-location.outputs.parameters.location}}"
-            depends: "get-location && standardise-validate"
-          - name: flatten-copy
-            template: flatten-copy
-            arguments:
-              parameters:
-                - name: file
-                  value: "{{item}}"
-            depends: "flatten"
-            withParam: "{{tasks.flatten.outputs.parameters.files}}"
           - name: create-collection
             template: create-collection
             arguments:
@@ -229,7 +216,7 @@ spec:
                   value: "{{tasks.generate-ulid.outputs.parameters.ulid}}"
                 - name: location
                   value: "{{tasks.get-location.outputs.parameters.location}}"
-            depends: "flatten-copy"
+            depends: "standardise-validate"
           - name: stac-validate
             template: stac-validate
             arguments:
@@ -249,14 +236,14 @@ spec:
                 - name: location
                   value: "{{tasks.get-location.outputs.parameters.location}}"
             template: create-overview
-            depends: "get-location && flatten-copy"
+            depends: "standardise-validate"
           - name: create-config
             arguments:
               parameters:
                 - name: location
                   value: "{{tasks.get-location.outputs.parameters.location}}"
             template: create-config
-            depends: "get-location && create-overview"
+            depends: "create-overview"
       outputs:
         parameters:
           - name: target
@@ -308,6 +295,7 @@ spec:
         parameters:
           - name: file
           - name: collection-id
+          - name: target
       container:
         image: "ghcr.io/linz/topo-imagery:{{=sprig.trim(workflow.parameters['version-topo-imagery'])}}"
         resources:
@@ -324,6 +312,8 @@ spec:
         args:
           - "--source"
           - "{{inputs.parameters.file}}"
+          - "--target"
+          - "{{inputs.parameters.target}}"
           - "--scale"
           - "{{workflow.parameters.scale}}"
           - "--preset"
@@ -346,57 +336,6 @@ spec:
             path: /tmp/
             archive:
               none: {}
-    - name: flatten
-      inputs:
-        parameters:
-          - name: location
-      container:
-        image: "ghcr.io/linz/argo-tasks:{{=sprig.trim(workflow.parameters['version-argo-tasks'])}}"
-        command: [node, /app/index.js]
-        env:
-          - name: AWS_ROLE_CONFIG_PATH
-            value: s3://linz-bucket-config/config.json
-        args:
-          [
-            "create-manifest",
-            "--flatten",
-            "--verbose",
-            "--include",
-            ".tiff?$|.json$",
-            "--group",
-            "1000",
-            "--group-size",
-            "100Gi",
-            "--output",
-            "/tmp/file_list.json",
-            "--target",
-            "{{inputs.parameters.location}}flat/",
-            "{{inputs.parameters.location}}",
-          ]
-      outputs:
-        parameters:
-          - name: files
-            valueFrom:
-              path: /tmp/file_list.json
-    - name: flatten-copy
-      retryStrategy:
-        limit: "2"
-      inputs:
-        parameters:
-          - name: file
-      container:
-        image: "ghcr.io/linz/argo-tasks:{{=sprig.trim(workflow.parameters['version-argo-tasks'])}}"
-        resources:
-          requests:
-            memory: 7.8Gi
-            cpu: 2000m
-        command: [node, /app/index.js]
-        args:
-          [
-            "copy",
-            "{{workflow.parameters.copy-option}}",
-            "{{inputs.parameters.file}}",
-          ]
     - name: create-collection
       retryStrategy:
         limit: "2"
