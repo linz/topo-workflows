@@ -591,10 +591,9 @@ Once you are confident submitting and creating basic workflows, explore the foll
 ## Argo Workflows Resources
 
 > [Argo Workflows User Guide](https://argoproj.github.io/argo-workflows/workflow-concepts/)
-
 > [Argo Workflows Examples](https://github.com/argoproj/argo-workflows/tree/master/examples)
 
-[Argo Workflows Online Training Courses(<https://killercoda.com/pipekit/course/argo-workflows/>)
+[Argo Workflows Online Training Courses](<https://killercoda.com/pipekit/course/argo-workflows/>)
 Recommended for further information about:
 
 - Templates
