@@ -569,6 +569,7 @@ General structure (YAML):
 ![Standardising Workflow Structure - YAML](images/standardising_structure.png)
 
 Compare the structure shown above with the Argo Workflows UI view:
+(TODO: Update screenshot with `standardising` workflow using `topo-imagery` `v2`)
 
 ![Standardising Workflow Structure - GUI](images/standardising_argo_ui.png)
 

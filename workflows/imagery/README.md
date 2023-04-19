@@ -95,14 +95,12 @@ uri: https://basemaps.linz.govt.nz?config=...
 ```mermaid
 graph TD;
     generate-ulid-->standardise-validate;
+    get-location-->standardise-validate;
     aws-list-->standardise-validate;
-    standardise-validate-->flatten;
-    get-location-->flatten;
-    flatten-->flatten-copy;
-    flatten-copy-->create-collection;
-    get-location-->create-collection;
-    get-location-->create-config;
+    standardise-validate-->create-collection;
+    standardise-validate-->create-overview;
     create-collection-->stac-validate;
+    create-overview-->create-config;
 ```
 
 ### [generate-ulid](./standardising.yaml)
@@ -144,17 +142,11 @@ This step runs the following non-visual QA checks.
 Generates STAC item JSON file associated with the TIFF.
 NB: currently only core STAC metadata is created: start-datetime, end-datetime, geometry and bbox (22/11/2022)
 
+> **_NOTE:_** The output files (`tiffs` and STAC metadata) are moved to a target directory `flat` within the workflow artifact bucket.
+
 ### [get-location](./standardising.yaml)
 
 Finds the output location of this workflow within the artifacts bucket.
-
-### [flatten](https://github.com/linz/argo-tasks/blob/master/src/commands/create-manifest/)
-
-Creates a manifest list of the tiff and item files to copy.
-
-### [flatten-copy](https://github.com/linz/argo-tasks/tree/master/src/commands/copy/)
-
-Copies all the files listed in the manifest to a directory named /flat/
 
 ### [create-collection](https://github.com/linz/topo-imagery/blob/master/scripts/collection_from_items.py)
 
