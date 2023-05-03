@@ -9,7 +9,7 @@ spec:
   arguments:
     parameters:
       - name: target
-        value: "Target bucket for output files"
+        value: "linz-basemaps"
         enum:
           - "linz-basemaps"
           - "linz-basemaps-staging"
@@ -18,10 +18,6 @@ spec:
       imagePullPolicy: Always
   templates:
     - name: vector-etl
-      arguments:
-        parameters:
-          - name: target
-            value: "{{inputs.parameters.target}}"
       container:
         image: 019359803926.dkr.ecr.ap-southeast-2.amazonaws.com/eks:bm-etl-latest
         resources:
@@ -32,7 +28,7 @@ spec:
         env:
           - name: AWS_ROLE_CONFIG_PATH
             value: s3://linz-bucket-config/config.basemaps.json
-        args: ["--all", "--target", "{{inputs.parameters.target}}", "--commit"]
+        args: ["--all", "--target", "{{workflow.parameters.target}}", "--commit"]
       outputs:
         artifacts:
           - name: results
