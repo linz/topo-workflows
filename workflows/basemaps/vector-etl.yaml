@@ -2,7 +2,7 @@
 apiVersion: argoproj.io/v1alpha1
 kind: WorkflowTemplate
 metadata:
-  name: vector-etl
+  name: basemaps-vector-etl
   namespace: argo
 spec:
   entrypoint: vector-etl
