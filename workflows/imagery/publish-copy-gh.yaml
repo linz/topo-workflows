@@ -42,11 +42,28 @@ spec:
           - name: include
           - name: group
           - name: group-size
+          - name: target
       dag:
         tasks:
-          - name: update-collection-link
-            template: update-collection-link
-            when: "{{=sprig.contains('s3://linz-imagery/', workflow.parameters.target)}}"
+          - name: create-manifest-linz-imagery
+            template: create-manifest
+            arguments:
+              parameters:
+                - name: source
+                  value: "{{inputs.parameters.source}}"
+                - name: target
+                  value: "{{workflow.parameters.target}}"
+                - name: include
+                  value: "{{inputs.parameters.include}}"
+                - name: exclude
+                  value: "collection.json$"
+                - name: group
+                  value: "{{inputs.parameters.group}}"
+                - name: group-size
+                  value: "{{inputs.parameters.group-size}}"
+                - name: version-argo-tasks
+                  value: "{{workflow.parameters.version-argo-tasks}}"
+              when: "{{=sprig.contains('s3://linz-imagery/', workflow.parameters.target)}}"
           - name: create-manifest
             template: create-manifest
             arguments:
@@ -57,13 +74,15 @@ spec:
                   value: "{{workflow.parameters.target}}"
                 - name: include
                   value: "{{inputs.parameters.include}}"
+                - name: exclude
+                  value: ""
                 - name: group
                   value: "{{inputs.parameters.group}}"
                 - name: group-size
                   value: "{{inputs.parameters.group-size}}"
                 - name: version-argo-tasks
                   value: "{{workflow.parameters.version-argo-tasks}}"
-            depends: "update-collection-link.Succeeded || update-collection-link.Skipped"
+            depends: "create-manifest-linz.imagery.Skipped"
           - name: copy
             template: copy
             arguments:
@@ -74,7 +93,7 @@ spec:
                   value: "{{item}}"
                 - name: version-argo-tasks
                   value: "{{workflow.parameters.version-argo-tasks}}"
-            depends: "create-manifest"
+            depends: "create-manifest || create-manifest-linz-imagery"
             withParam: "{{tasks.create-manifest.outputs.parameters.files}}"
           - name: push-to-github
             template: push-to-github
@@ -86,30 +105,12 @@ spec:
                   value: "{{workflow.parameters.target}}"
             depends: "copy"
             when: "{{=sprig.contains('s3://linz-imagery/', workflow.parameters.target)}}"
-    - name: update-collection-link
-      retryStrategy:
-        limit: "2"
-      inputs:
-        parameters:
-          - name: source
-          - name: target
-      container:
-        image: "ghcr.io/amfage/argo-tasks-test:latest"
-        env:
-          - name: AWS_ROLE_CONFIG_PATH
-            value: s3://linz-bucket-config/config.json
-          - name: SOURCE_LOCATION
-            value: "{{=sprig.trim(inputs.parameters.source)}}"
-          - name: TARGET_LOCATION
-            value: "{{=sprig.trim(inputs.parameters.target)}}"
-        command: [bash]
-        source: |
-          echo "hello"
     - name: create-manifest
       inputs:
         parameters:
           - name: source
           - name: include
+          - name: exclude
           - name: group
           - name: group-size
       container:
@@ -124,6 +125,8 @@ spec:
             "--verbose",
             "--include",
             "{{=sprig.trim(inputs.parameters.include)}}",
+            "--exclude",
+            "{{inputs.parameters.exclude}}",
             "--group",
             "{{=sprig.trim(inputs.parameters.group)}}",
             "--group-size",
