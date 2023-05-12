@@ -391,7 +391,7 @@ spec:
           ]
     - name: get-location
       script:
-        image: node:alpine
+        image: "019359803926.dkr.ecr.ap-southeast-2.amazonaws.com/eks:argo-tasks-{{=sprig.trim(workflow.parameters['version-argo-tasks'])}}"
         command: [node]
         source: |
           const fs = require('fs');
