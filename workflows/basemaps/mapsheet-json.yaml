@@ -75,7 +75,7 @@ spec:
           - name: geopackage
             path: /tmp/
       container:
-        image: osgeo/gdal:alpine-small-3.6.1
+        image: ghcr.io/osgeo/gdal:alpine-small-3.7.0
         imagePullPolicy: IfNotPresent
         command: [sh]
         args: ["-c", "ogr2ogr -f FlatGeobuf tmp/flatGeobuf.fgb tmp/*.gpkg"]
