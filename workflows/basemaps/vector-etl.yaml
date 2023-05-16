@@ -78,13 +78,7 @@ spec:
           - name: GIT_USER_NAME
             value: basemaps[bot]
         args:
-          [
-            "-V",
-            "cog-pr",
-            "--layer",
-            "{{inputs.parameters.layer}}",
-            "--vector",
-          ]
+          ["-V", "cog-pr", "--layer", "{{inputs.parameters.layer}}", "--vector"]
   volumes:
     - name: secret-vol
       secret:
