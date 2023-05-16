@@ -5,7 +5,7 @@ metadata:
   name: basemaps-vector-etl
   namespace: argo
 spec:
-  entrypoint: vector-etl
+  entrypoint: main
   arguments:
     parameters:
       - name: target
@@ -13,10 +13,29 @@ spec:
         enum:
           - "linz-basemaps"
           - "linz-basemaps-staging"
+      - name: create-pull-request
+        value: true
+        enum:
+          - true
+          - false
   templateDefaults:
     container:
       imagePullPolicy: Always
   templates:
+    - name: main
+      dag:
+        tasks:
+          - name: vector-etl
+            template: vector-etl
+          - name: create-pr
+            template: create-pr
+            arguments:
+              parameters:
+                - name: layer
+                  value: "{{tasks.vector-etl.outputs.parameters.layer}}"
+            when: "{{workflow.parameters.create-pull-request}} == true"
+            depends: "vector-etl"
+
     - name: vector-etl
       container:
         image: 019359803926.dkr.ecr.ap-southeast-2.amazonaws.com/eks:bm-etl-latest
@@ -29,4 +48,45 @@ spec:
           - name: AWS_ROLE_CONFIG_PATH
             value: s3://linz-bucket-config/config.basemaps.json
         args:
-          ["--all", "--target", "{{workflow.parameters.target}}", "--commit"]
+          [
+            "--all",
+            "--target",
+            "{{workflow.parameters.target}}",
+            "--output",
+            "/tmp/",
+            "--commit",
+          ]
+      outputs:
+        parameters:
+          - name: layer
+            valueFrom:
+              path: "/tmp/layer.json"
+
+    - name: create-pr
+      inputs:
+        parameters:
+          - name: layer
+      container:
+        image: ghcr.io/linz/basemaps/cli:v6.40.0-25-g637df773
+        volumeMounts:
+          - name: secret-vol
+            mountPath: "/root/.ssh/"
+        command: [node, index.cjs]
+        env:
+          - name: GIT_USER_EMAIL
+            value: basemaps@linz.govt.nz
+          - name: GIT_USER_NAME
+            value: basemaps[bot]
+        args:
+          [
+            "-V",
+            "cog-pr",
+            "--layer",
+            "{{inputs.parameters.layer}}",
+            "--vector",
+          ]
+  volumes:
+    - name: secret-vol
+      secret:
+        secretName: github-linz-basemaps-config
+        defaultMode: 384
