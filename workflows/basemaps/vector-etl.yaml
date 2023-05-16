@@ -67,7 +67,7 @@ spec:
         parameters:
           - name: layer
       container:
-        image: ghcr.io/linz/basemaps/cli:v6.40.0-25-g637df773
+        image: ghcr.io/linz/basemaps/cli:latest
         volumeMounts:
           - name: secret-vol
             mountPath: "/root/.ssh/"
