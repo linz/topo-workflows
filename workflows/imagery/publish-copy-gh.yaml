@@ -12,11 +12,13 @@ spec:
   arguments:
     parameters:
       - name: version-argo-tasks
-        value: "v2"
+        value: "latest"
       - name: source
-        value: "s3://linz-imagery-staging/test/sample/"
+        # value: "s3://linz-imagery-staging/test/sample/"
+        value: "s3://linz-workflow-artifacts/2023-04/25-ispi-manawatu-whanganui-2010-2011-0-4m-tttsb/flat/"
       - name: target
-        value: "s3://linz-imagery-staging/test/sample_target/"
+        # value: "s3://linz-imagery-staging/test/sample_target/"
+        value: "s3://linz-imagery/manawatu-whanganui/manawatu-whanganui_2010-2011_0.4m/rgb/2193/"
       - name: include
         value: ".tiff?$|.json$|.tfw$"
       - name: copy-option
@@ -63,7 +65,7 @@ spec:
                   value: "{{inputs.parameters.group-size}}"
                 - name: version-argo-tasks
                   value: "{{workflow.parameters.version-argo-tasks}}"
-              when: "{{=sprig.contains('s3://linz-imagery/', workflow.parameters.target)}}"
+            when: "{{=sprig.contains('s3://linz-imagery/', workflow.parameters.target)}}"
           - name: create-manifest
             template: create-manifest
             arguments:
@@ -82,7 +84,19 @@ spec:
                   value: "{{inputs.parameters.group-size}}"
                 - name: version-argo-tasks
                   value: "{{workflow.parameters.version-argo-tasks}}"
-            depends: "create-manifest-linz.imagery.Skipped"
+            depends: "create-manifest-linz-imagery.Skipped"
+          - name: copy-linz-imagery
+            template: dummy-copy
+            arguments:
+              parameters:
+                - name: copy-option
+                  value: "{{workflow.parameters.copy-option}}"
+                - name: file
+                  value: "{{item}}"
+                - name: version-argo-tasks
+                  value: "{{workflow.parameters.version-argo-tasks}}"
+            depends: "create-manifest-linz-imagery"
+            withParam: "{{tasks.create-manifest-linz-imagery.outputs.parameters.files}}"
           - name: copy
             template: copy
             arguments:
@@ -93,18 +107,15 @@ spec:
                   value: "{{item}}"
                 - name: version-argo-tasks
                   value: "{{workflow.parameters.version-argo-tasks}}"
-            depends: "create-manifest || create-manifest-linz-imagery"
+            depends: "create-manifest"
             withParam: "{{tasks.create-manifest.outputs.parameters.files}}"
           - name: push-to-github
             template: push-to-github
             arguments:
               parameters:
                 - name: source
-                  value: "{{workflow.parameters.source}}"
-                - name: target
-                  value: "{{workflow.parameters.target}}"
-            depends: "copy"
-            when: "{{=sprig.contains('s3://linz-imagery/', workflow.parameters.target)}}"
+                  value: "{{inputs.parameters.source}}"
+            depends: "copy-linz-imagery"
     - name: create-manifest
       inputs:
         parameters:
@@ -166,31 +177,51 @@ spec:
             "{{workflow.parameters.copy-option}}",
             "{{inputs.parameters.file}}",
           ]
+    - name: dummy-copy
+      inputs:
+        parameters:
+          - name: file
+      script:
+        image: "019359803926.dkr.ecr.ap-southeast-2.amazonaws.com/eks:argo-tasks-{{=sprig.trim(workflow.parameters['version-argo-tasks'])}}"
+        command: [bash]
+        source: |
+          echo {{inputs.parameters.file}}
+        env:
+          - name: AWS_ROLE_CONFIG_PATH
+            value: s3://linz-bucket-config/config-write.imagery.json,s3://linz-bucket-config/config.json
     - name: push-to-github
       retryStrategy:
         limit: "2"
       inputs:
         parameters:
           - name: source
-          - name: target
       container:
-        image: "ghcr.io/amfage/argo-tasks-test:latest"
+        image: "019359803926.dkr.ecr.ap-southeast-2.amazonaws.com/eks:argo-tasks-{{=sprig.trim(workflow.parameters['version-argo-tasks'])}}"
+        resources:
+          requests:
+            memory: 7.8Gi
+            cpu: 2000m
         env:
           - name: AWS_ROLE_CONFIG_PATH
             value: s3://linz-bucket-config/config.json
           - name: GIT_AUTHOR_NAME
             value: "Imagery[bot]"
           - name: GIT_AUTHOR_EMAIL
-            value: "placeholder@linz.govt.nz"
-          - name: SOURCE_LOCATION
-            value: "{{workflow.parameters.source}}"
-          - name: TARGET_LOCATION
-            value: "{{workflow.parameters.target}}"
-        command: [bash]
-        source: |
-          echo "hello"
+            value: "imagery@linz.govt.nz"
+        command: [node, /app/index.js]
+        args:
+          [
+            "stac",
+            "github-import",
+            "--source",
+            "{{=sprig.trim(inputs.parameters.source)}}",
+            "--target",
+            "{{=sprig.trim(workflow.parameters.target)}}",
+            "--repo-name",
+            "linz/imagery-test",
+          ]
   volumes:
     - name: secret-vol
       secret:
-        secretName: github-linz
+        secretName: github-linz-imagery-test
         defaultMode: 384
