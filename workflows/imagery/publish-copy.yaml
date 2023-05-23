@@ -182,10 +182,6 @@ spec:
           - name: source
       container:
         image: "019359803926.dkr.ecr.ap-southeast-2.amazonaws.com/eks:argo-tasks-{{=sprig.trim(workflow.parameters['version-argo-tasks'])}}"
-        resources:
-          requests:
-            memory: 7.8Gi
-            cpu: 2000m
         env:
           - name: AWS_ROLE_CONFIG_PATH
             value: s3://linz-bucket-config/config.json
