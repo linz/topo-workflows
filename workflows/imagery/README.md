@@ -171,8 +171,10 @@ Copy files from one S3 location to another. This workflow is intended to be used
 
 ```mermaid
 graph TD;
-    create-manifest-->copy-->push-to-github;
+    create-manifest-->copy-.->push-to-github;
 ```
+
+\* `push-to-github` is an optional task run only for `s3://linz-imagery/`
 
 This is a workflow that uses the [argo-tasks](https://github.com/linz/argo-tasks#create-manifest) container `create-manifest` (list of source and target file paths) and `copy` (the actual file copy) commands.
 
