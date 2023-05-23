@@ -5,9 +5,6 @@ metadata:
   namespace: argo
 spec:
   parallelism: 100
-
-  # nodeSelector:
-  #   karpenter.sh/capacity-type: "spot"
   entrypoint: main
   arguments:
     parameters:
@@ -59,40 +56,76 @@ spec:
                   value: "{{inputs.parameters.cutline}}"
                 - name: cutline-blend
                   value: "{{inputs.parameters.cutline-blend}}"
-  
+
+          - name: cogify-done
+            template: echo
+            depends: cogify
+            arguments:
+              parameters:
+                - name: echo
+                  value: "{{tasks.cogify.outputs.parameters}}"
+
     # Generate COGs for a specific tile matrix from a given collection of source imagery
     - name: cogify
-      inputs: 
+      inputs:
         parameters:
           - name: source
           - name: tile-matrix
           - name: cutline
           - name: cutline-blend
-      dag: 
-        tasks: 
-        # generate a tile covering from the source imagery
-        - name: create-covering
-          template: create-covering
-          arguments:
-            parameters:
-              - name: source
-                value: "{{inputs.parameters.source}}"
-              - name: tile-matrix
-                value: "{{inputs.parameters.tile-matrix}}"
-              - name: cutline
-                value: "{{inputs.parameters.cutline}}"
-              - name: cutline-blend
-                value: "{{inputs.parameters.cutline-blend}}"
-        # Create COGS given t he output of create-covering
-        - name: echo
-          depends: create-covering
-          template: echo
-          withParam: "{{tasks.create-covering.outputs.parameters.tiles}}"
-          arguments:
-            parameters:
-              - name: echo
-                value: '{{item.path}}'
-    
+      dag:
+        tasks:
+          # generate a tile covering from the source imagery
+          - name: create-covering
+            template: create-covering
+            arguments:
+              parameters:
+                - name: source
+                  value: "{{inputs.parameters.source}}"
+                - name: tile-matrix
+                  value: "{{inputs.parameters.tile-matrix}}"
+                - name: cutline
+                  value: "{{inputs.parameters.cutline}}"
+                - name: cutline-blend
+                  value: "{{inputs.parameters.cutline-blend}}"
+
+          # Create COGS from the output of create-covering
+          - name: create-cog
+            depends: create-covering
+            template: create-cog
+            withParam: "{{tasks.create-covering.outputs.parameters.tiles}}"
+            arguments:
+              parameters:
+                - name: source
+                  value: "{{item.path}}"
+
+          # once all COGs are created generate a more overviews to increase tile rendering performance
+          - name: create-overview
+            template: create-overview
+            depends: create-cog
+            arguments:
+              parameters:
+                - name: path
+                  value: "{{tasks.create-covering.outputs.parameters.target}}"
+
+          # Create a basemaps config to view the imagery directly
+          - name: create-config
+            template: create-config
+            depends: create-overview
+            arguments:
+              parameters:
+                - name: path
+                  value: "{{tasks.create-covering.outputs.parameters.target}}"
+                - name: title
+                  value: "{{tasks.create-covering.outputs.parameters.title}}"
+
+      outputs:
+        parameters:
+          - name: target
+            description: location of where the output tiffs were created
+            valueFrom:
+              parameter: "{{tasks.create-covering.outputs.parameters.target}}"
+
     - name: echo
       inputs:
         parameters:
@@ -103,6 +136,7 @@ spec:
         args:
           - "{{inputs.parameters.echo}}"
 
+    # Generate a tile covering for input imagery
     - name: create-covering
       inputs:
         parameters:
@@ -129,13 +163,21 @@ spec:
           - "{{=sprig.trim(inputs.parameters.source)}}"
       outputs:
         parameters:
-          - name: tiles
-            valueFrom:
-              path: /tmp/cogify/cover-items.json
           - name: target
+            description: output path for where the covering was written
             valueFrom:
               path: /tmp/cogify/cover-target
-    
+
+          - name: title
+            description: Title for the covering
+            valueFrom:
+              path: /tmp/cogify/cover-title
+
+          - name: tiles
+            description: JSON array of all the tiles that need to be created
+            valueFrom:
+              path: /tmp/cogify/cover-items.json
+
     # Actually create COGs using gdal_translate on a large spot instances
     - name: create-cog
       nodeSelector:
@@ -156,8 +198,30 @@ spec:
         args:
           - "create"
           - "{{=sprig.trim(inputs.parameters.source)}}"
-  
-    # Actually create additional overviews for any COGs
+
+    # Create a basemaps configuration file to view the imagery
+    - name: create-config
+      inputs:
+        parameters:
+          - name: path
+            description: Location of the imagery to create config for
+      container:
+        image: ghcr.io/blacha/basemaps:latest
+        command: [node, /app/node_modules/.bin/cogify]
+        env:
+          - name: AWS_ROLE_CONFIG_PATH
+            value: s3://linz-bucket-config/config.json
+        args:
+          - "config"
+          - "{{inputs.parameters.path}}"
+      outputs:
+        parameters:
+          - name: url
+            description: Basemaps URL to view the imagery
+            valueFrom:
+              path: "/tmp/cogify/config-url.json"
+
+    # create additional overviews for any COGs found in the path
     - name: create-overview
       nodeSelector:
         karpenter.sh/capacity-type: "spot"
