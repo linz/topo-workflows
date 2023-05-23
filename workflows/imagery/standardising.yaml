@@ -192,10 +192,10 @@ spec:
     - name: main
       dag:
         tasks:
-          - name: aws-list
-            template: aws-list
           - name: generate-ulid
             template: generate-ulid
+          - name: tile-index-validate
+            template: tile-index-validate
           - name: standardise-validate
             template: standardise-validate
             arguments:
@@ -206,8 +206,8 @@ spec:
                   value: "{{tasks.generate-ulid.outputs.parameters.ulid}}"
                 - name: target
                   value: "{{tasks.get-location.outputs.parameters.location}}flat/"
-            depends: "aws-list && generate-ulid && get-location"
-            withParam: "{{tasks.aws-list.outputs.parameters.files}}"
+            depends: "tile-index-validate && generate-ulid && get-location"
+            withParam: "{{tasks.tile-index-validate.outputs.parameters.files}}"
           - name: create-collection
             template: create-collection
             arguments:
@@ -251,30 +251,6 @@ spec:
           - name: target
             valueFrom:
               parameter: "{{tasks.get-location.outputs.parameters.location}}"
-    - name: aws-list
-      container:
-        image: "019359803926.dkr.ecr.ap-southeast-2.amazonaws.com/eks:argo-tasks-{{=sprig.trim(workflow.parameters['version-argo-tasks'])}}"
-        command: [node, /app/index.js]
-        env:
-          - name: AWS_ROLE_CONFIG_PATH
-            value: s3://linz-bucket-config/config.json
-        args:
-          [
-            "list",
-            "--verbose",
-            "--include",
-            "{{=sprig.trim(workflow.parameters.include)}}",
-            "--group",
-            "{{=sprig.trim(workflow.parameters.group)}}",
-            "--output",
-            "/tmp/file_list.json",
-            "{{=sprig.trim(workflow.parameters.source)}}",
-          ]
-      outputs:
-        parameters:
-          - name: files
-            valueFrom:
-              path: /tmp/file_list.json
     - name: generate-ulid
       script:
         image: "019359803926.dkr.ecr.ap-southeast-2.amazonaws.com/eks:topo-imagery-{{=sprig.trim(workflow.parameters['version-topo-imagery'])}}"
@@ -288,6 +264,43 @@ spec:
           - name: ulid
             valueFrom:
               path: "/tmp/ulid"
+    - name: tile-index-validate
+      nodeSelector:
+        karpenter.sh/capacity-type: "spot"
+      container:
+        image: "019359803926.dkr.ecr.ap-southeast-2.amazonaws.com/eks:argo-tasks-{{=sprig.trim(workflow.parameters['version-argo-tasks'])}}"
+        command: [node, /app/index.js]
+        env:
+          - name: AWS_ROLE_CONFIG_PATH
+            value: s3://linz-bucket-config/config.json
+        args:
+          [
+            "tileindex-validate",
+            "--verbose",
+            "--include",
+            "{{=sprig.trim(workflow.parameters.include)}}",
+            "--group",
+            "{{=sprig.trim(workflow.parameters.group)}}",
+            "--output",
+            "/tmp/file_list.json",
+            "--duplicates-output",
+            "/tmp/duplicate_list.json",
+            "--scale",
+            "{{workflow.parameters.scale}}",
+            "{{=sprig.trim(workflow.parameters.source)}}",
+          ]
+      outputs:
+        parameters:
+          - name: files
+            valueFrom:
+              path: /tmp/file_list.json
+        artifacts:
+          - name: list
+            path: /tmp/file_list.json
+            optional: true
+          - name: duplicates
+            path: /tmp/duplicate_list.json
+            optional: true
     - name: standardise-validate
       retryStrategy:
         limit: "2"
@@ -332,12 +345,6 @@ spec:
           - "{{=sprig.trim(workflow.parameters['source-epsg'])}}"
           - "--target-epsg"
           - "{{=sprig.trim(workflow.parameters['target-epsg'])}}"
-      outputs:
-        artifacts:
-          - name: standardised_tiffs
-            path: /tmp/
-            archive:
-              none: {}
     - name: create-collection
       retryStrategy:
         limit: "2"
