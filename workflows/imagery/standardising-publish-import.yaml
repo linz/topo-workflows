@@ -37,7 +37,7 @@ spec:
       - name: version-basemaps-cli
         value: "v6"
       - name: version-topo-imagery
-        value: "v1"
+        value: "v2"
   templateDefaults:
     container:
       imagePullPolicy: Always
@@ -77,6 +77,10 @@ spec:
   volumes:
     - name: ephemeral
       emptyDir: {}
+    - name: secret-volume # this is for the publish-copy step
+      secret:
+        secretName: github-linz-imagery-test
+        defaultMode: 384
     # - name: secret-vol # uncomment for basemaps imagery import
     #   secret:
-    #     secretName: github
+    #     secretName: github  volumes:
