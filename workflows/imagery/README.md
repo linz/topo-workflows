@@ -3,7 +3,6 @@
 - [Standardising](#Standardising)
 - [Publish-copy](#Publish-copy)
 - [Standardising-publish-import](#Standardising-publish-import)
-- [Tileset-validate](#Tileset-validate)
 - [tests](#Tests)
 
 # Standardising
@@ -96,7 +95,7 @@ uri: https://basemaps.linz.govt.nz?config=...
 graph TD;
     generate-ulid-->standardise-validate;
     get-location-->standardise-validate;
-    aws-list-->standardise-validate;
+    tileindex-validate-->standardise-validate;
     standardise-validate-->create-collection;
     standardise-validate-->create-overview;
     create-collection-->stac-validate;
@@ -107,9 +106,9 @@ graph TD;
 
 Generates a ULID which is used as the collection id for the standardised dataset.
 
-### [aws-list](https://github.com/linz/argo-tasks/blob/master/src/commands/list/)
+### [tileindex-validate](https://github.com/linz/argo-tasks/blob/master/src/commands/tileindex-validate/)
 
-Lists all the included files within the provided source uri.
+Lists tiffs from source input, validates they match a LINZ Mapsheet tile index and asserts that there will be no duplicates.
 
 ### [standardise-validate](https://github.com/linz/topo-imagery/blob/master/scripts/standardise_validate.py)
 
@@ -351,27 +350,6 @@ blend: "20"
 aligned-level: "6"
 create-pull-request: "true"
 ```
-
-# Tileset-validate
-
-## Workflow Description
-
-Validate TIFFs are named the same as their tileset and that the origin and size is as expected. Uses the [argo-tasks](https://github.com/linz/argo-tasks/blob/master/src/commands/tileset-validate/tileset.validate.ts) container `tileset-validate` command.
-
-## Workflow Input Parameters
-
-| Parameter              | Type | Default                                              | Description                       |
-| ---------------------- | ---- | ---------------------------------------------------- | --------------------------------- |
-| processed-imagery-path | str  | s3://linz-imagery-staging/test/tileset-validate/flat | The URI (path) to the s3 location |
-
-# Tests
-
-The tests workflow has been created so that Python code and topo-imagery scripts can be tested in Argo.
-
-## Workflow Inputs/Outputs
-
-There are no inputs/outputs in this workflow as it is not a template.
-Inputs/outputs can be hardcoded into the Python code.
 
 ## How To Use the Test Workflow
 
