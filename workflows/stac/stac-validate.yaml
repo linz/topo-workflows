@@ -2,7 +2,7 @@
 apiVersion: argoproj.io/v1alpha1
 kind: WorkflowTemplate
 metadata:
-  name: test-amfage-stac-validate
+  name: stac-validate
   namespace: argo
 spec:
   parallelism: 20
@@ -41,7 +41,7 @@ spec:
             withParam: "{{tasks.aws-list-collections.outputs.parameters.files}}"
     - name: aws-list-collections
       container:
-        image: "ghcr.io/amfage/argo-tasks-test:latest"
+        image: "019359803926.dkr.ecr.ap-southeast-2.amazonaws.com/eks:argo-tasks-{{=sprig.trim(workflow.parameters['version-argo-tasks'])}}"
         command: [node, /app/index.js]
         env:
           - name: AWS_ROLE_CONFIG_PATH
@@ -70,7 +70,7 @@ spec:
         parameters:
           - name: file
       container:
-        image: "ghcr.io/amfage/argo-tasks-test:latest"
+        image: "019359803926.dkr.ecr.ap-southeast-2.amazonaws.com/eks:argo-tasks-{{=sprig.trim(workflow.parameters['version-argo-tasks'])}}"
         resources:
           requests:
             cpu: 15000m

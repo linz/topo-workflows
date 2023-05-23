@@ -12,7 +12,7 @@ spec:
   arguments:
     parameters:
       - name: version-argo-tasks
-        value: "latest"
+        value: "v2"
       - name: source
         value: "s3://linz-imagery-staging/test/sample/"
       - name: target
