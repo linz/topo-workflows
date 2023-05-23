@@ -14,6 +14,9 @@ spec:
 
       - name: source
         description: Source imagery location "s3://linz-imagery"
+      
+      - name: target
+        description: Target location for output COGS
 
       - name: tile-matrix
         description: Output tile matrix
@@ -37,6 +40,7 @@ spec:
       inputs:
         parameters:
           - name: source
+          - name: target
           - name: tile-matrix
           - name: cutline
           - name: cutline-blend
@@ -50,6 +54,8 @@ spec:
               parameters:
                 - name: source
                   value: "{{inputs.parameters.source}}"
+                - name: target
+                  value: "{{inputs.parameters.target}}"
                 - name: tile-matrix
                   value: "{{item}}"
                 - name: cutline
@@ -70,6 +76,7 @@ spec:
       inputs:
         parameters:
           - name: source
+          - name: target
           - name: tile-matrix
           - name: cutline
           - name: cutline-blend
@@ -82,6 +89,8 @@ spec:
               parameters:
                 - name: source
                   value: "{{inputs.parameters.source}}"
+                - name: target
+                  value: "{{inputs.parameters.target}}"
                 - name: tile-matrix
                   value: "{{inputs.parameters.tile-matrix}}"
                 - name: cutline
@@ -141,6 +150,7 @@ spec:
       inputs:
         parameters:
           - name: source
+          - name: target
           - name: tile-matrix
           - name: cutline
           - name: cutline-blend
@@ -159,7 +169,7 @@ spec:
           - "--cutline-blend"
           - "{{inputs.parameters.cutline-blend}}"
           - "--target"
-          - "s3://linz-workflow-artifacts/bchard/20223-05-18/"
+          - "{{=sprig.trim(inputs.parameters.target)}}"
           - "{{=sprig.trim(inputs.parameters.source)}}"
       outputs:
         parameters:
