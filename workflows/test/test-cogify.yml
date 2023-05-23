@@ -1,0 +1,184 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Workflow
+metadata:
+  generateName: test-cogify-
+  namespace: argo
+spec:
+  parallelism: 100
+
+  # nodeSelector:
+  #   karpenter.sh/capacity-type: "spot"
+  entrypoint: main
+  arguments:
+    parameters:
+      - name: version-basemaps-cli
+        description: Version of the basemaps CLI docker container to use
+        value: latest
+
+      - name: source
+        description: Source imagery location "s3://linz-imagery"
+
+      - name: tile-matrix
+        description: Output tile matrix
+        value: '["NZTM2000Quad", "WebMercatorQuad"]'
+        enum:
+          - '["NZTM2000Quad"]'
+          - '["WebMercatorQuad"]'
+          - '["NZTM2000Quad", "WebMercatorQuad"]'
+
+      - name: cutline
+        description: Path to cutline to apply
+        value: "s3://linz-basemaps-source/cutline/2020-05-07-cutline-nz-coasts-rural-and-urban.geojson"
+
+      - name: cutline-blend
+        description: Blending to use for cutline see gdal_translate#cblend
+        value: 20
+
+  templates:
+    # Main entrypoint into the workflow
+    - name: main
+      inputs:
+        parameters:
+          - name: source
+          - name: tile-matrix
+          - name: cutline
+          - name: cutline-blend
+      dag:
+        tasks:
+          # For each tile matrix specified run the "cogify" template
+          - name: cogify
+            template: cogify
+            withParam: "{{workflow.parameters.tile-matrix}}"
+            arguments:
+              parameters:
+                - name: source
+                  value: "{{inputs.parameters.source}}"
+                - name: tile-matrix
+                  value: "{{item}}"
+                - name: cutline
+                  value: "{{inputs.parameters.cutline}}"
+                - name: cutline-blend
+                  value: "{{inputs.parameters.cutline-blend}}"
+  
+    # Generate COGs for a specific tile matrix from a given collection of source imagery
+    - name: cogify
+      inputs: 
+        parameters:
+          - name: source
+          - name: tile-matrix
+          - name: cutline
+          - name: cutline-blend
+      dag: 
+        tasks: 
+        # generate a tile covering from the source imagery
+        - name: create-covering
+          template: create-covering
+          arguments:
+            parameters:
+              - name: source
+                value: "{{inputs.parameters.source}}"
+              - name: tile-matrix
+                value: "{{inputs.parameters.tile-matrix}}"
+              - name: cutline
+                value: "{{inputs.parameters.cutline}}"
+              - name: cutline-blend
+                value: "{{inputs.parameters.cutline-blend}}"
+        # Create COGS given t he output of create-covering
+        - name: echo
+          depends: create-covering
+          template: echo
+          withParam: "{{tasks.create-covering.outputs.parameters.tiles}}"
+          arguments:
+            parameters:
+              - name: echo
+                value: '{{item.path}}'
+    
+    - name: echo
+      inputs:
+        parameters:
+          - name: echo
+      container:
+        image: ghcr.io/blacha/basemaps:latest
+        command: [echo]
+        args:
+          - "{{inputs.parameters.echo}}"
+
+    - name: create-covering
+      inputs:
+        parameters:
+          - name: source
+          - name: tile-matrix
+          - name: cutline
+          - name: cutline-blend
+      container:
+        image: ghcr.io/blacha/basemaps:latest
+        command: [node, /app/node_modules/.bin/cogify]
+        env:
+          - name: AWS_ROLE_CONFIG_PATH
+            value: s3://linz-bucket-config/config.json
+        args:
+          - "cover"
+          - "--tile-matrix"
+          - "{{inputs.parameters.tile-matrix}}"
+          - "--cutline"
+          - "{{=sprig.trim(inputs.parameters.cutline)}}"
+          - "--cutline-blend"
+          - "{{inputs.parameters.cutline-blend}}"
+          - "--target"
+          - "s3://linz-workflow-artifacts/bchard/20223-05-18/"
+          - "{{=sprig.trim(inputs.parameters.source)}}"
+      outputs:
+        parameters:
+          - name: tiles
+            valueFrom:
+              path: /tmp/cogify/cover-items.json
+          - name: target
+            valueFrom:
+              path: /tmp/cogify/cover-target
+    
+    # Actually create COGs using gdal_translate on a large spot instances
+    - name: create-cog
+      nodeSelector:
+        karpenter.sh/capacity-type: "spot"
+      inputs:
+        parameters:
+          - name: source
+      container:
+        resources:
+          requests:
+            memory: 7.8Gi
+            cpu: 15000m
+        image: ghcr.io/blacha/basemaps:latest
+        command: [node, /app/node_modules/.bin/cogify]
+        env:
+          - name: AWS_ROLE_CONFIG_PATH
+            value: s3://linz-bucket-config/config.json
+        args:
+          - "create"
+          - "{{=sprig.trim(inputs.parameters.source)}}"
+  
+    # Actually create additional overviews for any COGs
+    - name: create-overview
+      nodeSelector:
+        karpenter.sh/capacity-type: "spot"
+      inputs:
+        parameters:
+          - name: path
+            description: Location of the imagery to create overviews for
+      container:
+        resources:
+          requests:
+            memory: 7.8Gi
+            cpu: 15000m
+        image: ghcr.io/blacha/basemaps:latest
+        command: [node, index.cjs]
+        env:
+          - name: AWS_ROLE_CONFIG_PATH
+            value: s3://linz-bucket-config/config.json
+        args:
+          - "-V"
+          - "create-overview"
+          - "--source"
+          - "{{=sprig.trim(inputs.parameters.path)}}"
+          - "--output"
+          - "{{=sprig.trim(inputs.parameters.path)}}"
