@@ -83,4 +83,4 @@ spec:
         defaultMode: 384
     # - name: secret-vol # uncomment for basemaps imagery import
     #   secret:
-    #     secretName: github  volumes:
+    #     secretName: github-linz-basemaps-config

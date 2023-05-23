@@ -11,6 +11,8 @@ spec:
   entrypoint: main
   arguments:
     parameters:
+      - name: version-argo-tasks
+        value: "v2"
       - name: uri
         description: "Path(s) to the STAC file(s)."
         value: "s3://linz-imagery-staging/test/stac-validate/"
