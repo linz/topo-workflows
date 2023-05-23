@@ -137,7 +137,7 @@ This step runs the following non-visual QA checks.
 
 - **srs** runs `gdalsrsinfo -o wkt "EPSG:2193"` and reports if the SRS is not 2193.
 
-#### [Create Items](https://github.com/linz/topo-imagery/blob/master/scripts/create_stac.py)
+#### [Create Items](https://github.com/linz/topo-imagery/blob/master/scripts/stac/create_stac.py)
 
 Generates STAC item JSON file associated with the TIFF.
 NB: currently only core STAC metadata is created: start-datetime, end-datetime, geometry and bbox (22/11/2022)
