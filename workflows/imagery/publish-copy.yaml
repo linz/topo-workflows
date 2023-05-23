@@ -205,5 +205,5 @@ spec:
   volumes:
     - name: secret-volume
       secret:
-        secretName: github-linz-imagery-test
+        secretName: github-linz-imagery
         defaultMode: 384
