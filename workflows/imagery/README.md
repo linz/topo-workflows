@@ -170,10 +170,14 @@ Copy files from one S3 location to another. This workflow is intended to be used
 
 ```mermaid
 graph TD;
-    create-manifest-->copy;
+    create-manifest-->copy-.->push-to-github;
 ```
 
-This is a two stage workflow that uses the [argo-tasks](https://github.com/linz/argo-tasks#create-manifest) container `create-manifest` (list of source and target file paths) and `copy` (the actual file copy) commands.
+\* `push-to-github` is an optional task run only for `s3://linz-imagery/`
+
+This is a workflow that uses the [argo-tasks](https://github.com/linz/argo-tasks#create-manifest) container `create-manifest` (list of source and target file paths) and `copy` (the actual file copy) commands.
+
+If the target destination is `linz-imagery` there is an extra step carried out that pushes the `collection.json` to the `linz/imagery` GitHub repository, which is where the STAC Catalog and Collection metadata files for the `s3://linz-imagery` bucket are managed. This step uses the argo-tasks container `stac-github-import` command.
 
 Access permissions are controlled by the [Bucket Sharing Config](https://github.com/linz/topo-aws-infrastructure/blob/master/src/stacks/bucket.sharing.ts) which gives Argo Workflows access to the S3 buckets we use.
 
