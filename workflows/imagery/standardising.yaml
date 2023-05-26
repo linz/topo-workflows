@@ -392,7 +392,8 @@ spec:
             value: s3://linz-bucket-config/config.json
         args:
           [
-            "stac-validate",
+            "stac",
+            "validate",
             "--recursive",
             "{{inputs.parameters.location}}flat/collection.json",
           ]
