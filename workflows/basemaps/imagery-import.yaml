@@ -231,7 +231,7 @@ spec:
           - name: GITHUB_API_TOKEN
             valueFrom:
               secretKeyRef:
-                name: github
+                name: github-bot-pat
                 key: github-token
         args:
           [
