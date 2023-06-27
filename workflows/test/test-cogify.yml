@@ -140,7 +140,7 @@ spec:
         parameters:
           - name: echo
       container:
-        image: ghcr.io/blacha/basemaps:latest
+        image: ghcr.io/linz/basemaps:latest
         command: [echo]
         args:
           - "{{inputs.parameters.echo}}"
@@ -155,7 +155,7 @@ spec:
           - name: cutline
           - name: cutline-blend
       container:
-        image: ghcr.io/blacha/basemaps:latest
+        image: ghcr.io/linz/basemaps:latest
         command: [node, /app/node_modules/.bin/cogify]
         env:
           - name: AWS_ROLE_CONFIG_PATH
@@ -200,7 +200,7 @@ spec:
           requests:
             memory: 7.8Gi
             cpu: 15000m
-        image: ghcr.io/blacha/basemaps:latest
+        image: ghcr.io/linz/basemaps:latest
         command: [node, /app/node_modules/.bin/cogify]
         env:
           - name: AWS_ROLE_CONFIG_PATH
@@ -216,7 +216,7 @@ spec:
           - name: path
             description: Location of the imagery to create config for
       container:
-        image: ghcr.io/blacha/basemaps:latest
+        image: ghcr.io/linz/basemaps:latest
         command: [node, /app/node_modules/.bin/cogify]
         env:
           - name: AWS_ROLE_CONFIG_PATH
@@ -244,7 +244,7 @@ spec:
           requests:
             memory: 7.8Gi
             cpu: 15000m
-        image: ghcr.io/blacha/basemaps:latest
+        image: ghcr.io/linz/basemaps:latest
         command: [node, index.cjs]
         env:
           - name: AWS_ROLE_CONFIG_PATH
