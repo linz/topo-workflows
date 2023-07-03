@@ -73,6 +73,9 @@ spec:
             "Terralink International",
             "UAV Mapping NZ",
           ]
+      - name: producer-list
+        description: "(Optional) List of imagery producers, separated by a semicolons (;). Has no effect unless a semicolon delimited list is entered."
+        value: ""
       - name: licensor
         value: "Unknown"
         enum:
@@ -173,7 +176,7 @@ spec:
             "Whangārei District Council",
           ]
       - name: licensor-list
-        description: "(Optional) Separate the licensor names by a semi-colon (;). It has no effect unless a semicolon-delimited list is entered."
+        description: "(Optional) List of imagery licensors, separated by a semicolons (;). Has no effect unless a semicolon delimited list is entered."
         value: ""
       - name: start-datetime
         value: "YYYY-MM-DD"
@@ -374,6 +377,8 @@ spec:
           - "{{=sprig.trim(workflow.parameters.description)}}"
           - "--producer"
           - "{{workflow.parameters.producer}}"
+          - "--producer-list"
+          - "{{=sprig.trim(workflow.parameters['producer-list'])}}"
           - "--licensor"
           - "{{workflow.parameters.licensor}}"
           - "--licensor-list"
