@@ -185,6 +185,12 @@ spec:
           - "--no-clobber"
           - "--force"
           - "--force-no-clobber"
+      - name: skip-tile-index-validate
+        description: "Skip the tile-index-validate step, which may fail for some imagery (such as tiles with sidecar .tfw or .prj files) which nonetheless may be able to be standardised successfully."
+        value: "false"
+        enum:
+          - "true"
+          - "false"
   templateDefaults:
     container:
       imagePullPolicy: Always
@@ -196,6 +202,7 @@ spec:
             template: generate-ulid
           - name: tile-index-validate
             template: tile-index-validate
+            when: "'{{workflow.parameters.skip-tile-index-validate}}' == 'false'"
           - name: standardise-validate
             template: standardise-validate
             arguments:
@@ -206,7 +213,7 @@ spec:
                   value: "{{tasks.generate-ulid.outputs.parameters.ulid}}"
                 - name: target
                   value: "{{tasks.get-location.outputs.parameters.location}}flat/"
-            depends: "tile-index-validate && generate-ulid && get-location"
+            depends: "(tile-index-validate || tile-index-validate.Skipped || tile-index-validate.Omitted) && generate-ulid && get-location"
             withParam: "{{tasks.tile-index-validate.outputs.parameters.files}}"
           - name: create-collection
             template: create-collection
