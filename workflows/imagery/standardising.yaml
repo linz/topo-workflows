@@ -17,16 +17,33 @@ spec:
   arguments:
     parameters:
       - name: version-argo-tasks
+        description: docker version of linz/argo-tasks to use
         value: "v2"
+
       - name: version-basemaps-cli
+        description: docker version of linz/basemaps to use
         value: "v6.39.0-15-g3e982390"
+
       - name: version-topo-imagery
+        description: docker version of linz/topo-imagery to use
         value: "v2"
+
       - name: source
+        description: Where to load the imagery from, should start with "s3://"
         value: "s3://linz-imagery-staging/test/sample/"
-      - name: include
-        value: ".tiff?$"
+
+      # FIXME: this was accidently removed
+      # - name: include
+      #   description: Regexp of files to list, can be used to exclude imagery
+      #   value: ".tiff?$"
+      
+      ## FIXME: need a new way of grouping
+      # - name: group
+      #   description: Group imagery into batches for processing
+      #   value: "50"
+
       - name: scale
+        description: Tile index scale to tile against
         value: "500"
         enum:
           - "500"
@@ -36,24 +53,32 @@ spec:
           - "10000"
           - "50000"
           - "None"
+
       - name: source-epsg
+        description: Force the source EPSG code
         value: "2193"
+
       - name: target-epsg
+        description: The output EPSG for the imagery
         value: "2193"
-      - name: group
-        value: "50"
+
+
       - name: compression
+        description: standardizing preset to use, see linz/topo-imagery for preset options
         value: "webp"
         enum:
           - "webp"
           - "lzw"
+
       - name: cutline
         description: "(Optional) location of a cutline file to cut the imagery to .fgb or .geojson"
         value: ""
+
       - name: title
         value: "*Region/District/City* *GSD* *Urban/Rural* Aerial Photos (*Year-Year*)"
       - name: description
         value: "Orthophotography within the *Region Name* region captured in the *Year*-*Year* flying season."
+
       - name: producer
         value: "Unknown"
         enum:
@@ -73,10 +98,12 @@ spec:
             "Terralink International",
             "UAV Mapping NZ",
           ]
+    
       - name: licensor
         value: "Unknown"
         enum:
           [
+            "",
             "Unknown",
             "Ashburton District Council",
             "Auckland Council",
@@ -172,13 +199,17 @@ spec:
             "Whanganui District Council",
             "Whangārei District Council",
           ]
+      
       - name: licensor-list
         description: "(Optional) Separate the licensor names by a semi-colon (;). It has no effect unless a semicolon-delimited list is entered."
         value: ""
+      
       - name: start-datetime
         value: "YYYY-MM-DD"
+     
       - name: end-datetime
         value: "YYYY-MM-DD"
+     
       - name: copy-option
         value: "--no-clobber"
         enum:
@@ -251,6 +282,7 @@ spec:
           - name: target
             valueFrom:
               parameter: "{{tasks.get-location.outputs.parameters.location}}"
+   
     - name: generate-ulid
       script:
         image: "019359803926.dkr.ecr.ap-southeast-2.amazonaws.com/eks:topo-imagery-{{=sprig.trim(workflow.parameters['version-topo-imagery'])}}"
@@ -264,9 +296,8 @@ spec:
           - name: ulid
             valueFrom:
               path: "/tmp/ulid"
+
     - name: tile-index-validate
-      nodeSelector:
-        karpenter.sh/capacity-type: "spot"
       container:
         image: "019359803926.dkr.ecr.ap-southeast-2.amazonaws.com/eks:argo-tasks-{{=sprig.trim(workflow.parameters['version-argo-tasks'])}}"
         command: [node, /app/index.js]
@@ -276,31 +307,27 @@ spec:
         args:
           [
             "tileindex-validate",
-            "--verbose",
-            "--include",
-            "{{=sprig.trim(workflow.parameters.include)}}",
-            "--group",
-            "{{=sprig.trim(workflow.parameters.group)}}",
-            "--output",
-            "/tmp/file_list.json",
-            "--duplicates-output",
-            "/tmp/duplicate_list.json",
-            "--scale",
-            "{{workflow.parameters.scale}}",
-            "{{=sprig.trim(workflow.parameters.source)}}",
+             "--verbose",
+            "--scale={{= workflow.parameters.scale }}",
+            "{{= sprig.empty(workflow.parameters['source-epsg']) ? '' : '--source-epsg=' + workflow.parameters['source-epsg'] }}",
+            "{{= sprig.trim(workflow.parameters.source) }}",
           ]
       outputs:
         parameters:
           - name: files
             valueFrom:
-              path: /tmp/file_list.json
+              path: /tmp/tile-index-validate/file-list.json
         artifacts:
-          - name: list
-            path: /tmp/file_list.json
+          - name: file-list
+            path: /tmp/tile-index-validate/file-list.json
             optional: true
-          - name: duplicates
-            path: /tmp/duplicate_list.json
+          - name: input
+            path: /tmp/tile-index-validate/input.geojson
             optional: true
+          - name: output
+            path: /tmp/tile-index-validate/output.geojson
+            optional: true
+
     - name: standardise-validate
       retryStrategy:
         limit: "2"
@@ -326,7 +353,7 @@ spec:
           - "/app/scripts/standardise_validate.py"
         args:
           - "--source"
-          - "{{inputs.parameters.file}}"
+          - "{{= toJson(jsonpath(inputs.parameters.file, '$.input')) }}"
           - "--target"
           - "{{inputs.parameters.target}}"
           - "--scale"
@@ -374,6 +401,8 @@ spec:
           - "{{=sprig.trim(workflow.parameters.description)}}"
           - "--producer"
           - "{{workflow.parameters.producer}}"
+          - "--producer-list"
+          - "{{=sprig.trim(workflow.parameters['producer-list'])}}"
           - "--licensor"
           - "{{workflow.parameters.licensor}}"
           - "--licensor-list"
