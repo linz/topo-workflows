@@ -17,7 +17,7 @@ spec:
   arguments:
     parameters:
       - name: version-argo-tasks
-        value: "v2.9"
+        value: "v2"
       - name: version-basemaps-cli
         value: "v6.39.0-15-g3e982390"
       - name: version-topo-imagery
@@ -47,6 +47,7 @@ spec:
         enum:
           - "webp"
           - "lzw"
+          - "dem_lerc"
       - name: cutline
         description: "(Optional) location of a cutline file to cut the imagery to .fgb or .geojson"
         value: ""
@@ -68,7 +69,9 @@ spec:
             "Landpro",
             "Maxar",
             "NZ Aerial Mapping",
+            "Ocean Infinity",
             "Recon",
+            "RPS",
             "SkyCan",
             "Terralink International",
             "UAV Mapping NZ",
@@ -126,6 +129,7 @@ spec:
             "Matamata-Piako District Council",
             "Maxar Technologies",
             "Ministry of Primary Industries",
+            "National Emergency Management Agency",
             "NZ Aerial Mapping",
             "Napier City Council",
             "Nelson City Council",

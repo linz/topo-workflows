@@ -33,7 +33,7 @@ spec:
       - name: transform
         value: "f"
       - name: version-argo-tasks
-        value: "v2.9"
+        value: "v2"
       - name: version-basemaps-cli
         value: "v6"
       - name: version-topo-imagery
