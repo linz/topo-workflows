@@ -1,0 +1,43 @@
+apiVersion: argoproj.io/v1alpha1
+kind: WorkflowTemplate
+metadata:
+  # Template from linz/argo-tasks
+  # see https://github.com/linz/argo-tasks#group
+  name: tpl-at-group
+spec:
+  entrypoint: main
+  templates:
+    - name: main
+      inputs:
+        artifacts:
+          - name: input
+            path: /tmp/group/input.json
+            optional: true
+
+        parameters:
+          - name: size
+            description: group into this number of records per group
+
+          - name: version
+            description: container version to use
+            default: "v2"
+
+      outputs:
+        artifacts:
+          # List of input files that has been grouped
+          - name: output
+            path: /tmp/group/output.json
+            archive:
+              none: {}
+
+      container:
+        image: "019359803926.dkr.ecr.ap-southeast-2.amazonaws.com/eks:argo-tasks-{{= inputs.parameters.version }}"
+        command: [node, /app/index.js]
+        env:
+          - name: AWS_ROLE_CONFIG_PATH
+            value: s3://linz-bucket-config/config.json
+        args:
+          - "group"
+          - "--verbose"
+          - "--size={{= inputs.parameters.size }}"
+          - "--from-file{{= inputs.artifacts.input.path }}"

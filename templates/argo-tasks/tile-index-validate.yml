@@ -1,0 +1,67 @@
+apiVersion: argoproj.io/v1alpha1
+kind: WorkflowTemplate
+metadata:
+  # Template from linz/argo-tasks
+  # see https://github.com/linz/argo-tasks#tileindex-validate
+  name: tpl-at-tile-index-validate
+spec:
+  entrypoint: main
+  templates:
+    - name: main
+      inputs:
+        parameters:
+          - name: scale
+            description: Tile Index scale to validate against
+
+          - name: source_epsg
+            description: Force source EPSG, "" will attempt to load EPSG from the source tiffs
+            default: ""
+
+          - name: source
+            description: Location to list
+            default: ""
+
+          - name: include
+            description: Limit the input list to this regexp
+            default: ""
+
+          - name: version
+            description: container version to use
+            default: "v2"
+
+      outputs:
+        artifacts:
+          # List of tiff files that need to be processed
+          - name: files
+            path: /tmp/tile-index-validate/file-list.json
+            optional: true
+            archive:
+              none: {}
+
+          # GeoJSON containing all the bounding box of all input tiffs
+          - name: input
+            path: /tmp/tile-index-validate/input.geojson
+            optional: true
+            archive:
+              none: {}
+
+          # GeoJSON containing the bounding boxes of all the output tiffs
+          - name: output
+            path: /tmp/tile-index-validate/output.geojson
+            optional: true
+            archive:
+              none: {}
+
+      container:
+        image: "019359803926.dkr.ecr.ap-southeast-2.amazonaws.com/eks:argo-tasks-{{=inputs.parameters.version}}"
+        command: [node, /app/index.js]
+        env:
+          - name: AWS_ROLE_CONFIG_PATH
+            value: s3://linz-bucket-config/config.json
+        args:
+          - "tileindex-validate"
+          - "--verbose"
+          - "--scale={{= inputs.parameters.scale }}"
+          - "{{= sprig.empty(inputs.parameters.source_epsg) ? '' : '--source-epsg=' + inputs.parameters.source_epsg }}"
+          - "{{= sprig.empty(inputs.parameters.include) ? '' : '--include=' + inputs.parameters.include }}"
+          - "{{= sprig.trim(inputs.parameters.source) }}"
