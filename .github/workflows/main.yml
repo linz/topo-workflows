@@ -54,11 +54,15 @@ jobs:
 
       - name: Lint workflows
         run: |
+          ./argo-linux-amd64 lint templates/
           ./argo-linux-amd64 lint workflows/
 
       - name: Deploy workflows
         if: github.ref == 'refs/heads/master'
         run: |
+          # Deploy templates first
+          kubectl apply -f templates/argo-tasks/ --namespace argo
+
           # Find all workflows that have kind "WorkflowTemplate"
           WORKFLOWS=$(grep '^kind: WorkflowTemplate$' -R workflows/ -H | cut -d ':' -f1)
 

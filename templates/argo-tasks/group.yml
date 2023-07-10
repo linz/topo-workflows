@@ -23,8 +23,14 @@ spec:
             default: "v2"
 
       outputs:
+        parameters:
+          # Grouped output of the input
+          - name: output
+            valueFrom:
+              path: /tmp/group/output.json
+
         artifacts:
-          # List of input files that has been grouped
+          # Grouped output of the input
           - name: output
             path: /tmp/group/output.json
             archive:
@@ -40,4 +46,4 @@ spec:
           - "group"
           - "--verbose"
           - "--size={{= inputs.parameters.size }}"
-          - "--from-file{{= inputs.artifacts.input.path }}"
+          - "--from-file={{= inputs.artifacts.input.path }}"
