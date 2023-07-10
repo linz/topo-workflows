@@ -54,8 +54,8 @@ jobs:
 
       - name: Lint workflows
         run: |
-          ./argo-linux-amd64 lint templates/
-          ./argo-linux-amd64 lint workflows/
+          ./argo-linux-amd64 lint templates/ -n argo
+          ./argo-linux-amd64 lint workflows/ -n argo
 
       - name: Deploy workflows
         if: github.ref == 'refs/heads/master'
