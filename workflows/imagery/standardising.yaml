@@ -2,22 +2,18 @@
 apiVersion: argoproj.io/v1alpha1
 kind: WorkflowTemplate
 metadata:
-  name: imagery-standardising
+  name: test-imagery-standardising-retile
   namespace: argo
 spec:
   parallelism: 50
   nodeSelector:
     karpenter.sh/capacity-type: "spot"
   entrypoint: main
-  synchronization:
-    semaphore:
-      configMapKeyRef:
-        name: semaphores
-        key: standardising
   arguments:
     parameters:
+      # FIXME: Should use camelCase or underscore?
       - name: version-argo-tasks
-        value: "v2.9"
+        value: "latest" # TODO: use latest version for test purposes
       - name: version-basemaps-cli
         value: "v6.39.0-15-g3e982390"
       - name: version-topo-imagery
@@ -36,6 +32,16 @@ spec:
           - "10000"
           - "50000"
           - "None"
+      - name: validate
+        value: true
+        enum:
+          - "false"
+          - "true"
+      - name: retile
+        value: false
+        enum:
+          - "true"
+          - "false"
       - name: source-epsg
         value: "2193"
       - name: target-epsg
@@ -47,6 +53,7 @@ spec:
         enum:
           - "webp"
           - "lzw"
+          - "dem_lerc"
       - name: cutline
         description: "(Optional) location of a cutline file to cut the imagery to .fgb or .geojson"
         value: ""
@@ -198,7 +205,47 @@ spec:
           - name: generate-ulid
             template: generate-ulid
           - name: tile-index-validate
-            template: tile-index-validate
+            templateRef:
+              name: tpl-at-tile-index-validate
+              template: main
+            arguments:
+              parameters:
+                - name: scale
+                  value: "{{workflow.parameters.scale}}"
+
+                - name: source
+                  value: "{{=sprig.trim(workflow.parameters.source)}}"
+
+                - name: source_epsg
+                  value: 2193 # FIXME: should be defaulted to this value?
+
+                - name: validate
+                  value: "{{= workflow.parameters.validate}}"
+
+                - name: retile
+                  value: "{{= workflow.parameters.retile}}"
+
+                - name: version
+                  value: "{{= workflow.parameters['version-argo-tasks']}}"
+
+          - name: group
+            templateRef:
+              name: tpl-at-group
+              template: main
+
+            arguments:
+              artifacts:
+                - name: input
+                  from: "{{ tasks.tile-index-validate.outputs.artifacts.files }}"
+
+              parameters:
+                - name: size
+                  value: 1
+
+                - name: version
+                  value: "{{= workflow.parameters['version-argo-tasks']}}"
+
+            depends: "tile-index-validate"
           - name: standardise-validate
             template: standardise-validate
             arguments:
@@ -209,8 +256,8 @@ spec:
                   value: "{{tasks.generate-ulid.outputs.parameters.ulid}}"
                 - name: target
                   value: "{{tasks.get-location.outputs.parameters.location}}flat/"
-            depends: "tile-index-validate && generate-ulid && get-location"
-            withParam: "{{tasks.tile-index-validate.outputs.parameters.files}}"
+            depends: "group && generate-ulid && get-location"
+            withParam: "{{ tasks.group.outputs.parameters.output }}"
           - name: create-collection
             template: create-collection
             arguments:
@@ -256,7 +303,7 @@ spec:
               parameter: "{{tasks.get-location.outputs.parameters.location}}"
     - name: generate-ulid
       script:
-        image: "019359803926.dkr.ecr.ap-southeast-2.amazonaws.com/eks:topo-imagery-{{=sprig.trim(workflow.parameters['version-topo-imagery'])}}"
+        image: "ghcr.io/paulfouquet/topo-imagery-test:latest"
         command: [python]
         source: |
           import ulid
@@ -267,43 +314,6 @@ spec:
           - name: ulid
             valueFrom:
               path: "/tmp/ulid"
-    - name: tile-index-validate
-      nodeSelector:
-        karpenter.sh/capacity-type: "spot"
-      container:
-        image: "019359803926.dkr.ecr.ap-southeast-2.amazonaws.com/eks:argo-tasks-{{=sprig.trim(workflow.parameters['version-argo-tasks'])}}"
-        command: [node, /app/index.js]
-        env:
-          - name: AWS_ROLE_CONFIG_PATH
-            value: s3://linz-bucket-config/config.json
-        args:
-          [
-            "tileindex-validate",
-            "--verbose",
-            "--include",
-            "{{=sprig.trim(workflow.parameters.include)}}",
-            "--group",
-            "{{=sprig.trim(workflow.parameters.group)}}",
-            "--output",
-            "/tmp/file_list.json",
-            "--duplicates-output",
-            "/tmp/duplicate_list.json",
-            "--scale",
-            "{{workflow.parameters.scale}}",
-            "{{=sprig.trim(workflow.parameters.source)}}",
-          ]
-      outputs:
-        parameters:
-          - name: files
-            valueFrom:
-              path: /tmp/file_list.json
-        artifacts:
-          - name: list
-            path: /tmp/file_list.json
-            optional: true
-          - name: duplicates
-            path: /tmp/duplicate_list.json
-            optional: true
     - name: standardise-validate
       retryStrategy:
         limit: "2"
@@ -315,7 +325,7 @@ spec:
           - name: collection-id
           - name: target
       container:
-        image: "019359803926.dkr.ecr.ap-southeast-2.amazonaws.com/eks:topo-imagery-{{=sprig.trim(workflow.parameters['version-topo-imagery'])}}"
+        image: "ghcr.io/paulfouquet/topo-imagery-test:latest"
         resources:
           requests:
             memory: 7.8Gi
@@ -358,7 +368,7 @@ spec:
           - name: collection-id
           - name: location
       container:
-        image: "019359803926.dkr.ecr.ap-southeast-2.amazonaws.com/eks:topo-imagery-{{=sprig.trim(workflow.parameters['version-topo-imagery'])}}"
+        image: "ghcr.io/paulfouquet/topo-imagery-test:latest"
         resources:
           requests:
             memory: 7.8Gi

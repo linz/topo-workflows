@@ -25,6 +25,14 @@ spec:
             description: Limit the input list to this regexp
             default: ""
 
+          - name: validate
+            description: Validate that all input tiffs perfectly align to tile grid
+            default: "true"
+
+          - name: retile
+            description: Output tile configuration for retiling
+            default: "false"
+
           - name: version
             description: container version to use
             default: "v2"
@@ -62,6 +70,8 @@ spec:
           - "tileindex-validate"
           - "--verbose"
           - "--scale={{= inputs.parameters.scale }}"
+          - "--validate={{= inputs.parameters.validate }}"
+          - "--retile={{= inputs.parameters.retile }}"
           - "{{= sprig.empty(inputs.parameters.source_epsg) ? '' : '--source-epsg=' + inputs.parameters.source_epsg }}"
           - "{{= sprig.empty(inputs.parameters.include) ? '' : '--include=' + inputs.parameters.include }}"
           - "{{= sprig.trim(inputs.parameters.source) }}"
