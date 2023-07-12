@@ -222,7 +222,7 @@ spec:
                   value: "{{=sprig.trim(workflow.parameters.source)}}"
 
                 - name: source_epsg
-                  value: 2193 # FIXME: should be defaulted to this value?
+                  value: "{{=sprig.trim(workflow.parameters['source-epsg'])}}"
 
                 - name: validate
                   value: "{{= workflow.parameters.validate}}"
@@ -286,7 +286,7 @@ spec:
           - name: get-location
             template: get-location
           - name: create-overview
-            when: "'{{workflow.parameters.target-epsg}}' =~ '2193|3857'"
+            when: "'{{workflow.parameters.target-epsg}}' =~ '2193|3857' && '{{workflow.parameters.compression}}' != 'dem_lerc'"
             arguments:
               parameters:
                 - name: location
@@ -294,7 +294,7 @@ spec:
             template: create-overview
             depends: "standardise-validate"
           - name: create-config
-            when: "'{{workflow.parameters.target-epsg}}' =~ '2193|3857'"
+            when: "'{{workflow.parameters.target-epsg}}' =~ '2193|3857' && '{{workflow.parameters.compression}}' != 'dem_lerc'"
             arguments:
               parameters:
                 - name: location
