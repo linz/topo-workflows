@@ -16,7 +16,7 @@ spec:
         description: Source imagery location "s3://linz-imagery"
       
       - name: target
-        description: Target location for output COGS
+        description: Target location for output COGs
 
       - name: tile-matrix
         description: Output tile matrix
@@ -53,15 +53,15 @@ spec:
             arguments:
               parameters:
                 - name: source
-                  value: "{{inputs.parameters.source}}"
+                  value: "{{ inputs.parameters.source }}"
                 - name: target
-                  value: "{{inputs.parameters.target}}"
+                  value: "{{ inputs.parameters.target }}"
                 - name: tile-matrix
-                  value: "{{item}}"
+                  value: "{{ item }}"
                 - name: cutline
-                  value: "{{inputs.parameters.cutline}}"
+                  value: "{{ inputs.parameters.cutline }}"
                 - name: cutline-blend
-                  value: "{{inputs.parameters.cutline-blend}}"
+                  value: "{{ inputs.parameters.cutline-blend }}"
 
           - name: cogify-done
             template: echo
@@ -69,7 +69,7 @@ spec:
             arguments:
               parameters:
                 - name: echo
-                  value: "{{tasks.cogify.outputs.parameters}}"
+                  value: "{{ tasks.cogify.outputs.parameters }}"
 
     # Generate COGs for a specific tile matrix from a given collection of source imagery
     - name: cogify
@@ -88,25 +88,25 @@ spec:
             arguments:
               parameters:
                 - name: source
-                  value: "{{inputs.parameters.source}}"
+                  value: "{{ inputs.parameters.source }}"
                 - name: target
-                  value: "{{inputs.parameters.target}}"
+                  value: "{{ inputs.parameters.target }}"
                 - name: tile-matrix
-                  value: "{{inputs.parameters.tile-matrix}}"
+                  value: "{{ inputs.parameters.tile-matrix }}"
                 - name: cutline
-                  value: "{{inputs.parameters.cutline}}"
+                  value: "{{ inputs.parameters.cutline }}"
                 - name: cutline-blend
-                  value: "{{inputs.parameters.cutline-blend}}"
+                  value: "{{ inputs.parameters.cutline-blend }}"
 
           # Create COGS from the output of create-covering
           - name: create-cog
             depends: create-covering
             template: create-cog
-            withParam: "{{tasks.create-covering.outputs.parameters.tiles}}"
+            withParam: "{{ tasks.create-covering.outputs.parameters.tiles }}"
             arguments:
               parameters:
                 - name: source
-                  value: "{{item.path}}"
+                  value: "{{ item.path }}"
 
           # once all COGs are created generate a more overviews to increase tile rendering performance
           - name: create-overview
@@ -115,7 +115,7 @@ spec:
             arguments:
               parameters:
                 - name: path
-                  value: "{{tasks.create-covering.outputs.parameters.target}}"
+                  value: "{{ tasks.create-covering.outputs.parameters.target }}"
 
           # Create a basemaps config to view the imagery directly
           - name: create-config
@@ -124,26 +124,26 @@ spec:
             arguments:
               parameters:
                 - name: path
-                  value: "{{tasks.create-covering.outputs.parameters.target}}"
+                  value: "{{ tasks.create-covering.outputs.parameters.target }}"
                 - name: title
-                  value: "{{tasks.create-covering.outputs.parameters.title}}"
+                  value: "{{ tasks.create-covering.outputs.parameters.title }}"
 
       outputs:
         parameters:
           - name: target
             description: location of where the output tiffs were created
             valueFrom:
-              parameter: "{{tasks.create-covering.outputs.parameters.target}}"
+              parameter: "{{ tasks.create-covering.outputs.parameters.target }}"
 
     - name: echo
       inputs:
         parameters:
           - name: echo
       container:
-        image: ghcr.io/linz/basemaps:latest
+        image: ghcr.io/linz/basemaps/cli:{{ workflow.parameters.version-basemaps-cli }}
         command: [echo]
         args:
-          - "{{inputs.parameters.echo}}"
+          - "{{ inputs.parameters.echo }}"
 
     # Generate a tile covering for input imagery
     - name: create-covering
@@ -155,7 +155,7 @@ spec:
           - name: cutline
           - name: cutline-blend
       container:
-        image: ghcr.io/linz/basemaps:latest
+        image: ghcr.io/linz/basemaps/cli:{{ workflow.parameters.version-basemaps-cli }}
         command: [node, /app/node_modules/.bin/cogify]
         env:
           - name: AWS_ROLE_CONFIG_PATH
@@ -163,14 +163,14 @@ spec:
         args:
           - "cover"
           - "--tile-matrix"
-          - "{{inputs.parameters.tile-matrix}}"
+          - "{{ inputs.parameters.tile-matrix }}"
           - "--cutline"
-          - "{{=sprig.trim(inputs.parameters.cutline)}}"
+          - "{{= sprig.trim(inputs.parameters.cutline) }}"
           - "--cutline-blend"
-          - "{{inputs.parameters.cutline-blend}}"
+          - "{{ inputs.parameters.cutline-blend }}"
           - "--target"
-          - "{{=sprig.trim(inputs.parameters.target)}}"
-          - "{{=sprig.trim(inputs.parameters.source)}}"
+          - "{{= sprig.trim(inputs.parameters.target) }}"
+          - "{{= sprig.trim(inputs.parameters.source) }}"
       outputs:
         parameters:
           - name: target
@@ -200,14 +200,14 @@ spec:
           requests:
             memory: 7.8Gi
             cpu: 15000m
-        image: ghcr.io/linz/basemaps:latest
+        image: ghcr.io/linz/basemaps/cli:{{ workflow.parameters.version-basemaps-cli }}
         command: [node, /app/node_modules/.bin/cogify]
         env:
           - name: AWS_ROLE_CONFIG_PATH
             value: s3://linz-bucket-config/config.json
         args:
           - "create"
-          - "{{=sprig.trim(inputs.parameters.source)}}"
+          - "{{= sprig.trim(inputs.parameters.source) }}"
 
     # Create a basemaps configuration file to view the imagery
     - name: create-config
@@ -216,14 +216,14 @@ spec:
           - name: path
             description: Location of the imagery to create config for
       container:
-        image: ghcr.io/linz/basemaps:latest
+        image: ghcr.io/linz/basemaps/cli:{{ workflow.parameters.version-basemaps-cli }}
         command: [node, /app/node_modules/.bin/cogify]
         env:
           - name: AWS_ROLE_CONFIG_PATH
             value: s3://linz-bucket-config/config.json
         args:
           - "config"
-          - "{{inputs.parameters.path}}"
+          - "{{ inputs.parameters.path }}"
       outputs:
         parameters:
           - name: url
@@ -244,7 +244,7 @@ spec:
           requests:
             memory: 7.8Gi
             cpu: 15000m
-        image: ghcr.io/linz/basemaps:latest
+        image: ghcr.io/linz/basemaps/cli:{{ workflow.parameters.version-basemaps-cli }}
         command: [node, index.cjs]
         env:
           - name: AWS_ROLE_CONFIG_PATH
@@ -253,6 +253,6 @@ spec:
           - "-V"
           - "create-overview"
           - "--source"
-          - "{{=sprig.trim(inputs.parameters.path)}}"
+          - "{{= sprig.trim(inputs.parameters.path) }}"
           - "--output"
-          - "{{=sprig.trim(inputs.parameters.path)}}"
+          - "{{= sprig.trim(inputs.parameters.path) }}"
