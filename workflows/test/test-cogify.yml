@@ -163,7 +163,7 @@ spec:
         args:
           - "cover"
           - "--tile-matrix={{ inputs.parameters.tile_matrix }}"
-          - "--cutline={{= sprig.trim(inputs.parameters.cutline) }}"
+          - "{{= sprig.empty(inputs.parameters.cutline) ? '' : '--cutline=' + inputs.parameters.cutline }}"
           - "--cutline-blend={{ inputs.parameters.cutline_blend }}"
           - "--target={{= sprig.trim(inputs.parameters.target) }}"
           - "{{= sprig.trim(inputs.parameters.source) }}"
