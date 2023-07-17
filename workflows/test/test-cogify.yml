@@ -8,7 +8,7 @@ spec:
   entrypoint: main
   arguments:
     parameters:
-      - name: version-basemaps-cli
+      - name: version_basemaps_cli
         description: Version of the basemaps CLI docker container to use
         value: latest
 
@@ -18,19 +18,19 @@ spec:
       - name: target
         description: Target location for output COGs
 
-      - name: tile-matrix
-        description: Output tile matrix
-        value: '["NZTM2000Quad", "WebMercatorQuad"]'
+      - name: tile_matrix
+        description: Output tile matrix, ";" separated list
+        value: 'NZTM2000Quad;WebMercatorQuad'
         enum:
-          - '["NZTM2000Quad"]'
-          - '["WebMercatorQuad"]'
-          - '["NZTM2000Quad", "WebMercatorQuad"]'
+          - 'NZTM2000Quad'
+          - 'WebMercatorQuad'
+          - 'NZTM2000Quad;WebMercatorQuad'
 
       - name: cutline
         description: Path to cutline to apply
         value: "s3://linz-basemaps-source/cutline/2020-05-07-cutline-nz-coasts-rural-and-urban.geojson"
 
-      - name: cutline-blend
+      - name: cutline_blend
         description: Blending to use for cutline see gdal_translate#cblend
         value: 20
 
@@ -41,27 +41,27 @@ spec:
         parameters:
           - name: source
           - name: target
-          - name: tile-matrix
+          - name: tile_matrix
           - name: cutline
-          - name: cutline-blend
+          - name: cutline_blend
       dag:
         tasks:
           # For each tile matrix specified run the "cogify" template
           - name: cogify
             template: cogify
-            withParam: "{{workflow.parameters.tile-matrix}}"
+            withParam: "{{= toJson(sprig.splitList(';', workflow.parameters.tile_matrix)) }}"
             arguments:
               parameters:
                 - name: source
                   value: "{{ inputs.parameters.source }}"
                 - name: target
                   value: "{{ inputs.parameters.target }}"
-                - name: tile-matrix
+                - name: tile_matrix
                   value: "{{ item }}"
                 - name: cutline
                   value: "{{ inputs.parameters.cutline }}"
-                - name: cutline-blend
-                  value: "{{ inputs.parameters.cutline-blend }}"
+                - name: cutline_blend
+                  value: "{{ inputs.parameters.cutline_blend }}"
 
           - name: cogify-done
             template: echo
@@ -77,9 +77,9 @@ spec:
         parameters:
           - name: source
           - name: target
-          - name: tile-matrix
+          - name: tile_matrix
           - name: cutline
-          - name: cutline-blend
+          - name: cutline_blend
       dag:
         tasks:
           # generate a tile covering from the source imagery
@@ -91,12 +91,12 @@ spec:
                   value: "{{ inputs.parameters.source }}"
                 - name: target
                   value: "{{ inputs.parameters.target }}"
-                - name: tile-matrix
-                  value: "{{ inputs.parameters.tile-matrix }}"
+                - name: tile_matrix
+                  value: "{{ inputs.parameters.tile_matrix }}"
                 - name: cutline
                   value: "{{ inputs.parameters.cutline }}"
-                - name: cutline-blend
-                  value: "{{ inputs.parameters.cutline-blend }}"
+                - name: cutline_blend
+                  value: "{{ inputs.parameters.cutline_blend }}"
 
           # Create COGS from the output of create-covering
           - name: create-cog
@@ -140,7 +140,7 @@ spec:
         parameters:
           - name: echo
       container:
-        image: ghcr.io/linz/basemaps/cli:{{ workflow.parameters.version-basemaps-cli }}
+        image: ghcr.io/linz/basemaps/cli:{{ workflow.parameters.version_basemaps_cli }}
         command: [echo]
         args:
           - "{{ inputs.parameters.echo }}"
@@ -151,11 +151,11 @@ spec:
         parameters:
           - name: source
           - name: target
-          - name: tile-matrix
+          - name: tile_matrix
           - name: cutline
-          - name: cutline-blend
+          - name: cutline_blend
       container:
-        image: ghcr.io/linz/basemaps/cli:{{ workflow.parameters.version-basemaps-cli }}
+        image: ghcr.io/linz/basemaps/cli:{{ workflow.parameters.version_basemaps_cli }}
         command: [node, /app/node_modules/.bin/cogify]
         env:
           - name: AWS_ROLE_CONFIG_PATH
@@ -163,11 +163,11 @@ spec:
         args:
           - "cover"
           - "--tile-matrix"
-          - "{{ inputs.parameters.tile-matrix }}"
+          - "{{ inputs.parameters.tile_matrix }}"
           - "--cutline"
           - "{{= sprig.trim(inputs.parameters.cutline) }}"
           - "--cutline-blend"
-          - "{{ inputs.parameters.cutline-blend }}"
+          - "{{ inputs.parameters.cutline_blend }}"
           - "--target"
           - "{{= sprig.trim(inputs.parameters.target) }}"
           - "{{= sprig.trim(inputs.parameters.source) }}"
@@ -200,7 +200,7 @@ spec:
           requests:
             memory: 7.8Gi
             cpu: 15000m
-        image: ghcr.io/linz/basemaps/cli:{{ workflow.parameters.version-basemaps-cli }}
+        image: ghcr.io/linz/basemaps/cli:{{ workflow.parameters.version_basemaps_cli }}
         command: [node, /app/node_modules/.bin/cogify]
         env:
           - name: AWS_ROLE_CONFIG_PATH
@@ -216,7 +216,7 @@ spec:
           - name: path
             description: Location of the imagery to create config for
       container:
-        image: ghcr.io/linz/basemaps/cli:{{ workflow.parameters.version-basemaps-cli }}
+        image: ghcr.io/linz/basemaps/cli:{{ workflow.parameters.version_basemaps_cli }}
         command: [node, /app/node_modules/.bin/cogify]
         env:
           - name: AWS_ROLE_CONFIG_PATH
@@ -244,7 +244,7 @@ spec:
           requests:
             memory: 7.8Gi
             cpu: 15000m
-        image: ghcr.io/linz/basemaps/cli:{{ workflow.parameters.version-basemaps-cli }}
+        image: ghcr.io/linz/basemaps/cli:{{ workflow.parameters.version_basemaps_cli }}
         command: [node, index.cjs]
         env:
           - name: AWS_ROLE_CONFIG_PATH
