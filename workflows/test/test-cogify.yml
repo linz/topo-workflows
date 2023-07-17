@@ -162,14 +162,10 @@ spec:
             value: s3://linz-bucket-config/config.json
         args:
           - "cover"
-          - "--tile-matrix"
-          - "{{ inputs.parameters.tile_matrix }}"
-          - "--cutline"
-          - "{{= sprig.trim(inputs.parameters.cutline) }}"
-          - "--cutline-blend"
-          - "{{ inputs.parameters.cutline_blend }}"
-          - "--target"
-          - "{{= sprig.trim(inputs.parameters.target) }}"
+          - "--tile-matrix={{ inputs.parameters.tile_matrix }}"
+          - "--cutline={{= sprig.trim(inputs.parameters.cutline) }}"
+          - "--cutline-blend={{ inputs.parameters.cutline_blend }}"
+          - "--target={{= sprig.trim(inputs.parameters.target) }}"
           - "{{= sprig.trim(inputs.parameters.source) }}"
       outputs:
         parameters:
@@ -252,7 +248,5 @@ spec:
         args:
           - "-V"
           - "create-overview"
-          - "--source"
-          - "{{= sprig.trim(inputs.parameters.path) }}"
-          - "--output"
-          - "{{= sprig.trim(inputs.parameters.path) }}"
+          - "--source={{= sprig.trim(inputs.parameters.path) }}"
+          - "--output={{= sprig.trim(inputs.parameters.path) }}"
