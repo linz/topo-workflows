@@ -10,10 +10,10 @@ spec:
     karpenter.sh/capacity-type: "spot"
   entrypoint: main
   synchronization:
-  semaphore:
-    configMapKeyRef:
-      name: semaphores
-      key: standardising
+    semaphore:
+      configMapKeyRef:
+        name: semaphores
+        key: standardising
   arguments:
     parameters:
       # FIXME: Should use camelCase or underscore?
