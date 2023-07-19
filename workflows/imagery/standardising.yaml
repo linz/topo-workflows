@@ -9,11 +9,11 @@ spec:
   nodeSelector:
     karpenter.sh/capacity-type: "spot"
   entrypoint: main
-  # synchronization:
-  # semaphore:
-  #   configMapKeyRef:
-  #     name: semaphores
-  #     key: standardising
+  synchronization:
+  semaphore:
+    configMapKeyRef:
+      name: semaphores
+      key: standardising
   arguments:
     parameters:
       # FIXME: Should use camelCase or underscore?
@@ -245,7 +245,7 @@ spec:
 
               parameters:
                 - name: size
-                  value: 1
+                  value: "{{workflow.parameters.group}}"
 
                 - name: version
                   value: "{{= workflow.parameters['version-argo-tasks']}}"
@@ -347,8 +347,6 @@ spec:
           - "{{inputs.parameters.file}}"
           - "--target"
           - "{{inputs.parameters.target}}"
-          - "--scale"
-          - "{{workflow.parameters.scale}}"
           - "--preset"
           - "{{workflow.parameters.compression}}"
           - "--start-datetime"
