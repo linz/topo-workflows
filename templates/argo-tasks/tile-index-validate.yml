@@ -11,7 +11,7 @@ spec:
       inputs:
         parameters:
           - name: scale
-            description: Tile Index scale to validate against
+            description: Tile Index scale to validate against or target scale for retiling
 
           - name: source_epsg
             description: Force source EPSG, "" will attempt to load EPSG from the source tiffs
