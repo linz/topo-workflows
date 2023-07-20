@@ -2,7 +2,7 @@
 apiVersion: argoproj.io/v1alpha1
 kind: WorkflowTemplate
 metadata:
-  name: test-imagery-standardising-retile
+  name: imagery-standardising
   namespace: argo
 spec:
   parallelism: 50
@@ -18,11 +18,11 @@ spec:
     parameters:
       # FIXME: Should use camelCase or underscore?
       - name: version-argo-tasks
-        value: "latest" # TODO: use latest version for test purposes
+        value: "v2"
       - name: version-basemaps-cli
         value: "v6.39.0-15-g3e982390"
       - name: version-topo-imagery
-        value: "v2"
+        value: "v3"
       - name: source
         value: "s3://linz-imagery-staging/test/sample/"
       - name: include
@@ -311,7 +311,7 @@ spec:
               parameter: "{{tasks.get-location.outputs.parameters.location}}"
     - name: generate-ulid
       script:
-        image: "ghcr.io/paulfouquet/topo-imagery-test:latest"
+        image: "019359803926.dkr.ecr.ap-southeast-2.amazonaws.com/eks:topo-imagery-{{=sprig.trim(workflow.parameters['version-topo-imagery'])}}"
         command: [python]
         source: |
           import ulid
@@ -333,7 +333,7 @@ spec:
           - name: collection-id
           - name: target
       container:
-        image: "ghcr.io/paulfouquet/topo-imagery-test:latest"
+        image: "019359803926.dkr.ecr.ap-southeast-2.amazonaws.com/eks:topo-imagery-{{=sprig.trim(workflow.parameters['version-topo-imagery'])}}"
         resources:
           requests:
             memory: 7.8Gi
@@ -374,7 +374,7 @@ spec:
           - name: collection-id
           - name: location
       container:
-        image: "ghcr.io/paulfouquet/topo-imagery-test:latest"
+        image: "019359803926.dkr.ecr.ap-southeast-2.amazonaws.com/eks:topo-imagery-{{=sprig.trim(workflow.parameters['version-topo-imagery'])}}"
         resources:
           requests:
             memory: 7.8Gi
