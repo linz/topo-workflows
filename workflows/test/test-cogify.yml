@@ -11,6 +11,10 @@ spec:
       - name: version_basemaps_cli
         description: Version of the basemaps CLI docker container to use
         value: latest
+      
+      - name: version_argo_tasks
+        description: Version of the basemaps CLI docker container to use
+        value: latest
 
       - name: source
         description: Source imagery location "s3://linz-imagery"
@@ -33,6 +37,10 @@ spec:
       - name: cutline_blend
         description: Blending to use for cutline see gdal_translate#cblend
         value: 20
+      
+      - name: group_size
+        description: How many items to pass to each create-cog job
+        value: 10
 
   templates:
     # Main entrypoint into the workflow
@@ -44,6 +52,7 @@ spec:
           - name: tile_matrix
           - name: cutline
           - name: cutline_blend
+          - name: group_size
       dag:
         tasks:
           # For each tile matrix specified run the "cogify" template
@@ -62,14 +71,8 @@ spec:
                   value: "{{ inputs.parameters.cutline }}"
                 - name: cutline_blend
                   value: "{{ inputs.parameters.cutline_blend }}"
-
-          - name: cogify-done
-            template: echo
-            depends: cogify
-            arguments:
-              parameters:
-                - name: echo
-                  value: "{{ tasks.cogify.outputs.parameters }}"
+                - name: group_size
+                  value: "{{ inputs.parameters.group_size }}"
 
     # Generate COGs for a specific tile matrix from a given collection of source imagery
     - name: cogify
@@ -80,6 +83,7 @@ spec:
           - name: tile_matrix
           - name: cutline
           - name: cutline_blend
+          - name: group_size
       dag:
         tasks:
           # generate a tile covering from the source imagery
@@ -98,15 +102,33 @@ spec:
                 - name: cutline_blend
                   value: "{{ inputs.parameters.cutline_blend }}"
 
-          # Create COGS from the output of create-covering
-          - name: create-cog
-            depends: create-covering
-            template: create-cog
-            withParam: "{{ tasks.create-covering.outputs.parameters.tiles }}"
+          # Group covering output into chunks to pass to create-cog
+          - name: group
             arguments:
               parameters:
-                - name: source
-                  value: "{{ item.path }}"
+                - name: size
+                  value: "{{ inputs.parameters.group_size }}"
+                - name: version
+                  value: '{{= workflow.parameters.version_argo_tasks }}'
+              artifacts:
+                - name: input
+                  from: '{{ tasks.create-covering.outputs.artifacts.tiles }}'
+            templateRef:
+              name: tpl-at-group
+              template: main
+            depends: create-covering
+
+          # Create COGS from the grouped output of create-covering
+          - name: create-cog
+            depends: group
+            template: create-cog
+            withParam: "{{ tasks.group.outputs.parameters.output }}"
+            arguments:
+              artifacts:
+                - name: tiles
+                  path: /tmp/cogify/cover-items.json
+                  raw:
+                    data: "{{ item }}"
 
           # once all COGs are created generate a more overviews to increase tile rendering performance
           - name: create-overview
@@ -134,16 +156,6 @@ spec:
             description: location of where the output tiffs were created
             valueFrom:
               parameter: "{{ tasks.create-covering.outputs.parameters.target }}"
-
-    - name: echo
-      inputs:
-        parameters:
-          - name: echo
-      container:
-        image: ghcr.io/linz/basemaps/cli:{{ workflow.parameters.version_basemaps_cli }}
-        command: [echo]
-        args:
-          - "{{ inputs.parameters.echo }}"
 
     # Generate a tile covering for input imagery
     - name: create-covering
@@ -179,18 +191,18 @@ spec:
             valueFrom:
               path: /tmp/cogify/cover-title
 
+        artifacts:
           - name: tiles
-            description: JSON array of all the tiles that need to be created
-            valueFrom:
-              path: /tmp/cogify/cover-items.json
+            path: /tmp/cogify/cover-items.json
 
     # Actually create COGs using gdal_translate on a large spot instances
     - name: create-cog
       nodeSelector:
         karpenter.sh/capacity-type: "spot"
       inputs:
-        parameters:
-          - name: source
+        artifacts:
+          - name: tiles
+            path: /tmp/cogify/cover-items.json
       container:
         resources:
           requests:
@@ -203,7 +215,7 @@ spec:
             value: s3://linz-bucket-config/config.json
         args:
           - "create"
-          - "{{= sprig.trim(inputs.parameters.source) }}"
+          - "--from-file={{= inputs.artifacts.tiles.path }}"
 
     # Create a basemaps configuration file to view the imagery
     - name: create-config
