@@ -221,6 +221,9 @@ spec:
                 - name: scale
                   value: "{{workflow.parameters.scale}}"
 
+                - name: include
+                  value: "{{workflow.parameters.include}}"
+
                 - name: source
                   value: "{{=sprig.trim(workflow.parameters.source)}}"
 
