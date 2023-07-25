@@ -13,7 +13,6 @@ spec:
           # JSON array of things to group
           # eg ["a.json", "b.json", "c.json"]
           - name: input
-            description: JSON array of items to group
             path: /tmp/group/input.json
 
         parameters:
