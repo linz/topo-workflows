@@ -12,7 +12,7 @@ spec:
         artifacts:
           #
           # JSON array of things to group
-          # 
+          #
           # @example
           # ```json
           # ["a.json", "b.json", "c.json"]
@@ -33,7 +33,7 @@ spec:
           #
           # JSON array of all the group ids, which correspond to a output artifact file
           #
-          # @example 
+          # @example
           # ```json
           # ["000", "001", "002", "003"]
           # ```
