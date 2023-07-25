@@ -227,7 +227,7 @@ spec:
                 - name: source
                   value: "{{=sprig.trim(workflow.parameters.source)}}"
 
-                - name: source_epsg
+                - name: source-epsg
                   value: "{{=sprig.trim(workflow.parameters['source-epsg'])}}"
 
                 - name: validate
