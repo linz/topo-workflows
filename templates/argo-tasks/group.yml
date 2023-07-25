@@ -10,8 +10,13 @@ spec:
     - name: main
       inputs:
         artifacts:
+          #
           # JSON array of things to group
-          # eg ["a.json", "b.json", "c.json"]
+          # 
+          # @example
+          # ```json
+          # ["a.json", "b.json", "c.json"]
+          # ```
           - name: input
             path: /tmp/group/input.json
 
@@ -25,8 +30,14 @@ spec:
 
       outputs:
         parameters:
-          # Ids of output files
-          # eg "000", "001", "002", "003"
+          #
+          # JSON array of all the group ids, which correspond to a output artifact file
+          #
+          # @example 
+          # ```json
+          # ["000", "001", "002", "003"]
+          # ```
+          #
           # Workflows should use the "000" string to access the data from the output artifact folder
           - name: output
             valueFrom:
@@ -34,9 +45,11 @@ spec:
 
         artifacts:
           # Grouped output of the input as one file per output groupId
+          #
           # - /output/000.json
           # - /output/001.json
           # - ...
+          #
           - name: output
             path: /tmp/group/output/
 
