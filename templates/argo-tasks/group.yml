@@ -10,31 +10,48 @@ spec:
     - name: main
       inputs:
         artifacts:
+          #
+          # JSON array of things to group
+          #
+          # @example
+          # ```json
+          # ["a.json", "b.json", "c.json"]
+          # ```
           - name: input
             path: /tmp/group/input.json
-            optional: true
 
         parameters:
           - name: size
-            description: group into this number of records per group
+            description: Group into this number of records per group
 
           - name: version
-            description: container version to use
+            description: argo-task Container version to use
             default: "v2"
 
       outputs:
         parameters:
-          # Grouped output of the input
+          #
+          # JSON array of all the group ids, which correspond to a output artifact file
+          #
+          # @example
+          # ```json
+          # ["000", "001", "002", "003"]
+          # ```
+          #
+          # Workflows should use the "000" string to access the data from the output artifact folder
           - name: output
             valueFrom:
               path: /tmp/group/output.json
 
         artifacts:
-          # Grouped output of the input
+          # Grouped output of the input as one file per output groupId
+          #
+          # - /output/000.json
+          # - /output/001.json
+          # - ...
+          #
           - name: output
-            path: /tmp/group/output.json
-            archive:
-              none: {}
+            path: /tmp/group/output/
 
       container:
         image: "019359803926.dkr.ecr.ap-southeast-2.amazonaws.com/eks:argo-tasks-{{= inputs.parameters.version }}"
