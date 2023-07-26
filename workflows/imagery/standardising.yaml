@@ -220,22 +220,16 @@ spec:
               parameters:
                 - name: scale
                   value: "{{workflow.parameters.scale}}"
-
                 - name: include
                   value: "{{workflow.parameters.include}}"
-
                 - name: source
                   value: "{{=sprig.trim(workflow.parameters.source)}}"
-
                 - name: source-epsg
                   value: "{{=sprig.trim(workflow.parameters['source-epsg'])}}"
-
                 - name: validate
                   value: "{{= workflow.parameters.validate}}"
-
                 - name: retile
                   value: "{{= workflow.parameters.retile}}"
-
                 - name: version
                   value: "{{= workflow.parameters['version-argo-tasks']}}"
 
@@ -243,32 +237,33 @@ spec:
             templateRef:
               name: tpl-at-group
               template: main
-
             arguments:
               artifacts:
                 - name: input
                   from: "{{ tasks.tile-index-validate.outputs.artifacts.files }}"
-
               parameters:
                 - name: size
                   value: "{{workflow.parameters.group}}"
-
                 - name: version
                   value: "{{= workflow.parameters['version-argo-tasks']}}"
-
             depends: "tile-index-validate"
+
           - name: standardise-validate
             template: standardise-validate
             arguments:
               parameters:
-                - name: file
+                - name: group_id
                   value: "{{item}}"
                 - name: collection-id
                   value: "{{tasks.generate-ulid.outputs.parameters.ulid}}"
                 - name: target
                   value: "{{tasks.get-location.outputs.parameters.location}}flat/"
+              artifacts:
+                - name: group_data
+                  from: "{{ tasks.group.outputs.artifacts.output }}"
             depends: "group && generate-ulid && get-location"
             withParam: "{{ tasks.group.outputs.parameters.output }}"
+
           - name: create-collection
             template: create-collection
             arguments:
@@ -278,6 +273,7 @@ spec:
                 - name: location
                   value: "{{tasks.get-location.outputs.parameters.location}}"
             depends: "standardise-validate"
+
           - name: stac-validate
             template: stac-validate
             arguments:
@@ -289,8 +285,10 @@ spec:
                   raw:
                     data: "{{tasks.stac-validate.outputs.result}}"
             depends: "create-collection"
+
           - name: get-location
             template: get-location
+
           - name: create-overview
             when: "'{{workflow.parameters.target-epsg}}' =~ '2193|3857' && '{{workflow.parameters.compression}}' != 'dem_lerc'"
             arguments:
@@ -299,6 +297,7 @@ spec:
                   value: "{{tasks.get-location.outputs.parameters.location}}"
             template: create-overview
             depends: "standardise-validate"
+
           - name: create-config
             when: "'{{workflow.parameters.target-epsg}}' =~ '2193|3857' && '{{workflow.parameters.compression}}' != 'dem_lerc'"
             arguments:
@@ -307,11 +306,14 @@ spec:
                   value: "{{tasks.get-location.outputs.parameters.location}}"
             template: create-config
             depends: "create-overview"
+
       outputs:
         parameters:
           - name: target
             valueFrom:
               parameter: "{{tasks.get-location.outputs.parameters.location}}"
+      # END TEMPLATE `main`
+
     - name: generate-ulid
       script:
         image: "019359803926.dkr.ecr.ap-southeast-2.amazonaws.com/eks:topo-imagery-{{=sprig.trim(workflow.parameters['version-topo-imagery'])}}"
@@ -325,6 +327,7 @@ spec:
           - name: ulid
             valueFrom:
               path: "/tmp/ulid"
+
     - name: standardise-validate
       retryStrategy:
         limit: "2"
@@ -332,9 +335,12 @@ spec:
         karpenter.sh/capacity-type: "spot"
       inputs:
         parameters:
-          - name: file
+          - name: group_id
           - name: collection-id
           - name: target
+        artifacts:
+          - name: group_data
+            path: /tmp/input/
       container:
         image: "019359803926.dkr.ecr.ap-southeast-2.amazonaws.com/eks:topo-imagery-{{=sprig.trim(workflow.parameters['version-topo-imagery'])}}"
         resources:
@@ -349,8 +355,8 @@ spec:
           - python
           - "/app/scripts/standardise_validate.py"
         args:
-          - "--source"
-          - "{{inputs.parameters.file}}"
+          - "--from-file"
+          - "/tmp/input/{{inputs.parameters.group_id}}.json"
           - "--target"
           - "{{inputs.parameters.target}}"
           - "--preset"
@@ -367,6 +373,7 @@ spec:
           - "{{=sprig.trim(workflow.parameters['source-epsg'])}}"
           - "--target-epsg"
           - "{{=sprig.trim(workflow.parameters['target-epsg'])}}"
+
     - name: create-collection
       retryStrategy:
         limit: "2"
@@ -404,6 +411,7 @@ spec:
           - "{{=sprig.trim(workflow.parameters['licensor-list'])}}"
           - "--concurrency"
           - "25"
+
     - name: stac-validate
       inputs:
         parameters:
@@ -421,6 +429,7 @@ spec:
             "--recursive",
             "{{inputs.parameters.location}}flat/collection.json",
           ]
+
     - name: get-location
       script:
         image: "019359803926.dkr.ecr.ap-southeast-2.amazonaws.com/eks:argo-tasks-{{=sprig.trim(workflow.parameters['version-argo-tasks'])}}"
@@ -435,6 +444,7 @@ spec:
           - name: location
             valueFrom:
               path: "/tmp/location"
+
     - name: create-overview
       retryStrategy:
         limit: "2"
@@ -460,6 +470,7 @@ spec:
             "--output",
             "{{inputs.parameters.location}}flat/",
           ]
+
     - name: create-config
       inputs:
         parameters:
@@ -487,6 +498,7 @@ spec:
           - name: url
             valueFrom:
               path: "/tmp/url"
+
   volumes:
     - name: ephemeral
       emptyDir: {}
