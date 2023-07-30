@@ -11,7 +11,7 @@ spec:
       inputs:
         parameters:
           - name: scale
-            description: Tile Index scale to validate against
+            description: Tile Index scale to validate against or target scale for retiling
 
           - name: source_epsg
             description: Force source EPSG, "" will attempt to load EPSG from the source tiffs
@@ -24,6 +24,14 @@ spec:
           - name: include
             description: Limit the input list to this regexp
             default: ""
+
+          - name: validate
+            description: Validate that all input tiffs perfectly align to tile grid
+            default: "true"
+
+          - name: retile
+            description: Output tile configuration for retiling
+            default: "false"
 
           - name: version
             description: container version to use
@@ -62,6 +70,8 @@ spec:
           - "tileindex-validate"
           - "--verbose"
           - "--scale={{= inputs.parameters.scale }}"
+          - "--validate={{= inputs.parameters.validate }}"
+          - "--retile={{= inputs.parameters.retile }}"
           - "{{= sprig.empty(inputs.parameters.source_epsg) ? '' : '--source-epsg=' + inputs.parameters.source_epsg }}"
           - "{{= sprig.empty(inputs.parameters.include) ? '' : '--include=' + inputs.parameters.include }}"
           - "{{= sprig.trim(inputs.parameters.source) }}"

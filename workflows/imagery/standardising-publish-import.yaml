@@ -32,6 +32,10 @@ spec:
         value: ".tiff?$"
       - name: transform
         value: "f"
+      - name: validate
+        value: "true"
+      - name: retile
+        value: "false"
       - name: version-argo-tasks
         value: "v2.9"
       - name: version-basemaps-cli

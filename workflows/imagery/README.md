@@ -19,6 +19,8 @@ In addition, a Basemaps link is produced enabling visual QA.
 | source         | str   | s3://linz-imagery-staging/test/sample                                                               | the uri (path) to the input tiffs                                                                                                                       |
 | include        | regex | .tiff?$                                                                                             | A regular expression to match object path(s) or name(s) from within the source path to include in standardising\*.                                      |
 | scale          | enum  | 500                                                                                                 | The scale of the TIFFs                                                                                                                                  |
+| validate       | enum  | true                                                                                                | Validate the TIFFs files with `tileindex-validate`.                                                                                                     |
+| retile         | enum  | false                                                                                               | Prepare the data for retiling TIFFs files to `scale` with `tileindex-validate`.                                                                         |
 | group          | int   | 50                                                                                                  | The number of files to group into the pods (testing has recommended using 50 for large datasets).                                                       |
 | compression    | enum  | webp                                                                                                | Standardised file format                                                                                                                                |
 | cutline        | str   |                                                                                                     | (Optional) location of a cutline file to cut the imagery to `.fgb` or `.geojson` (leave blank if no cutline)                                            |
@@ -31,8 +33,8 @@ In addition, a Basemaps link is produced enabling visual QA.
 | start-datetime | str   | YYYY-MM-DD                                                                                          | Imagery start date (flown from), must be in default formatting                                                                                          |
 | end-datetime   | str   | YYYY-MM-DD                                                                                          | Imagery end date (flown to), must be in default formatting                                                                                              |
 | copy-option    | enum  | --no-clobber                                                                                        | `--no-clobber` Skip overwriting existing files. `--force` Overwrite all files. `--force-no-clobber` Overwrite only changed files, skip unchanged files. |
-| source-espg    | str   | 2193                                                                                                | The EPSP code of the source imagery                                                                                                                     |
-| target-espg    | str   | 2193                                                                                                | The target EPSP code - if different to source the imagery will be reprojected                                                                           |
+| source-epsg    | str   | 2193                                                                                                | The EPSG code of the source imagery                                                                                                                     |
+| target-epsg    | str   | 2193                                                                                                | The target EPSG code - if different to source the imagery will be reprojected                                                                           |
 
 \* This regex can be used to exclude paths as well, e.g. if there are RBG and RGBI directories, the following regex will only include TIFF files in the RGB directory: `RGB(?!I).*.tiff?$`. For more complicated exclusions, there is an `--exclude` parameter, which would need to be added to the Argo WorkflowTemplate.
 
@@ -43,6 +45,8 @@ In addition, a Basemaps link is produced enabling visual QA.
 | source         | s3://linz-imagery-upload/PRJ39741_BOPLASS_Imagery_2021-22/PRJ39741_03/01_GeoTiff/         |
 | include        | .tiff?$                                                                                   |
 | scale          | 2000                                                                                      |
+| validate       | true                                                                                      |
+| retile         | false                                                                                     |
 | group          | 50                                                                                        |
 | compression    | webp                                                                                      |
 | cutline        | s3://linz-imagery-staging/cutline/bay-of-plenty_2021-2022.fgb                             |
