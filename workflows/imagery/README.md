@@ -19,6 +19,8 @@ In addition, a Basemaps link is produced enabling visual QA.
 | source         | str   | s3://linz-imagery-staging/test/sample                                                               | the uri (path) to the input tiffs                                                                                                                       |
 | include        | regex | .tiff?$                                                                                             | A regular expression to match object path(s) or name(s) from within the source path to include in standardising\*.                                      |
 | scale          | enum  | 500                                                                                                 | The scale of the TIFFs                                                                                                                                  |
+| validate       | enum  | true                                                                                                | Validate the TIFFs files with `tileindex-validate`.                                                                                                     |
+| retile         | enum  | false                                                                                               | Prepare the data for retiling TIFFs files to `scale` with `tileindex-validate`.                                                                         |
 | group          | int   | 50                                                                                                  | The number of files to group into the pods (testing has recommended using 50 for large datasets).                                                       |
 | compression    | enum  | webp                                                                                                | Standardised file format                                                                                                                                |
 | cutline        | str   |                                                                                                     | (Optional) location of a cutline file to cut the imagery to `.fgb` or `.geojson` (leave blank if no cutline)                                            |
@@ -43,6 +45,8 @@ In addition, a Basemaps link is produced enabling visual QA.
 | source         | s3://linz-imagery-upload/PRJ39741_BOPLASS_Imagery_2021-22/PRJ39741_03/01_GeoTiff/         |
 | include        | .tiff?$                                                                                   |
 | scale          | 2000                                                                                      |
+| validate       | true                                                                                      |
+| retile         | false                                                                                     |
 | group          | 50                                                                                        |
 | compression    | webp                                                                                      |
 | cutline        | s3://linz-imagery-staging/cutline/bay-of-plenty_2021-2022.fgb                             |
