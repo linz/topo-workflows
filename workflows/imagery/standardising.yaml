@@ -2,7 +2,7 @@
 apiVersion: argoproj.io/v1alpha1
 kind: WorkflowTemplate
 metadata:
-  name: imagery-standardising
+  name: test-imagery-standardising
   namespace: argo
 spec:
   parallelism: 50
@@ -224,7 +224,7 @@ spec:
                   value: "{{workflow.parameters.include}}"
                 - name: source
                   value: "{{=sprig.trim(workflow.parameters.source)}}"
-                - name: source-epsg
+                - name: source_epsg
                   value: "{{=sprig.trim(workflow.parameters['source-epsg'])}}"
                 - name: validate
                   value: "{{= workflow.parameters.validate}}"
