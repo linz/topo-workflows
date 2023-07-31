@@ -4,6 +4,7 @@ This folder contains single use scripts which have been used to assist in automa
 The scripts should be stored in this folder if they may become useful again in the future.
 
 ## generate-argo-cli-commands-elevation.py
+
 **Date:** 31/07/2023
 
 **Related Jira Tickets:** [TDE-783](https://toitutewhenua.atlassian.net/browse/TDE-783?atlOrigin=eyJpIjoiODhlMWFkYTVlYzhiNGJjYTgwOTI4OWVjNmQ3YzczMjciLCJwIjoiaiJ9)
@@ -24,9 +25,9 @@ python3 generate-argo-cli-commands-elevation.py
 
 - **region-year-datatype-scale.yaml:** workflow parameters for this dataset
 - **standardise-publish.sh:** bash script to 'deploy' argo workflows  
-    **nb: the commented lines at the end of this file detail the datasets not run due to know issues.**
+   **nb: the commented lines at the end of this file detail the datasets not run due to know issues.**
 
-**Submitting:**  
+**Submitting:**
 
 ```bash
 sh standardise-publish.sh
