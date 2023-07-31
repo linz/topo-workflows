@@ -62,6 +62,9 @@ def _valid_params(params: Dict[str, str]) -> Tuple[bool, str]:
             return (False, "TODO Noted")
     return (True, "")
 
+def _tmp_target_edit(target: str) -> str:
+    return target.replace("s3://linz-elevation/", "s3://linz-workflow-artifacts/linz-elevation/")
+
 
 with open(PARAMETERS_CSV, "r") as csv_file:
     reader = csv.reader(csv_file)
@@ -77,7 +80,7 @@ with open(PARAMETERS_CSV, "r") as csv_file:
         params = {
             "comments": row[index["comments"]],
             "source": row[index["source"]],
-            "target": row[index["target"]],
+            "target": _tmp_target_edit(row[index["target"]]),
             "title": row[index["title"]],
             "description": row[index["description"]],
             "start-datetime": row[index["startdate"]],
