@@ -75,3 +75,6 @@ spec:
           - "{{= sprig.empty(inputs.parameters.source_epsg) ? '' : '--source-epsg=' + inputs.parameters.source_epsg }}"
           - "{{= sprig.empty(inputs.parameters.include) ? '' : '--include=' + inputs.parameters.include }}"
           - "{{= sprig.trim(inputs.parameters.source) }}"
+        resources:
+          requests:
+            memory: 3.9Gi
