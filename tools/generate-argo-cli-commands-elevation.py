@@ -91,7 +91,7 @@ with open(PARAMETERS_CSV, "r") as csv_file:
             "compression": "dem_lerc",
             "retile": "true",
             "validate": "false",
-            "group": "1",
+            "group": "5",
         }
 
         params = {**params, **_add_licensor(row, index)}
