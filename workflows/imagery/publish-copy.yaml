@@ -167,7 +167,7 @@ spec:
         command: [node, /app/index.js]
         env:
           - name: AWS_ROLE_CONFIG_PATH
-            value: s3://linz-bucket-config/config-write.imagery.json,s3://linz-bucket-config/config.json
+            value: s3://linz-bucket-config/config-write.imagery.json,s3://linz-bucket-config/config-write.elevation.json,s3://linz-bucket-config/config.json
         args:
           [
             "copy",
@@ -198,10 +198,10 @@ spec:
             "--target",
             "{{=sprig.trim(workflow.parameters.target)}}",
             "--repo-name",
-            "{{=sprig.nospace(sprig.cat('linz/', sprig.regexFind('(elevation|imagery)', workflow.parameters.target)))}}"
+            "{{=sprig.regexFind('(elevation|imagery)', workflow.parameters.target)}}"
           ]
   volumes:
     - name: secret-volume
       secret:
-        secretName: github-linz-imagery
+        secretName: github-linz-"{{=sprig.regexFind('(elevation|imagery)', workflow.parameters.target)}}"
         defaultMode: 384
