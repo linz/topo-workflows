@@ -203,5 +203,5 @@ spec:
   volumes:
     - name: secret-volume
       secret:
-        secretName: github-linz-"{{=sprig.regexFind('(elevation|imagery)', workflow.parameters.target)}}"
+        secretName: "github-linz-{{=sprig.regexFind('(elevation|imagery)', workflow.parameters.target)}}"
         defaultMode: 384
