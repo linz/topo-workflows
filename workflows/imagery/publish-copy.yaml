@@ -198,7 +198,7 @@ spec:
             "--target",
             "{{=sprig.trim(workflow.parameters.target)}}",
             "--repo-name",
-            "{{=sprig.regexFind('(elevation|imagery)', workflow.parameters.target)}}"
+            "{{=sprig.regexFind('(elevation|imagery)', workflow.parameters.target)}}",
           ]
   volumes:
     - name: secret-volume
