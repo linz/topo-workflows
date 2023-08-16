@@ -11,24 +11,24 @@ spec:
       - name: version_basemaps_cli
         description: Version of the basemaps CLI docker container to use
         value: latest
-      
+
       - name: version_argo_tasks
         description: Version of the basemaps CLI docker container to use
         value: latest
 
       - name: source
         description: Source imagery location "s3://linz-imagery"
-      
+
       - name: target
         description: Target location for output COGs
 
       - name: tile_matrix
         description: Output tile matrix, ";" separated list
-        value: 'NZTM2000Quad;WebMercatorQuad'
+        value: "NZTM2000Quad;WebMercatorQuad"
         enum:
-          - 'NZTM2000Quad'
-          - 'WebMercatorQuad'
-          - 'NZTM2000Quad;WebMercatorQuad'
+          - "NZTM2000Quad"
+          - "WebMercatorQuad"
+          - "NZTM2000Quad;WebMercatorQuad"
 
       - name: cutline
         description: Path to cutline to apply
@@ -37,7 +37,7 @@ spec:
       - name: cutline_blend
         description: Blending to use for cutline see gdal_translate#cblend
         value: 20
-      
+
       - name: group_size
         description: How many items to pass to each create-cog job
         value: 10
@@ -109,10 +109,10 @@ spec:
                 - name: size
                   value: "{{ inputs.parameters.group_size }}"
                 - name: version
-                  value: '{{= workflow.parameters.version_argo_tasks }}'
+                  value: "{{= workflow.parameters.version_argo_tasks }}"
               artifacts:
                 - name: input
-                  from: '{{ tasks.create-covering.outputs.artifacts.tiles }}'
+                  from: "{{ tasks.create-covering.outputs.artifacts.tiles }}"
             templateRef:
               name: tpl-at-group
               template: main
