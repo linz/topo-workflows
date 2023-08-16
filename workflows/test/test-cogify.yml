@@ -62,7 +62,7 @@ spec:
           # For each tile matrix specified run the "cogify" template
           - name: cogify
             template: cogify
-            withParam: "{{= toJson(sprig.splitList(';', workflow.parameters.tile_matrix)) }}"
+            withParam: "{{= toJson(sprig.splitList(';', inputs.parameters.tile_matrix)) }}"
             arguments:
               parameters:
                 - name: source
