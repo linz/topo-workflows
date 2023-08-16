@@ -188,7 +188,7 @@ spec:
           - name: GIT_AUTHOR_NAME
             value: "{{=sprig.regexFind('(elevation|imagery)', workflow.parameters.target)}}[bot]"
           - name: GIT_AUTHOR_EMAIL
-            value: "{{=sprig.regexFind('(elevation|imagery)', workflow.parameters.target)}}@linz.govt.nz"            
+            value: "{{=sprig.regexFind('(elevation|imagery)', workflow.parameters.target)}}@linz.govt.nz"
         volumeMounts:
           - name: secret-volume
             mountPath: "/root/.ssh/"
