@@ -5,6 +5,9 @@ metadata:
   # see https://github.com/linz/argo-tasks#group
   name: tpl-at-group
 spec:
+  templateDefaults:
+    container:
+      imagePullPolicy: Always
   entrypoint: main
   templates:
     - name: main
