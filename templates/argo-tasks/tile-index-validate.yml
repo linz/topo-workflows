@@ -5,6 +5,9 @@ metadata:
   # see https://github.com/linz/argo-tasks#tileindex-validate
   name: tpl-at-tile-index-validate
 spec:
+  templateDefaults:
+    container:
+      imagePullPolicy: Always
   entrypoint: main
   templates:
     - name: main
