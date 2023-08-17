@@ -3,3 +3,6 @@ dist/
 cdk.out/
 cdk.context.json
 build/
+/helm
+/kubectl
+/node

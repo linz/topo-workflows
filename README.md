@@ -224,3 +224,8 @@ These tags are intended to be use in production as they will be published for ea
 ### Using different versions
 
 For each `Workflow` and `WorkflowTemplate`, there is a parameter `version_*` that allows to specify the version of the LINZ container to use.
+
+## Development
+
+1. Run `nix-shell` in the current directory to install all non-Node.js dependencies.
+1. Run `npm install` to install Node.js dependencies.
