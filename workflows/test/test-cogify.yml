@@ -129,11 +129,12 @@ spec:
             template: create-cog
             withParam: "{{ tasks.group.outputs.parameters.output }}"
             arguments:
+              parameters:
+                - name: covering_grouped_id
+                  value: "{{ item }}"
               artifacts:
-                - name: tiles
-                  path: /tmp/cogify/cover-items.json
-                  raw:
-                    data: "{{ item }}"
+                - name: covering_grouped
+                  from: "{{ tasks.group.outputs.artifacts.output }}"
 
           # once all COGs are created generate a more overviews to increase tile rendering performance
           - name: create-overview
@@ -206,8 +207,10 @@ spec:
         karpenter.sh/capacity-type: "spot"
       inputs:
         artifacts:
-          - name: tiles
-            path: /tmp/cogify/cover-items.json
+          - name: covering_grouped
+            path: /tmp/cogify/covering_grouped/
+        parameters:
+          - name: covering_grouped_id
       container:
         resources:
           requests:
@@ -220,7 +223,7 @@ spec:
             value: s3://linz-bucket-config/config.json
         args:
           - "create"
-          - "--from-file={{= inputs.artifacts.tiles.path }}"
+          - "--from-file={{= inputs.artifacts.covering_grouped.path }}{{inputs.parameters.covering_grouped_id}}.json"
 
     # Create a basemaps configuration file to view the imagery
     - name: create-config
