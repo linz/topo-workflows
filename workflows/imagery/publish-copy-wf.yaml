@@ -2,7 +2,7 @@
 apiVersion: argoproj.io/v1alpha1
 kind: Workflow
 metadata:
-  generateName: imagery-standardising-publish-import-
+  generateName: bulk-publish-
   namespace: argo
 spec:
   parallelism: 50
@@ -13,7 +13,7 @@ spec:
     semaphore:
       configMapKeyRef:
         name: semaphores
-        key: bulk
+        key: bulkcopy
   arguments:
     parameters:
       - name: copy-option
@@ -40,6 +40,16 @@ spec:
             templateRef:
               name: publish-copy
               template: main
+            arguments:
+              parameters:
+                - name: source
+                  value: "{{workflow.parameters.source}}"
+                - name: include
+                  value: "{{workflow.parameters.include}}"
+                - name: group
+                  value: "{{workflow.parameters.group}}"
+                - name: group-size
+                  value: "{{workflow.parameters.group-size}}"
   volumes:
     - name: ephemeral
       emptyDir: {}

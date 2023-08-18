@@ -4,7 +4,7 @@ import yaml
 
 PARAMETERS_CSV = "./data/elevation-18-08-23.csv"
 
-COMMAND = "argo submit ~/dev/topo-workflows/workflows/imagery/publish-copy-wf.yaml -n argo -f ./{0}.yaml --generate-name {1}\n"
+COMMAND = "argo submit ~/dev/topo-workflows/workflows/imagery/publish-copy-wf.yaml -n argo -f ./{0}.yaml --generate-name publish-{1}\n"
 
 
 def _index_csv(header: List[str]) -> Dict[str, int]:
