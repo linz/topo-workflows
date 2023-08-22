@@ -1,28 +1,17 @@
 apiVersion: argoproj.io/v1alpha1
 kind: Workflow
 metadata:
-  generateName: test-amd64-
+  generateName: test-sleep-
 spec:
-  entrypoint: amd64-test
+  entrypoint: sleep
   templates:
-    - name: amd64-test
+    - name: sleep
       nodeSelector:
         karpenter.sh/capacity-type: "spot"
-        # kubernetes.io/arch: "amd6464"
-      tolerations:
-        # - key: kubernetes.io/arch
-        #   operator: Equal
-        #   effect: NoSchedule
-        #   value: arm64
-        - key: karpenter.sh/capacity-type
-          operator: Equal
-          value: spot
-          effect: NoSchedule
-
       container:
         resources:
           requests:
             memory: 3.9Gi
             cpu: 2000m
-        image: public.ecr.aws/ubuntu/ubuntu:22.04
-        command: ["echo", "hello"]
+        image: ubuntu:22.04
+        command: ["sleep", "3600"]
