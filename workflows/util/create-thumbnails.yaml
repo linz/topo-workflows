@@ -17,7 +17,7 @@ spec:
       - name: version-topo-imagery
         value: "v3"
       - name: source
-        value: "s3://linz-workflow-artifacts/mdavidson/test-topo-maps/topo50/"
+        value: "s3://linz-topographic/maps/topo50/"
   templateDefaults:
     container:
       imagePullPolicy: Always
@@ -86,7 +86,7 @@ spec:
           - name: files
             path: /tmp/file_list.json
       container:
-        image: "ghcr.io/mdavidson17/topo-imagery:latest"
+        image: "019359803926.dkr.ecr.ap-southeast-2.amazonaws.com/eks:topo-imagery-{{=sprig.trim(workflow.parameters['version-topo-imagery'])}}"
         resources:
           requests:
             memory: 7.8Gi
