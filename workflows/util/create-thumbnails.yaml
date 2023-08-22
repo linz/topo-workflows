@@ -64,7 +64,7 @@ spec:
             "--include",
             ".*.*.tif?$",
             "--group",
-            "1000",
+            "2000",
             "--output",
             "/tmp/file_list.json",
             "{{workflow.parameters.source}}",
