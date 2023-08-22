@@ -6,6 +6,9 @@ metadata:
 spec:
   parallelism: 100
   entrypoint: main
+  templateDefaults:
+    container:
+      imagePullPolicy: Always
   arguments:
     parameters:
       - name: version_basemaps_cli
