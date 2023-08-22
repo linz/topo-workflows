@@ -13,11 +13,11 @@ spec:
     parameters:
       - name: version_basemaps_cli
         description: Version of the basemaps CLI docker container to use
-        value: latest
+        value: v6
 
       - name: version_argo_tasks
         description: Version of the basemaps CLI docker container to use
-        value: latest
+        value: v2
 
       - name: source
         description: Source imagery location "s3://linz-imagery"
