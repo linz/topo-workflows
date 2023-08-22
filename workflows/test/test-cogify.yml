@@ -248,7 +248,11 @@ spec:
           - name: url
             description: Basemaps URL to view the imagery
             valueFrom:
-              path: "/tmp/cogify/config-url.json"
+              path: "/tmp/cogify/config-url"
+          - name: config
+            description: Location of the config file
+            valueFrom:
+              path: "/tmp/cogify/config-path"
 
     # create additional overviews for any COGs found in the path
     - name: create-overview
