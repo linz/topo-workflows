@@ -6,6 +6,11 @@ metadata:
 spec:
   parallelism: 100
   entrypoint: main
+  synchronization:
+    semaphore:
+      configMapKeyRef:
+        name: semaphores
+        key: basemaps_import
   templateDefaults:
     container:
       imagePullPolicy: Always
