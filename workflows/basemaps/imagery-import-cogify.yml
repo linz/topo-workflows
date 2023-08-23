@@ -25,10 +25,10 @@ spec:
 
       - name: target
         description: Target location for output COGs
-        value: "linz-basemaps"
+        value: "s3://linz-basemaps"
         enum:
-          - "linz-basemaps"
-          - "linz-basemaps-staging"
+          - "s3://linz-basemaps"
+          - "s3://linz-basemaps-staging"
 
       - name: tile_matrix
         description: Output tile matrix, ";" separated list
