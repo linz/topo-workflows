@@ -1,7 +1,7 @@
 apiVersion: argoproj.io/v1alpha1
 kind: WorkflowTemplate
 metadata:
-  generateName: basemaps-imagery-import-cogify-
+  name: basemaps-imagery-import-cogify
   namespace: argo
 spec:
   parallelism: 100
