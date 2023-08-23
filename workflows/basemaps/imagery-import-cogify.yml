@@ -185,7 +185,7 @@ spec:
         command: [node, /app/node_modules/.bin/cogify]
         env:
           - name: AWS_ROLE_CONFIG_PATH
-            value: s3://linz-bucket-config/config.json,s3://linz-bucket-config/config-write.basemaps.json
+            value: s3://linz-bucket-config/config-write.basemaps.json,s3://linz-bucket-config/config.json
         args:
           - "cover"
           - "--tile-matrix={{ inputs.parameters.tile_matrix }}"
@@ -228,7 +228,7 @@ spec:
         command: [node, /app/node_modules/.bin/cogify]
         env:
           - name: AWS_ROLE_CONFIG_PATH
-            value: s3://linz-bucket-config/config.json,s3://linz-bucket-config/config-write.basemaps.json
+            value: s3://linz-bucket-config/config-write.basemaps.json,s3://linz-bucket-config/config.json
         args:
           - "create"
           - "--from-file={{= inputs.artifacts.covering_grouped.path }}{{inputs.parameters.covering_grouped_id}}.json"
@@ -244,7 +244,7 @@ spec:
         command: [node, /app/node_modules/.bin/cogify]
         env:
           - name: AWS_ROLE_CONFIG_PATH
-            value: s3://linz-bucket-config/config.json,s3://linz-bucket-config/config-write.basemaps.json
+            value: s3://linz-bucket-config/config-write.basemaps.json,s3://linz-bucket-config/config.json
         args:
           - "config"
           - "{{ inputs.parameters.path }}"
@@ -276,7 +276,7 @@ spec:
         command: [node, index.cjs]
         env:
           - name: AWS_ROLE_CONFIG_PATH
-            value: s3://linz-bucket-config/config.json,s3://linz-bucket-config/config-write.basemaps.json
+            value: s3://linz-bucket-config/config-write.basemaps.json,s3://linz-bucket-config/config.json
         args:
           - "-V"
           - "create-overview"
