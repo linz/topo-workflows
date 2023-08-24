@@ -17,7 +17,13 @@ spec:
       - name: version-topo-imagery
         value: "v3"
       - name: source
-        value: "s3://linz-topographic/maps/topo50/"
+        value: "s3://linz-topographic-upload/maps/topo50/"
+      - name: target
+        value: "s3://linz-"
+      - name: transform
+        value: "f"
+      - name: copy-option
+        value: "--no-clobber"
   templateDefaults:
     container:
       imagePullPolicy: Always
@@ -27,6 +33,9 @@ spec:
         tasks:
           - name: aws-list
             template: aws-list
+
+          - name: get-location
+            template: get-location
 
           - name: thumbnails
             template: thumbnails
@@ -39,8 +48,37 @@ spec:
                   from: "{{ tasks.aws-list.outputs.artifacts.files }}"
             depends: "aws-list && get-location"
 
-          - name: get-location
-            template: get-location
+          - name: publish-source
+            templateRef:
+              name: publish-copy
+              template: main
+            arguments:
+              parameters:
+                - name: source
+                  value: "{{workflow.parameters.source}}"
+                - name: include
+                  value: ".*.*.tif?$"
+                - name: group
+                  value: "1000"
+                - name: group-size
+                  value: "100Gi"
+            depends: "thumbnails"
+
+          - name: publish-thumbnails
+            templateRef:
+              name: publish-copy
+              template: main
+            arguments:
+              parameters:
+                - name: source
+                  value: "{{tasks.get-location.outputs.parameters.location}}thumbnails/"
+                - name: include
+                  value: ".jpg?$"
+                - name: group
+                  value: "1000"
+                - name: group-size
+                  value: "100Gi"
+            depends: "thumbnails"
 
       outputs:
         parameters:
