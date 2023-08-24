@@ -2,7 +2,7 @@
 apiVersion: argoproj.io/v1alpha1
 kind: WorkflowTemplate
 metadata:
-  name: generate-thumbnails-topo50-250
+  name: create-thumbnails
   namespace: argo
 spec:
   parallelism: 50
@@ -28,12 +28,12 @@ spec:
           - name: aws-list
             template: aws-list
 
-          - name: create-thumbnails
-            template: create-thumbnails
+          - name: thumbnails
+            template: thumbnails
             arguments:
               parameters:
                 - name: target
-                  value: "{{tasks.get-location.outputs.parameters.location}}intermediate/" #TODO - is this the target
+                  value: "{{tasks.get-location.outputs.parameters.location}}thumbnails/"
               artifacts:
                 - name: files
                   from: "{{ tasks.aws-list.outputs.artifacts.files }}"
@@ -74,7 +74,7 @@ spec:
           - name: files
             path: /tmp/file_list.json
 
-    - name: create-thumbnails
+    - name: thumbnails
       retryStrategy:
         limit: "2"
       nodeSelector:
