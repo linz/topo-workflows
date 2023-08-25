@@ -79,12 +79,6 @@ spec:
                 - name: group-size
                   value: "100Gi"
             depends: "thumbnails"
-
-      outputs:
-        parameters:
-          - name: target
-            valueFrom:
-              parameter: "{{tasks.get-location.outputs.parameters.location}}"
       # END TEMPLATE `main`
 
     - name: aws-list
