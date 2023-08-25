@@ -29,6 +29,8 @@ The output thumbnails will be located within the `./intermediate/` directory of 
 graph TD;
     aws-list-->create-thumbnails;
     get-location-->create-thumbnails;
+    create-thumbnails-->publish-source;
+    create-thumbnails-->publish-thumbnails;
 ```
 
 ### [aws-list](https://github.com/linz/argo-tasks/blob/master/src/commands/list/list.ts)
