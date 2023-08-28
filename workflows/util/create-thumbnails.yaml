@@ -118,6 +118,12 @@ spec:
         artifacts:
           - name: files
             path: /tmp/file_list.json
+      outputs:
+        parameters:
+          - name: count
+            globalName: count
+            valueFrom:
+              path: /tmp/thumbnails/count
       container:
         image: "019359803926.dkr.ecr.ap-southeast-2.amazonaws.com/eks:topo-imagery-{{=sprig.trim(workflow.parameters['version-topo-imagery'])}}"
         resources:
@@ -176,8 +182,9 @@ spec:
           params.forEach((param) => paramFields.push({type: "mrkdwn", text: "*" + param.name + ":*\n " + param.value}));
 
           const payload = {
-              // FIXME: change bot name and icon
-              channel: "U026F2YPPMM",
+              icon_url: "https://cncf-branding.netlify.app/img/projects/argo/icon/color/argo-icon-color.png",
+              username: "Argo Workflows [bot]",
+              channel: "#alert-argo-workflows",
               blocks: [
                 {
                   type: "header",
