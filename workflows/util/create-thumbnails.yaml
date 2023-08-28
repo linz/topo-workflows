@@ -157,16 +157,16 @@ spec:
         parameters:
           - name: count
             value: "{{workflow.outputs.parameters.count}}"
-      env:
-        - name: PARAMS
-          value: "{{workflow.parameters}}"
-        - name: WEBHOOK
-          valueFrom:
-            secretKeyRef:
-              name: slack-linz-webhook # name of the secret that stores linz Slack webhook
-              key: url # the Slack Webhook URL is stored as `url`
       script:
         image: "019359803926.dkr.ecr.ap-southeast-2.amazonaws.com/eks:argo-tasks-{{=sprig.trim(workflow.parameters['version-argo-tasks'])}}"
+        env:
+          - name: PARAMS
+            value: "{{workflow.parameters}}"
+          - name: WEBHOOK
+            valueFrom:
+              secretKeyRef:
+                name: slack-linz-webhook # name of the secret that stores linz Slack webhook
+                key: url # the Slack Webhook URL is stored as `url`
         command: [node]
         source: |
           const slackWebhook = process.env.WEBHOOK
