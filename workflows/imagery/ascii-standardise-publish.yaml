@@ -1,0 +1,172 @@
+---
+apiVersion: argoproj.io/v1alpha1
+kind: Workflow
+metadata:
+  generateName: ascii-imagery-standardising-publish-
+  namespace: argo
+spec:
+  parallelism: 50
+  nodeSelector:
+    karpenter.sh/capacity-type: "spot"
+  entrypoint: main
+  synchronization:
+    semaphore:
+      configMapKeyRef:
+        name: semaphores
+        key: bulk
+  arguments:
+    parameters:
+      - name: cutline # optional standardising cutline
+        value: ""
+      - name: compression
+        value: "webp"
+      - name: source-epsg
+        value: "2193"
+      - name: target-epsg
+        value: "2193"
+      - name: group
+        value: "50"
+      - name: copy-option
+        value: "--no-clobber"
+      - name: include
+        value: ".tiff?$"
+      - name: transform
+        value: "f"
+      - name: validate
+        value: "true"
+      - name: retile
+        value: "false"
+      - name: version-argo-tasks
+        value: "v2"
+      - name: version-basemaps-cli
+        value: "v6"
+      - name: version-topo-imagery
+        value: "v3"
+  templateDefaults:
+    container:
+      imagePullPolicy: Always
+  templates:
+    - name: main
+      dag:
+        tasks:
+          - name: get-location
+            template: get-location
+
+          - name: aws-list
+            template: aws-list
+
+          - name: convert-asc-files
+            template: convert-asc-files
+            arguments:
+              parameters:
+                - name: target
+                  value: "{{tasks.get-location.outputs.parameters.location}}translated-asc-files/"
+              artifacts:
+                - name: files
+                  from: "{{ tasks.aws-list.outputs.artifacts.files }}"
+            depends: "get-location && aws-list"
+
+          - name: standardise
+            templateRef:
+              name: imagery-standardising
+              template: main
+            arguments:
+              parameters:
+                - name: source
+                  value: "{{tasks.get-location.outputs.parameters.location}}translated-asc-files/"
+            depends: "convert-asc-files"
+
+          - name: publish
+            templateRef:
+              name: publish-copy
+              template: main
+            arguments:
+              parameters:
+                - name: source
+                  value: "{{tasks.get-location.outputs.parameters.location}}flat/"
+                - name: include
+                  value: ".tiff?$|.json$"
+                - name: group
+                  value: "1000"
+                - name: group-size
+                  value: "100Gi"
+            depends: "standardise"
+        # END TEMPLATE `main`
+
+    - name: get-location
+      script:
+        image: "019359803926.dkr.ecr.ap-southeast-2.amazonaws.com/eks:argo-tasks-{{=sprig.trim(workflow.parameters['version-argo-tasks'])}}"
+        command: [node]
+        source: |
+          const fs = require('fs');
+          const loc = JSON.parse(process.env['ARGO_TEMPLATE']).archiveLocation.s3;
+          const key = loc.key.replace('{{pod.name}}','');
+          fs.writeFileSync('/tmp/location', `s3://${loc.bucket}/${key}`);
+      outputs:
+        parameters:
+          - name: location
+            valueFrom:
+              path: "/tmp/location"
+
+    - name: aws-list
+      inputs:
+      container:
+        image: 019359803926.dkr.ecr.ap-southeast-2.amazonaws.com/eks:argo-tasks-{{workflow.parameters.version-argo-tasks}}
+        command: [node, /app/index.js]
+        env:
+          - name: AWS_ROLE_CONFIG_PATH
+            value: s3://linz-bucket-config/config.json
+        args:
+          [
+            "list",
+            "--verbose",
+            "--include",
+            ".asc?$",
+            "--group",
+            "999999",
+            "--output",
+            "/tmp/file_list.json",
+            "{{workflow.parameters.source}}",
+          ]
+      outputs:
+        artifacts:
+          - name: files
+            path: /tmp/file_list.json
+
+    - name: convert-asc-files
+      retryStrategy:
+        limit: "2"
+      nodeSelector:
+        karpenter.sh/capacity-type: "spot"
+      inputs:
+        parameters:
+          - name: target
+        artifacts:
+          - name: files
+            path: /tmp/file_list.json
+      container:
+        image: "019359803926.dkr.ecr.ap-southeast-2.amazonaws.com/eks:topo-imagery-{{=sprig.trim(workflow.parameters['version-topo-imagery'])}}"
+        resources:
+          requests:
+            memory: 7.8Gi
+            cpu: 15000m
+            ephemeral-storage: 3Gi
+        volumeMounts:
+          - name: ephemeral
+            mountPath: "/tmp"
+        command:
+          - python
+          - "/app/scripts/translate_ascii.py"
+        args:
+          - "--from-file"
+          - "/tmp/file_list.json"
+          - "--target"
+          - "{{inputs.parameters.target}}"
+
+  volumes:
+    - name: ephemeral
+      emptyDir: {}
+    - name: secret-volume # this is for the publish-copy step
+      secret:
+        secretName: github-linz-imagery
+        defaultMode: 384
