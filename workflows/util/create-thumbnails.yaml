@@ -136,7 +136,6 @@ spec:
           - "/tmp/file_list.json"
           - "--target"
           - "{{inputs.parameters.target}}"
-        
 
     - name: get-location
       script:
@@ -160,12 +159,12 @@ spec:
             value: "{{workflow.outputs.parameters.count}}"
       env:
         - name: PARAMS
-          value: '{{workflow.parameters}}'
+          value: "{{workflow.parameters}}"
         - name: WEBHOOK
           valueFrom:
             secretKeyRef:
-              name: slack-linz-webhook  # name of the secret that stores linz Slack webhook
-              key: url  # the Slack Webhook URL is stored as `url`
+              name: slack-linz-webhook # name of the secret that stores linz Slack webhook
+              key: url # the Slack Webhook URL is stored as `url`
       script:
         image: "019359803926.dkr.ecr.ap-southeast-2.amazonaws.com/eks:argo-tasks-{{=sprig.trim(workflow.parameters['version-argo-tasks'])}}"
         command: [node]
