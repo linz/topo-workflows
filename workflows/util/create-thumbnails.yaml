@@ -9,7 +9,7 @@ spec:
   nodeSelector:
     karpenter.sh/capacity-type: "spot"
   entrypoint: main
-  onExit: notify-slack
+  onExit: exit-handler
   arguments:
     parameters:
       # FIXME: Should use camelCase or underscore?
@@ -157,6 +157,12 @@ spec:
           - name: location
             valueFrom:
               path: "/tmp/location"
+
+    - name: exit-handler
+      steps:
+        - - name: notify
+            template: notify-slack
+            when: "{{workflow.status}} == Succeeded"
 
     - name: notify-slack
       inputs:
