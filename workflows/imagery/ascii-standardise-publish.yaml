@@ -16,6 +16,8 @@ spec:
         key: bulk
   arguments:
     parameters:
+      - name: source
+        value: "s3://path/"
       - name: cutline # optional standardising cutline
         value: ""
       - name: compression
