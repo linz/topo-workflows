@@ -62,6 +62,9 @@ spec:
       - name: cutline
         description: "(Optional) location of a cutline file to cut the imagery to .fgb or .geojson"
         value: ""
+      - name: collection-id
+        description: "(Optional) If an existing dataset add collection ID here, else a new one will be generated."
+        value: ""
       - name: title
         value: "*Region/District/City* *GSD* *Urban/Rural* Aerial Photos (*Year-Year*)"
       - name: description
@@ -210,8 +213,9 @@ spec:
     - name: main
       dag:
         tasks:
-          - name: generate-ulid
-            template: generate-ulid
+          - name: collection-id-setup
+            template: collection-id-setup
+
           - name: tile-index-validate
             templateRef:
               name: tpl-at-tile-index-validate
@@ -255,13 +259,13 @@ spec:
                 - name: group_id
                   value: "{{item}}"
                 - name: collection-id
-                  value: "{{tasks.generate-ulid.outputs.parameters.ulid}}"
+                  value: "{{tasks.collection-id-setup.outputs.parameters.ulid}}"
                 - name: target
                   value: "{{tasks.get-location.outputs.parameters.location}}flat/"
               artifacts:
                 - name: group_data
                   from: "{{ tasks.group.outputs.artifacts.output }}"
-            depends: "group && generate-ulid && get-location"
+            depends: "group && collection-id-setup && get-location"
             withParam: "{{ tasks.group.outputs.parameters.output }}"
 
           - name: create-collection
@@ -269,7 +273,7 @@ spec:
             arguments:
               parameters:
                 - name: collection-id
-                  value: "{{tasks.generate-ulid.outputs.parameters.ulid}}"
+                  value: "{{tasks.collection-id-setup.outputs.parameters.ulid}}"
                 - name: location
                   value: "{{tasks.get-location.outputs.parameters.location}}"
             depends: "standardise-validate"
@@ -314,14 +318,18 @@ spec:
               parameter: "{{tasks.get-location.outputs.parameters.location}}"
       # END TEMPLATE `main`
 
-    - name: generate-ulid
+    - name: collection-id-setup
       script:
         image: "019359803926.dkr.ecr.ap-southeast-2.amazonaws.com/eks:topo-imagery-{{=sprig.trim(workflow.parameters['version-topo-imagery'])}}"
         command: [python]
         source: |
           import ulid
+          collection_id = "{{workflow.parameters.collection-id}}"
           with open("/tmp/ulid", "w") as f:
-            f.write(str(ulid.ULID()))
+            if not collection_id:
+              f.write(str(ulid.ULID()))
+            else:
+              f.write(collection_id)
       outputs:
         parameters:
           - name: ulid
