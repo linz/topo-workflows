@@ -259,7 +259,7 @@ spec:
                 - name: group_id
                   value: "{{item}}"
                 - name: collection-id
-                  value: "{{tasks.collection-id-setup.outputs.parameters.ulid}}"
+                  value: "{{tasks.collection-id-setup.outputs.parameters.collection-id}}"
                 - name: target
                   value: "{{tasks.get-location.outputs.parameters.location}}flat/"
               artifacts:
@@ -273,7 +273,7 @@ spec:
             arguments:
               parameters:
                 - name: collection-id
-                  value: "{{tasks.collection-id-setup.outputs.parameters.ulid}}"
+                  value: "{{tasks.collection-id-setup.outputs.parameters.collection-id}}"
                 - name: location
                   value: "{{tasks.get-location.outputs.parameters.location}}"
             depends: "standardise-validate"
@@ -325,16 +325,16 @@ spec:
         source: |
           import ulid
           collection_id = "{{workflow.parameters.collection-id}}"
-          with open("/tmp/ulid", "w") as f:
+          with open("/tmp/collection-id", "w") as f:
             if not collection_id:
               f.write(str(ulid.ULID()))
             else:
               f.write(collection_id)
       outputs:
         parameters:
-          - name: ulid
+          - name: collection-id
             valueFrom:
-              path: "/tmp/ulid"
+              path: "/tmp/collection-id"
 
     - name: standardise-validate
       retryStrategy:
