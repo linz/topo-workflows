@@ -112,7 +112,7 @@ graph TD;
 ### [collection-id-setup](./standardising.yaml)
 
 Sets the collection ID for the workflow as the input parameter.
-If no input collection ID is provide a ULID is generated and used as the collection id for the standardised dataset.
+If no input collection ID is provided a ULID is generated and used as the collection id for the standardised dataset.
 
 ### [tileindex-validate](https://github.com/linz/argo-tasks/blob/master/src/commands/tileindex-validate/)
 
