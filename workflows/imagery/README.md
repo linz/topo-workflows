@@ -24,6 +24,7 @@ In addition, a Basemaps link is produced enabling visual QA.
 | group          | int   | 50                                                                                                  | The number of files to group into the pods (testing has recommended using 50 for large datasets).                                                       |
 | compression    | enum  | webp                                                                                                | Standardised file format                                                                                                                                |
 | cutline        | str   |                                                                                                     | (Optional) location of a cutline file to cut the imagery to `.fgb` or `.geojson` (leave blank if no cutline)                                            |
+| collection-id  | str   |                                                                                                     | (Optional) Provide Collection ID if existing survery, otherwise a ULID will be generated for the collection.json ID field.                              |
 | title          | str   | \*Region/District/City\* \*GSD\* \*Urban/Rural\* Aerial Photos (\*Year-Year\*)                      | Collection title                                                                                                                                        |
 | description    | str   | Orthophotography within the \*Region Name\* region captured in the \*Year\*-\*Year\* flying season. | Collection description                                                                                                                                  |
 | producer       | enum  | Unknown                                                                                             | Imagery producer                                                                                                                                        |
@@ -50,6 +51,7 @@ In addition, a Basemaps link is produced enabling visual QA.
 | group          | 50                                                                                        |
 | compression    | webp                                                                                      |
 | cutline        | s3://linz-imagery-staging/cutline/bay-of-plenty_2021-2022.fgb                             |
+| collection-id  | 01FP371BHWDSREECKQAH9E8XQ                                                                 |
 | title          | Bay of Plenty 0.2m Rural Aerial Photos (2021-2022)                                        |
 | description    | Orthophotography within the Bay of Plenty region captured in the 2021-2022 flying season. |
 | producer       | Aerial Surveys                                                                            |
@@ -98,7 +100,7 @@ uri: https://basemaps.linz.govt.nz?config=...
 
 ```mermaid
 graph TD;
-    generate-ulid-->standardise-validate;
+    collection-id-setup-->standardise-validate;
     get-location-->standardise-validate;
     tileindex-validate-->standardise-validate;
     standardise-validate-->create-collection;
@@ -107,9 +109,10 @@ graph TD;
     create-overview-->create-config;
 ```
 
-### [generate-ulid](./standardising.yaml)
+### [collection-id-setup](./standardising.yaml)
 
-Generates a ULID which is used as the collection id for the standardised dataset.
+Sets the collection ID for the workflow as the input parameter.
+If no input collection ID is provide a ULID is generated and used as the collection id for the standardised dataset.
 
 ### [tileindex-validate](https://github.com/linz/argo-tasks/blob/master/src/commands/tileindex-validate/)
 
