@@ -18,6 +18,8 @@ spec:
     parameters:
       - name: cutline # optional standardising cutline
         value: ""
+      - name: collection-id # optional
+        value: ""
       - name: compression
         value: "webp"
       - name: source-epsg
