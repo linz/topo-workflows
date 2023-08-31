@@ -26,6 +26,10 @@ spec:
         value: "f"
       - name: copy-option
         value: "--no-clobber"
+        enum:
+          - "--no-clobber"
+          - "--force"
+          - "--force-no-clobber"
   templateDefaults:
     container:
       imagePullPolicy: Always
