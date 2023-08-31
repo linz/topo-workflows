@@ -4,8 +4,10 @@ import os
 import subprocess
 import yaml
 from dateutil import parser, tz
+from enum import Enum
+from typing import Dict, List, Set, Union
 
-from typing import Dict, List, TypedDict, Union
+valid_scales: List[str] = ["500", "1000", "2000", "5000", "10000", "50000"]
 
 def _run_command(command: List[str], cwd: Union[str, None]) -> "subprocess.CompletedProcess[bytes]":
     try:
@@ -22,8 +24,25 @@ def _run_command(command: List[str], cwd: Union[str, None]) -> "subprocess.Compl
         print(proc.stderr)
     return proc
 
-def _get_scale():
-    print("do stuff")
+def _get_scale(links: List[Dict[str, str]]) -> str:
+    scales: List[str] = []
+    for link in links:
+        if link["rel"] == "item":
+            try:
+                scale = os.path.splitext(link["href"].split("_")[1])[0]
+                if scale in valid_scales:
+                    if scale not in scales:
+                        scales.append(scale)
+                else:
+                    data_errors.append("invalid scale")
+                    return "invalid scale"
+            except:
+                data_errors.append("cannot retrieve scale: invalid file format")
+                return "invalid scale"
+    if len(scales) != 1:
+        data_errors.append(f"{len(scales)} scales found, should be only 1")
+        return "invalid scale"
+    return scales[0]
 
 def _format_date(date: str) -> datetime:
     utc_tz = tz.gettz("UTC")
@@ -32,6 +51,7 @@ def _format_date(date: str) -> datetime:
     try:
         utc_time = parser.parse(date).replace(tzinfo=utc_tz)
     except parser.ParserError as err:
+        data_errors.append(err)
         raise Exception(f"Not a valid date: {err}") from err
 
     nz_time: datetime = utc_time.astimezone(nz_tz)
@@ -80,6 +100,7 @@ with open(CATALOG_FILE, encoding="utf-8") as catalog:
 
 for link in catalog_json["links"]:
     if link["rel"] == "child":
+        data_errors = []
         collection_link = os.path.abspath("./data/imagery-stac/" + link["href"])
         with open(collection_link, encoding="utf-8") as collection:
             collection_json = json.loads(collection.read())
@@ -87,7 +108,7 @@ for link in catalog_json["links"]:
             target = _tmp_target_edit(source)
             start_datetime = _format_date(collection_json["extent"]["temporal"]["interval"][0][0])
             end_datetime = _format_date(collection_json["extent"]["temporal"]["interval"][0][1])
-            # scale = _get_scale(collection_json["links"])
+            scale = _get_scale(collection_json["links"])
 
             params = {
                 "source": source,
@@ -114,10 +135,3 @@ for link in catalog_json["links"]:
             # file_name = link["href"].split("/")[-4:-2]
             # file_name = f"{file_name[0]}-{file_name[1]}"
             # formatted_file_name = file_name.replace("_", "-").replace(".", "-")
-
-
-
-#            csv_writer.writerow([file_name, collection_json["id"], collection_json["title"], collection_json["description"], collection_json["providers"]])
-# with open('collection_ids.csv', 'w', newline='') as csvfile:
-#     csv_writer = csv.writer(csvfile, delimiter=',',
-#                             quotechar='"', quoting=csv.QUOTE_MINIMAL)
