@@ -39,11 +39,11 @@ def _get_scale(links: List[Dict[str, str]]) -> Optional[str]:
                     if scale not in scales:
                         scales.append(scale)
                 else:
-                    data_errors.append(f"invalid scale {scale} for file {link['href']}")
+                    data_errors.append(f"invalid scale {scale} for file {link['href']}\n")
             except:
-                data_errors.append(f"cannot retrieve scale: invalid file format for file {link['href']}")
+                data_errors.append(f"cannot retrieve scale: invalid file format for file {link['href']}\n")
     if len(scales) != 1:
-        data_errors.append(f"{len(scales)} scales found, should be only 1")
+        data_errors.append(f"{len(scales)} scales found, should be only 1\n")
         return None
     return scales[0]
 
@@ -71,7 +71,7 @@ def _add_providers(providers: List[Dict[str, str]], provider_type: str) -> Dict[
     elif len(provider_list) == 1:
         return {f"{provider_type}-list": "", provider_type: provider_list[0]}
     else:
-        data_errors.append(f"no {provider_type} for file {link['href']}")
+        data_errors.append(f"no {provider_type} for file {link['href']}\n")
         return {}
 
 
@@ -87,6 +87,9 @@ def _write_params(params: Dict[str, str], file: str) -> None:
             width=1000,
         )
 
+def _write_errors(errors: List[str], file: str) -> None:
+    with open(f"./_errors_{file}.txt", "w", encoding="utf-8") as error_file:
+        error_file.writelines(errors)
 
 def _tmp_target_edit(target: str) -> str:
     if "2193/rgb" in target:
@@ -144,6 +147,7 @@ for link in catalog_json["links"]:
 
             if data_errors:
                 not_valid.append(f"# {formatted_file_name}.yaml not written to bash as further action required \n")
+                _write_errors(data_errors, formatted_file_name)
             else:
                 parameter_list.append(COMMAND.format(formatted_file_name, formatted_file_name))
 
