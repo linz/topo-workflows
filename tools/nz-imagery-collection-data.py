@@ -5,7 +5,7 @@ import subprocess
 import yaml
 from dateutil import parser, tz
 from enum import Enum
-from typing import Dict, List, Set, Union
+from typing import Dict, List, Optional, Union
 
 valid_scales: List[str] = ["500", "1000", "2000", "5000", "10000", "50000"]
 
@@ -24,7 +24,7 @@ def _run_command(command: List[str], cwd: Union[str, None]) -> "subprocess.Compl
         print(proc.stderr)
     return proc
 
-def _get_scale(links: List[Dict[str, str]]) -> str:
+def _get_scale(links: List[Dict[str, str]]) -> Optional[str]:
     scales: List[str] = []
     for link in links:
         if link["rel"] == "item":
@@ -34,14 +34,12 @@ def _get_scale(links: List[Dict[str, str]]) -> str:
                     if scale not in scales:
                         scales.append(scale)
                 else:
-                    data_errors.append("invalid scale")
-                    return "invalid scale"
+                    data_errors.append(f"invalid scale {scale} for file {link['href']}")
             except:
-                data_errors.append("cannot retrieve scale: invalid file format")
-                return "invalid scale"
+                data_errors.append(f"cannot retrieve scale: invalid file format for file {link['href']}")
     if len(scales) != 1:
         data_errors.append(f"{len(scales)} scales found, should be only 1")
-        return "invalid scale"
+        return None
     return scales[0]
 
 def _format_date(date: str) -> datetime:
@@ -109,6 +107,7 @@ for link in catalog_json["links"]:
             start_datetime = _format_date(collection_json["extent"]["temporal"]["interval"][0][0])
             end_datetime = _format_date(collection_json["extent"]["temporal"]["interval"][0][1])
             scale = _get_scale(collection_json["links"])
+            print(scale)
 
             params = {
                 "source": source,
@@ -118,7 +117,7 @@ for link in catalog_json["links"]:
                 "description": collection_json["description"],
                 "start-datetime": start_datetime,
                 "end-datetime": end_datetime,
-                # "scale": scale,
+                "scale": scale,
                 "source-epsg": "2193",
                 "target-epsg": "2193",
                 "compression": "webp",
@@ -132,6 +131,9 @@ for link in catalog_json["links"]:
             # params = {**params, **_add_licensor(row, index)}
             # params = {**params, **_add_producer(row, index)}
 
-            # file_name = link["href"].split("/")[-4:-2]
-            # file_name = f"{file_name[0]}-{file_name[1]}"
-            # formatted_file_name = file_name.replace("_", "-").replace(".", "-")
+            file_name = link["href"].split("/")[-4:-2]
+            file_name = f"{file_name[0]}-{file_name[1]}"
+            formatted_file_name = file_name.replace("_", "-").replace(".", "-")
+
+            if data_errors:
+                print(f"{collection_json['id']} {source} {data_errors}")
