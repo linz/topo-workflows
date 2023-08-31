@@ -3,6 +3,7 @@ import json
 import os
 import subprocess
 import yaml
+from dateutil import parser, tz
 
 from typing import Dict, List, TypedDict, Union
 
@@ -24,8 +25,17 @@ def _run_command(command: List[str], cwd: Union[str, None]) -> "subprocess.Compl
 def _get_scale():
     print("do stuff")
 
-def _get_date(date: datetime.date) -> datetime.date:
-    print(date)
+def _format_date(date: str) -> datetime:
+    utc_tz = tz.gettz("UTC")
+    nz_tz = tz.gettz("Pacific/Auckland")
+
+    try:
+        utc_time = parser.parse(date).replace(tzinfo=utc_tz)
+    except parser.ParserError as err:
+        raise Exception(f"Not a valid date: {err}") from err
+
+    nz_time: datetime = utc_time.astimezone(nz_tz)
+    return nz_time.strftime("%Y-%m-%d")
 
 def _add_licensor(row: List[str], index: Dict[str, int]) -> Dict[str, str]:
     licensor = row[index["licensor"]]
@@ -73,8 +83,8 @@ for link in catalog_json["links"]:
             collection_json = json.loads(collection.read())
             source = os.path.join("s3://linz-imagery/", link["href"].strip("./"))
             target = _tmp_target_edit(source)
-            start_datetime: datetime.date = _get_date(collection_json["extent"]["temporal"]["interval"][0][0])
-            end_datetime: datetime.date = _get_date(collection_json["extent"]["temporal"]["interval"][0][1])
+            start_datetime = _format_date(collection_json["extent"]["temporal"]["interval"][0][0])
+            end_datetime = _format_date(collection_json["extent"]["temporal"]["interval"][0][1])
             # scale = _get_scale(collection_json["links"])
 
             params = {
@@ -94,7 +104,7 @@ for link in catalog_json["links"]:
                 "group": "5",
             }
 
-            # print(params)
+            print(params)
 
             # params = {**params, **_add_licensor(row, index)}
             # params = {**params, **_add_producer(row, index)}
