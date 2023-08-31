@@ -20,6 +20,8 @@ spec:
         value: "s3://linz-topographic-upload/maps/topo50/"
       - name: target
         value: "s3://linz-"
+      - name: include
+        value: ".*.*.tif?$"
       - name: transform
         value: "f"
       - name: copy-option
@@ -57,7 +59,7 @@ spec:
                 - name: source
                   value: "{{workflow.parameters.source}}"
                 - name: include
-                  value: ".*.*.tif?$"
+                  value: "{{workflow.parameters.include}}"
                 - name: group
                   value: "1000"
                 - name: group-size
@@ -94,7 +96,7 @@ spec:
             "list",
             "--verbose",
             "--include",
-            ".*.*.tif?$",
+            "{{workflow.parameters.include}}",
             "--group",
             "2000",
             "--output",
