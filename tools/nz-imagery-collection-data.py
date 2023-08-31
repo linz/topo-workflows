@@ -64,6 +64,8 @@ def _write_params(params: Dict[str, str], file: str) -> None:
         )
 
 def _tmp_target_edit(target: str) -> str:
+    if "2193/rgb" in target:
+        target = target.replace("2193/rgb", "rgb/2193")
     return target.replace("s3://linz-imagery/", "s3://linz-workflow-artifacts/nz-imagery/")
 
 ## Uncomment if you need to retrieve the STAC files
@@ -90,7 +92,7 @@ for link in catalog_json["links"]:
             params = {
                 "source": source,
                 "target": target,
-                "id": collection_json["id"],
+                "collection-id": collection_json["id"],
                 "title": collection_json["title"],
                 "description": collection_json["description"],
                 "start-datetime": start_datetime,
@@ -104,7 +106,7 @@ for link in catalog_json["links"]:
                 "group": "5",
             }
 
-            print(params)
+            # print(params)
 
             # params = {**params, **_add_licensor(row, index)}
             # params = {**params, **_add_producer(row, index)}
