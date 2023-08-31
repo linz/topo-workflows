@@ -12,12 +12,13 @@ Upon completion all standardised TIFF and STAC files will be located within the 
 
 ## Workflow Input Parameters
 
-| Parameter   | Type | Default                           | Description                                                                                                                                                      |
-| ----------- | ---- | --------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| source      | str  | s3://linz-topgraphic/maps/topo50/ | the uri (path) to the input tiffs                                                                                                                                |
-| target      | str  | s3://linz-                        | the target uri (path) to copy the input and thumbnails                                                                                                           |
-| transform   | str  | f                                 | String to be transformed from source to target to renamed filenames, e.g. `f.replace("text to replace", "new_text_to_use")`. Leave as `f` for no transformation. |
-| copy-option | str  | no-clobber                        | `--no-clobber` Skip overwriting existing files. `--force` Overwrite all files. `--force-no-clobber` Overwrite only changed files, skip unchanged files. tiffs    |
+| Parameter   | Type  | Default                           | Description                                                                                                                                                      |
+| ----------- | ----- | --------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| source      | str   | s3://linz-topgraphic/maps/topo50/ | the uri (path) to the input tiffs                                                                                                                                |
+| target      | str   | s3://linz-                        | the target uri (path) to copy the input and thumbnails                                                                                                           |
+| include     | regex | .\*.\*.tif?$                      | A regular expression to match object path(s) or name(s) from within the source path to include.                                                                  |
+| transform   | str   | f                                 | String to be transformed from source to target to renamed filenames, e.g. `f.replace("text to replace", "new_text_to_use")`. Leave as `f` for no transformation. |
+| copy-option | str   | no-clobber                        | `--no-clobber` Skip overwriting existing files. `--force` Overwrite all files. `--force-no-clobber` Overwrite only changed files, skip unchanged files. tiffs    |
 
 ## Workflow Outputs
 
