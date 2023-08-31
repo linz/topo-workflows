@@ -24,6 +24,7 @@ In addition, a Basemaps link is produced enabling visual QA.
 | group          | int   | 50                                                                                                  | The number of files to group into the pods (testing has recommended using 50 for large datasets).                                                       |
 | compression    | enum  | webp                                                                                                | Standardised file format                                                                                                                                |
 | cutline        | str   |                                                                                                     | (Optional) location of a cutline file to cut the imagery to `.fgb` or `.geojson` (leave blank if no cutline)                                            |
+| collection-id  | str   |                                                                                                     | (Optional) Provide a Collection ID if re-processing an existing published survery, otherwise a ULID will be generated for the collection.json ID field. |
 | title          | str   | \*Region/District/City\* \*GSD\* \*Urban/Rural\* Aerial Photos (\*Year-Year\*)                      | Collection title                                                                                                                                        |
 | description    | str   | Orthophotography within the \*Region Name\* region captured in the \*Year\*-\*Year\* flying season. | Collection description                                                                                                                                  |
 | producer       | enum  | Unknown                                                                                             | Imagery producer                                                                                                                                        |
@@ -50,6 +51,7 @@ In addition, a Basemaps link is produced enabling visual QA.
 | group          | 50                                                                                        |
 | compression    | webp                                                                                      |
 | cutline        | s3://linz-imagery-staging/cutline/bay-of-plenty_2021-2022.fgb                             |
+| collection-id  | 01FP371BHWDSREECKQAH9E8XQ                                                                 |
 | title          | Bay of Plenty 0.2m Rural Aerial Photos (2021-2022)                                        |
 | description    | Orthophotography within the Bay of Plenty region captured in the 2021-2022 flying season. |
 | producer       | Aerial Surveys                                                                            |
@@ -98,7 +100,7 @@ uri: https://basemaps.linz.govt.nz?config=...
 
 ```mermaid
 graph TD;
-    generate-ulid-->standardise-validate;
+    collection-id-setup-->standardise-validate;
     get-location-->standardise-validate;
     tileindex-validate-->standardise-validate;
     standardise-validate-->create-collection;
@@ -107,9 +109,10 @@ graph TD;
     create-overview-->create-config;
 ```
 
-### [generate-ulid](./standardising.yaml)
+### [collection-id-setup](./standardising.yaml)
 
-Generates a ULID which is used as the collection id for the standardised dataset.
+Sets the collection ID for the workflow as the input parameter.
+If no input collection ID is provided a ULID is generated and used as the collection id for the standardised dataset.
 
 ### [tileindex-validate](https://github.com/linz/argo-tasks/blob/master/src/commands/tileindex-validate/)
 
@@ -249,15 +252,16 @@ This workflow carries out the steps in the [Standardising](#Standardising) workf
 
 ### Standardising-Publish Optional Parameters - can be specified on the command line to override default value
 
-| Parameter   | Type  | Default      | Description                                                                                                                                                                                                                                      |
-| ----------- | ----- | ------------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
-| cutline     | str   |              | (Optional) location of a cutline file to cut the imagery to `.fgb` or `.geojson` (do not include if no cutline)                                                                                                                                  |
-| compression | str   | webp         | Standardised file format. Must be `webp` or `lzw`                                                                                                                                                                                                |
-| group       | int   | 50           | Applies to the standardising workflow. The number of files to group into the pods (testing has recommended using 50 for large datasets).                                                                                                         |
-| include     | regex | .tiff?$      | Applies to the standardising workflow. A regular expression to match object path(s) or name(s) from within the source path to include in standardising\*.                                                                                        |
-| copy-option | str   | --no-clobber | Applies to the standardising and publishing workflows and should not need to be changed. `--no-clobber` Skip overwriting existing files. `--force` Overwrite all files. `--force-no-clobber` Overwrite only changed files, skip unchanged files. |
-| source-epsg | str   | 2193         | The EPSG code of the source imagery.                                                                                                                                                                                                             |
-| target-epsg | str   | 2193         | The Target EPSG code, if different to source-epsg the imagery will be reprojected.                                                                                                                                                               |
+| Parameter     | Type  | Default      | Description                                                                                                                                                                                                                                      |
+| ------------- | ----- | ------------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| cutline       | str   |              | (Optional) location of a cutline file to cut the imagery to `.fgb` or `.geojson` (do not include if no cutline)                                                                                                                                  |
+| collection-id | str   |              | (Optional) Provide a Collection ID if re-processing an existing published survery, otherwise a ULID will be generated for the collection.json ID field.                                                                                          |
+| compression   | str   | webp         | Standardised file format. Must be `webp` or `lzw`                                                                                                                                                                                                |
+| group         | int   | 50           | Applies to the standardising workflow. The number of files to group into the pods (testing has recommended using 50 for large datasets).                                                                                                         |
+| include       | regex | .tiff?$      | Applies to the standardising workflow. A regular expression to match object path(s) or name(s) from within the source path to include in standardising\*.                                                                                        |
+| copy-option   | str   | --no-clobber | Applies to the standardising and publishing workflows and should not need to be changed. `--no-clobber` Skip overwriting existing files. `--force` Overwrite all files. `--force-no-clobber` Overwrite only changed files, skip unchanged files. |
+| source-epsg   | str   | 2193         | The EPSG code of the source imagery.                                                                                                                                                                                                             |
+| target-epsg   | str   | 2193         | The Target EPSG code, if different to source-epsg the imagery will be reprojected.                                                                                                                                                               |
 
 \* This regex can be used to exclude paths as well, e.g. if there are RBG and RGBI directories, the following regex will only include TIFF files in the RGB directory: `RGB(?!I).*.tiff?$`.
 
