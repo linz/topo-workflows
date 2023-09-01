@@ -88,14 +88,13 @@ def _write_params(params: Dict[str, str], file: str) -> None:
         )
 
 def _write_errors(errors: List[str], file: str) -> None:
-    with open(f"./_errors_{file}.txt", "w", encoding="utf-8") as error_file:
+    with open(f"./errors/_errors_{file}.txt", "w", encoding="utf-8") as error_file:
         error_file.writelines(errors)
 
 def _tmp_target_edit(target: str) -> str:
     if "2193/rgb" in target:
         target = target.replace("2193/rgb", "rgb/2193")
     return target.replace("s3://linz-imagery/", "s3://linz-workflow-artifacts/nz-imagery/")
-
 
 ## Uncomment if you need to retrieve the STAC files
 # run_command(["git", "clone", """git@github.com:linz/imagery""", "./data/imagery-stac/"], None)
