@@ -113,7 +113,7 @@ for link in catalog_json["links"]:
         collection_link = os.path.abspath("./data/imagery-stac/" + link["href"])
         with open(collection_link, encoding="utf-8") as collection:
             collection_json = json.loads(collection.read())
-            source = os.path.join("s3://linz-imagery/", link["href"].strip("./"))
+            source = os.path.join("s3://linz-imagery/", link["href"].strip("./")).rstrip("collection.json")
             target = _tmp_target_edit(source)
             start_datetime = _format_date(collection_json["extent"]["temporal"]["interval"][0][0])
             end_datetime = _format_date(collection_json["extent"]["temporal"]["interval"][0][1])
@@ -149,10 +149,10 @@ for link in catalog_json["links"]:
             else:
                 parameter_list.append(COMMAND.format(formatted_file_name, formatted_file_name))
 
-            _write_params(params, formatted_file_name)
+            # _write_params(params, formatted_file_name)
 
-    with open("./standardise-publish.sh", "w") as script:
-        script.write("#!/bin/bash\n\n")
-        script.writelines(parameter_list)
-        script.writelines("\n\n\n")
-        script.writelines(not_valid)
+    # with open("./standardise-publish.sh", "w") as script:
+    #     script.write("#!/bin/bash\n\n")
+    #     script.writelines(parameter_list)
+    #     script.writelines("\n\n\n")
+    #     script.writelines(not_valid)
