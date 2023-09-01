@@ -149,10 +149,10 @@ for link in catalog_json["links"]:
             else:
                 parameter_list.append(COMMAND.format(formatted_file_name, formatted_file_name))
 
-            # _write_params(params, formatted_file_name)
+            _write_params(params, formatted_file_name)
 
-    # with open("./standardise-publish.sh", "w") as script:
-    #     script.write("#!/bin/bash\n\n")
-    #     script.writelines(parameter_list)
-    #     script.writelines("\n\n\n")
-    #     script.writelines(not_valid)
+    with open("./standardise-publish.sh", "w") as script:
+        script.write("#!/bin/bash\n\n")
+        script.writelines(parameter_list)
+        script.writelines("\n\n\n")
+        script.writelines(not_valid)
