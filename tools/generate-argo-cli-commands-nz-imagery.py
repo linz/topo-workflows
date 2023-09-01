@@ -88,7 +88,7 @@ def _write_params(params: Dict[str, str], file: str) -> None:
         )
 
 def _write_errors(errors: List[str], file: str) -> None:
-    with open(f"./errors/_errors_{file}.txt", "w", encoding="utf-8") as error_file:
+    with open(f"./_errors_{file}.txt", "w", encoding="utf-8") as error_file:
         error_file.writelines(errors)
 
 def _tmp_target_edit(target: str) -> str:
