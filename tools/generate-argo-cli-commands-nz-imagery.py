@@ -4,7 +4,6 @@ import os
 import subprocess
 import yaml
 from dateutil import parser, tz
-from enum import Enum
 from typing import Dict, List, Optional, Set, Union
 
 
