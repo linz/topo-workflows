@@ -52,14 +52,22 @@ def _write_params(params: Dict[str, str], file: str) -> None:
         )
 
 def _tmp_target_edit(target: str) -> str:
+    if "_0.10m/" in target:
+        target = target.replace("_0.10m/", "_0.1m/")
+    if "tauranga-city_2022_0.1m" in target:
+        target = target.replace("tauranga-city_2022_0.1m", "tauranga_2022_0.1m")
+    if "tauranga_winter_2022_0.1m" in target:
+        target = target.replace("tauranga_winter_2022_0.1m", "tauranga-winter_2022_0.1m")
+    if "christchurch-post-earthquake_24-february-2011_0.1m" in target:
+        target = target.replace("christchurch-post-earthquake_24-february-2011_0.1m", "christchurch-earthquake_2011_0.1m")
     if "2193/rgb" in target:
         target = target.replace("2193/rgb", "rgb/2193")
     return target.replace("s3://linz-imagery/", "s3://nz-imagery/")
 
 ## Uncomment if you need to retrieve the STAC files
-#_run_command(["git", "clone", """git@github.com:linz/imagery""", "./data/imagery/"], None)
+# _run_command(["git", "clone", """git@github.com:linz/imagery""", "./data/imagery/"], None)
 ## Need to be logged into imagery account to get the catalog.json file
-#_run_command(["s5cmd", "cp", "s3://linz-imagery/catalog.json", "./data/imagery/stac/"], None)
+# _run_command(["s5cmd", "cp", "s3://linz-imagery/catalog.json", "./data/imagery/stac/"], None)
 
 
 with open(CATALOG_FILE, encoding="utf-8") as catalog:
