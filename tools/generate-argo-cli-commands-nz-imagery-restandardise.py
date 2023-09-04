@@ -7,7 +7,7 @@ from dateutil import parser, tz
 from typing import Dict, List, Optional, Set, Union
 
 
-CATALOG_FILE = "./data/imagery-stac/catalog.json"
+CATALOG_FILE = "./data/imagery/stac/catalog.json"
 COMMAND = "argo submit ~/dev/topo-workflows/workflows/imagery/standardising-publish-import.yaml -n argo -f ./{0}.yaml --generate-name {1}\n"
 VALID_SCALES: Set[str] = {"500", "1000", "2000", "5000", "10000", "50000"}
 
@@ -95,9 +95,9 @@ def _tmp_target_edit(target: str) -> str:
     return target.replace("s3://linz-imagery/", "s3://linz-workflow-artifacts/nz-imagery/")
 
 ## Uncomment if you need to retrieve the STAC files
-# _run_command(["git", "clone", """git@github.com:linz/imagery""", "./data/imagery-stac/"], None)
+# _run_command(["git", "clone", """git@github.com:linz/imagery""", "./data/imagery/"], None)
 ## Need to be logged into imagery account to get the catalog.json file
-# _run_command(["s5cmd", "cp", "s3://linz-imagery/catalog.json", "./data/imagery-stac/"], None)
+# _run_command(["s5cmd", "cp", "s3://linz-imagery/catalog.json", "./data/imagery/"], None)
 
 
 with open(CATALOG_FILE, encoding="utf-8") as catalog:
@@ -109,7 +109,7 @@ not_valid = []
 for link in catalog_json["links"]:
     if link["rel"] == "child":
         data_errors = []
-        collection_link = os.path.abspath("./data/imagery-stac/" + link["href"])
+        collection_link = os.path.abspath("./data/imagery/stac/" + link["href"])
         with open(collection_link, encoding="utf-8") as collection:
             collection_json = json.loads(collection.read())
             source = os.path.join("s3://linz-imagery/", link["href"].strip("./")).rstrip("collection.json")
