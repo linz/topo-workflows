@@ -85,7 +85,7 @@ spec:
       emptyDir: {}
     - name: secret-volume # this is for the publish-copy step
       secret:
-        secretName: github-linz-imagery
+        secretName: "github-linz-{{=sprig.regexFind('(elevation|imagery)', workflow.parameters.target)}}"
         defaultMode: 384
     # - name: secret-vol # uncomment for basemaps imagery import
     #   secret:
