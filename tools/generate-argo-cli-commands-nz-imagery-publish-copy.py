@@ -57,9 +57,9 @@ def _tmp_target_edit(target: str) -> str:
     return target.replace("s3://linz-imagery/", "s3://nz-imagery/")
 
 ## Uncomment if you need to retrieve the STAC files
-# _run_command(["git", "clone", """git@github.com:linz/imagery""", "./data/imagery/"], None)
+_run_command(["git", "clone", """git@github.com:linz/imagery""", "./data/imagery/"], None)
 ## Need to be logged into imagery account to get the catalog.json file
-# _run_command(["s5cmd", "cp", "s3://linz-imagery/catalog.json", "./data/imagery/"], None)
+_run_command(["s5cmd", "cp", "s3://linz-imagery/catalog.json", "./data/imagery/stac/"], None)
 
 
 with open(CATALOG_FILE, encoding="utf-8") as catalog:
