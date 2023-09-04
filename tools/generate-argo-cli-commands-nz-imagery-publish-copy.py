@@ -5,7 +5,7 @@ import yaml
 from typing import Dict, List, Set, Union
 
 CATALOG_FILE = "./data/imagery/stac/catalog.json"
-COMMAND = "argo submit --from wftmpl/publish-copy -n argo -f ./{0}.yaml --generate-name {1}-\n"
+COMMAND = "argo submit --from wftmpl/publish-odr -n argo -f ./{0}.yaml --generate-name {1}-\n"
 VALID_SCALES: Set[str] = {"500", "1000", "2000", "5000", "10000", "50000"}
 
 
