@@ -40,7 +40,7 @@ def _get_scale(links: List[Dict[str, str]]) -> Optional[str]:
                 else:
                     data_errors.append(f"invalid scale {scale} for file {link['href']}\n")
             except:
-                data_errors.append(f"cannot retrieve scale: invalid file format for file {link['href']}\n")
+                data_errors.append(f"cannot retrieve scale: invalid filename format for file {link['href']}\n")
     if len(scales) != 1:
         data_errors.append(f"{len(scales)} scales found, should be only 1\n")
         return None
@@ -88,6 +88,7 @@ def _write_params(params: Dict[str, str], file: str) -> None:
 
 def _write_errors(errors: List[str], file: str) -> None:
     with open(f"./_errors_{file}.txt", "w", encoding="utf-8") as error_file:
+        error_file.write(f"{link['href']}\n\n")
         error_file.writelines(errors)
 
 def _tmp_target_edit(target: str) -> str:
@@ -149,10 +150,10 @@ for link in catalog_json["links"]:
             else:
                 parameter_list.append(COMMAND.format(formatted_file_name, formatted_file_name))
 
-            _write_params(params, formatted_file_name)
+    #         _write_params(params, formatted_file_name)
 
-    with open("./standardise-publish.sh", "w") as script:
-        script.write("#!/bin/bash\n\n")
-        script.writelines(parameter_list)
-        script.writelines("\n\n\n")
-        script.writelines(not_valid)
+    # with open("./standardise-publish.sh", "w") as script:
+    #     script.write("#!/bin/bash\n\n")
+    #     script.writelines(parameter_list)
+    #     script.writelines("\n\n\n")
+    #     script.writelines(not_valid)
