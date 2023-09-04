@@ -20,8 +20,6 @@ def _run_command(command: List[str], cwd: Union[str, None]) -> "subprocess.Compl
         )
     except subprocess.CalledProcessError as cpe:
         raise cpe
-    if proc.stderr:
-        data_errors.append(proc.stderr)
     return proc
 
 def _is_valid_scale(links: List[Dict[str, str]]) -> bool:
@@ -59,9 +57,9 @@ def _tmp_target_edit(target: str) -> str:
     return target.replace("s3://linz-imagery/", "s3://nz-imagery/")
 
 ## Uncomment if you need to retrieve the STAC files
-# run_command(["git", "clone", """git@github.com:linz/imagery""", "./data/imagery-stac/"], None)
+_run_command(["git", "clone", """git@github.com:linz/imagery""", "./data/imagery-stac/"], None)
 ## Need to be logged into imagery account to get the catalog.json file
-# run_command(["s5cmd", "cp", "s3://linz-imagery/catalog.json", "./data/imagery-stac/"], None)
+_run_command(["s5cmd", "cp", "s3://linz-imagery/catalog.json", "./data/imagery-stac/"], None)
 
 
 with open(CATALOG_FILE, encoding="utf-8") as catalog:
