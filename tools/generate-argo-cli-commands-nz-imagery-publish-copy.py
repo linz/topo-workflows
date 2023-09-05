@@ -5,7 +5,7 @@ import yaml
 from typing import Dict, List, Set, Union
 
 CATALOG_FILE = "./data/imagery/stac/catalog.json"
-COMMAND = "argo submit --from wftmpl/publish-odr -n argo -f ./{0}.yaml --generate-name {1}-\n"
+COMMAND = "argo submit --from wftmpl/publish-odr -n argo -f ./publish-{0}.yaml --generate-name odr-{1}-\n"
 VALID_SCALES: Set[str] = {"500", "1000", "2000", "5000", "10000", "50000"}
 
 
@@ -99,8 +99,8 @@ for link in catalog_json["links"]:
                 "source": source,
                 "target": target,
                 "include": ".tiff?$|.json$",
-                "group": "1000",
-                "group-size": "100Gi",
+                "group": "2000",
+                "group-size": "200Gi",
             }
 
             file_name = target.split("/")[-4:-2]
