@@ -176,6 +176,7 @@ spec:
         args:
           [
             "copy",
+            "--fix-content-type=true",
             "{{workflow.parameters.copy-option}}",
             "{{inputs.parameters.file}}",
           ]
