@@ -20,6 +20,8 @@ spec:
         value: "s3://path/"
       - name: cutline # optional standardising cutline
         value: ""
+      - name: collection-id # optional
+        value: ""
       - name: compression
         value: "webp"
       - name: source-epsg
@@ -113,7 +115,7 @@ spec:
     - name: aws-list
       inputs:
       container:
-        image: 019359803926.dkr.ecr.ap-southeast-2.amazonaws.com/eks:argo-tasks-{{workflow.parameters.version-argo-tasks}}
+        image: "019359803926.dkr.ecr.ap-southeast-2.amazonaws.com/eks:argo-tasks-{{workflow.parameters.version-argo-tasks}}"
         command: [node, /app/index.js]
         env:
           - name: AWS_ROLE_CONFIG_PATH
