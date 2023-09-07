@@ -142,6 +142,7 @@ spec:
         parameters:
           - name: target
             valueFrom:
+              default: "{{workflow.parameters.target}}"
               supplied: {}
 
     - name: create-manifest
