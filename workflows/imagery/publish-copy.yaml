@@ -132,7 +132,8 @@ spec:
             # END
 
     - name: approval
-      suspend: {}
+      suspend:
+        duration: "60"
       inputs:
         parameters:
           - name: target
