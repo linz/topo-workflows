@@ -105,7 +105,7 @@ graph TD;
     tileindex-validate-->standardise-validate;
     standardise-validate-->create-collection;
     standardise-validate-->create-overview;
-    create-collection-->stac-validate;
+    create-collection-->stac-format-->stac-validate;
     create-overview-->create-config;
 ```
 
