@@ -142,4 +142,3 @@ spec:
                 - name: repo
                   value: "imagery"
             depends: "copy-with-github"
-    # END TEMPLATE MAIN
