@@ -129,7 +129,7 @@ spec:
 
           - name: push-to-github
             templateRef:
-              name: push-to-github
+              name: tpl-push-to-github
               template: main
             arguments:
               parameters:
