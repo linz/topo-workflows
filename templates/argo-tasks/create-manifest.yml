@@ -1,8 +1,8 @@
 apiVersion: argoproj.io/v1alpha1
 kind: WorkflowTemplate
 metadata:
-  # Template for creating a manifest
-  # See TODO Github link
+  # Template for creating a manifest to be copied and their target path
+  # See https://github.com/linz/argo-tasks#create-manifest
   name: tpl-create-manifest
 spec:
   templateDefaults:
@@ -24,15 +24,15 @@ spec:
             default: "v2"
 
           - name: include
-            description: TODO
+            description: A regular expression to match object path(s) or name(s) from within the source path to include in the copy
             default: ".tiff?$|.json$|.tfw$"
 
           - name: exclude
-            description: TODO
+            description: A regular expression to match object path(s) or name(s) from within the source path to exclude in the copy
             default: ""
 
           - name: copy-option
-            description: TODO
+            description: `--no-clobber` Skip overwriting existing files. `--force` Overwrite all files. `--force-no-clobber` Overwrite only changed files, skip unchanged files.
             default: "--no-clobber"
             enum:
               - "--no-clobber"
@@ -40,15 +40,15 @@ spec:
               - "--force-no-clobber"
 
           - name: group
-            description: TODO
+            description: The maximum number of files for each pod to copy (will use the value of `group` or `group-size` that is reached first)
             default: "1000"
 
           - name: group-size
-            description: TODO
+            description: The maximum group size of files for each pod to copy (will use the value of `group` or `group-size` that is reached first)
             default: "100Gi"
 
           - name: transform
-            description: TODO
+            description: String to be transformed from source to target to renamed filenames, e.g. `f.replace("text to replace", "new_text_to_use")`. Leave as `f` for no transformation.
             default: "f"
 
       outputs:

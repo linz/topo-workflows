@@ -135,6 +135,6 @@ spec:
                   value: "{{workflow.parameters.target}}"
                 - name: version-argo-tasks
                   value: "{{workflow.parameters.version-argo-tasks}}"
-                - name: repo
+                - name: repository
                   value: "elevation"
             depends: "copy-with-github"

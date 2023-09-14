@@ -1,8 +1,8 @@
 apiVersion: argoproj.io/v1alpha1
 kind: WorkflowTemplate
 metadata:
-  # Template for copying data using a manifest file
-  # See TODO Github link
+  # Template for copying a manifest of files between two locations
+  # See https://github.com/linz/argo-tasks#copy
   name: tpl-copy
 spec:
   templateDefaults:
@@ -16,14 +16,14 @@ spec:
       inputs:
         parameters:
           - name: file
-            description: TODO
+            description: Path to the manifest file detailing source and target
 
           - name: version-argo-tasks
             description: version of argo-tasks to use
             default: "v2"
 
           - name: copy-option
-            description: TODO
+            description: `--no-clobber` Skip overwriting existing files. `--force` Overwrite all files. `--force-no-clobber` Overwrite only changed files, skip unchanged files.
             default: "--no-clobber"
             enum:
               - "--no-clobber"
@@ -31,7 +31,7 @@ spec:
               - "--force-no-clobber"
 
           - name: aws-role-config-path
-            description: TODO
+            description: The path(s) to the aws configs that enable writing to buckets
             default: "s3://linz-bucket-config/config-write.imagery.json,s3://linz-bucket-config/config-write.elevation.json,s3://linz-bucket-config/config-write.topographic.json,s3://linz-bucket-config/config.json"
 
       container:
