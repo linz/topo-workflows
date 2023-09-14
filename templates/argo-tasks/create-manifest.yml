@@ -32,7 +32,7 @@ spec:
             default: ""
 
           - name: copy-option
-            description: `--no-clobber` Skip overwriting existing files. `--force` Overwrite all files. `--force-no-clobber` Overwrite only changed files, skip unchanged files.
+            description: --no-clobber Skip overwriting existing files. --force Overwrite all files. --force-no-clobber Overwrite only changed files, skip unchanged files.
             default: "--no-clobber"
             enum:
               - "--no-clobber"
