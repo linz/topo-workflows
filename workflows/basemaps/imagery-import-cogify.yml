@@ -53,7 +53,7 @@ spec:
 
       - name: group_size
         description: How many items to pass to each create-cog job
-        value: 10
+        value: 20
 
   templates:
     # Main entrypoint into the workflow
@@ -226,7 +226,7 @@ spec:
       container:
         resources:
           requests:
-            memory: 7.8Gi
+            memory: 15.6Gi
             cpu: 15000m
         image: ghcr.io/linz/basemaps/cli:{{ workflow.parameters.version_basemaps_cli }}
         command: [node, /app/node_modules/.bin/cogify]
