@@ -53,7 +53,7 @@ spec:
 
       - name: group_size
         description: How many items to pass to each create-cog job
-        value: 10
+        value: 20
 
   templates:
     # Main entrypoint into the workflow
@@ -173,6 +173,8 @@ spec:
 
     # Generate a tile covering for input imagery
     - name: create-covering
+      retryStrategy:
+        limit: "2"
       inputs:
         parameters:
           - name: source
@@ -211,6 +213,8 @@ spec:
 
     # Actually create COGs using gdal_translate on a large spot instances
     - name: create-cog
+      retryStrategy:
+        limit: "2"
       nodeSelector:
         karpenter.sh/capacity-type: "spot"
       inputs:
@@ -222,7 +226,7 @@ spec:
       container:
         resources:
           requests:
-            memory: 7.8Gi
+            memory: 15.6Gi
             cpu: 15000m
         image: ghcr.io/linz/basemaps/cli:{{ workflow.parameters.version_basemaps_cli }}
         command: [node, /app/node_modules/.bin/cogify]
@@ -235,6 +239,8 @@ spec:
 
     # Create a basemaps configuration file to view the imagery
     - name: create-config
+      retryStrategy:
+        limit: "2"
       inputs:
         parameters:
           - name: path
@@ -261,6 +267,8 @@ spec:
 
     # create additional overviews for any COGs found in the path
     - name: create-overview
+      retryStrategy:
+        limit: "2"
       nodeSelector:
         karpenter.sh/capacity-type: "spot"
       inputs:
