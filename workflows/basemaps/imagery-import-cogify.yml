@@ -228,6 +228,9 @@ spec:
           requests:
             memory: 15.6Gi
             cpu: 15000m
+            ephemeral-storage: 100Gi
+          limits:
+            memory: 15.6Gi
         image: ghcr.io/linz/basemaps/cli:{{ workflow.parameters.version_basemaps_cli }}
         command: [node, /app/node_modules/.bin/cogify]
         env:
