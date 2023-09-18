@@ -226,11 +226,9 @@ spec:
       container:
         resources:
           requests:
-            memory: 15.6Gi
-            cpu: 15000m
-            ephemeral-storage: 100Gi
-          limits:
-            memory: 15.6Gi
+            memory: 30Gi
+            cpu: 16000m
+            ephemeral-storage: 98Gi # 2 pods per 200GB of storage
         image: ghcr.io/linz/basemaps/cli:{{ workflow.parameters.version_basemaps_cli }}
         command: [node, /app/node_modules/.bin/cogify]
         env:
@@ -239,6 +237,7 @@ spec:
         args:
           - "create"
           - "--from-file={{= inputs.artifacts.covering_grouped.path }}{{inputs.parameters.covering_grouped_id}}.json"
+          - "--concurrency=2"
 
     # Create a basemaps configuration file to view the imagery
     - name: create-config
