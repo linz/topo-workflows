@@ -227,7 +227,7 @@ spec:
         resources:
           requests:
             memory: 30Gi
-            cpu: 16000m
+            cpu: 15000m # AWS gives 2x cpu cores = memory for most instances
             ephemeral-storage: 98Gi # 2 pods per 200GB of storage
         image: ghcr.io/linz/basemaps/cli:{{ workflow.parameters.version_basemaps_cli }}
         command: [node, /app/node_modules/.bin/cogify]
