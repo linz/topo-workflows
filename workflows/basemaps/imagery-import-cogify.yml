@@ -1,7 +1,7 @@
 apiVersion: argoproj.io/v1alpha1
-kind: WorkflowTemplate
+kind: Workflow
 metadata:
-  name: basemaps-imagery-import-cogify
+  generateName: test-bm-cogify-
   namespace: argo
 spec:
   parallelism: 100
@@ -26,14 +26,14 @@ spec:
 
       - name: source
         description: Source imagery location "s3://linz-imagery"
-        value: "s3://linz-imagery-staging/test/sample/"
+        value: "s3://linz-workflow-artifacts/bchard/2023-07/2193/marlborough_2017_0.1m/01H5GTEPTZYNPKB793D8N2RBSW/"
 
       - name: target
         description: Target location for output COGs
-        value: "s3://linz-basemaps/"
-        enum:
-          - "s3://linz-basemaps/"
-          - "s3://linz-basemaps-staging/"
+        value: "s3://linz-workflow-artifacts/bchard/2023-09/"
+        # enum:
+        #   - "s3://linz-basemaps/"
+        #   - "s3://linz-basemaps-staging/"
 
       - name: tile_matrix
         description: Output tile matrix, ";" separated list
@@ -45,7 +45,7 @@ spec:
 
       - name: cutline
         description: Path to cutline to apply
-        value: "s3://linz-basemaps-source/cutline/2020-05-07-cutline-nz-coasts-rural-and-urban.geojson"
+        value: "" # s3://linz-basemaps-source/cutline/2020-05-07-cutline-nz-coasts-rural-and-urban.geojson"
 
       - name: cutline_blend
         description: Blending to use for cutline see gdal_translate#cblend
@@ -86,6 +86,15 @@ spec:
                   value: "{{ inputs.parameters.cutline_blend }}"
                 - name: group_size
                   value: "{{ inputs.parameters.group_size }}"
+
+          - name: create-pull-request
+            template: create-pull-request
+            depends: "cogify"
+            arguments:
+              parameters:
+                - name: target
+                  value: "{{tasks.cogify.outputs.parameters.target}}"
+
 
     # Generate COGs for a specific tile matrix from a given collection of source imagery
     - name: cogify
@@ -131,38 +140,38 @@ spec:
               template: main
             depends: create-covering
 
-          # Create COGS from the grouped output of create-covering
-          - name: create-cog
-            depends: group
-            template: create-cog
-            withParam: "{{ tasks.group.outputs.parameters.output }}"
-            arguments:
-              parameters:
-                - name: covering_grouped_id
-                  value: "{{ item }}"
-              artifacts:
-                - name: covering_grouped
-                  from: "{{ tasks.group.outputs.artifacts.output }}"
+          # # Create COGS from the grouped output of create-covering
+          # - name: create-cog
+          #   depends: group
+          #   template: create-cog
+          #   withParam: "{{ tasks.group.outputs.parameters.output }}"
+          #   arguments:
+          #     parameters:
+          #       - name: covering_grouped_id
+          #         value: "{{ item }}"
+          #     artifacts:
+          #       - name: covering_grouped
+          #         from: "{{ tasks.group.outputs.artifacts.output }}"
 
-          # once all COGs are created generate a more overviews to increase tile rendering performance
-          - name: create-overview
-            template: create-overview
-            depends: create-cog
-            arguments:
-              parameters:
-                - name: path
-                  value: "{{ tasks.create-covering.outputs.parameters.target }}"
+          # # once all COGs are created generate a more overviews to increase tile rendering performance
+          # - name: create-overview
+          #   template: create-overview
+          #   depends: create-cog
+          #   arguments:
+          #     parameters:
+          #       - name: path
+          #         value: "{{ tasks.create-covering.outputs.parameters.target }}"
 
-          # Create a basemaps config to view the imagery directly
-          - name: create-config
-            template: create-config
-            depends: create-overview
-            arguments:
-              parameters:
-                - name: path
-                  value: "{{ tasks.create-covering.outputs.parameters.target }}"
-                - name: title
-                  value: "{{ tasks.create-covering.outputs.parameters.title }}"
+          # # Create a basemaps config to view the imagery directly
+          # - name: create-config
+          #   template: create-config
+          #   depends: create-overview
+          #   arguments:
+          #     parameters:
+          #       - name: path
+          #         value: "{{ tasks.create-covering.outputs.parameters.target }}"
+          #       - name: title
+          #         value: "{{ tasks.create-covering.outputs.parameters.title }}"
 
       outputs:
         parameters:
@@ -292,3 +301,13 @@ spec:
           - "create-overview"
           - "--source={{= sprig.trim(inputs.parameters.path) }}"
           - "--output={{= sprig.trim(inputs.parameters.path) }}"
+
+    - name: create-pull-request
+      inputs:
+        parameters:
+          - name: target # ['target NZTM200Quad', 'target WebMecatorQuad']
+      script:
+        image: "019359803926.dkr.ecr.ap-southeast-2.amazonaws.com/eks:argo-tasks-latest"
+        command: [bash]
+        source: |
+          echo '{{ inputs.parameters.target}}' | jq
