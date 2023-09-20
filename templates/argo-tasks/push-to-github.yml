@@ -16,7 +16,7 @@ spec:
       inputs:
         parameters:
           - name: source
-            description: location of data to publish
+            description: location where the source collection.json file is
 
           - name: target
             description: location to publish data to
