@@ -19,7 +19,7 @@ spec:
             description: location where the source collection.json file is
 
           - name: target
-            description: location to publish data to
+            description: location where the destination collection.json file will be
 
           - name: version-argo-tasks
             description: version of argo-tasks to use
