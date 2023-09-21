@@ -1,0 +1,2 @@
+"source":"s3://linz-imagery-staging/test/"
+"target":"s3://linz-workflow-artifacts/mdavidson/"
