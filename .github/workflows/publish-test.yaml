@@ -1,0 +1,88 @@
+name: Publish to ODR
+
+on:
+  pull_request_target:
+    types:
+      - closed
+    branches:
+      - master
+    paths:
+      - "workflow-parameters/**.yaml"
+
+jobs:
+  main:
+    if: ${{ github.event.pull_request.merged == true }} && ${{gthub.event.label.name == 'publish-odr*'}}
+    runs-on: ubuntu-latest
+    permissions:
+      id-token: write
+      contents: read
+
+    steps:
+      - uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
+
+      # - name: Use Node.js 18.x
+      #   uses: actions/setup-node@v2.2.0
+      #   with:
+      #     node-version: "18.x"
+
+      # - name: Setup kubectl
+      #   uses: azure/setup-kubectl@v3
+      #   with:
+      #     version: "latest"
+
+      # - name: AWS Configure
+      #   uses: aws-actions/configure-aws-credentials@v1.6.1
+      #   with:
+      #     aws-region: ap-southeast-2
+      #     mask-aws-account-id: true
+      #     role-to-assume: ${{ secrets.AWS_CI_ROLE }}
+
+      # - name: Login to EKS
+      #   run: |
+      #     aws eks update-kubeconfig --name Workflow --region ap-southeast-2 --role-arn ${{ secrets.AWS_EKS_ROLE }}
+
+      # - name: Check EKS connection
+      #   run: |
+      #     kubectl get nodes
+
+      # - name: Install Argo
+      #   run: |
+      #     curl -sLO https://github.com/argoproj/argo-workflows/releases/download/v3.4.0-rc2/argo-linux-amd64.gz
+      #     gunzip argo-linux-amd64.gz
+      #     chmod +x argo-linux-amd64
+      #     ./argo-linux-amd64 version
+
+      # - name: Get All Added & Changed Files
+      #   if: ${{ github.event.label.name == 'publish-odr-all-changes'}}
+      #   id: changed-files
+      #   run: |
+      #     echo "changed_files=$(git diff --name-only ${{ github.event.before }} ${{ github.event.after }} | xargs)" >> $GITHUB_OUTPUT
+
+      # - name: Submit All Added & Changed Workflow(s)
+      #   if: ${{ github.event.label.name == 'publish-odr-all'}}
+      #   run: |
+      #     for file in ${{ steps.changed-files.outputs.changed_files }}; do
+      #       if [[ "$file" == *workflow-parameters/*.yaml ]];
+      #       then
+      #         ./argo-linux-amd64 submit --from wftmpl/publish-odr -n argo -f $file --generate-name publish-odr-
+      #       fi
+      #     done
+
+      - name: Get Added Files Only
+        # if: ${{ github.event.label.name == 'publish-odr-added-only'}}
+        id: added-files
+        run: |
+          git diff --name-status ${{ github.event.before }} ${{ github.event.after }} | grep ^A
+          echo "added_files=$(git diff --name-status ${{ github.event.before }} ${{ github.event.after }} | grep ^A)" >> $GITHUB_OUTPUT
+
+      # - name: Submit Added Workflow(s) Only
+      #   if: ${{ github.event.label.name == 'publish-odr-all'}}
+      #   run: |
+      #     for file in ${{ steps.added-files.outputs.added_files }}; do
+      #       if [[ "$file" == *workflow-parameters/*.yaml ]];
+      #       then
+      #         ./argo-linux-amd64 submit --from wftmpl/publish-odr -n argo -f $file --generate-name publish-odr-
+      #       fi
+      #     done
