@@ -27,6 +27,22 @@ spec:
       - name: source
         description: Source imagery location "s3://linz-imagery"
         value: "s3://linz-imagery-staging/test/sample/"
+      
+      - name: individual
+        description: "Import as individual imagery."
+        value: false
+        enum:
+          - false
+          - true
+          
+      - name: category
+        value: "Rural Aerial Photos"
+        enum:
+          - "Rural Aerial Photos"
+          - "Urban Aerial Photos"
+          - "Scanned Aerial Imagery"
+          - "Satellite Imagery"
+          - "New Aerial Photos"
 
       - name: target
         description: Target location for output COGs
@@ -86,6 +102,13 @@ spec:
                   value: "{{ inputs.parameters.cutline_blend }}"
                 - name: group_size
                   value: "{{ inputs.parameters.group_size }}"
+          - name: create-pull-request
+            template: create-pull-request
+            arguments:
+              parameters:
+                - name: target
+                  value: "{{ tasks.cogify.outputs.parameters.target }}"
+            depends: "cogify"
 
     # Generate COGs for a specific tile matrix from a given collection of source imagery
     - name: cogify
@@ -292,3 +315,36 @@ spec:
           - "create-overview"
           - "--source={{= sprig.trim(inputs.parameters.path) }}"
           - "--output={{= sprig.trim(inputs.parameters.path) }}"
+
+    - name: create-pull-request
+      inputs:
+        parameters:
+          - name: target
+      container:
+        image: 019359803926.dkr.ecr.ap-southeast-2.amazonaws.com/eks:argo-tasks-v2.13.0-9-g6574d87
+        volumeMounts:
+          - name: secret-vol
+            mountPath: "/root/.ssh/"
+        command: [node, /app/index.js]
+        env:
+          - name: AWS_ROLE_CONFIG_PATH
+            value: s3://linz-bucket-config/config.basemaps.json
+          - name: GITHUB_API_TOKEN
+            valueFrom:
+              secretKeyRef:
+                name: github-bot-pat
+                key: github-token
+        args:
+          [
+            "bmc",
+            "create-pr",
+            "--target",
+            "{{inputs.parameters.target}}",
+            "--individual={{workflow.parameters.individual}}",
+            "--category={{workflow.parameters.category}}",
+          ]
+  volumes:
+    - name: secret-vol
+      secret:
+        secretName: github-linz-basemaps-config
+        defaultMode: 384
