@@ -27,14 +27,14 @@ spec:
       - name: source
         description: Source imagery location "s3://linz-imagery"
         value: "s3://linz-imagery-staging/test/sample/"
-      
+
       - name: individual
         description: "Import as individual imagery."
         value: false
         enum:
           - false
           - true
-          
+
       - name: category
         value: "Rural Aerial Photos"
         enum:
@@ -70,6 +70,12 @@ spec:
       - name: group_size
         description: How many items to pass to each create-cog job
         value: 20
+
+      - name: create-pull-request
+        value: true
+        enum:
+          - true
+          - false
 
   templates:
     # Main entrypoint into the workflow
@@ -108,6 +114,7 @@ spec:
               parameters:
                 - name: target
                   value: "{{ tasks.cogify.outputs.parameters.target }}"
+            when: "{{workflow.parameters.create-pull-request}} == true"
             depends: "cogify"
 
     # Generate COGs for a specific tile matrix from a given collection of source imagery
