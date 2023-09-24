@@ -111,7 +111,7 @@ See https://github.com/linz/argo-tasks#create-manifest
 
 ### Template usage
 
-Create a manifest file for a user specificed source and target that includes `.tiff`, `.json`, and `.tfw` files from the source.
+Create a manifest file for a user specified source and target that includes `.tiff`, `.json`, and `.tfw` files from the source.
 
 ```yaml
 - name: create-manifest
