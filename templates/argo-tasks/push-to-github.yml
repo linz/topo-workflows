@@ -26,7 +26,7 @@ spec:
             default: "v2"
 
           - name: repository
-            description: Reposistory Name (only used when Identified that push to github is required)
+            description: Repository Name (only used when identified that push to GitHub is required)
             default: "elevation"
             enum:
               - "elevation"
