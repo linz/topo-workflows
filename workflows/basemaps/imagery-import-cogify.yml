@@ -328,7 +328,7 @@ spec:
         parameters:
           - name: target
       container:
-        image: 019359803926.dkr.ecr.ap-southeast-2.amazonaws.com/eks:argo-tasks-v2.13.0-9-g6574d87
+        image: 019359803926.dkr.ecr.ap-southeast-2.amazonaws.com/eks:argo-tasks-{{workflow.parameters.version_argo_tasks}}
         volumeMounts:
           - name: secret-vol
             mountPath: "/root/.ssh/"
