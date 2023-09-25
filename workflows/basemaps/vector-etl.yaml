@@ -62,7 +62,7 @@ spec:
             valueFrom:
               path: "/tmp/target"
 
-     - name: create-pull-request
+    - name: create-pull-request
       inputs:
         parameters:
           - name: target
