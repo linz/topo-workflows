@@ -77,3 +77,86 @@ steps:
       # for example using with a --from-file
       # ./test-cli --from-file=/tmp/group/input/{{inputs.parameters.group_id}}.json
 ```
+
+## argo-tasks/copy - `tpl-copy`
+
+Template for copying a manifest of files between two locations.  
+See https://github.com/linz/argo-tasks#copy
+
+### Template usage
+
+Copy the input parameter manifest file without overriding.
+
+```yaml
+- name: copy
+  templateRef:
+    name: tpl-copy
+    template: main
+  arguments:
+    parameters:
+      - name: copy-option
+        value: "--no-clobber"
+      - name: file
+        value: "{{item}}"
+      - name: version-argo-tasks
+        value: "{{workflow.parameters.version-argo-tasks}}"
+  depends: "create-manifest"
+  withParam: "{{tasks.create-manifest.outputs.parameters.files}}"
+```
+
+## argo-tasks/create-manifest - `tpl-create-manifest`
+
+Template for creating a manifest to be copied and their target path.  
+See https://github.com/linz/argo-tasks#create-manifest
+
+### Template usage
+
+Create a manifest file for a user specified source and target that includes `.tiff`, `.json`, and `.tfw` files from the source.
+
+```yaml
+- name: create-manifest
+  templateRef:
+    name: tpl-create-manifest
+    template: main
+  arguments:
+    parameters:
+      - name: source
+        value: "{{inputs.parameters.source}}"
+      - name: target
+        value: "{{workflow.parameters.target}}"
+      - name: include
+        value: ".tiff?$|.json$|.tfw$"
+      - name: exclude
+        value: ""
+      - name: group
+        value: "1000"
+      - name: group-size
+        value: "100Gi"
+      - name: version-argo-tasks
+        value: "{{workflow.parameters.version-argo-tasks}}"
+```
+
+## argo-tasks/push-to-github - `tpl-push-to-github`
+
+Template for Formatting and Pushing STAC Collections to Github
+See https://github.com/linz/argo-tasks#stac-github-import
+
+### Template usage
+
+```yaml
+- name: push-to-github
+  templateRef:
+    name: tpl-push-to-github
+    template: main
+  arguments:
+    parameters:
+      - name: source
+        value: "{{inputs.parameters.source}}"
+      - name: target
+        value: "{{workflow.parameters.target}}"
+      - name: version-argo-tasks
+        value: "{{workflow.parameters.version-argo-tasks}}"
+      - name: repository
+        value: "elevation"
+  depends: "copy-with-github"
+```

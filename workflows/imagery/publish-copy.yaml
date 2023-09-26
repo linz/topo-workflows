@@ -50,7 +50,9 @@ spec:
       dag:
         tasks:
           - name: create-manifest-github
-            template: create-manifest
+            templateRef:
+              name: tpl-create-manifest
+              template: main
             arguments:
               parameters:
                 - name: source
@@ -68,8 +70,11 @@ spec:
                 - name: version-argo-tasks
                   value: "{{workflow.parameters.version-argo-tasks}}"
             when: "{{=sprig.regexMatch('s3://linz-elevation/', workflow.parameters.target)}}"
+
           - name: create-manifest
-            template: create-manifest
+            templateRef:
+              name: tpl-create-manifest
+              template: main
             arguments:
               parameters:
                 - name: source
@@ -87,8 +92,11 @@ spec:
                 - name: version-argo-tasks
                   value: "{{workflow.parameters.version-argo-tasks}}"
             depends: "create-manifest-github.Skipped"
+
           - name: copy-with-github
-            template: copy
+            templateRef:
+              name: tpl-copy
+              template: main
             arguments:
               parameters:
                 - name: copy-option
@@ -99,8 +107,11 @@ spec:
                   value: "{{workflow.parameters.version-argo-tasks}}"
             depends: "create-manifest-github.Succeeded"
             withParam: "{{tasks.create-manifest-github.outputs.parameters.files}}"
+
           - name: copy
-            template: copy
+            templateRef:
+              name: tpl-copy
+              template: main
             arguments:
               parameters:
                 - name: copy-option
@@ -111,106 +122,19 @@ spec:
                   value: "{{workflow.parameters.version-argo-tasks}}"
             depends: "create-manifest"
             withParam: "{{tasks.create-manifest.outputs.parameters.files}}"
+
           - name: push-to-github
-            template: push-to-github
+            templateRef:
+              name: tpl-push-to-github
+              template: main
             arguments:
               parameters:
                 - name: source
                   value: "{{inputs.parameters.source}}"
+                - name: target
+                  value: "{{workflow.parameters.target}}"
+                - name: version-argo-tasks
+                  value: "{{workflow.parameters.version-argo-tasks}}"
+                - name: repository
+                  value: "elevation"
             depends: "copy-with-github"
-    - name: create-manifest
-      inputs:
-        parameters:
-          - name: source
-          - name: include
-          - name: exclude
-          - name: group
-          - name: group-size
-      container:
-        image: "019359803926.dkr.ecr.ap-southeast-2.amazonaws.com/eks:argo-tasks-{{=sprig.trim(workflow.parameters['version-argo-tasks'])}}"
-        command: [node, /app/index.js]
-        env:
-          - name: AWS_ROLE_CONFIG_PATH
-            value: s3://linz-bucket-config/config.json
-        args:
-          [
-            "create-manifest",
-            "--verbose",
-            "--include",
-            "{{=sprig.trim(inputs.parameters.include)}}",
-            "--exclude",
-            "{{inputs.parameters.exclude}}",
-            "--group",
-            "{{=sprig.trim(inputs.parameters.group)}}",
-            "--group-size",
-            "{{=sprig.trim(inputs.parameters['group-size'])}}",
-            "--output",
-            "/tmp/file_list.json",
-            "--target",
-            "{{=sprig.trim(workflow.parameters.target)}}",
-            "{{=sprig.trim(inputs.parameters.source)}}",
-            "--transform",
-            "{{=sprig.trim(workflow.parameters.transform)}}",
-          ]
-      outputs:
-        parameters:
-          - name: files
-            valueFrom:
-              path: /tmp/file_list.json
-    - name: copy
-      retryStrategy:
-        limit: "2"
-      inputs:
-        parameters:
-          - name: file
-      container:
-        image: "019359803926.dkr.ecr.ap-southeast-2.amazonaws.com/eks:argo-tasks-{{=sprig.trim(workflow.parameters['version-argo-tasks'])}}"
-        resources:
-          requests:
-            memory: 7.8Gi
-            cpu: 2000m
-        command: [node, /app/index.js]
-        env:
-          - name: AWS_ROLE_CONFIG_PATH
-            value: s3://linz-bucket-config/config-write.imagery.json,s3://linz-bucket-config/config-write.elevation.json,s3://linz-bucket-config/config-write.topographic.json,s3://linz-bucket-config/config.json
-        args:
-          [
-            "copy",
-            "{{workflow.parameters.copy-option}}",
-            "{{inputs.parameters.file}}",
-          ]
-    - name: push-to-github
-      retryStrategy:
-        limit: "2"
-      inputs:
-        parameters:
-          - name: source
-      container:
-        image: "019359803926.dkr.ecr.ap-southeast-2.amazonaws.com/eks:argo-tasks-{{=sprig.trim(workflow.parameters['version-argo-tasks'])}}"
-        env:
-          - name: AWS_ROLE_CONFIG_PATH
-            value: s3://linz-bucket-config/config.json
-          - name: GIT_AUTHOR_NAME
-            value: "{{=sprig.regexFind('elevation', workflow.parameters.target)}}[bot]"
-          - name: GIT_AUTHOR_EMAIL
-            value: "{{=sprig.regexFind('elevation', workflow.parameters.target)}}@linz.govt.nz"
-        volumeMounts:
-          - name: secret-volume
-            mountPath: "/root/.ssh/"
-        command: [node, /app/index.js]
-        args:
-          [
-            "stac",
-            "github-import",
-            "--source",
-            "{{=sprig.trim(inputs.parameters.source)}}",
-            "--target",
-            "{{=sprig.trim(workflow.parameters.target)}}",
-            "--repo-name",
-            "linz/{{=sprig.regexFind('elevation', workflow.parameters.target)}}",
-          ]
-  volumes:
-    - name: secret-volume
-      secret:
-        secretName: "github-linz-{{=sprig.regexFind('elevation', workflow.parameters.target)}}"
-        defaultMode: 384
