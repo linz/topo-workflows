@@ -212,6 +212,9 @@ spec:
       imagePullPolicy: Always
   templates:
     - name: main
+      inputs:
+        parameters:
+          - name: source
       dag:
         tasks:
           - name: collection-id-setup
@@ -228,7 +231,7 @@ spec:
                 - name: include
                   value: "{{workflow.parameters.include}}"
                 - name: source
-                  value: "{{=sprig.trim(workflow.parameters.source)}}"
+                  value: "{{=sprig.trim(inputs.parameters.source)}}"
                 - name: source_epsg
                   value: "{{=sprig.trim(workflow.parameters['source-epsg'])}}"
                 - name: validate
