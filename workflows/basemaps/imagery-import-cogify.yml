@@ -30,11 +30,11 @@ spec:
 
       - name: create-pull-request
         description: "Create pull request after importing imagery."
-        value: 'aerial'
+        value: "aerial"
         enum:
-          - 'aerial'
-          - 'individual'
-          - 'none'
+          - "aerial"
+          - "individual"
+          - "none"
 
       - name: category
         value: "Rural Aerial Photos"
