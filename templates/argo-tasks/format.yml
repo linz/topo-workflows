@@ -30,7 +30,7 @@ spec:
           - name: AWS_ROLE_CONFIG_PATH
             value: s3://linz-bucket-config/config.json
         args:
-          - "format-json"
+          - "pretty-print"
           - "{{= inputs.parameters.source }}"
           - "{{= sprig.empty(inputs.parameters.target) ? '' : '--target=' + inputs.parameters.target }}"
           - "{{= sprig.empty(inputs.parameters['fix-content-type']) ? '' : '--fix-content-type=' + inputs.parameters['fix-content-type'] }}"
