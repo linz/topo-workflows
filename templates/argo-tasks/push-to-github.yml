@@ -56,8 +56,4 @@ spec:
             "--repo-name",
             "linz/{{=sprig.regexFind(inputs.parameters.repository, inputs.parameters.target)}}",
           ]
-  volumes:
-    - name: secret-volume
-      secret:
-        secretName: "github-linz-{{=sprig.regexFind(inputs.parameters.repository, inputs.parameters.target)}}"
-        defaultMode: 384
+          
