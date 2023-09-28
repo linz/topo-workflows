@@ -28,7 +28,7 @@ spec:
         description: Source imagery location "s3://linz-imagery"
         value: "s3://linz-imagery-staging/test/sample/"
 
-      - name: create-pull-request
+      - name: create_pull_request
         description: "Create pull request after importing imagery."
         value: "aerial"
         enum:
@@ -43,7 +43,7 @@ spec:
           - "Urban Aerial Photos"
           - "Scanned Aerial Imagery"
           - "Satellite Imagery"
-          - "New Aerial Photos"
+          - "Event"
 
       - name: target
         description: Target location for output COGs
@@ -103,25 +103,13 @@ spec:
                   value: "{{ inputs.parameters.cutline_blend }}"
                 - name: group_size
                   value: "{{ inputs.parameters.group_size }}"
-          - name: create-pull-request-aerial
+          - name: create-pull-request
             template: create-pull-request
             arguments:
               parameters:
                 - name: target
                   value: "{{ tasks.cogify.outputs.parameters.target }}"
-                - name: individual
-                  value: false
-            when: "{{workflow.parameters.create-pull-request}} == 'aerial'"
-            depends: "cogify"
-          - name: create-pull-request-individual
-            template: create-pull-request
-            arguments:
-              parameters:
-                - name: target
-                  value: "{{ tasks.cogify.outputs.parameters.target }}"
-                - name: individual
-                  value: true
-            when: "{{workflow.parameters.create-pull-request}} == 'individual'"
+            when: "{{workflow.parameters.create_pull_request}} != none"
             depends: "cogify"
 
     # Generate COGs for a specific tile matrix from a given collection of source imagery
@@ -334,7 +322,6 @@ spec:
       inputs:
         parameters:
           - name: target
-          - name: individual
       container:
         image: 019359803926.dkr.ecr.ap-southeast-2.amazonaws.com/eks:argo-tasks-{{workflow.parameters.version_argo_tasks}}
         volumeMounts:
@@ -353,9 +340,8 @@ spec:
           [
             "bmc",
             "create-pr",
-            "--target",
-            "{{inputs.parameters.target}}",
-            "--individual={{inputs.parameters.individual}}",
+            "--target={{inputs.parameters.target}}",
+            "--individual={{= workflow.parameters.create_pull_request == 'individual'? 'true' : 'false' }}",
             "--category={{workflow.parameters.category}}",
           ]
   volumes:
