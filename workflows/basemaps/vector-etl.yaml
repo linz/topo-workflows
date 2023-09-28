@@ -84,8 +84,7 @@ spec:
           [
             "bmc",
             "create-pr",
-            "--target",
-            "{{inputs.parameters.target}}",
+            "--target={{inputs.parameters.target}}",
             "--vector",
           ]
   volumes:
