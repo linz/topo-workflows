@@ -120,6 +120,8 @@ spec:
                   value: "{{item}}"
                 - name: version-argo-tasks
                   value: "{{workflow.parameters.version-argo-tasks}}"
+                - name: aws-role-config-path
+                  value: "s3://linz-bucket-config/config-write.imagery.json"
             depends: "create-manifest"
             withParam: "{{tasks.create-manifest.outputs.parameters.files}}"
 
