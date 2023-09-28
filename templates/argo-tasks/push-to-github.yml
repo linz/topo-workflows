@@ -56,4 +56,3 @@ spec:
             "--repo-name",
             "linz/{{=sprig.regexFind(inputs.parameters.repository, inputs.parameters.target)}}",
           ]
-          
