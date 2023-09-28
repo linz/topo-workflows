@@ -16,6 +16,8 @@ spec:
         key: bulk
   arguments:
     parameters:
+      - name: source
+        value: ""
       - name: cutline # optional standardising cutline
         value: ""
       - name: collection-id # optional
@@ -54,6 +56,10 @@ spec:
             templateRef:
               name: imagery-standardising
               template: main
+            arguments:
+              parameters:
+                - name: source
+                  value: "{{workflow.parameters.source}}"
         - - name: publish
             templateRef:
               name: publish-copy
