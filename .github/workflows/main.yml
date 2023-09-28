@@ -75,3 +75,8 @@ jobs:
         if: github.ref == 'refs/heads/master'
         run: |
           kubectl apply -f config/*.yml --namespace argo
+      # Re-lint the workflows after deployment because their dependencies is test with deployement.
+      - name: Re-Lint workflows
+        run: |
+          ./argo-linux-amd64 lint templates/ -n argo
+          ./argo-linux-amd64 lint workflows/ -n argo
