@@ -53,8 +53,11 @@ jobs:
           ./argo-linux-amd64 version
 
       - name: Lint workflows
+        if: ${{ !(github.ref == 'refs/heads/master') }}
         run: |
           ./argo-linux-amd64 lint templates/ -n argo
+          TEST_NAMESPACE=$GITHUB_REF_NAME
+          echo $TEST_NAMESPACE
           ./argo-linux-amd64 lint workflows/ -n argo
 
       - name: Deploy workflows
