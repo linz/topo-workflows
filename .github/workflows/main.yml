@@ -61,7 +61,7 @@ jobs:
           # May need to deploy config files too
           #$TEST_NAMESPACE
           #kubectl apply -f templates/argo-tasks/ --namespace $TEST_NAMESPACE
-          ./argo-linux-amd64 lint workflows/ -n argo 
+          ./argo-linux-amd64 lint workflows/ -n argo
 
       - name: Deploy workflows
         if: github.ref == 'refs/heads/master'
@@ -88,4 +88,3 @@ jobs:
           echo "delete $TEST_NAMESPACE"
           ./argo-linux-amd64 lint templates/ -n argo
           ./argo-linux-amd64 lint workflows/ -n argo
-
