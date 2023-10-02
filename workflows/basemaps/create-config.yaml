@@ -8,7 +8,7 @@ spec:
   entrypoint: main
   arguments:
     parameters:
-      - name: version-basemaps-cli
+      - name: version_basemaps_cli
         value: "v6"
       - name: location
         value: "s3://bucket/path/to"
@@ -33,7 +33,7 @@ spec:
           - name: location
             description: Location of the imagery to create config for
       container:
-        image: ghcr.io/linz/basemaps/cli:{{ workflow.parameters.version-basemaps-cli }}
+        image: ghcr.io/linz/basemaps/cli:{{ workflow.parameters.version_basemaps_cli }}
         command: [node, /app/node_modules/.bin/cogify]
         env:
           - name: AWS_ROLE_CONFIG_PATH
