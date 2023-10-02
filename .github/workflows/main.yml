@@ -55,13 +55,27 @@ jobs:
       - name: Lint workflows
         if: ${{ !(github.ref == 'refs/heads/master') }}
         run: |
-          ./argo-linux-amd64 lint templates/ -n argo
+          # Create test namespace
           TEST_NAMESPACE=${GITHUB_REF_NAME////-}-$GITHUB_SHA
-          kubectl create namespace $TEST_NAMESPACE --dry-run
-          # May need to deploy config files too
-          #$TEST_NAMESPACE
-          #kubectl apply -f templates/argo-tasks/ --namespace $TEST_NAMESPACE
-          ./argo-linux-amd64 lint workflows/ -n argo
+          kubectl create namespace $TEST_NAMESPACE
+
+          # Deploy templates in the test namespace
+          kubectl apply -f templates/argo-tasks/ --namespace $TEST_NAMESPACE
+          # Find all workflows that have kind "WorkflowTemplate"
+          WORKFLOWS=$(grep '^kind: WorkflowTemplate$' -R workflows/ -H | cut -d ':' -f1)
+          # For each workflow attempt to deploy it using kubectl
+          for wf in $WORKFLOWS; do
+              kubectl apply -f $wf --namespace $TEST_NAMESPACE
+          done
+
+          # TODO May need to deploy config files too?
+
+          # Finally lint the templates
+          ./argo-linux-amd64 lint templates/ -n $TEST_NAMESPACE
+          ./argo-linux-amd64 lint workflows/ -n $TEST_NAMESPACE
+
+          # Delete the test namespace
+          kubectl delete namespaces $TEST_NAMESPACE
 
       - name: Deploy workflows
         if: github.ref == 'refs/heads/master'
@@ -81,10 +95,3 @@ jobs:
         if: github.ref == 'refs/heads/master'
         run: |
           kubectl apply -f config/*.yml --namespace argo
-      # Re-lint the workflows after deployment because their dependencies is test with deployement.
-      - name: Re-Lint workflows
-        if: github.ref == 'refs/heads/master'
-        run: |
-          echo "delete $TEST_NAMESPACE"
-          ./argo-linux-amd64 lint templates/ -n argo
-          ./argo-linux-amd64 lint workflows/ -n argo
