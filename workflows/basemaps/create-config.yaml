@@ -8,7 +8,7 @@ spec:
   entrypoint: main
   arguments:
     parameters:
-      - name: version-basemaps-cli
+      - name: version_basemaps_cli
         value: "v6"
       - name: location
         value: "s3://bucket/path/to"
@@ -26,27 +26,28 @@ spec:
                 - name: location
                   value: "{{workflow.parameters.location}}"
     - name: create-config
+      retryStrategy:
+        limit: "2"
       inputs:
         parameters:
           - name: location
+            description: Location of the imagery to create config for
       container:
-        image: ghcr.io/linz/basemaps/cli:{{=sprig.trim(workflow.parameters['version-basemaps-cli'])}}
-        command: [node, index.cjs]
+        image: ghcr.io/linz/basemaps/cli:{{=sprig.trim(workflow.parameters.version_basemaps_cli)}}
+        command: [node, /app/node_modules/.bin/cogify]
         env:
           - name: AWS_ROLE_CONFIG_PATH
-            value: s3://linz-bucket-config/config.json
+            value: s3://linz-bucket-config/config.basemaps.json
         args:
-          [
-            "-V",
-            "create-config",
-            "--path",
-            "{{=sprig.trim(inputs.parameters.location)}}",
-            "--output",
-            "/tmp/url",
-            "--commit",
-          ]
+          - "config"
+          - "{{ inputs.parameters.location }}"
       outputs:
         parameters:
           - name: url
+            description: Basemaps URL to view the imagery
             valueFrom:
-              path: "/tmp/url"
+              path: "/tmp/cogify/config-url"
+          - name: config
+            description: Location of the config file
+            valueFrom:
+              path: "/tmp/cogify/config-path"
