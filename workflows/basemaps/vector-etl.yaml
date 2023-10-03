@@ -8,6 +8,9 @@ spec:
   entrypoint: main
   arguments:
     parameters:
+      - name: version_argo_tasks
+        description: Version of the basemaps CLI docker container to use
+        value: v2
       - name: target
         value: "linz-basemaps"
         enum:
@@ -27,12 +30,12 @@ spec:
         tasks:
           - name: vector-etl
             template: vector-etl
-          - name: create-pr
-            template: create-pr
+          - name: create-pull-request
+            template: create-pull-request
             arguments:
               parameters:
-                - name: layer
-                  value: "{{tasks.vector-etl.outputs.parameters.layer}}"
+                - name: target
+                  value: "{{tasks.vector-etl.outputs.parameters.target}}"
             when: "{{workflow.parameters.create-pull-request}} == true"
             depends: "vector-etl"
 
@@ -58,27 +61,35 @@ spec:
           ]
       outputs:
         parameters:
-          - name: layer
+          - name: target
             valueFrom:
-              path: "/tmp/layer.json"
+              path: "/tmp/target"
 
-    - name: create-pr
+    - name: create-pull-request
       inputs:
         parameters:
-          - name: layer
+          - name: target
       container:
-        image: ghcr.io/linz/basemaps/cli:latest
+        image: 019359803926.dkr.ecr.ap-southeast-2.amazonaws.com/eks:argo-tasks-{{workflow.parameters.version_argo_tasks}}
         volumeMounts:
           - name: secret-vol
             mountPath: "/root/.ssh/"
-        command: [node, index.cjs]
+        command: [node, /app/index.js]
         env:
-          - name: GIT_USER_EMAIL
-            value: basemaps@linz.govt.nz
-          - name: GIT_USER_NAME
-            value: basemaps[bot]
+          - name: AWS_ROLE_CONFIG_PATH
+            value: s3://linz-bucket-config/config.basemaps.json
+          - name: GITHUB_API_TOKEN
+            valueFrom:
+              secretKeyRef:
+                name: github-bot-pat
+                key: github-token
         args:
-          ["-V", "cog-pr", "--layer", "{{inputs.parameters.layer}}", "--vector"]
+          [
+            "bmc",
+            "create-pr",
+            "--target={{inputs.parameters.target}}",
+            "--vector",
+          ]
   volumes:
     - name: secret-vol
       secret:
