@@ -129,7 +129,7 @@ spec:
             template: say-hello-template
     - name: say-hello-template
       container:
-        image: "019359803926.dkr.ecr.ap-southeast-2.amazonaws.com/eks:topo-imagery-v2"
+        image: "019359803926.dkr.ecr.ap-southeast-2.amazonaws.com/topo-imagery:v2"
         command: [echo]
         args: ["hello world"]
 ```
@@ -211,7 +211,7 @@ spec:
         parameters:
           - name: message
       container:
-        image: "019359803926.dkr.ecr.ap-southeast-2.amazonaws.com/eks:topo-imagery-v2"
+        image: "019359803926.dkr.ecr.ap-southeast-2.amazonaws.com/topo-imagery:v2"
         command: [echo]
         args: ["{{inputs.parameters.message}}"]
 ```
@@ -372,7 +372,7 @@ spec:
         parameters:
           - name: message
       container:
-        image: "019359803926.dkr.ecr.ap-southeast-2.amazonaws.com/eks:topo-imagery-v2"
+        image: "019359803926.dkr.ecr.ap-southeast-2.amazonaws.com/topo-imagery:v2"
         command: [echo]
         args: ["{{inputs.parameters.message}}"]
 ```
@@ -443,7 +443,7 @@ spec:
         parameters:
           - name: message
       container:
-        image: "019359803926.dkr.ecr.ap-southeast-2.amazonaws.com/eks:topo-imagery-v2"
+        image: "019359803926.dkr.ecr.ap-southeast-2.amazonaws.com/topo-imagery:v2"
         command: [echo]
         args: ["{{inputs.parameters.message}}"]
 ```
@@ -514,7 +514,7 @@ spec:
           - name: uri
           - name: include
       container:
-        image: "019359803926.dkr.ecr.ap-southeast-2.amazonaws.com/eks:argo-tasks-v2"
+        image: "019359803926.dkr.ecr.ap-southeast-2.amazonaws.com/argo-tasks:v2"
         command: [node, /app/index.js]
         env:
           - name: AWS_ROLE_CONFIG_PATH
@@ -541,7 +541,7 @@ spec:
         parameters:
           - name: file
       script:
-        image: "019359803926.dkr.ecr.ap-southeast-2.amazonaws.com/eks:argo-tasks-v2"
+        image: "019359803926.dkr.ecr.ap-southeast-2.amazonaws.com/argo-tasks:v2"
         env:
           - name: AWS_ROLE_CONFIG_PATH
             value: s3://linz-bucket-config/config.json
