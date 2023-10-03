@@ -42,7 +42,7 @@ spec:
         command: [node, /app/index.js]
         env:
           - name: AWS_ROLE_CONFIG_PATH
-            value: "{{inputs.parameters.aws-role-config-path}}"
+            value: "{{inputs.parameters.aws-role-config-path}},s3://linz-bucket-config/config.json"
         args:
           [
             "copy",
