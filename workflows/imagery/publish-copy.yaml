@@ -105,6 +105,8 @@ spec:
                   value: "{{item}}"
                 - name: version-argo-tasks
                   value: "{{workflow.parameters.version-argo-tasks}}"
+                - name: aws-role-config-path
+                  value: "s3://linz-bucket-config/config.json"
             depends: "create-manifest-github.Succeeded"
             withParam: "{{tasks.create-manifest-github.outputs.parameters.files}}"
 
