@@ -32,6 +32,7 @@ spec:
 
           - name: aws-role-config-path
             description: The path(s) to the aws configs that enable writing to buckets
+            default: "s3://linz-bucket-config/config-write.imagery.json,s3://linz-bucket-config/config-write.elevation.json,s3://linz-bucket-config/config-write.topographic.json"
 
       container:
         image: "019359803926.dkr.ecr.ap-southeast-2.amazonaws.com/eks:argo-tasks-{{=sprig.trim(workflow.parameters['version-argo-tasks'])}}"
