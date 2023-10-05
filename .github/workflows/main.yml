@@ -19,7 +19,7 @@ jobs:
       - name: Install
         run: yarn
 
-      - name: format
+      - name: Format
         run: yarn format
 
       - name: Check formatting
