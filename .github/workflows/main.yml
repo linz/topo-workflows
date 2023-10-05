@@ -53,18 +53,26 @@ jobs:
           ./argo-linux-amd64 version
 
       - name: Lint workflows
-        if: ${{ !(github.ref == 'refs/heads/master') }}
+        if: github.ref != 'refs/heads/master'
         run: |
           # Create test namespace
           TEST_NAMESPACE=$GITHUB_SHA
           kubectl create namespace $TEST_NAMESPACE
 
+          # Create copy of Workflows files to change their namespaces
+          mkdir test
+          cp workflows/ test/workflows/ -r 
+
           # Deploy templates in the test namespace
+          # Note: the templates have no default namespace so no need to modify them
           kubectl apply -f templates/argo-tasks/ --namespace $TEST_NAMESPACE
+
           # Find all workflows that have kind "WorkflowTemplate"
-          WORKFLOWS=$(grep '^kind: WorkflowTemplate$' -R workflows/ -H | cut -d ':' -f1)
+          WORKFLOWS=$(grep '^kind: WorkflowTemplate$' -R test/workflows/ -H | cut -d ':' -f1)
           # For each workflow attempt to deploy it using kubectl
           for wf in $WORKFLOWS; do
+              # Change namespace in files
+              sed -i "/^\([[:space:]]*namespace: \).*/s//\1$TEST_NAMESPACE/" $wf
               kubectl apply -f $wf --namespace $TEST_NAMESPACE
           done
 
@@ -72,7 +80,7 @@ jobs:
 
           # Finally lint the templates
           ./argo-linux-amd64 lint templates/ -n $TEST_NAMESPACE
-          ./argo-linux-amd64 lint workflows/ -n $TEST_NAMESPACE
+          ./argo-linux-amd64 lint test/workflows/ -n $TEST_NAMESPACE
 
           # Delete the test namespace
           kubectl delete namespaces $TEST_NAMESPACE
