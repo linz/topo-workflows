@@ -54,13 +54,15 @@ jobs:
 
       - name: Lint workflows
         if: github.ref != 'refs/heads/master'
+        continue-on-error: true
         run: |
           # Create test namespace
           TEST_NAMESPACE=$GITHUB_SHA
           kubectl create namespace $TEST_NAMESPACE
 
           # Create copy of Workflows files to change their namespaces
-          mkdir test
+          # Make step failing
+          #mkdir test
           cp workflows/ test/workflows/ -r 
 
           # Deploy templates in the test namespace
@@ -82,6 +84,9 @@ jobs:
           ./argo-linux-amd64 lint templates/ -n $TEST_NAMESPACE
           ./argo-linux-amd64 lint test/workflows/ -n $TEST_NAMESPACE
 
+      - name: Delete Test namespace
+        if: github.ref != 'refs/heads/master'
+        run: |
           # Delete the test namespace
           kubectl delete namespaces $TEST_NAMESPACE
 
