@@ -1,0 +1,221 @@
+---
+apiVersion: argoproj.io/v1alpha1
+kind: Workflow
+metadata:
+  generateName: test-earthscanner-cog-
+  namespace: argo
+spec:
+  parallelism: 50
+  nodeSelector:
+    karpenter.sh/capacity-type: "spot"
+  entrypoint: main
+  synchronization:
+    semaphore:
+      configMapKeyRef:
+        name: semaphores
+        key: standardising
+  arguments:
+    parameters:
+      - name: version-argo-tasks
+        value: "v2"
+      - name: version-basemaps-cli
+        value: "v6.39.0-15-g3e982390"
+      - name: version-topo-imagery
+        value: "v1"
+      - name: source
+        value: "s3://linz-workflow-artifacts/2023-03/07-test-earthscanner-l3c-wbqs6/flat/"
+      - name: include
+        value: ".tiff$"
+      - name: group
+        value: "1"
+      - name: copy-option
+        value: "--no-clobber"
+        enum:
+          - "--no-clobber"
+          - "--force"
+          - "--force-no-clobber"
+  templateDefaults:
+    container:
+      imagePullPolicy: Always
+  templates:
+    - name: main
+      dag:
+        tasks:
+          - name: aws-list
+            template: aws-list
+          - name: standardise-validate
+            template: standardise-validate
+            arguments:
+              parameters:
+                - name: file
+                  value: "{{item}}"
+            depends: "aws-list"
+            withParam: "{{tasks.aws-list.outputs.parameters.files}}"
+          - name: flatten
+            template: flatten
+            arguments:
+              parameters:
+                - name: location
+                  value: "{{tasks.get-location.outputs.parameters.location}}"
+            depends: "get-location && standardise-validate"
+          - name: flatten-copy
+            template: flatten-copy
+            arguments:
+              parameters:
+                - name: file
+                  value: "{{item}}"
+            depends: "flatten"
+            withParam: "{{tasks.flatten.outputs.parameters.files}}"
+          - name: get-location
+            template: get-location
+      outputs:
+        parameters:
+          - name: target
+            valueFrom:
+              parameter: "{{tasks.get-location.outputs.parameters.location}}"
+    - name: aws-list
+      container:
+        image: "019359803926.dkr.ecr.ap-southeast-2.amazonaws.com/eks:argo-tasks-{{=sprig.trim(workflow.parameters['version-argo-tasks'])}}"
+        command: [node, /app/index.js]
+        env:
+          - name: AWS_ROLE_CONFIG_PATH
+            value: s3://linz-bucket-config/config.json
+        args:
+          [
+            "list",
+            "--limit",
+            "1",
+            "--verbose",
+            "--include",
+            "{{=sprig.trim(workflow.parameters.include)}}",
+            "--group",
+            "{{=sprig.trim(workflow.parameters.group)}}",
+            "--output",
+            "/tmp/file_list.json",
+            "{{=sprig.trim(workflow.parameters.source)}}",
+          ]
+      outputs:
+        parameters:
+          - name: files
+            valueFrom:
+              path: /tmp/file_list.json
+    - name: standardise-validate
+      retryStrategy:
+        limit: "2"
+      nodeSelector:
+        karpenter.sh/capacity-type: "spot"
+      inputs:
+        parameters:
+          - name: file
+      script:
+        image: "019359803926.dkr.ecr.ap-southeast-2.amazonaws.com/eks:topo-imagery-{{=sprig.trim(workflow.parameters['version-topo-imagery'])}}"
+        resources:
+          requests:
+            memory: 7.8Gi
+            cpu: 15000m
+            ephemeral-storage: 3Gi
+        volumeMounts:
+          - name: ephemeral
+            mountPath: "/tmp"
+        command: 
+          - "bash"
+        source: |
+          # ensure the script dies if something goes wrong
+          set -e
+          set -o xtrace
+
+          apt install jq wget -y
+
+          # grab s5cmd so we can get files from s3
+          wget https://github.com/peak/s5cmd/releases/download/v2.0.0/s5cmd_2.0.0_Linux-64bit.tar.gz
+          tar xvf *.tar.gz
+
+          # parameters are a list of tiffs, this could be expanded into a loop if needed
+          SOURCE_FILE=$(echo '{{inputs.parameters.file}}' | jq '.[0]' -r)
+          echo "$SOURCE_FILE"
+          ./s5cmd cp "$SOURCE_FILE" .
+
+          TIFF_NAME=$(basename "$SOURCE_FILE")
+
+          gdal_translate \
+            -of COG \
+            -co COMPRESS=lzw \
+            -co PREDICTOR=yes \
+            -co BLOCKSIZE=512 \
+            -co NUM_THREADS=all_cpus \
+            $TIFF_NAME /tmp/${TIFF_NAME}
+
+      outputs:
+        artifacts:
+          - name: standardised_tiffs
+            path: /tmp/
+            archive:
+              none: {}
+    - name: flatten
+      inputs:
+        parameters:
+          - name: location
+      container:
+        image: "019359803926.dkr.ecr.ap-southeast-2.amazonaws.com/eks:argo-tasks-{{=sprig.trim(workflow.parameters['version-argo-tasks'])}}"
+        command: [node, /app/index.js]
+        env:
+          - name: AWS_ROLE_CONFIG_PATH
+            value: s3://linz-bucket-config/config.json
+        args:
+          [
+            "create-manifest",
+            "--flatten",
+            "--verbose",
+            "--include",
+            ".tiff?$|.json$",
+            "--group",
+            "1000",
+            "--group-size",
+            "50Gi",
+            "--output",
+            "/tmp/file_list.json",
+            "--target",
+            "{{inputs.parameters.location}}flat/",
+            "{{inputs.parameters.location}}",
+          ]
+      outputs:
+        parameters:
+          - name: files
+            valueFrom:
+              path: /tmp/file_list.json
+    - name: flatten-copy
+      retryStrategy:
+        limit: "2"
+      inputs:
+        parameters:
+          - name: file
+      container:
+        image: "019359803926.dkr.ecr.ap-southeast-2.amazonaws.com/eks:argo-tasks-{{=sprig.trim(workflow.parameters['version-argo-tasks'])}}"
+        resources:
+          requests:
+            memory: 7.8Gi
+            cpu: 2000m
+        command: [node, /app/index.js]
+        args:
+          [
+            "copy",
+            "{{workflow.parameters.copy-option}}",
+            "{{inputs.parameters.file}}",
+          ]
+    - name: get-location
+      script:
+        image: "019359803926.dkr.ecr.ap-southeast-2.amazonaws.com/eks:argo-tasks-{{=sprig.trim(workflow.parameters['version-argo-tasks'])}}"
+        command: [node]
+        source: |
+          const fs = require('fs');
+          const loc = JSON.parse(process.env['ARGO_TEMPLATE']).archiveLocation.s3;
+          const key = loc.key.replace('{{pod.name}}','');
+          fs.writeFileSync('/tmp/location', `s3://${loc.bucket}/${key}`);
+      outputs:
+        parameters:
+          - name: location
+            valueFrom:
+              path: "/tmp/location"
+  volumes:
+    - name: ephemeral
+      emptyDir: {}
