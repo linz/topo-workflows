@@ -68,7 +68,7 @@ steps:
     - name: group_id # "000", "001" ... etc
 
   script:
-    image: "019359803926.dkr.ecr.ap-southeast-2.amazonaws.com/eks:argo-tasks-latest"
+    image: "019359803926.dkr.ecr.ap-southeast-2.amazonaws.com/argo-tasks:latest"
     command: [bash]
     source: |
       echo {{ inputs.parameters.group_id}}
