@@ -61,8 +61,7 @@ jobs:
           kubectl create namespace $TEST_NAMESPACE
 
           # Create copy of Workflows files to change their namespaces
-          # Make step failing
-          #mkdir test
+          mkdir test
           cp workflows/ test/workflows/ -r 
 
           # Deploy templates in the test namespace
@@ -78,8 +77,6 @@ jobs:
               kubectl apply -f $wf --namespace $TEST_NAMESPACE
           done
 
-          # TODO May need to deploy config files too?
-
           # Finally lint the templates
           ./argo-linux-amd64 lint templates/ -n $TEST_NAMESPACE
           ./argo-linux-amd64 lint test/workflows/ -n $TEST_NAMESPACE
@@ -88,7 +85,7 @@ jobs:
         if: github.ref != 'refs/heads/master'
         run: |
           # Delete the test namespace
-          kubectl delete namespaces $TEST_NAMESPACE
+          kubectl delete namespaces $GITHUB_SHA
 
       - name: Deploy workflows
         if: github.ref == 'refs/heads/master'
