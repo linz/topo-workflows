@@ -43,7 +43,7 @@ spec:
             withParam: "{{tasks.aws-list-collections.outputs.parameters.files}}"
     - name: aws-list-collections
       container:
-        image: "019359803926.dkr.ecr.ap-southeast-2.amazonaws.com/eks:argo-tasks-{{=sprig.trim(workflow.parameters['version-argo-tasks'])}}"
+        image: "019359803926.dkr.ecr.ap-southeast-2.amazonaws.com/argo-tasks:{{=sprig.trim(workflow.parameters['version-argo-tasks'])}}"
         command: [node, /app/index.js]
         env:
           - name: AWS_ROLE_CONFIG_PATH
@@ -72,7 +72,7 @@ spec:
         parameters:
           - name: file
       container:
-        image: "019359803926.dkr.ecr.ap-southeast-2.amazonaws.com/eks:argo-tasks-{{=sprig.trim(workflow.parameters['version-argo-tasks'])}}"
+        image: "019359803926.dkr.ecr.ap-southeast-2.amazonaws.com/argo-tasks:{{=sprig.trim(workflow.parameters['version-argo-tasks'])}}"
         resources:
           requests:
             cpu: 15000m

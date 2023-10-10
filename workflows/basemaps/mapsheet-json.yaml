@@ -52,7 +52,7 @@ spec:
         parameters:
           - name: layer
       container:
-        image: 019359803926.dkr.ecr.ap-southeast-2.amazonaws.com/eks:argo-tasks-{{=sprig.trim(workflow.parameters['version-argo-tasks'])}}
+        image: 019359803926.dkr.ecr.ap-southeast-2.amazonaws.com/argo-tasks:{{=sprig.trim(workflow.parameters['version-argo-tasks'])}}
         command: [node, index.js]
         env:
           - name: AWS_ROLE_CONFIG_PATH

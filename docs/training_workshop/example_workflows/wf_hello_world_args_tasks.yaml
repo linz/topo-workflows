@@ -35,6 +35,6 @@ spec:
         parameters:
           - name: message
       container:
-        image: "019359803926.dkr.ecr.ap-southeast-2.amazonaws.com/eks:topo-imagery-v2"
+        image: "019359803926.dkr.ecr.ap-southeast-2.amazonaws.com/topo-imagery:v3"
         command: [echo]
         args: ["{{inputs.parameters.message}}"]

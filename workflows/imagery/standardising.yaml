@@ -20,7 +20,7 @@ spec:
       - name: version-argo-tasks
         value: "v2"
       - name: version-basemaps-cli
-        value: "v6.39.0-15-g3e982390"
+        value: "v6"
       - name: version-topo-imagery
         value: "v3"
       - name: source
@@ -78,6 +78,7 @@ spec:
             "Aerial Surveys",
             "Beca",
             "Chang Guang Satellite Technology",
+            "Dimap",
             "European Space Agency",
             "GeoSmart",
             "Landpro",
@@ -211,6 +212,9 @@ spec:
       imagePullPolicy: Always
   templates:
     - name: main
+      inputs:
+        parameters:
+          - name: source
       dag:
         tasks:
           - name: collection-id-setup
@@ -227,7 +231,7 @@ spec:
                 - name: include
                   value: "{{workflow.parameters.include}}"
                 - name: source
-                  value: "{{=sprig.trim(workflow.parameters.source)}}"
+                  value: "{{=sprig.trim(inputs.parameters.source)}}"
                 - name: source_epsg
                   value: "{{=sprig.trim(workflow.parameters['source-epsg'])}}"
                 - name: validate
@@ -330,7 +334,7 @@ spec:
 
     - name: collection-id-setup
       script:
-        image: "019359803926.dkr.ecr.ap-southeast-2.amazonaws.com/eks:topo-imagery-{{=sprig.trim(workflow.parameters['version-topo-imagery'])}}"
+        image: "019359803926.dkr.ecr.ap-southeast-2.amazonaws.com/topo-imagery:{{=sprig.trim(workflow.parameters['version-topo-imagery'])}}"
         command: [python]
         source: |
           import ulid
@@ -360,7 +364,7 @@ spec:
           - name: group_data
             path: /tmp/input/
       container:
-        image: "019359803926.dkr.ecr.ap-southeast-2.amazonaws.com/eks:topo-imagery-{{=sprig.trim(workflow.parameters['version-topo-imagery'])}}"
+        image: "019359803926.dkr.ecr.ap-southeast-2.amazonaws.com/topo-imagery:{{=sprig.trim(workflow.parameters['version-topo-imagery'])}}"
         resources:
           requests:
             memory: 7.8Gi
@@ -402,7 +406,7 @@ spec:
           - name: collection-id
           - name: location
       container:
-        image: "019359803926.dkr.ecr.ap-southeast-2.amazonaws.com/eks:topo-imagery-{{=sprig.trim(workflow.parameters['version-topo-imagery'])}}"
+        image: "019359803926.dkr.ecr.ap-southeast-2.amazonaws.com/topo-imagery:{{=sprig.trim(workflow.parameters['version-topo-imagery'])}}"
         resources:
           requests:
             memory: 7.8Gi
@@ -435,7 +439,7 @@ spec:
         parameters:
           - name: location
       container:
-        image: "019359803926.dkr.ecr.ap-southeast-2.amazonaws.com/eks:argo-tasks-{{=sprig.trim(workflow.parameters['version-argo-tasks'])}}"
+        image: "019359803926.dkr.ecr.ap-southeast-2.amazonaws.com/argo-tasks:{{=sprig.trim(workflow.parameters['version-argo-tasks'])}}"
         command: [node, /app/index.js]
         env:
           - name: AWS_ROLE_CONFIG_PATH
@@ -450,7 +454,7 @@ spec:
 
     - name: get-location
       script:
-        image: "019359803926.dkr.ecr.ap-southeast-2.amazonaws.com/eks:argo-tasks-{{=sprig.trim(workflow.parameters['version-argo-tasks'])}}"
+        image: "019359803926.dkr.ecr.ap-southeast-2.amazonaws.com/argo-tasks:{{=sprig.trim(workflow.parameters['version-argo-tasks'])}}"
         command: [node]
         source: |
           const fs = require('fs');
@@ -490,32 +494,31 @@ spec:
           ]
 
     - name: create-config
+      retryStrategy:
+        limit: "2"
       inputs:
         parameters:
           - name: location
+            description: Location of the imagery to create config for
       container:
         image: "ghcr.io/linz/basemaps/cli:{{=sprig.trim(workflow.parameters['version-basemaps-cli'])}}"
-        command: [node, index.cjs]
+        command: [node, /app/node_modules/.bin/cogify]
         env:
           - name: AWS_ROLE_CONFIG_PATH
-            value: s3://linz-bucket-config/config.json
+            value: s3://linz-bucket-config/config.basemaps.json
         args:
-          [
-            "-V",
-            "create-config",
-            "--path",
-            "{{inputs.parameters.location}}flat/",
-            "--output",
-            "/tmp/url",
-            "--title",
-            "{{=sprig.trim(workflow.parameters.title)}}",
-            "--commit",
-          ]
+          - "config"
+          - "{{ inputs.parameters.location }}flat/"
       outputs:
         parameters:
           - name: url
+            description: Basemaps URL to view the imagery
             valueFrom:
-              path: "/tmp/url"
+              path: "/tmp/cogify/config-url"
+          - name: config
+            description: Location of the config file
+            valueFrom:
+              path: "/tmp/cogify/config-path"
 
   volumes:
     - name: ephemeral

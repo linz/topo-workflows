@@ -2,6 +2,7 @@
 
 - [Standardising](#Standardising)
 - [Publish-copy](#Publish-copy)
+- [publish-odr](#Publish-odr)
 - [Standardising-publish-import](#Standardising-publish-import)
 - [tests](#Tests)
 
@@ -224,6 +225,15 @@ Access permissions are controlled by the [Bucket Sharing Config](https://github.
 **include:** Although only `.tif(f)` and `.tfw` files are required, there should not be any `.json` files in with the uploaded imagery, so this option can be left at the default.
 
 **copy-option:** `--no-clobber`
+
+# Publish-odr
+
+## Workflow Description
+
+This workflow replicates `publish-copy` however it allows publishing to `s3://nz-imagery`(the registry of open data).
+**This workflow should not be run using the Argo UI, instead follow the instruction [here](https://github.com/linz/imagery/tree/master/workflow-parameters/README.md)**
+
+See the [publish-copy template](#publish-copy) for more information.
 
 # Standardising-publish-import
 
