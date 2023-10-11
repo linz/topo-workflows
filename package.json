@@ -9,6 +9,10 @@
     "format": "npx prettier . -w --ignore-path .gitignore --ignore-unknown"
   },
   "devDependencies": {
+    "@linzjs/style": "^4.2.0",
+    "cdk8s": "^2.66.9",
+    "cdk8s-cli": "^2.134.0",
+    "cdk8s-plus-27": "^2.7.33",
     "prettier": "^2.7.1"
   },
   "dependencies": {

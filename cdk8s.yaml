@@ -1,0 +1,2 @@
+app: npx tsx config/namespaces/argo.ts
+language: typescript
