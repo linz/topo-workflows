@@ -17,13 +17,10 @@ jobs:
           node-version: "18.x"
 
       - name: Install
-        run: yarn
+        run: npm install --ci
 
       - name: format
-        run: yarn format
-
-      - name: Check formatting
-        run: git diff --exit-code
+        run: npm run lint -- --fix=false # ensure eslint is not configured to --fix
 
       - name: Setup kubectl
         uses: azure/setup-kubectl@v3
