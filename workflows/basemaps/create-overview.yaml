@@ -9,11 +9,11 @@ spec:
   arguments:
     parameters:
       - name: version-basemaps-cli
-        value: "v6"
+        value: 'v6'
       - name: source
-        value: ""
+        value: ''
       - name: output
-        value: ""
+        value: ''
   templateDefaults:
     container:
       imagePullPolicy: Always
@@ -26,12 +26,12 @@ spec:
             arguments:
               parameters:
                 - name: source
-                  value: "{{workflow.parameters.source}}"
+                  value: '{{workflow.parameters.source}}'
                 - name: output
-                  value: "{{workflow.parameters.output}}"
+                  value: '{{workflow.parameters.output}}'
     - name: create-overview
       retryStrategy:
-        limit: "2"
+        limit: '2'
       inputs:
         parameters:
           - name: source
@@ -48,10 +48,10 @@ spec:
             value: s3://linz-bucket-config/config.basemaps.json
         args:
           [
-            "-V",
-            "create-overview",
-            "--source",
-            "{{inputs.parameters.source}}",
-            "--output",
-            "{{inputs.parameters.output}}",
+            '-V',
+            'create-overview',
+            '--source',
+            '{{inputs.parameters.source}}',
+            '--output',
+            '{{inputs.parameters.output}}',
           ]

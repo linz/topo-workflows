@@ -14,21 +14,21 @@ jobs:
       - name: Use Node.js 18.x
         uses: actions/setup-node@v2.2.0
         with:
-          node-version: "18.x"
+          node-version: '18.x'
 
       - name: Install
-        run: yarn
+        run: npm install --ci
 
       - name: format
-        run: yarn format
+        run: npm run lint -- --fix=false # ensure eslint is not configured to --fix
 
-      - name: Check formatting
-        run: git diff --exit-code
+      - name: format
+        run: npm run format -- --fix=false # ensure eslint is not configured to --fix
 
       - name: Setup kubectl
         uses: azure/setup-kubectl@v3
         with:
-          version: "latest"
+          version: 'latest'
 
       - name: AWS Configure
         uses: aws-actions/configure-aws-credentials@v1.6.1

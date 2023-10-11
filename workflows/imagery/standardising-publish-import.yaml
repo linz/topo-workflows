@@ -7,7 +7,7 @@ metadata:
 spec:
   parallelism: 50
   nodeSelector:
-    karpenter.sh/capacity-type: "spot"
+    karpenter.sh/capacity-type: 'spot'
   entrypoint: main
   synchronization:
     semaphore:
@@ -17,35 +17,35 @@ spec:
   arguments:
     parameters:
       - name: source
-        value: ""
+        value: ''
       - name: cutline # optional standardising cutline
-        value: ""
+        value: ''
       - name: collection-id # optional
-        value: ""
+        value: ''
       - name: compression
-        value: "webp"
+        value: 'webp'
       - name: source-epsg
-        value: "2193"
+        value: '2193'
       - name: target-epsg
-        value: "2193"
+        value: '2193'
       - name: group
-        value: "50"
+        value: '50'
       - name: copy-option
-        value: "--no-clobber"
+        value: '--no-clobber'
       - name: include
-        value: ".tiff?$"
+        value: '.tiff?$'
       - name: transform
-        value: "f"
+        value: 'f'
       - name: validate
-        value: "true"
+        value: 'true'
       - name: retile
-        value: "false"
+        value: 'false'
       - name: version-argo-tasks
-        value: "v2"
+        value: 'v2'
       - name: version-basemaps-cli
-        value: "v6"
+        value: 'v6'
       - name: version-topo-imagery
-        value: "v3"
+        value: 'v3'
   templateDefaults:
     container:
       imagePullPolicy: Always
@@ -59,7 +59,7 @@ spec:
             arguments:
               parameters:
                 - name: source
-                  value: "{{workflow.parameters.source}}"
+                  value: '{{workflow.parameters.source}}'
         - - name: publish
             templateRef:
               name: publish-copy
@@ -67,13 +67,13 @@ spec:
             arguments:
               parameters:
                 - name: source
-                  value: "{{steps.standardise.outputs.parameters.target}}flat/"
+                  value: '{{steps.standardise.outputs.parameters.target}}flat/'
                 - name: include
-                  value: ".tiff?$|.json$"
+                  value: '.tiff?$|.json$'
                 - name: group
-                  value: "1000"
+                  value: '1000'
                 - name: group-size
-                  value: "100Gi"
+                  value: '100Gi'
         # - - name: import # uncomment this stanza for basemaps imagery import and amend as necessary. All other inputs should be workflow parameters
         #     templateRef:
         #       name: basemaps-imagery-import

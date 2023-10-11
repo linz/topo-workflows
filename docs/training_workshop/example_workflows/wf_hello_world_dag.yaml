@@ -6,14 +6,14 @@ metadata:
   namespace: argo
 spec:
   nodeSelector:
-    karpenter.sh/capacity-type: "spot"
+    karpenter.sh/capacity-type: 'spot'
   entrypoint: main
   arguments:
     parameters:
       - name: message1
-        value: "hello world 1"
+        value: 'hello world 1'
       - name: message2
-        value: "hello world 2"
+        value: 'hello world 2'
   templates:
     - name: main
       dag:
@@ -23,33 +23,33 @@ spec:
             arguments:
               parameters:
                 - name: message
-                  value: "{{workflow.parameters.message1}}"
+                  value: '{{workflow.parameters.message1}}'
           - name: say-hello-task2
             template: say-hello-template
             arguments:
               parameters:
                 - name: message
-                  value: "{{workflow.parameters.message2}}"
-            depends: "say-hello-task1"
+                  value: '{{workflow.parameters.message2}}'
+            depends: 'say-hello-task1'
           - name: say-hello-task3
             template: say-hello-template
             arguments:
               parameters:
                 - name: message
-                  value: "say hello task 3"
-            depends: "say-hello-task1"
+                  value: 'say hello task 3'
+            depends: 'say-hello-task1'
           - name: say-hello-task4
             template: say-hello-template
             arguments:
               parameters:
                 - name: message
-                  value: "say hello task 4"
-            depends: "say-hello-task2 && say-hello-task3"
+                  value: 'say hello task 4'
+            depends: 'say-hello-task2 && say-hello-task3'
     - name: say-hello-template
       inputs:
         parameters:
           - name: message
       container:
-        image: "019359803926.dkr.ecr.ap-southeast-2.amazonaws.com/topo-imagery:v3"
+        image: '019359803926.dkr.ecr.ap-southeast-2.amazonaws.com/topo-imagery:v3'
         command: [echo]
-        args: ["{{inputs.parameters.message}}"]
+        args: ['{{inputs.parameters.message}}']

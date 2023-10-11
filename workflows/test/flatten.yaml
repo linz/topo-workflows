@@ -6,22 +6,22 @@ metadata:
   namespace: argo
 spec:
   nodeSelector:
-    karpenter.sh/capacity-type: "spot"
+    karpenter.sh/capacity-type: 'spot'
   entrypoint: main
   arguments:
     parameters:
       - name: version-argo-tasks
-        value: "latest"
+        value: 'latest'
       - name: uri
-        value: ""
+        value: ''
       - name: filter
-        value: ".tiff?$|.json$"
+        value: '.tiff?$|.json$'
       - name: copy-option
-        value: "--no-clobber"
+        value: '--no-clobber'
         enum:
-          - "--no-clobber"
-          - "--force"
-          - "--force-no-clobber"
+          - '--no-clobber'
+          - '--force'
+          - '--force-no-clobber'
   templateDefaults:
     container:
       imagePullPolicy: Always
@@ -34,17 +34,17 @@ spec:
             arguments:
               parameters:
                 - name: uri
-                  value: "{{workflow.parameters.uri}}"
+                  value: '{{workflow.parameters.uri}}'
                 - name: filter
-                  value: "{{workflow.parameters.filter}}"
+                  value: '{{workflow.parameters.filter}}'
           - name: flatten-copy
             template: flatten-copy
             arguments:
               parameters:
                 - name: file
-                  value: "{{item}}"
-            depends: "flatten"
-            withParam: "{{tasks.flatten.outputs.parameters.files}}"
+                  value: '{{item}}'
+            depends: 'flatten'
+            withParam: '{{tasks.flatten.outputs.parameters.files}}'
     - name: flatten
       inputs:
         parameters:
@@ -58,17 +58,17 @@ spec:
             value: s3://linz-bucket-config/config.json
         args:
           [
-            "flatten",
-            "--verbose",
-            "--include",
-            "{{=sprig.trim(inputs.parameters.filter)}}",
-            "--group",
-            "1000",
-            "--group-size",
-            "100Gi",
-            "--output",
-            "/tmp/file_list.json",
-            "{{=sprig.trim(inputs.parameters.uri)}}",
+            'flatten',
+            '--verbose',
+            '--include',
+            '{{=sprig.trim(inputs.parameters.filter)}}',
+            '--group',
+            '1000',
+            '--group-size',
+            '100Gi',
+            '--output',
+            '/tmp/file_list.json',
+            '{{=sprig.trim(inputs.parameters.uri)}}',
           ]
       outputs:
         parameters:
@@ -77,7 +77,7 @@ spec:
               path: /tmp/file_list.json
     - name: flatten-copy
       retryStrategy:
-        limit: "2"
+        limit: '2'
       inputs:
         parameters:
           - name: file
@@ -88,9 +88,4 @@ spec:
             memory: 7.8Gi
             cpu: 2000m
         command: [node, /app/index.js]
-        args:
-          [
-            "copy",
-            "{{workflow.parameters.copy-option}}",
-            "{{inputs.parameters.file}}",
-          ]
+        args: ['copy', '{{workflow.parameters.copy-option}}', '{{inputs.parameters.file}}']

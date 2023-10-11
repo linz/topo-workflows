@@ -29,7 +29,7 @@ spec:
 
           - name: version
             description: argo-task Container version to use
-            default: "v2"
+            default: 'v2'
 
       outputs:
         parameters:
@@ -57,13 +57,13 @@ spec:
             path: /tmp/group/output/
 
       container:
-        image: "019359803926.dkr.ecr.ap-southeast-2.amazonaws.com/argo-tasks:{{= inputs.parameters.version }}"
+        image: '019359803926.dkr.ecr.ap-southeast-2.amazonaws.com/argo-tasks:{{= inputs.parameters.version }}'
         command: [node, /app/index.js]
         env:
           - name: AWS_ROLE_CONFIG_PATH
             value: s3://linz-bucket-config/config.json
         args:
-          - "group"
-          - "--verbose"
-          - "--size={{= inputs.parameters.size }}"
-          - "--from-file={{= inputs.artifacts.input.path }}"
+          - 'group'
+          - '--verbose'
+          - '--size={{= inputs.parameters.size }}'
+          - '--from-file={{= inputs.artifacts.input.path }}'

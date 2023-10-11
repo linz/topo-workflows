@@ -4,7 +4,7 @@ metadata:
   name: semaphores
   namespace: argo
 data:
-  standardising: "2" # Limit of how many standardising workflow instances can run at the same time
-  bulk: "4" # Limit of how many bulk workflow instances can run at the same time
-  bulkcopy: "8" # Limit of how many publish-copy workflow instances can run at the same time
-  basemaps_import: "10" # Limit of how many basemaps import workflow instances can run at the same time
+  standardising: '2' # Limit of how many standardising workflow instances can run at the same time
+  bulk: '4' # Limit of how many bulk workflow instances can run at the same time
+  bulkcopy: '8' # Limit of how many publish-copy workflow instances can run at the same time
+  basemaps_import: '10' # Limit of how many basemaps import workflow instances can run at the same time
