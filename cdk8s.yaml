@@ -1,0 +1,2 @@
+app: npx tsx config/app.ts
+language: typescript

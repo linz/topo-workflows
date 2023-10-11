@@ -1,5 +1,4 @@
-mport { getGitBuildInfo } from "./build";
-
+import { getGitBuildInfo } from './build';
 
 /**
  * Generate a collection of standard labels for all components
