@@ -18,5 +18,8 @@
   },
   "scripts": {
     "format": "npx prettier . -w --ignore-path .gitignore --ignore-unknown"
+  },
+  "devDependencies": {
+    "@linzjs/style": "^5.0.0"
   }
 }
