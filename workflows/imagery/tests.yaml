@@ -10,7 +10,7 @@ spec:
   arguments:
     parameters:
       - name: version-topo-imagery
-        value: "latest"
+        value: 'latest'
   templateDefaults:
     container:
       imagePullPolicy: Always

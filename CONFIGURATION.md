@@ -78,12 +78,7 @@ container:
   env:
     - name: AWS_ROLE_CONFIG_PATH
       value: s3://linz-bucket-config/config.json
-  args:
-    [
-      "stac-validate",
-      "--recursive",
-      "{{inputs.parameters.location}}flat/collection.json",
-    ]
+  args: ['stac-validate', '--recursive', '{{inputs.parameters.location}}flat/collection.json']
 ```
 
 ## <a name='WorkflowPerformanceSettings'></a>Workflow Performance Settings
@@ -122,9 +117,9 @@ Two example workflow tasks requesting specific resources (memory and CPU) from t
 ```yaml
 - name: standardise-validate
   retryStrategy:
-    limit: "2"
+    limit: '2'
   nodeSelector:
-    karpenter.sh/capacity-type: "spot"
+    karpenter.sh/capacity-type: 'spot'
   inputs:
     parameters:
       - name: file
@@ -138,13 +133,13 @@ Two example workflow tasks requesting specific resources (memory and CPU) from t
         ephemeral-storage: 3Gi
     volumeMounts:
       - name: ephemeral
-        mountPath: "/tmp"
+        mountPath: '/tmp'
 ```
 
 ```yaml
 - name: copy
   retryStrategy:
-    limit: "2"
+    limit: '2'
   inputs:
     parameters:
       - name: file
@@ -173,7 +168,7 @@ _Note: the Argo Workflows flowchart UI refers to pods as “nodes”._
 In the standardising workflow, the `aws-list` task creates an output of a list of lists. Each `standardise-validate` task pod receives a list of files to process as an input.
 
 ```yaml
-withParam: "{{tasks.aws-list.outputs.parameters.files}}"
+withParam: '{{tasks.aws-list.outputs.parameters.files}}'
 ```
 
 For example, `aws-list` output with a `group` size of 4 set:

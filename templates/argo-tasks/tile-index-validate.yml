@@ -18,27 +18,27 @@ spec:
 
           - name: source_epsg
             description: Force source EPSG, "" will attempt to load EPSG from the source tiffs
-            default: ""
+            default: ''
 
           - name: source
             description: Location to list
-            default: ""
+            default: ''
 
           - name: include
             description: Limit the input list to this regexp
-            default: ""
+            default: ''
 
           - name: validate
             description: Validate that all input tiffs perfectly align to tile grid
-            default: "true"
+            default: 'true'
 
           - name: retile
             description: Output tile configuration for retiling
-            default: "false"
+            default: 'false'
 
           - name: version
             description: container version to use
-            default: "v2"
+            default: 'v2'
 
       outputs:
         artifacts:
@@ -64,20 +64,20 @@ spec:
               none: {}
 
       container:
-        image: "019359803926.dkr.ecr.ap-southeast-2.amazonaws.com/argo-tasks:{{=inputs.parameters.version}}"
+        image: '019359803926.dkr.ecr.ap-southeast-2.amazonaws.com/argo-tasks:{{=inputs.parameters.version}}'
         command: [node, /app/index.js]
         env:
           - name: AWS_ROLE_CONFIG_PATH
             value: s3://linz-bucket-config/config.json
         args:
-          - "tileindex-validate"
-          - "--verbose"
-          - "--scale={{= inputs.parameters.scale }}"
-          - "--validate={{= inputs.parameters.validate }}"
-          - "--retile={{= inputs.parameters.retile }}"
+          - 'tileindex-validate'
+          - '--verbose'
+          - '--scale={{= inputs.parameters.scale }}'
+          - '--validate={{= inputs.parameters.validate }}'
+          - '--retile={{= inputs.parameters.retile }}'
           - "{{= sprig.empty(inputs.parameters.source_epsg) ? '' : '--source-epsg=' + inputs.parameters.source_epsg }}"
           - "{{= sprig.empty(inputs.parameters.include) ? '' : '--include=' + inputs.parameters.include }}"
-          - "{{= sprig.trim(inputs.parameters.source) }}"
+          - '{{= sprig.trim(inputs.parameters.source) }}'
         resources:
           requests:
             memory: 3.9Gi

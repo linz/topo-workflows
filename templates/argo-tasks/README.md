@@ -95,13 +95,13 @@ Copy the input parameter manifest file without overriding.
   arguments:
     parameters:
       - name: copy-option
-        value: "--no-clobber"
+        value: '--no-clobber'
       - name: file
-        value: "{{item}}"
+        value: '{{item}}'
       - name: version-argo-tasks
-        value: "{{workflow.parameters.version-argo-tasks}}"
-  depends: "create-manifest"
-  withParam: "{{tasks.create-manifest.outputs.parameters.files}}"
+        value: '{{workflow.parameters.version-argo-tasks}}'
+  depends: 'create-manifest'
+  withParam: '{{tasks.create-manifest.outputs.parameters.files}}'
 ```
 
 ## argo-tasks/create-manifest - `tpl-create-manifest`
@@ -121,19 +121,19 @@ Create a manifest file for a user specified source and target that includes `.ti
   arguments:
     parameters:
       - name: source
-        value: "{{inputs.parameters.source}}"
+        value: '{{inputs.parameters.source}}'
       - name: target
-        value: "{{workflow.parameters.target}}"
+        value: '{{workflow.parameters.target}}'
       - name: include
-        value: ".tiff?$|.json$|.tfw$"
+        value: '.tiff?$|.json$|.tfw$'
       - name: exclude
-        value: ""
+        value: ''
       - name: group
-        value: "1000"
+        value: '1000'
       - name: group-size
-        value: "100Gi"
+        value: '100Gi'
       - name: version-argo-tasks
-        value: "{{workflow.parameters.version-argo-tasks}}"
+        value: '{{workflow.parameters.version-argo-tasks}}'
 ```
 
 ## argo-tasks/push-to-github - `tpl-push-to-github`
@@ -151,12 +151,12 @@ See https://github.com/linz/argo-tasks#stac-github-import
   arguments:
     parameters:
       - name: source
-        value: "{{inputs.parameters.source}}"
+        value: '{{inputs.parameters.source}}'
       - name: target
-        value: "{{workflow.parameters.target}}"
+        value: '{{workflow.parameters.target}}'
       - name: version-argo-tasks
-        value: "{{workflow.parameters.version-argo-tasks}}"
+        value: '{{workflow.parameters.version-argo-tasks}}'
       - name: repository
-        value: "elevation"
-  depends: "copy-with-github"
+        value: 'elevation'
+  depends: 'copy-with-github'
 ```

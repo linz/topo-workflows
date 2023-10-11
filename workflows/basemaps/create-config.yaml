@@ -9,9 +9,9 @@ spec:
   arguments:
     parameters:
       - name: version_basemaps_cli
-        value: "v6"
+        value: 'v6'
       - name: location
-        value: "s3://bucket/path/to"
+        value: 's3://bucket/path/to'
   templateDefaults:
     container:
       imagePullPolicy: Always
@@ -24,10 +24,10 @@ spec:
             arguments:
               parameters:
                 - name: location
-                  value: "{{workflow.parameters.location}}"
+                  value: '{{workflow.parameters.location}}'
     - name: create-config
       retryStrategy:
-        limit: "2"
+        limit: '2'
       inputs:
         parameters:
           - name: location
@@ -39,15 +39,15 @@ spec:
           - name: AWS_ROLE_CONFIG_PATH
             value: s3://linz-bucket-config/config.basemaps.json
         args:
-          - "config"
-          - "{{ inputs.parameters.location }}"
+          - 'config'
+          - '{{ inputs.parameters.location }}'
       outputs:
         parameters:
           - name: url
             description: Basemaps URL to view the imagery
             valueFrom:
-              path: "/tmp/cogify/config-url"
+              path: '/tmp/cogify/config-url'
           - name: config
             description: Location of the config file
             valueFrom:
-              path: "/tmp/cogify/config-path"
+              path: '/tmp/cogify/config-path'
