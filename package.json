@@ -17,7 +17,8 @@
     "node": ">=16.0.0"
   },
   "scripts": {
-    "lint": "npx eslint . --ignore-path .gitignore"
+    "lint": "npx eslint . --ignore-path .gitignore",
+    "format": "npx prettier . -w"
   },
   "devDependencies": {
     "@linzjs/style": "^5.0.0"

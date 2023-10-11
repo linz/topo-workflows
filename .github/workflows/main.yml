@@ -21,6 +21,9 @@ jobs:
 
       - name: format
         run: npm run lint -- --fix=false # ensure eslint is not configured to --fix
+      
+      - name: format
+        run: npm run format -- --fix=false # ensure eslint is not configured to --fix
 
       - name: Setup kubectl
         uses: azure/setup-kubectl@v3
