@@ -9,6 +9,10 @@ export class ArgoSemaphore extends Chart {
     super(scope, id, applyDefaultLabels(props, 'argo', 'v1', 'semaphores', 'workflows'));
 
     new kplus.ConfigMap(this, 'semaphores', {
+      metadata: {
+        name: 'semaphores',
+        namespace: 'argo',
+      },
       data: {
         standardising: '2', // Limit of how many standardising workflow instances can run at the same time
         bulk: '4', // Limit of how many bulk workflow instances can run at the same time
