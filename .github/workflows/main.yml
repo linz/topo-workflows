@@ -74,7 +74,9 @@ jobs:
       - name: Deploy config files
         if: github.ref == 'refs/heads/master'
         run: |
-          kubectl apply -f config/*.yml --namespace argo
+          npx cdk8s synth
+          kubectl apply -f dist/*.yml
+
       # Re-lint the workflows after deployment because their dependencies is test with deployement.
       - name: Re-Lint workflows
         run: |
