@@ -75,7 +75,7 @@ jobs:
         if: github.ref == 'refs/heads/master'
         run: |
           npx cdk8s synth
-          kubectl apply -f dist/*.yml
+          kubectl apply -f dist/
 
       # Re-lint the workflows after deployment because their dependencies is test with deployement.
       - name: Re-Lint workflows
