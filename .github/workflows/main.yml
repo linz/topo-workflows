@@ -74,7 +74,10 @@ jobs:
       - name: Deploy config files
         if: github.ref == 'refs/heads/master'
         run: |
-          kubectl apply -f config/*.yml --namespace argo
+          npx cdk8s synth
+          # FIXME: need to change the namespace 
+          kubectl apply -f dist/*.yml --namespace argo
+
       # Re-lint the workflows after deployment because their dependencies is test with deployement.
       - name: Re-Lint workflows
         run: |
