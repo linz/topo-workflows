@@ -23,7 +23,7 @@
   "devDependencies": {
     "@linzjs/style": "^5.0.0",
     "cdk8s": "^2.66.10",
-    "cdk8s-cli": "^2.134.0",
+    "cdk8s-cli": "^2.136.0",
     "cdk8s-plus-27": "^2.7.34"
   }
 }
