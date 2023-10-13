@@ -26,26 +26,43 @@ spec:
 
       - name: source
         description: Source imagery location "s3://linz-imagery"
-        value: "s3://linz-imagery-staging/test/sample/"
+        value: 's3://linz-imagery-staging/test/sample/'
+
+      - name: create_pull_request
+        description: 'Create pull request after importing imagery.'
+        value: 'aerial'
+        enum:
+          - 'aerial'
+          - 'individual'
+          - 'none'
+
+      - name: category
+        value: 'Rural Aerial Photos'
+        enum:
+          - 'Rural Aerial Photos'
+          - 'Urban Aerial Photos'
+          - 'Scanned Aerial Imagery'
+          - 'Satellite Imagery'
+          - 'Event'
 
       - name: target
         description: Target location for output COGs
-        value: "s3://linz-basemaps/"
+        value: 's3://linz-basemaps/'
         enum:
-          - "s3://linz-basemaps/"
-          - "s3://linz-basemaps-staging/"
+          - 's3://linz-basemaps/'
+          - 's3://linz-basemaps-staging/'
 
       - name: tile_matrix
         description: Output tile matrix, ";" separated list
-        value: "NZTM2000Quad;WebMercatorQuad"
+        value: 'NZTM2000Quad;WebMercatorQuad'
         enum:
-          - "NZTM2000Quad"
-          - "WebMercatorQuad"
-          - "NZTM2000Quad;WebMercatorQuad"
+          - 'NZTM2000Quad'
+          - 'WebMercatorQuad'
+          - 'NZTM2000Quad;WebMercatorQuad'
 
       - name: cutline
         description: Path to cutline to apply
-        value: "s3://linz-basemaps-source/cutline/2020-05-07-cutline-nz-coasts-rural-and-urban.geojson"
+        value: 's3://linz-basemaps-source/cutline/2020-05-07-cutline-nz-coasts-rural-and-urban.geojson'
 
       - name: cutline_blend
         description: Blending to use for cutline see gdal_translate#cblend
@@ -75,17 +92,25 @@ spec:
             arguments:
               parameters:
                 - name: source
-                  value: "{{ inputs.parameters.source }}"
+                  value: '{{ inputs.parameters.source }}'
                 - name: target
-                  value: "{{ inputs.parameters.target }}"
+                  value: '{{ inputs.parameters.target }}'
                 - name: tile_matrix
-                  value: "{{ item }}"
+                  value: '{{ item }}'
                 - name: cutline
-                  value: "{{ inputs.parameters.cutline }}"
+                  value: '{{ inputs.parameters.cutline }}'
                 - name: cutline_blend
-                  value: "{{ inputs.parameters.cutline_blend }}"
+                  value: '{{ inputs.parameters.cutline_blend }}'
                 - name: group_size
-                  value: "{{ inputs.parameters.group_size }}"
+                  value: '{{ inputs.parameters.group_size }}'
+          - name: create-pull-request
+            template: create-pull-request
+            arguments:
+              parameters:
+                - name: target
+                  value: '{{ tasks.cogify.outputs.parameters.target }}'
+            when: '{{workflow.parameters.create_pull_request}} != none'
+            depends: 'cogify'
 
     # Generate COGs for a specific tile matrix from a given collection of source imagery
     - name: cogify
@@ -105,27 +130,27 @@ spec:
             arguments:
               parameters:
                 - name: source
-                  value: "{{ inputs.parameters.source }}"
+                  value: '{{ inputs.parameters.source }}'
                 - name: target
-                  value: "{{ inputs.parameters.target }}"
+                  value: '{{ inputs.parameters.target }}'
                 - name: tile_matrix
-                  value: "{{ inputs.parameters.tile_matrix }}"
+                  value: '{{ inputs.parameters.tile_matrix }}'
                 - name: cutline
-                  value: "{{ inputs.parameters.cutline }}"
+                  value: '{{ inputs.parameters.cutline }}'
                 - name: cutline_blend
-                  value: "{{ inputs.parameters.cutline_blend }}"
+                  value: '{{ inputs.parameters.cutline_blend }}'
 
           # Group covering output into chunks to pass to create-cog
           - name: group
             arguments:
               parameters:
                 - name: size
-                  value: "{{ inputs.parameters.group_size }}"
+                  value: '{{ inputs.parameters.group_size }}'
                 - name: version
-                  value: "{{= workflow.parameters.version_argo_tasks }}"
+                  value: '{{= workflow.parameters.version_argo_tasks }}'
               artifacts:
                 - name: input
-                  from: "{{ tasks.create-covering.outputs.artifacts.tiles }}"
+                  from: '{{ tasks.create-covering.outputs.artifacts.tiles }}'
             templateRef:
               name: tpl-at-group
               template: main
@@ -135,14 +160,14 @@ spec:
           - name: create-cog
             depends: group
             template: create-cog
-            withParam: "{{ tasks.group.outputs.parameters.output }}"
+            withParam: '{{ tasks.group.outputs.parameters.output }}'
             arguments:
               parameters:
                 - name: covering_grouped_id
-                  value: "{{ item }}"
+                  value: '{{ item }}'
               artifacts:
                 - name: covering_grouped
-                  from: "{{ tasks.group.outputs.artifacts.output }}"
+                  from: '{{ tasks.group.outputs.artifacts.output }}'
 
           # once all COGs are created generate a more overviews to increase tile rendering performance
           - name: create-overview
@@ -151,7 +176,7 @@ spec:
             arguments:
               parameters:
                 - name: path
-                  value: "{{ tasks.create-covering.outputs.parameters.target }}"
+                  value: '{{ tasks.create-covering.outputs.parameters.target }}'
 
           # Create a basemaps config to view the imagery directly
           - name: create-config
@@ -160,21 +185,21 @@ spec:
             arguments:
               parameters:
                 - name: path
-                  value: "{{ tasks.create-covering.outputs.parameters.target }}"
+                  value: '{{ tasks.create-covering.outputs.parameters.target }}'
                 - name: title
-                  value: "{{ tasks.create-covering.outputs.parameters.title }}"
+                  value: '{{ tasks.create-covering.outputs.parameters.title }}'
 
       outputs:
         parameters:
           - name: target
             description: location of where the output tiffs were created
             valueFrom:
-              parameter: "{{ tasks.create-covering.outputs.parameters.target }}"
+              parameter: '{{ tasks.create-covering.outputs.parameters.target }}'
 
     # Generate a tile covering for input imagery
     - name: create-covering
       retryStrategy:
-        limit: "2"
+        limit: '2'
       inputs:
         parameters:
           - name: source
@@ -189,12 +214,12 @@ spec:
           - name: AWS_ROLE_CONFIG_PATH
             value: s3://linz-bucket-config/config.basemaps.json
         args:
-          - "cover"
-          - "--tile-matrix={{ inputs.parameters.tile_matrix }}"
+          - 'cover'
+          - '--tile-matrix={{ inputs.parameters.tile_matrix }}'
           - "{{= sprig.empty(inputs.parameters.cutline) ? '' : '--cutline=' + inputs.parameters.cutline }}"
-          - "--cutline-blend={{ inputs.parameters.cutline_blend }}"
-          - "--target={{= sprig.trim(inputs.parameters.target) }}"
-          - "{{= sprig.trim(inputs.parameters.source) }}"
+          - '--cutline-blend={{ inputs.parameters.cutline_blend }}'
+          - '--target={{= sprig.trim(inputs.parameters.target) }}'
+          - '{{= sprig.trim(inputs.parameters.source) }}'
       outputs:
         parameters:
           - name: target
@@ -214,9 +239,9 @@ spec:
     # Actually create COGs using gdal_translate on a large spot instances
     - name: create-cog
       retryStrategy:
-        limit: "2"
+        limit: '2'
       nodeSelector:
-        karpenter.sh/capacity-type: "spot"
+        karpenter.sh/capacity-type: 'spot'
       inputs:
         artifacts:
           - name: covering_grouped
@@ -235,14 +260,14 @@ spec:
           - name: AWS_ROLE_CONFIG_PATH
             value: s3://linz-bucket-config/config.basemaps.json
         args:
-          - "create"
-          - "--from-file={{= inputs.artifacts.covering_grouped.path }}{{inputs.parameters.covering_grouped_id}}.json"
-          - "--concurrency=2"
+          - 'create'
+          - '--from-file={{= inputs.artifacts.covering_grouped.path }}{{inputs.parameters.covering_grouped_id}}.json'
+          - '--concurrency=2'
 
     # Create a basemaps configuration file to view the imagery
     - name: create-config
       retryStrategy:
-        limit: "2"
+        limit: '2'
       inputs:
         parameters:
           - name: path
@@ -254,25 +279,25 @@ spec:
           - name: AWS_ROLE_CONFIG_PATH
             value: s3://linz-bucket-config/config.basemaps.json
         args:
-          - "config"
-          - "{{ inputs.parameters.path }}"
+          - 'config'
+          - '{{ inputs.parameters.path }}'
       outputs:
         parameters:
           - name: url
             description: Basemaps URL to view the imagery
             valueFrom:
-              path: "/tmp/cogify/config-url"
+              path: '/tmp/cogify/config-url'
           - name: config
             description: Location of the config file
             valueFrom:
-              path: "/tmp/cogify/config-path"
+              path: '/tmp/cogify/config-path'
 
     # create additional overviews for any COGs found in the path
     - name: create-overview
       retryStrategy:
-        limit: "2"
+        limit: '2'
       nodeSelector:
-        karpenter.sh/capacity-type: "spot"
+        karpenter.sh/capacity-type: 'spot'
       inputs:
         parameters:
           - name: path
@@ -288,7 +313,39 @@ spec:
           - name: AWS_ROLE_CONFIG_PATH
             value: s3://linz-bucket-config/config.basemaps.json
         args:
-          - "-V"
-          - "create-overview"
-          - "--source={{= sprig.trim(inputs.parameters.path) }}"
-          - "--output={{= sprig.trim(inputs.parameters.path) }}"
+          - '-V'
+          - 'create-overview'
+          - '--source={{= sprig.trim(inputs.parameters.path) }}'
+          - '--output={{= sprig.trim(inputs.parameters.path) }}'
+
+    - name: create-pull-request
+      inputs:
+        parameters:
+          - name: target
+      container:
+        image: 019359803926.dkr.ecr.ap-southeast-2.amazonaws.com/argo-tasks:{{workflow.parameters.version_argo_tasks}}
+        volumeMounts:
+          - name: secret-vol
+            mountPath: '/root/.ssh/'
+        command: [node, /app/index.js]
+        env:
+          - name: AWS_ROLE_CONFIG_PATH
+            value: s3://linz-bucket-config/config.basemaps.json
+          - name: GITHUB_API_TOKEN
+            valueFrom:
+              secretKeyRef:
+                name: github-bot-pat
+                key: github-token
+        args:
+          [
+            'bmc',
+            'create-pr',
+            '--target={{inputs.parameters.target}}',
+            "--individual={{= workflow.parameters.create_pull_request == 'individual'? 'true' : 'false' }}",
+            '--category={{workflow.parameters.category}}',
+          ]
+  volumes:
+    - name: secret-vol
+      secret:
+        secretName: github-linz-basemaps-config
+        defaultMode: 384

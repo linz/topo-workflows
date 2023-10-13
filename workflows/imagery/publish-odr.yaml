@@ -7,7 +7,7 @@ metadata:
 spec:
   parallelism: 50
   nodeSelector:
-    karpenter.sh/capacity-type: "spot"
+    karpenter.sh/capacity-type: 'spot'
   entrypoint: main
   synchronization:
     semaphore:
@@ -17,25 +17,25 @@ spec:
   arguments:
     parameters:
       - name: version-argo-tasks
-        value: "v2"
+        value: 'v2'
       - name: source
-        value: "s3://linz-imagery-staging/test/sample/"
+        value: 's3://linz-imagery-staging/test/sample/'
       - name: target
-        value: "s3://linz-imagery-staging/test/sample_target/"
+        value: 's3://linz-imagery-staging/test/sample_target/'
       - name: include
-        value: ".tiff?$|.json$|.tfw$"
+        value: '.tiff?$|.json$|.tfw$'
       - name: copy-option
-        value: "--no-clobber"
+        value: '--no-clobber'
         enum:
-          - "--no-clobber"
-          - "--force"
-          - "--force-no-clobber"
+          - '--no-clobber'
+          - '--force'
+          - '--force-no-clobber'
       - name: group
-        value: "1000"
+        value: '1000'
       - name: group-size
-        value: "100Gi"
+        value: '100Gi'
       - name: transform
-        value: "f"
+        value: 'f'
   templateDefaults:
     container:
       imagePullPolicy: Always
@@ -56,19 +56,19 @@ spec:
             arguments:
               parameters:
                 - name: source
-                  value: "{{inputs.parameters.source}}"
+                  value: '{{inputs.parameters.source}}'
                 - name: target
-                  value: "{{workflow.parameters.target}}"
+                  value: '{{workflow.parameters.target}}'
                 - name: include
-                  value: "{{inputs.parameters.include}}"
+                  value: '{{inputs.parameters.include}}'
                 - name: exclude
-                  value: "collection.json$"
+                  value: 'collection.json$'
                 - name: group
-                  value: "{{inputs.parameters.group}}"
+                  value: '{{inputs.parameters.group}}'
                 - name: group-size
-                  value: "{{inputs.parameters.group-size}}"
+                  value: '{{inputs.parameters.group-size}}'
                 - name: version-argo-tasks
-                  value: "{{workflow.parameters.version-argo-tasks}}"
+                  value: '{{workflow.parameters.version-argo-tasks}}'
             when: "{{=sprig.regexMatch('s3://nz-imagery/', workflow.parameters.target)}}"
 
           - name: create-manifest
@@ -78,20 +78,20 @@ spec:
             arguments:
               parameters:
                 - name: source
-                  value: "{{inputs.parameters.source}}"
+                  value: '{{inputs.parameters.source}}'
                 - name: target
-                  value: "{{workflow.parameters.target}}"
+                  value: '{{workflow.parameters.target}}'
                 - name: include
-                  value: "{{inputs.parameters.include}}"
+                  value: '{{inputs.parameters.include}}'
                 - name: exclude
-                  value: ""
+                  value: ''
                 - name: group
-                  value: "{{inputs.parameters.group}}"
+                  value: '{{inputs.parameters.group}}'
                 - name: group-size
-                  value: "{{inputs.parameters.group-size}}"
+                  value: '{{inputs.parameters.group-size}}'
                 - name: version-argo-tasks
-                  value: "{{workflow.parameters.version-argo-tasks}}"
-            depends: "create-manifest-github.Skipped"
+                  value: '{{workflow.parameters.version-argo-tasks}}'
+            depends: 'create-manifest-github.Skipped'
 
           - name: copy-with-github
             templateRef:
@@ -100,15 +100,15 @@ spec:
             arguments:
               parameters:
                 - name: copy-option
-                  value: "{{workflow.parameters.copy-option}}"
+                  value: '{{workflow.parameters.copy-option}}'
                 - name: file
-                  value: "{{item}}"
+                  value: '{{item}}'
                 - name: version-argo-tasks
-                  value: "{{workflow.parameters.version-argo-tasks}}"
+                  value: '{{workflow.parameters.version-argo-tasks}}'
                 - name: aws-role-config-path
-                  value: "s3://linz-bucket-config/config-write.open-data-registry.json,s3://linz-bucket-config/config.json"
-            depends: "create-manifest-github.Succeeded"
-            withParam: "{{tasks.create-manifest-github.outputs.parameters.files}}"
+                  value: 's3://linz-bucket-config/config-write.open-data-registry.json,s3://linz-bucket-config/config.json'
+            depends: 'create-manifest-github.Succeeded'
+            withParam: '{{tasks.create-manifest-github.outputs.parameters.files}}'
 
           - name: copy
             templateRef:
@@ -117,15 +117,15 @@ spec:
             arguments:
               parameters:
                 - name: copy-option
-                  value: "{{workflow.parameters.copy-option}}"
+                  value: '{{workflow.parameters.copy-option}}'
                 - name: file
-                  value: "{{item}}"
+                  value: '{{item}}'
                 - name: version-argo-tasks
-                  value: "{{workflow.parameters.version-argo-tasks}}"
+                  value: '{{workflow.parameters.version-argo-tasks}}'
                 - name: aws-role-config-path
-                  value: "s3://linz-bucket-config/config-write.open-data-registry.json,s3://linz-bucket-config/config.json"
-            depends: "create-manifest"
-            withParam: "{{tasks.create-manifest.outputs.parameters.files}}"
+                  value: 's3://linz-bucket-config/config-write.open-data-registry.json'
+            depends: 'create-manifest'
+            withParam: '{{tasks.create-manifest.outputs.parameters.files}}'
 
           - name: push-to-github
             templateRef:
@@ -134,16 +134,16 @@ spec:
             arguments:
               parameters:
                 - name: source
-                  value: "{{inputs.parameters.source}}"
+                  value: '{{inputs.parameters.source}}'
                 - name: target
-                  value: "{{workflow.parameters.target}}"
+                  value: '{{workflow.parameters.target}}'
                 - name: version-argo-tasks
-                  value: "{{workflow.parameters.version-argo-tasks}}"
+                  value: '{{workflow.parameters.version-argo-tasks}}'
                 - name: repository
-                  value: "imagery"
-            depends: "copy-with-github"
+                  value: 'imagery'
+            depends: 'copy-with-github'
   volumes:
     - name: secret-volume
       secret:
-        secretName: "github-linz-{{=sprig.regexFind(inputs.parameters.repository, inputs.parameters.target)}}"
+        secretName: 'github-linz-{{=sprig.regexFind(inputs.parameters.repository, inputs.parameters.target)}}'
         defaultMode: 384

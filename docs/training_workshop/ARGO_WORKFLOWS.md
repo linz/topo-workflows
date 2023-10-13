@@ -119,7 +119,7 @@ metadata:
   namespace: argo
 spec:
   nodeSelector:
-    karpenter.sh/capacity-type: "spot"
+    karpenter.sh/capacity-type: 'spot'
   entrypoint: main
   templates:
     - name: main
@@ -129,9 +129,9 @@ spec:
             template: say-hello-template
     - name: say-hello-template
       container:
-        image: "019359803926.dkr.ecr.ap-southeast-2.amazonaws.com/eks:topo-imagery-v2"
+        image: '019359803926.dkr.ecr.ap-southeast-2.amazonaws.com/topo-imagery:v3'
         command: [echo]
-        args: ["hello world"]
+        args: ['hello world']
 ```
 
 Example workflow file: [wf_hello_world.yaml](example_workflows/wf_hello_world.yaml)
@@ -142,7 +142,7 @@ You will see the following specified in the example workflows for this workshop.
 
 ```yaml
 nodeSelector:
-  karpenter.sh/capacity-type: "spot"
+  karpenter.sh/capacity-type: 'spot'
 ```
 
 Note: prefixing the name of the workflow with `test-` prevents alerts for the workflow being sent to the `#alert-argo-workflows` Slack channel.
@@ -174,7 +174,7 @@ spec:
   arguments:
     parameters:
       - name: message
-        value: "hello world"
+        value: 'hello world'
 ```
 
 The parameter can be referenced in the workflow using Argo variables as `"{{workflow.parameters.message}}"`
@@ -211,7 +211,7 @@ spec:
         parameters:
           - name: message
       container:
-        image: "019359803926.dkr.ecr.ap-southeast-2.amazonaws.com/eks:topo-imagery-v2"
+        image: "019359803926.dkr.ecr.ap-southeast-2.amazonaws.com/topo-imagery:v3"
         command: [echo]
         args: ["{{inputs.parameters.message}}"]
 ```
@@ -269,17 +269,17 @@ argo submit topo-workflows/imagery/standardising-publish-import.yaml -n argo -f 
 _params.yaml_:
 
 ```yaml
-source: "s3://linz-imagery-source-example/aerial-imagery/new-zealand/christchurch_urban_2021_0.05m_RGB/"
-target: "s3://linz-imagery-example/canterbury/christchurch_2021_0.05m/rgb/2193/"
-scale: "500"
-group: "29"
-cutline: "s3://linz-imagery-cutline-example/historical-imagery-cutlines/2023-01-16_84fd68f/SNC50451-combined.fgb"
-title: "Christchurch 0.05m Urban Aerial Photos (2021)"
-description: "Orthophotography within the Canterbury region captured in the 2021 flying season."
-producer: "Aerial Surveys"
-licensor: "Toitū Te Whenua Land Information New Zealand"
-start-datetime: "2021-11-02"
-end-datetime: "2021-12-02"
+source: 's3://linz-imagery-source-example/aerial-imagery/new-zealand/christchurch_urban_2021_0.05m_RGB/'
+target: 's3://linz-imagery-example/canterbury/christchurch_2021_0.05m/rgb/2193/'
+scale: '500'
+group: '29'
+cutline: 's3://linz-imagery-cutline-example/historical-imagery-cutlines/2023-01-16_84fd68f/SNC50451-combined.fgb'
+title: 'Christchurch 0.05m Urban Aerial Photos (2021)'
+description: 'Orthophotography within the Canterbury region captured in the 2021 flying season.'
+producer: 'Aerial Surveys'
+licensor: 'Toitū Te Whenua Land Information New Zealand'
+start-datetime: '2021-11-02'
+end-datetime: '2021-12-02'
 ```
 
 > **_Resources:_** [Argo CLI documentation](https://argoproj.github.io/argo-workflows/cli/argo/) - [Kubernetes Cheat Sheet](https://kubernetes.io/docs/reference/kubectl/cheatsheet/)
@@ -343,14 +343,14 @@ metadata:
   namespace: argo
 spec:
   nodeSelector:
-    karpenter.sh/capacity-type: "spot"
+    karpenter.sh/capacity-type: 'spot'
   entrypoint: main
   arguments:
     parameters:
       - name: message1
-        value: "hello world 1"
+        value: 'hello world 1'
       - name: message2
-        value: "hello world 2"
+        value: 'hello world 2'
   templates:
     - name: main
       dag:
@@ -360,21 +360,21 @@ spec:
             arguments:
               parameters:
                 - name: message
-                  value: "{{workflow.parameters.message1}}"
+                  value: '{{workflow.parameters.message1}}'
           - name: say-hello-task2
             template: say-hello-template
             arguments:
               parameters:
                 - name: message
-                  value: "{{workflow.parameters.message2}}"
+                  value: '{{workflow.parameters.message2}}'
     - name: say-hello-template
       inputs:
         parameters:
           - name: message
       container:
-        image: "019359803926.dkr.ecr.ap-southeast-2.amazonaws.com/eks:topo-imagery-v2"
+        image: '019359803926.dkr.ecr.ap-southeast-2.amazonaws.com/topo-imagery:v3'
         command: [echo]
-        args: ["{{inputs.parameters.message}}"]
+        args: ['{{inputs.parameters.message}}']
 ```
 
 Example workflow file: [wf_hello_world_args_tasks.yaml](example_workflows/wf_hello_world_args_tasks.yaml)
@@ -443,7 +443,7 @@ spec:
         parameters:
           - name: message
       container:
-        image: "019359803926.dkr.ecr.ap-southeast-2.amazonaws.com/eks:topo-imagery-v2"
+        image: "019359803926.dkr.ecr.ap-southeast-2.amazonaws.com/topo-imagery:v3"
         command: [echo]
         args: ["{{inputs.parameters.message}}"]
 ```
@@ -514,7 +514,7 @@ spec:
           - name: uri
           - name: include
       container:
-        image: "019359803926.dkr.ecr.ap-southeast-2.amazonaws.com/eks:argo-tasks-v2"
+        image: "019359803926.dkr.ecr.ap-southeast-2.amazonaws.com/argo-tasks:v2"
         command: [node, /app/index.js]
         env:
           - name: AWS_ROLE_CONFIG_PATH
@@ -541,7 +541,7 @@ spec:
         parameters:
           - name: file
       script:
-        image: "019359803926.dkr.ecr.ap-southeast-2.amazonaws.com/eks:argo-tasks-v2"
+        image: "019359803926.dkr.ecr.ap-southeast-2.amazonaws.com/argo-tasks:v2"
         env:
           - name: AWS_ROLE_CONFIG_PATH
             value: s3://linz-bucket-config/config.json

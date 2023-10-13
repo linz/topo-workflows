@@ -7,11 +7,11 @@ spec:
   templates:
     - name: sleep
       nodeSelector:
-        karpenter.sh/capacity-type: "spot"
+        karpenter.sh/capacity-type: 'spot'
       container:
         resources:
           requests:
             memory: 3.9Gi
             cpu: 2000m
         image: ubuntu:22.04
-        command: ["sleep", "3600"]
+        command: ['sleep', '3600']

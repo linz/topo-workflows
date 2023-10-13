@@ -12,7 +12,7 @@ metadata:
   name: semaphores
   namespace: argo
 data:
-  standardising: "2"
+  standardising: '2'
 ```
 
 which shows a limit of `2` added to the key `standardising`. This can then

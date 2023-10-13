@@ -7,12 +7,12 @@ metadata:
 spec:
   parallelism: 20
   nodeSelector:
-    karpenter.sh/capacity-type: "spot"
+    karpenter.sh/capacity-type: 'spot'
   entrypoint: main
   arguments:
     parameters:
       - name: version-basemaps-cli
-        value: "v6"
+        value: 'v6'
   templateDefaults:
     container:
       imagePullPolicy: Always
@@ -27,9 +27,9 @@ spec:
             arguments:
               parameters:
                 - name: source
-                  value: "{{item}}"
-            depends: "list-imagery"
-            withParam: "{{tasks.list-imagery.outputs.parameters.imagery}}"
+                  value: '{{item}}'
+            depends: 'list-imagery'
+            withParam: '{{tasks.list-imagery.outputs.parameters.imagery}}'
 
     - name: list-imagery
       container:
@@ -43,11 +43,11 @@ spec:
         parameters:
           - name: imagery
             valueFrom:
-              path: "/tmp/imagery.json"
+              path: '/tmp/imagery.json'
 
     - name: create-overview
       retryStrategy:
-        limit: "2"
+        limit: '2'
       inputs:
         parameters:
           - name: source
@@ -63,10 +63,10 @@ spec:
             value: s3://linz-bucket-config/config.basemaps.json
         args:
           [
-            "-V",
-            "create-overview",
-            "--source",
-            "{{inputs.parameters.source}}",
-            "--output",
-            "{{inputs.parameters.source}}",
+            '-V',
+            'create-overview',
+            '--source',
+            '{{inputs.parameters.source}}',
+            '--output',
+            '{{inputs.parameters.source}}',
           ]

@@ -6,7 +6,7 @@ spec:
   arguments:
     parameters:
       - name: version_argo_tasks
-        value: "v2.10.0-3-g83e7420"
+        value: 'v2.10.0-3-g83e7420'
   entrypoint: main
   templates:
     - name: main
@@ -29,7 +29,7 @@ spec:
                   value: 2193
 
                 - name: version
-                  value: "{{= workflow.parameters.version_argo_tasks }}"
+                  value: '{{= workflow.parameters.version_argo_tasks }}'
 
           - name: group
             templateRef:
@@ -39,32 +39,32 @@ spec:
             arguments:
               artifacts:
                 - name: input
-                  from: "{{ tasks.tile-index-validate.outputs.artifacts.files }}"
+                  from: '{{ tasks.tile-index-validate.outputs.artifacts.files }}'
 
               parameters:
                 - name: size
                   value: 5
 
                 - name: version
-                  value: "{{= workflow.parameters.version_argo_tasks }}"
+                  value: '{{= workflow.parameters.version_argo_tasks }}'
 
-            depends: "tile-index-validate"
+            depends: 'tile-index-validate'
 
           - name: process
             template: echo
-            withParam: "{{ tasks.group.outputs.parameters.output }}"
+            withParam: '{{ tasks.group.outputs.parameters.output }}'
             arguments:
               parameters:
                 - name: echo
-                  value: "{{ item }}"
-            depends: "group"
+                  value: '{{ item }}'
+            depends: 'group'
 
     - name: echo
       inputs:
         parameters:
           - name: echo
       container:
-        image: "019359803926.dkr.ecr.ap-southeast-2.amazonaws.com/eks:argo-tasks-{{= workflow.parameters.version_argo_tasks }}"
+        image: '019359803926.dkr.ecr.ap-southeast-2.amazonaws.com/argo-tasks:{{= workflow.parameters.version_argo_tasks }}'
         command: [echo]
         args:
-          - "{{inputs.parameters.echo}}"
+          - '{{inputs.parameters.echo}}'

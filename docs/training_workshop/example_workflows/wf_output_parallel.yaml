@@ -6,13 +6,13 @@ metadata:
 spec:
   parallelism: 20
   nodeSelector:
-    karpenter.sh/capacity-type: "spot"
+    karpenter.sh/capacity-type: 'spot'
   serviceAccountName: workflow-runner-sa
   entrypoint: main
   arguments:
     parameters:
       - name: uri
-        value: "s3://linz-imagery-staging/test/stac-validate/"
+        value: 's3://linz-imagery-staging/test/stac-validate/'
   templateDefaults:
     container:
       imagePullPolicy: Always
@@ -25,39 +25,39 @@ spec:
             arguments:
               parameters:
                 - name: uri
-                  value: "{{workflow.parameters.uri}}"
+                  value: '{{workflow.parameters.uri}}'
                 - name: include
-                  value: "json$"
+                  value: 'json$'
           - name: stac-print-path
             template: stac-print-path
             arguments:
               parameters:
                 - name: file
-                  value: "{{item}}"
-            depends: "aws-list"
-            withParam: "{{tasks.aws-list.outputs.parameters.files}}"
+                  value: '{{item}}'
+            depends: 'aws-list'
+            withParam: '{{tasks.aws-list.outputs.parameters.files}}'
     - name: aws-list
       inputs:
         parameters:
           - name: uri
           - name: include
       container:
-        image: "019359803926.dkr.ecr.ap-southeast-2.amazonaws.com/eks:argo-tasks-v2"
+        image: '019359803926.dkr.ecr.ap-southeast-2.amazonaws.com/argo-tasks:v2'
         command: [node, /app/index.js]
         env:
           - name: AWS_ROLE_CONFIG_PATH
             value: s3://linz-bucket-config/config.json
         args:
           [
-            "list",
-            "--verbose",
-            "--include",
-            "{{inputs.parameters.include}}",
-            "--group",
-            "4",
-            "--output",
-            "/tmp/file_list.json",
-            "{{inputs.parameters.uri}}",
+            'list',
+            '--verbose',
+            '--include',
+            '{{inputs.parameters.include}}',
+            '--group',
+            '4',
+            '--output',
+            '/tmp/file_list.json',
+            '{{inputs.parameters.uri}}',
           ]
       outputs:
         parameters:
@@ -69,12 +69,12 @@ spec:
         parameters:
           - name: file
       script:
-        image: "019359803926.dkr.ecr.ap-southeast-2.amazonaws.com/eks:argo-tasks-v2"
+        image: '019359803926.dkr.ecr.ap-southeast-2.amazonaws.com/argo-tasks:v2'
         env:
           - name: AWS_ROLE_CONFIG_PATH
             value: s3://linz-bucket-config/config.json
         command:
-          - "bash"
+          - 'bash'
         source: |
           PATH_OUT=$(echo "{{inputs.parameters.file}}" | sed 's/,/ /g; s/\[/ /g; s/\]/ /g')
           echo $PATH_OUT

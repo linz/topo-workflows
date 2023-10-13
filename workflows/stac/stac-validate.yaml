@@ -7,23 +7,23 @@ metadata:
 spec:
   parallelism: 20
   nodeSelector:
-    karpenter.sh/capacity-type: "spot"
+    karpenter.sh/capacity-type: 'spot'
   entrypoint: main
   arguments:
     parameters:
       - name: version-argo-tasks
-        value: "v2"
+        value: 'v2'
       - name: uri
-        description: "Path(s) to the STAC file(s)."
-        value: "s3://linz-imagery-staging/test/stac-validate/"
+        description: 'Path(s) to the STAC file(s).'
+        value: 's3://linz-imagery-staging/test/stac-validate/'
       - name: include
-        value: "collection.json$"
+        value: 'collection.json$'
       - name: checksum
-        description: "Validate asset checksums."
-        value: "false"
+        description: 'Validate asset checksums.'
+        value: 'false'
         enum:
-          - "false"
-          - "true"
+          - 'false'
+          - 'true'
   templateDefaults:
     container:
       imagePullPolicy: Always
@@ -38,27 +38,27 @@ spec:
             arguments:
               parameters:
                 - name: file
-                  value: "{{item}}"
+                  value: '{{item}}'
             depends: aws-list-collections
-            withParam: "{{tasks.aws-list-collections.outputs.parameters.files}}"
+            withParam: '{{tasks.aws-list-collections.outputs.parameters.files}}'
     - name: aws-list-collections
       container:
-        image: "019359803926.dkr.ecr.ap-southeast-2.amazonaws.com/eks:argo-tasks-{{=sprig.trim(workflow.parameters['version-argo-tasks'])}}"
+        image: "019359803926.dkr.ecr.ap-southeast-2.amazonaws.com/argo-tasks:{{=sprig.trim(workflow.parameters['version-argo-tasks'])}}"
         command: [node, /app/index.js]
         env:
           - name: AWS_ROLE_CONFIG_PATH
             value: s3://linz-bucket-config/config.json
         args:
           [
-            "list",
-            "--verbose",
-            "--include",
-            "{{=sprig.trim(workflow.parameters.include)}}",
-            "--group",
-            "1",
-            "--output",
-            "/tmp/file_list.json",
-            "{{=sprig.trim(workflow.parameters.uri)}}",
+            'list',
+            '--verbose',
+            '--include',
+            '{{=sprig.trim(workflow.parameters.include)}}',
+            '--group',
+            '1',
+            '--output',
+            '/tmp/file_list.json',
+            '{{=sprig.trim(workflow.parameters.uri)}}',
           ]
       outputs:
         parameters:
@@ -67,12 +67,12 @@ spec:
               path: /tmp/file_list.json
     - name: stac-validate-collections
       retryStrategy:
-        limit: "2"
+        limit: '2'
       inputs:
         parameters:
           - name: file
       container:
-        image: "019359803926.dkr.ecr.ap-southeast-2.amazonaws.com/eks:argo-tasks-{{=sprig.trim(workflow.parameters['version-argo-tasks'])}}"
+        image: "019359803926.dkr.ecr.ap-southeast-2.amazonaws.com/argo-tasks:{{=sprig.trim(workflow.parameters['version-argo-tasks'])}}"
         resources:
           requests:
             cpu: 15000m
@@ -83,11 +83,11 @@ spec:
             value: s3://linz-bucket-config/config.json
         args:
           [
-            "stac",
-            "validate",
-            "--concurrency",
-            "50",
-            "--recursive",
-            "--checksum={{workflow.parameters.checksum}}",
-            "{{inputs.parameters.file}}",
+            'stac',
+            'validate',
+            '--concurrency',
+            '50',
+            '--recursive',
+            '--checksum={{workflow.parameters.checksum}}',
+            '{{inputs.parameters.file}}',
           ]

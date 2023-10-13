@@ -10,14 +10,14 @@ spec:
   arguments:
     parameters:
       - name: version-topo-imagery
-        value: "latest"
+        value: 'latest'
   templateDefaults:
     container:
       imagePullPolicy: Always
   templates:
     - name: test-script
       script:
-        image: 019359803926.dkr.ecr.ap-southeast-2.amazonaws.com/eks:topo-imagery-{{workflow.parameters.version-topo-imagery}}
+        image: 019359803926.dkr.ecr.ap-southeast-2.amazonaws.com/topo-imagery:{{workflow.parameters.version-topo-imagery}}
         command: [python]
         source: |
           import sys
