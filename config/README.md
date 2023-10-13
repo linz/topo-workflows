@@ -42,6 +42,19 @@ However, some of the component Helm charts do not have a `values.schema.json`. F
 - aws-for-fluent-bit (<https://github.com/aws/eks-charts/issues/1011>)
 - Karpenter
 
+### Working with Helm charts
+
+#### Generate code
+
+It is possible to generate a specific Helm construct for the component if their chart includes a `value.schema.json`. This is useful to provide typing hints when specifying their configuration (<https://github.com/cdk8s-team/cdk8s/blob/master/docs/cli/import.md#values-schema>)
+
+To generate the Helm Construct for a specific Chart, follow the instructions [here](https://github.com/cdk8s-team/cdk8s/blob/master/docs/cli/import.md#values-schema)
+
+However, some of the component Helm charts do not have a `values.schema.json`. For those we won't generate any code and use the default `Helm` construct:
+
+- aws-for-fluent-bit
+
+
 ## Usage (for test)
 
 Ensure all dependencies are installed
