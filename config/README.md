@@ -52,7 +52,7 @@ To generate the Helm Construct for a specific Chart, follow the instructions [he
 
 However, some of the component Helm charts do not have a `values.schema.json`. For those we won't generate any code and use the default `Helm` construct:
 
-- aws-for-fluent-bit
+- aws-for-fluent-bit (<https://github.com/aws/eks-charts/issues/1011>)
 
 
 ## Usage (for test)
