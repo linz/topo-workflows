@@ -8,7 +8,7 @@ export class FluentBit extends Chart {
     super(scope, id, applyDefaultLabels(props, 'aws-for-fluent-bit', '2.31.11', 'logs', 'workflows'));
 
     const FluentParserName = 'containerd';
-    // This needs to be properly formatted, and it was stolen directly from https://github.com/microsoft/fluentbit-containerd-cri-o-json-log
+    // This needs to be properly formatted, and it was taken directly from https://github.com/microsoft/fluentbit-containerd-cri-o-json-log
     // The key part is the message must be parsed as "log" otherwise it wont be parsed as JSON
     const FluentContainerParser = `[PARSER]
         Name ${FluentParserName}
