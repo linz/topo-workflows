@@ -17,11 +17,15 @@
     "node": ">=16.0.0"
   },
   "scripts": {
+    "build": "tsc",
     "lint": "npx eslint . --ignore-path .gitignore",
     "format": "npx prettier . -w"
   },
   "devDependencies": {
+    "@aws-sdk/client-cloudformation": "^3.429.0",
+    "@aws-sdk/client-eks": "^3.429.0",
     "@linzjs/style": "^5.0.0",
+    "aws-cdk-lib": "^2.101.1",
     "cdk8s": "^2.66.10",
     "cdk8s-cli": "^2.138.0",
     "cdk8s-plus-27": "^2.7.34"

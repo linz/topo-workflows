@@ -2,7 +2,7 @@ import { Chart, ChartProps } from 'cdk8s';
 import * as kplus from 'cdk8s-plus-27';
 import { Construct } from 'constructs';
 
-import { applyDefaultLabels } from '../util/labels';
+import { applyDefaultLabels } from '../util/labels.js';
 
 export class ArgoSemaphore extends Chart {
   constructor(scope: Construct, id: string, props: ChartProps) {

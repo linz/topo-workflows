@@ -1,12 +1,15 @@
+import { CloudFormation } from '@aws-sdk/client-cloudformation';
 import { Chart, ChartProps, Helm } from 'cdk8s';
 import { Construct } from 'constructs';
 
 import { applyDefaultLabels } from '../util/labels.js';
 
 export class Karpenter extends Chart {
-  constructor(scope: Construct, id: string, props: ChartProps) {
+  constructor(scope: Construct, id: string, props: { roleArn: string } & ChartProps) {
     // TODO: What is the component name? 'karpenter' or 'autoscaling'?
     super(scope, id, applyDefaultLabels(props, 'karpenter', '', 'karpenter', 'workflows'));
+
+    // Get EKS cluster information
 
     new Helm(this, 'karpenter', {
       chart: 'karpenter',
@@ -31,3 +34,19 @@ export class Karpenter extends Chart {
     });
   }
 }
+
+export async function getStackFromName(stackName: string): Promise<void> {
+  const cfn = new CloudFormation();
+  const clusterStack = await cfn.describeStacks({ StackName: stackName });
+  if (clusterStack.Stacks) {
+    console.log(clusterStack.Stacks[0]);
+  }
+}
+
+// TODO: remove tests
+async function main(): Promise<void> {
+  const clusterStackName = 'EksWorkflowProd';
+  await getStackFromName(clusterStackName);
+}
+
+main();

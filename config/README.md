@@ -17,8 +17,6 @@ ConfigMap that list the synchronization limits for parallel execution of the wor
 
 ### Karpenter
 
-
-
 ## Development
 
 <https://cdk8s.io/>
@@ -32,7 +30,8 @@ It is possible to generate a specific Helm construct for the component if their 
 To generate the Helm Construct for a specific Chart, follow the instructions [here](https://github.com/cdk8s-team/cdk8s/blob/master/docs/cli/import.md#values-schema):
 
 - add the Helm to `helm`
-``` shell
+
+```shell
 
 ```
 
@@ -43,12 +42,11 @@ However, some of the component Helm charts do not have a `values.schema.json`. F
 - aws-for-fluent-bit (<https://github.com/aws/eks-charts/issues/1011>)
 - Karpenter
 
-
 ## Usage (for test)
 
 Ensure all dependencies are installed
 
-``` shell
+```shell
 npm install
 ```
 
@@ -56,13 +54,13 @@ Login to AWS
 
 Generate the kubernetes configuration yaml into `dist/`
 
-``` shell
+```shell
 npx cdk8s synth
 ```
 
 Apply the generated yaml files
 
-``` shell
+```shell
 kubectl apply -f dist/
 ```
 
