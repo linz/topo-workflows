@@ -22,8 +22,11 @@
   },
   "devDependencies": {
     "@linzjs/style": "^5.0.0",
+    "aws-cdk": "^2.101.1",
+    "aws-cdk-lib": "^2.101.1",
     "cdk8s": "^2.66.10",
     "cdk8s-cli": "^2.136.0",
-    "cdk8s-plus-27": "^2.7.34"
+    "cdk8s-plus-27": "^2.7.34",
+    "constructs": "^10.3.0"
   }
 }

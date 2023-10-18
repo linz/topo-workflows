@@ -1,2 +1,2 @@
-app: npx tsx config/app.ts
+app: npx tsx config/cdk8s.ts
 language: typescript
