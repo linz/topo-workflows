@@ -28,5 +28,8 @@
     "cdk8s-cli": "^2.136.0",
     "cdk8s-plus-27": "^2.7.34",
     "constructs": "^10.3.0"
+  },
+  "dependencies": {
+    "@aws-cdk/lambda-layer-kubectl-v27": "^2.0.0"
   }
 }
