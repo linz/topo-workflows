@@ -22,7 +22,7 @@ ConfigMap that list the synchronization limits for parallel execution of the wor
 
 Ensure all dependencies are installed
 
-``` shell
+```shell
 npm install
 ```
 
@@ -30,13 +30,13 @@ Login to AWS
 
 Generate the kubernetes configuration yaml into `dist/`
 
-``` shell
+```shell
 npx cdk8s synth
 ```
 
 Apply the generated yaml files
 
-``` shell
+```shell
 kubectl apply -f dist/
 ```
 
