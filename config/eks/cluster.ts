@@ -68,5 +68,39 @@ export class LinzEksCluster extends Stack {
     // Grant the AWS Admin user ability to view the cluster
     const accountAdminRole = Role.fromRoleName(this, 'AccountAdminRole', 'AccountAdminRole');
     this.cluster.awsAuth.addMastersRole(accountAdminRole);
+
+    this.configureEks();
+  }
+
+  /**
+   * Setup the basic interactions between EKS and some of its components
+   *
+   * This should generally be limited to things that require direct interaction with AWS eg service accounts
+   * or name space creation
+   */
+  configureEks(): void {
+    // Use fluent bit to ship logs from eks into aws
+    const fluentBitNs = this.cluster.addManifest('FluentBitNamespace', {
+      apiVersion: 'v1',
+      kind: 'Namespace',
+      metadata: { name: 'fluent-bit' },
+    });
+    const fluentBitSa = this.cluster.addServiceAccount('FluentBitServiceAccount', {
+      name: 'fluent-bit-sa',
+      namespace: 'fluent-bit',
+    });
+    fluentBitSa.node.addDependency(fluentBitNs); // Ensure the namespace created first
+
+    // Basic constructs for argo to be deployed into
+    const argoNs = this.cluster.addManifest('ArgoNameSpace', {
+      apiVersion: 'v1',
+      kind: 'Namespace',
+      metadata: { name: 'argo' },
+    });
+    const argoRunnerSa = this.cluster.addServiceAccount('ArgoRunnerServiceAccount', {
+      name: 'argo-runner-sa',
+      namespace: 'argo',
+    });
+    argoRunnerSa.node.addDependency(argoNs);
   }
 }
