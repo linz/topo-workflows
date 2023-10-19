@@ -17,7 +17,6 @@
     "node": ">=16.0.0"
   },
   "scripts": {
-    "build": "tsc",
     "lint": "npx eslint . --ignore-path .gitignore",
     "format": "npx prettier . -w"
   },
