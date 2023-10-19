@@ -1,6 +1,5 @@
 import { App } from 'cdk8s';
 
-import { CLUSTER_NAME } from './cdk';
 import { CfnOutputKeys } from './cfn.output';
 import { ArgoSemaphore } from './charts/argo.semaphores';
 import { Karpenter } from './charts/karpenter';
@@ -10,21 +9,19 @@ const app = new App();
 
 async function main(): Promise<void> {
   // Get cloudformation outputs
-  const cfnOutputs = await getCfnOutputs(CLUSTER_NAME);
-  // FIXME: loop over `CfnOutputKeys.Karpenter` instead
-  if (
-    !(CfnOutputKeys.Karpenter.ClusterEndpoint in cfnOutputs) ||
-    !(CfnOutputKeys.Karpenter.ServiceAccountRoleArn in cfnOutputs) ||
-    !(CfnOutputKeys.Karpenter.DefaultInstanceProfile in cfnOutputs)
-  ) {
-    throw new Error(`At least one CloudFormation Output is missing: {cfnOutputs}`);
+  const cfnOutputs = await getCfnOutputs('Workflows');
+  const missingKeys = [...Object.values(CfnOutputKeys.Karpenter)].filter((f) => cfnOutputs[f] == null);
+  if (missingKeys.length > 0) {
+    throw new Error(`Missing CloudFormation Outputs for keys ${missingKeys.join(', ')}`);
   }
+
   new ArgoSemaphore(app, 'semaphore', {});
 
   new Karpenter(app, 'karpenter', {
-    clusterName: CLUSTER_NAME,
+    clusterName: 'Workflows',
     clusterEndpoint: cfnOutputs[CfnOutputKeys.Karpenter.ClusterEndpoint],
-    roleArn: cfnOutputs[CfnOutputKeys.Karpenter.ServiceAccountRoleArn],
+    saRoleName: cfnOutputs[CfnOutputKeys.Karpenter.ServiceAccountName],
+    saRoleArn: cfnOutputs[CfnOutputKeys.Karpenter.ServiceAccountRoleArn],
     instanceProfile: cfnOutputs[CfnOutputKeys.Karpenter.DefaultInstanceProfile],
   });
 

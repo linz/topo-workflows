@@ -1,25 +1,39 @@
 import { KubectlV27Layer } from '@aws-cdk/lambda-layer-kubectl-v27';
-import { Duration, RemovalPolicy, Stack, StackProps } from 'aws-cdk-lib';
+import { Aws, CfnOutput, Duration, RemovalPolicy, Stack, StackProps } from 'aws-cdk-lib';
 import { InstanceType, IVpc, SubnetType, Vpc } from 'aws-cdk-lib/aws-ec2';
 import { Cluster, ClusterLoggingTypes, IpFamily, KubernetesVersion, NodegroupAmiType } from 'aws-cdk-lib/aws-eks';
-import { Role } from 'aws-cdk-lib/aws-iam';
+import {
+  CfnInstanceProfile,
+  ManagedPolicy,
+  Policy,
+  PolicyStatement,
+  Role,
+  ServicePrincipal,
+} from 'aws-cdk-lib/aws-iam';
+import { IBucket } from 'aws-cdk-lib/aws-s3';
 import { BlockPublicAccess, Bucket } from 'aws-cdk-lib/aws-s3';
 import { Construct } from 'constructs';
+
+import { CfnOutputKeys } from '../cfn.output';
 
 interface EksClusterProps extends StackProps {}
 
 export class LinzEksCluster extends Stack {
+  /* Cluster ID */
+  id: string;
   /** Version of EKS to use, this must be aligned to the `kubectlLayer` */
   version = KubernetesVersion.V1_27;
   /** Argo needs a temporary bucket to store objects */
   tempBucket: Bucket;
-
+  /* Bucket where read/write roles config files are stored */
+  configBucket: IBucket;
   vpc: IVpc;
-
   cluster: Cluster;
+  nodeRole: Role;
 
   constructor(scope: Construct, id: string, props: EksClusterProps) {
     super(scope, id, props);
+    this.id = id;
 
     this.tempBucket = new Bucket(this, 'Scratch', {
       /** linz-workflows-scratch */
@@ -35,6 +49,8 @@ export class LinzEksCluster extends Stack {
         },
       ],
     });
+
+    this.configBucket = Bucket.fromBucketName(this, 'BucketConfig', 'linz-bucket-config');
 
     this.vpc = Vpc.fromLookup(this, 'Vpc', { tags: { BaseVPC: 'true' } });
 
@@ -68,5 +84,121 @@ export class LinzEksCluster extends Stack {
     // Grant the AWS Admin user ability to view the cluster
     const accountAdminRole = Role.fromRoleName(this, 'AccountAdminRole', 'AccountAdminRole');
     this.cluster.awsAuth.addMastersRole(accountAdminRole);
+
+    // This is the role that the new nodes will start as
+    this.nodeRole = new Role(this, 'NodeRole', {
+      assumedBy: new ServicePrincipal(`ec2.${Aws.URL_SUFFIX}`),
+      managedPolicies: [
+        ManagedPolicy.fromAwsManagedPolicyName('AmazonEKS_CNI_Policy'),
+        ManagedPolicy.fromAwsManagedPolicyName('AmazonEKSWorkerNodePolicy'),
+        ManagedPolicy.fromAwsManagedPolicyName('AmazonEC2ContainerRegistryReadOnly'),
+      ],
+    });
+
+    this.configureEks();
+  }
+
+  /**
+   * Setup the basic interactions between EKS and some of its components
+   *
+   * This should generally be limited to things that require direct interaction with AWS eg service accounts
+   * or name space creation
+   */
+  configureEks(): void {
+    // Karpenter
+    this.tempBucket.grantReadWrite(this.nodeRole);
+    this.configBucket.grantRead(this.nodeRole);
+    this.nodeRole.addToPrincipalPolicy(new PolicyStatement({ actions: ['sts:AssumeRole'], resources: ['*'] }));
+
+    this.cluster.awsAuth.addRoleMapping(this.nodeRole, {
+      username: 'system:node:{{EC2PrivateDNSName}}',
+      groups: ['system:bootstrappers', 'system:nodes'],
+    });
+
+    const namespace = this.cluster.addManifest('namespace', {
+      apiVersion: 'v1',
+      kind: 'Namespace',
+      metadata: { name: 'karpenter' },
+    });
+    const serviceAccount = this.cluster.addServiceAccount('karpenter-controller-sa', { namespace: 'karpenter' });
+    serviceAccount.node.addDependency(namespace);
+    // Nasty hack so this account has access to spin up EC2s inside of LINZ's network
+    serviceAccount.role.addManagedPolicy(
+      ManagedPolicy.fromAwsManagedPolicyName('service-role/AmazonEC2SpotFleetTaggingRole'),
+    );
+
+    // Allow Karpenter to start ec2 instances
+    new Policy(this, 'ControllerPolicy', {
+      roles: [serviceAccount.role],
+      statements: [
+        new PolicyStatement({
+          actions: [
+            'ec2:CreateFleet',
+            'ec2:CreateLaunchTemplate',
+            'ec2:CreateTags',
+            'ec2:DeleteLaunchTemplate',
+            'ec2:DescribeAvailabilityZones',
+            'ec2:DescribeInstances',
+            'ec2:DescribeInstanceTypeOfferings',
+            'ec2:DescribeInstanceTypes',
+            'ec2:DescribeLaunchTemplates',
+            'ec2:DescribeSecurityGroups',
+            'ec2:DescribeSubnets',
+            'ec2:RunInstances',
+            'ec2:TerminateInstances',
+            'iam:PassRole',
+            'ssm:GetParameter',
+
+            // LINZ requires instances to be encrypted with a KMS key
+            'kms:Encrypt',
+            'kms:Decrypt',
+            'kms:ReEncrypt*',
+            'kms:GenerateDataKey*',
+            'kms:CreateGrant',
+            'kms:DescribeKey',
+          ],
+          resources: ['*'],
+        }),
+      ],
+    });
+
+    const instanceProfile = new CfnInstanceProfile(this, 'InstanceProfile', {
+      roles: [this.nodeRole.roleName],
+      instanceProfileName: `${this.cluster.clusterName}-${this.id}`, // Must be specified to avoid CFN error
+    });
+
+    // Save configuration for CDK8s to access it
+    new CfnOutput(this, CfnOutputKeys.Karpenter.DefaultInstanceProfile, { value: instanceProfile.ref });
+    new CfnOutput(this, CfnOutputKeys.Karpenter.ClusterEndpoint, { value: this.cluster.clusterEndpoint });
+    new CfnOutput(this, CfnOutputKeys.Karpenter.ServiceAccountRoleArn, { value: serviceAccount.role.roleArn });
+    new CfnOutput(this, CfnOutputKeys.Karpenter.ServiceAccountName, { value: serviceAccount.serviceAccountName });
+
+    // Use fluent bit to ship logs from eks into aws
+    const fluentBitNs = this.cluster.addManifest('FluentBitNamespace', {
+      apiVersion: 'v1',
+      kind: 'Namespace',
+      metadata: { name: 'fluent-bit' },
+    });
+    const fluentBitSa = this.cluster.addServiceAccount('FluentBitServiceAccount', {
+      name: 'fluent-bit-sa',
+      namespace: 'fluent-bit',
+    });
+    fluentBitSa.node.addDependency(fluentBitNs); // Ensure the namespace created first
+
+    new CfnOutput(this, 'FluentBitServiceAccountRoleArn', { value: fluentBitSa.role.roleArn });
+
+    // Basic constructs for argo to be deployed into
+    const argoNs = this.cluster.addManifest('ArgoNameSpace', {
+      apiVersion: 'v1',
+      kind: 'Namespace',
+      metadata: { name: 'argo' },
+    });
+    const argoRunnerSa = this.cluster.addServiceAccount('ArgoRunnerServiceAccount', {
+      name: 'argo-runner-sa',
+      namespace: 'argo',
+    });
+    argoRunnerSa.node.addDependency(argoNs);
+
+    new CfnOutput(this, 'ArgoRunnerServiceAccountRoleArn', { value: fluentBitSa.role.roleArn });
   }
 }

@@ -3,12 +3,16 @@ import { Construct } from 'constructs';
 
 import { applyDefaultLabels } from '../util/labels.js';
 
+export interface KarpenterProps {
+  clusterName: string;
+  saRoleName: string;
+  saRoleArn: string;
+  clusterEndpoint: string;
+  instanceProfile: string;
+}
+
 export class Karpenter extends Chart {
-  constructor(
-    scope: Construct,
-    id: string,
-    props: { clusterName: string; roleArn: string; clusterEndpoint: string; instanceProfile: string } & ChartProps,
-  ) {
+  constructor(scope: Construct, id: string, props: KarpenterProps & ChartProps) {
     // TODO: What is the component name? 'karpenter' or 'autoscaling'?
     super(scope, id, applyDefaultLabels(props, 'karpenter', '', 'karpenter', 'workflows'));
 
@@ -21,8 +25,8 @@ export class Karpenter extends Chart {
       values: {
         serviceAccount: {
           create: false,
-          name: 'karpenter-controller-sa',
-          annotations: { 'eks.amazonaws.com/role-arn': props.roleArn },
+          name: props.saRoleName,
+          annotations: { 'eks.amazonaws.com/role-arn': props.saRoleArn },
         },
         settings: {
           aws: {
