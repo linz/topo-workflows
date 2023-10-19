@@ -81,6 +81,7 @@ export class LinzEksCluster extends Stack {
   configureEks(): void {
     // Use fluent bit to ship logs from eks into aws
     const fluentBitNs = this.cluster.addManifest('FluentBitNamespace', {
+      apiVersion: 'v1',
       kind: 'Namespace',
       metadata: { name: 'fluent-bit' },
     });
@@ -90,12 +91,16 @@ export class LinzEksCluster extends Stack {
     });
     fluentBitSa.node.addDependency(fluentBitNs); // Ensure the namespace created first
 
-    // basic  constructs for
-    const argoNs = this.cluster.addManifest('ArgoNameSpace', { kind: 'Namespace', metadata: { name: 'argo' } });
+    // Basic constructs for argo to be deployed into
+    const argoNs = this.cluster.addManifest('ArgoNameSpace', {
+      apiVersion: 'v1',
+      kind: 'Namespace',
+      metadata: { name: 'argo' },
+    });
     const argoRunnerSa = this.cluster.addServiceAccount('ArgoRunnerServiceAccount', {
       name: 'argo-runner-sa',
       namespace: 'argo',
     });
-    argoNs.node.addDependency(argoRunnerSa);
+    argoRunnerSa.node.addDependency(argoNs);
   }
 }
