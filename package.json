@@ -21,9 +21,10 @@
     "format": "npx prettier . -w"
   },
   "devDependencies": {
+    "@aws-cdk/lambda-layer-kubectl-v27": "^2.0.0",
     "@linzjs/style": "^5.0.0",
-    "aws-cdk": "^2.101.1",
-    "aws-cdk-lib": "^2.101.1",
+    "aws-cdk": "2.93.x",
+    "aws-cdk-lib": "2.93.x",
     "cdk8s": "^2.66.10",
     "cdk8s-cli": "^2.136.0",
     "cdk8s-plus-27": "^2.7.34",
