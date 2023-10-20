@@ -72,7 +72,7 @@ export class KarpenterProvisioner extends Chart {
 
     const provider: AwsNodeTemplateSpec = {
       amiFamily: 'Bottlerocket',
-      subnetSelector: { 'aws-ids': '' }, // TODO How to get those?
+      subnetSelector: { BaseVPC: 'true' },
       securityGroupSelector: { [`kubernetes.io/cluster/${props.clusterName}`]: 'owned' },
       instanceProfile: props.instanceProfile,
       blockDeviceMappings: [
@@ -80,8 +80,7 @@ export class KarpenterProvisioner extends Chart {
           deviceName: '/dev/xvdb',
           ebs: {
             volumeType: 'gp3',
-            // FIXME: This does not match `'^([+-]?[0-9.]+)([eEinumkKMGTP]*[-+]?[0-9]*)$'`
-            volumeSize: AwsNodeTemplateSpecBlockDeviceMappingsEbsVolumeSize.fromString('200Gi'),
+            volumeSize: '200Gi',
             deleteOnTermination: true,
           },
         },
