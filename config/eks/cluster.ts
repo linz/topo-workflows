@@ -128,6 +128,8 @@ export class LinzEksCluster extends Stack {
     );
 
     // Allow Karpenter to start ec2 instances
+    // FIXME: some policies are missing. See https://github.com/aws/karpenter/blob/8c33a40733b90aa0bb42a6436152374f7b359f69/website/content/en/docs/getting-started/getting-started-with-karpenter/cloudformation.yaml#L40
+    // The current policies are based on https://github.com/eksctl-io/eksctl/blob/main/pkg/cfn/builder/karpenter_test.go#L111
     new Policy(this, 'ControllerPolicy', {
       roles: [serviceAccount.role],
       statements: [
@@ -136,19 +138,22 @@ export class LinzEksCluster extends Stack {
             'ec2:CreateFleet',
             'ec2:CreateLaunchTemplate',
             'ec2:CreateTags',
-            'ec2:DeleteLaunchTemplate',
             'ec2:DescribeAvailabilityZones',
-            'ec2:DescribeInstances',
             'ec2:DescribeInstanceTypeOfferings',
             'ec2:DescribeInstanceTypes',
+            'ec2:DescribeInstances',
             'ec2:DescribeLaunchTemplates',
             'ec2:DescribeSecurityGroups',
             'ec2:DescribeSubnets',
+            'ec2:DeleteLaunchTemplate',
             'ec2:RunInstances',
             'ec2:TerminateInstances',
+            'ec2:DescribeImages',
+            'ec2:DescribeSpotPriceHistory',
             'iam:PassRole',
+            'iam:CreateServiceLinkedRole',
             'ssm:GetParameter',
-
+            'pricing:GetProducts',
             // LINZ requires instances to be encrypted with a KMS key
             'kms:Encrypt',
             'kms:Decrypt',
