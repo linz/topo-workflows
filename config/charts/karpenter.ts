@@ -90,6 +90,7 @@ export class KarpenterProvisioner extends Chart {
     new Provisioner(this, 'ClusterAmd64WorkerNodes', {
       metadata: { name: `eks-karpenter-${props.clusterName}-amd64`.toLowerCase(), namespace: 'karpenter' },
       spec: {
+        taints: [{ key: 'karpenter.sh/capacity-type', value: 'spot', effect: 'NoSchedule' }],
         requirements: [
           { key: 'karpenter.sh/capacity-type', operator: 'In', values: ['spot'] },
           { key: 'kubernetes.io/arch', operator: 'In', values: ['amd64'] },
