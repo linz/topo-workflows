@@ -1,10 +1,7 @@
 import { Chart, ChartProps, Duration, Helm } from 'cdk8s';
 import { Construct } from 'constructs';
 
-import {
-  AwsNodeTemplateSpec,
-  AwsNodeTemplateSpecBlockDeviceMappingsEbsVolumeSize,
-} from '../imports/karpenter.k8s.aws.js';
+import { AwsNodeTemplateSpec } from '../imports/karpenter.k8s.aws.js';
 import { Provisioner, ProvisionerSpecLimitsResources } from '../imports/karpenter.sh.js';
 import { applyDefaultLabels } from '../util/labels.js';
 
@@ -96,7 +93,7 @@ export class KarpenterProvisioner extends Chart {
           { key: 'kubernetes.io/arch', operator: 'In', values: ['amd64'] },
           { key: 'karpenter.k8s.aws/instance-family', operator: 'In', values: ['c5', 'c6i', 'c6a'] },
         ],
-        limits: { resources: { cpu: '20000m' as any } },
+        limits: { resources: { cpu: ProvisionerSpecLimitsResources.fromString('20000m') } },
         provider,
         ttlSecondsAfterEmpty: Duration.minutes(1).toSeconds(), // optional, but never scales down if not set
       },
