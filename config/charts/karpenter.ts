@@ -76,14 +76,14 @@ export class KarpenterProvisioner extends Chart {
       securityGroupSelector: { [`kubernetes.io/cluster/${props.clusterName}`]: 'owned' },
       instanceProfile: props.instanceProfile,
       blockDeviceMappings: [
-        {
-          deviceName: '/dev/xvdb',
-          ebs: {
-            volumeType: 'gp3',
-            volumeSize: '200Gi',
-            deleteOnTermination: true,
-          },
-        },
+        // {
+        //   deviceName: '/dev/xvdb',
+        //   ebs: {
+        //     volumeType: 'gp3',
+        //     volumeSize: '200Gi',
+        //     deleteOnTermination: true,
+        //   },
+        // },
       ],
     };
 
@@ -96,30 +96,30 @@ export class KarpenterProvisioner extends Chart {
           { key: 'kubernetes.io/arch', operator: 'In', values: ['amd64'] },
           { key: 'karpenter.k8s.aws/instance-family', operator: 'In', values: ['c5', 'c6i', 'c6a'] },
         ],
-        limits: { resources: { cpu: ProvisionerSpecLimitsResources.fromString('20000m') } },
+        limits: { resources: { cpu: '20000m' as any } },
         provider,
         ttlSecondsAfterEmpty: Duration.minutes(1).toSeconds(), // optional, but never scales down if not set
       },
     });
 
-    new Provisioner(this, 'ClusterArmWorkerNodes', {
-      metadata: { name: `eks-karpenter-${props.clusterName}-arm64`.toLowerCase(), namespace: 'karpenter' },
-      spec: {
-        //Instances that want ARM have to tolerate the arm taint
-        // This prevenkarpenter-c870a560-76646d448b-fcq6lts some pods from accidentally trying to start on ARM
-        taints: [
-          { key: 'kubernetes.io/arch', value: 'arm64', effect: 'NoSchedule' },
-          { key: 'karpenter.sh/capacity-type', value: 'spot', effect: 'NoSchedule' },
-        ],
-        requirements: [
-          { key: 'karpenter.sh/capacity-type', operator: 'In', values: ['spot'] },
-          { key: 'kubernetes.io/arch', operator: 'In', values: ['arm64'] },
-          { key: 'karpenter.k8s.aws/instance-family', operator: 'In', values: ['c7g', 'c6g'] },
-        ],
-        limits: { resources: { cpu: ProvisionerSpecLimitsResources.fromString('20000m') } },
-        provider,
-        ttlSecondsAfterEmpty: Duration.minutes(1).toSeconds(), // optional, but never scales down if not set
-      },
-    });
+    // new Provisioner(this, 'ClusterArmWorkerNodes', {
+    //   metadata: { name: `eks-karpenter-${props.clusterName}-arm64`.toLowerCase(), namespace: 'karpenter' },
+    //   spec: {
+    //     // Instances that want ARM have to tolerate the arm taint
+    //     // This prevents some pods from accidentally trying to start on ARM
+    //     taints: [
+    //       { key: 'kubernetes.io/arch', value: 'arm64', effect: 'NoSchedule' },
+    //       { key: 'karpenter.sh/capacity-type', value: 'spot', effect: 'NoSchedule' },
+    //     ],
+    //     requirements: [
+    //       { key: 'karpenter.sh/capacity-type', operator: 'In', values: ['spot'] },
+    //       { key: 'kubernetes.io/arch', operator: 'In', values: ['arm64'] },
+    //       { key: 'karpenter.k8s.aws/instance-family', operator: 'In', values: ['c7g', 'c6g'] },
+    //     ],
+    //     // limits: { resources: { cpu: ProvisionerSpecLimitsResources.fromString('20000m') } },
+    //     provider,
+    //     ttlSecondsAfterEmpty: Duration.minutes(1).toSeconds(), // optional, but never scales down if not set
+    //   },
+    // });
   }
 }
