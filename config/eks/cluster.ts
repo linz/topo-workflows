@@ -4,6 +4,7 @@ import { InstanceType, IVpc, SubnetType, Vpc } from 'aws-cdk-lib/aws-ec2';
 import { Cluster, ClusterLoggingTypes, IpFamily, KubernetesVersion, NodegroupAmiType } from 'aws-cdk-lib/aws-eks';
 import {
   CfnInstanceProfile,
+  Effect,
   ManagedPolicy,
   Policy,
   PolicyStatement,
@@ -94,6 +95,15 @@ export class LinzEksCluster extends Stack {
         ManagedPolicy.fromAwsManagedPolicyName('AmazonEC2ContainerRegistryReadOnly'),
       ],
     });
+
+    // `aws-node` needs to assign ipv6 addresses which is not part of the base AmazonEKS_CNI_Policy
+    this.nodeRole.addToPolicy(
+      new PolicyStatement({
+        effect: Effect.ALLOW,
+        actions: ['ec2:AssignIpv6Addresses', 'ec2:UnassignIpv6Addresses'],
+        resources: ['arn:aws:ec2:*:*:network-interface/*'],
+      }),
+    );
 
     this.configureEks();
   }
