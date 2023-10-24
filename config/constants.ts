@@ -1,5 +1,5 @@
 /* Cluster name */
-export const CLUSTER_NAME = 'Workflows';
+export const ClusterName = 'Workflows';
 
 /* CloudFormation Output to access from CDK8s */
 export const CfnOutputKeys = {
