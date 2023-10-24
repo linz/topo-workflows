@@ -15,7 +15,7 @@ import { IBucket } from 'aws-cdk-lib/aws-s3';
 import { BlockPublicAccess, Bucket } from 'aws-cdk-lib/aws-s3';
 import { Construct } from 'constructs';
 
-import { CfnOutputKeys } from '../cfn.output';
+import { CfnOutputKeys } from '../constants';
 
 interface EksClusterProps extends StackProps {}
 
