@@ -23,8 +23,8 @@ apt install dnsutils iptools-ping wget curl
 Check that the dns can be resolved
 
 ```bash
-dig google.com # Lookups A record for google.com
-dig google.com AAAA # lookup ipv6 records
+dig google.com # Lookups A (IPv4) record for google.com
+dig google.com AAAA # lookup AAAA (IPv6) records
 ```
 
 Check that a ipv4 connection can be made
