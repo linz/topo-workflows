@@ -1,10 +1,10 @@
 import { App } from 'cdk8s';
 
 import { ArgoSemaphore } from './charts/argo.semaphores';
+import { FluentBit } from './charts/fluentbit';
 import { Karpenter, KarpenterProvisioner } from './charts/karpenter';
 import { CoreDns } from './charts/kube-system.coredns';
-import { CfnOutputKeys } from './constants';
-import { CLUSTER_NAME } from './constants';
+import { CLUSTER_NAME, CfnOutputKeys } from './constants';
 import { getCfnOutputs } from './util/cloud.formation';
 
 const app = new App();
@@ -18,6 +18,7 @@ async function main(): Promise<void> {
   }
 
   new ArgoSemaphore(app, 'semaphore', {});
+  new FluentBit(app, 'fluentbit', {});
   new CoreDns(app, 'Dns', {});
 
   const karpenter = new Karpenter(app, 'karpenter', {
