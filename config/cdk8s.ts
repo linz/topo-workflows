@@ -3,6 +3,7 @@ import { App } from 'cdk8s';
 import { CfnOutputKeys } from './cfn.output';
 import { ArgoSemaphore } from './charts/argo.semaphores';
 import { Karpenter, KarpenterProvisioner } from './charts/karpenter';
+import { CoreDns } from './charts/kube-system.coredns';
 import { getCfnOutputs } from './util/cloud.formation';
 
 const app = new App();
@@ -16,6 +17,7 @@ async function main(): Promise<void> {
   }
 
   new ArgoSemaphore(app, 'semaphore', {});
+  new CoreDns(app, 'Dns', {});
 
   const karpenter = new Karpenter(app, 'karpenter', {
     clusterName: 'Workflows',

@@ -16,7 +16,7 @@ export interface KarpenterProps {
 export class Karpenter extends Chart {
   constructor(scope: Construct, id: string, props: KarpenterProps & ChartProps) {
     // TODO: What is the component name? 'karpenter' or 'autoscaling'?
-    super(scope, id, applyDefaultLabels(props, 'karpenter', '', 'karpenter', 'workflows'));
+    super(scope, id, applyDefaultLabels(props, 'karpenter', 'v0.31.0', 'karpenter', 'workflows'));
 
     // Deploying the CRD
     new Helm(this, 'karpenter-crd', {
@@ -64,8 +64,7 @@ export class Karpenter extends Chart {
 
 export class KarpenterProvisioner extends Chart {
   constructor(scope: Construct, id: string, props: KarpenterProps & ChartProps) {
-    // TODO: What is the component name? 'karpenter' or 'autoscaling'?
-    super(scope, id, applyDefaultLabels(props, 'karpenter', '', 'karpenter', 'workflows'));
+    super(scope, id, applyDefaultLabels(props, 'karpenter', 'v0.31.0', 'karpenter', 'workflows'));
 
     // Subnets need to be opted into, ideally a tag on subnets would be the best bet here
     // but CDK does not easily allow us to tag Subnets that are not created by us
@@ -91,6 +90,8 @@ export class KarpenterProvisioner extends Chart {
     new Provisioner(this, 'ClusterAmd64WorkerNodes', {
       metadata: { name: `eks-karpenter-${props.clusterName}-amd64`.toLowerCase(), namespace: 'karpenter' },
       spec: {
+        // Ensure only pods that tolerate spot run on spot instance types
+        // to prevent long running pods (eg kube-dns) being moved.
         taints: [{ key: 'karpenter.sh/capacity-type', value: 'spot', effect: 'NoSchedule' }],
         requirements: [
           { key: 'karpenter.sh/capacity-type', operator: 'In', values: ['spot'] },
@@ -106,10 +107,12 @@ export class KarpenterProvisioner extends Chart {
     new Provisioner(this, 'ClusterArmWorkerNodes', {
       metadata: { name: `eks-karpenter-${props.clusterName}-arm64`.toLowerCase(), namespace: 'karpenter' },
       spec: {
-        // Instances that want ARM have to tolerate the arm taint
-        // This prevents some pods from accidentally trying to start on ARM
         taints: [
+          // Instances that want ARM have to tolerate the arm taint
+          // This prevents some pods from accidentally trying to start on ARM
           { key: 'kubernetes.io/arch', value: 'arm64', effect: 'NoSchedule' },
+          // Ensure only pods that tolerate spot run on spot instance types
+          // to prevent long running pods (eg kube-dns) being moved.
           { key: 'karpenter.sh/capacity-type', value: 'spot', effect: 'NoSchedule' },
         ],
         requirements: [
@@ -117,7 +120,7 @@ export class KarpenterProvisioner extends Chart {
           { key: 'kubernetes.io/arch', operator: 'In', values: ['arm64'] },
           { key: 'karpenter.k8s.aws/instance-family', operator: 'In', values: ['c7g', 'c6g'] },
         ],
-        // limits: { resources: { cpu: ProvisionerSpecLimitsResources.fromString('20000m') } },
+        limits: { resources: { cpu: ProvisionerSpecLimitsResources.fromString('20000m') } },
         provider,
         ttlSecondsAfterEmpty: Duration.minutes(1).toSeconds(), // optional, but never scales down if not set
       },
