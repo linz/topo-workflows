@@ -1,10 +1,16 @@
-# Kubernetes configuration with CDK8s
+# Topo-Workflows Infrastructure
 
-Collection of Kubernetes resources.
+The infrastructure running the workflows is mainly based on a Kubernetes (EKS) cluster and Argo Workflows. It is currently run on AWS.
 
-## Components
+## EKS Cluster / AWS CDK
 
-Main entry point: [app](./app.ts)
+The EKS Cluster base configuration is defined in `./cdk.ts` using [`aws-cdk`](https://aws.amazon.com/cdk/).
+
+## Kubernetes resources / CDK8s
+
+The additional components (or Kubernetes resources) running on the EKS cluster are defined in `./cdk8s` using [`cdk8s`](https://cdk8s.io/).
+
+Main entry point: [app](./cdk8s.ts)
 
 - Argo - Argo workflows for use with [linz/topo-workflows](https://github.com/linz/topo-workflows)
 - Karpenter
@@ -17,23 +23,16 @@ ConfigMap that list the synchronization limits for parallel execution of the wor
 
 ### Karpenter
 
-## Development
+TODO
 
-<https://cdk8s.io/>
+### Generate code
 
-### Working with Helm charts
-
-#### Generate code
-
+Generate code from Helm:
 It is possible to generate a specific Helm construct for the component if their chart includes a `value.schema.json`. This is useful to provide typing hints when specifying their configuration (<https://github.com/cdk8s-team/cdk8s/blob/master/docs/cli/import.md#values-schema>)
 
 To generate the Helm Construct for a specific Chart, follow the instructions [here](https://github.com/cdk8s-team/cdk8s/blob/master/docs/cli/import.md#values-schema):
 
-- add the Helm to `helm`
-
-```shell
-
-```
+Specify the output for the imports:
 
 `--output config/imports/`
 
@@ -67,3 +66,7 @@ kubectl apply -f dist/
 ## Deployment
 
 The deployment of the K8s config is managed by GithubActions in [main](../.github/workflows/main.yml).
+
+## Troubleshoot
+
+- [DNS](../docs/dns.configuration.md)

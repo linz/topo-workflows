@@ -29,7 +29,7 @@ export class CoreDns extends Chart {
     new kplus.ConfigMap(this, 'coredns', {
       metadata: { name: 'coredns', namespace: 'kube-system' },
       data: {
-        // TODO is there a better way of handling config files inside of cdk8s
+        // FIXME: is there a better way of handling config files inside of cdk8s
         Corefile: `
 cluster.local:53 {
     log

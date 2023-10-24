@@ -7,11 +7,3 @@ export async function getClusterFromName(clusterName: string): Promise<void> {
     console.log(eksCluster.cluster);
   }
 }
-
-// TODO: remove tests
-async function main(): Promise<void> {
-  const eksClusterName = 'Workflow';
-  await getClusterFromName(eksClusterName);
-}
-
-main();

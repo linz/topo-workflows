@@ -15,7 +15,6 @@ export interface KarpenterProps {
 
 export class Karpenter extends Chart {
   constructor(scope: Construct, id: string, props: KarpenterProps & ChartProps) {
-    // TODO: What is the component name? 'karpenter' or 'autoscaling'?
     super(scope, id, applyDefaultLabels(props, 'karpenter', 'v0.31.0', 'karpenter', 'workflows'));
 
     // Deploying the CRD
