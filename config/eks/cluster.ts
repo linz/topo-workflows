@@ -1,6 +1,6 @@
 import { KubectlV27Layer } from '@aws-cdk/lambda-layer-kubectl-v27';
 import { Aws, CfnOutput, Duration, RemovalPolicy, Stack, StackProps } from 'aws-cdk-lib';
-import { InstanceType, IVpc, SubnetType, Vpc } from 'aws-cdk-lib/aws-ec2';
+import { IVpc, InstanceType, SubnetType, Vpc } from 'aws-cdk-lib/aws-ec2';
 import { Cluster, ClusterLoggingTypes, IpFamily, KubernetesVersion, NodegroupAmiType } from 'aws-cdk-lib/aws-eks';
 import {
   CfnInstanceProfile,
@@ -11,8 +11,7 @@ import {
   Role,
   ServicePrincipal,
 } from 'aws-cdk-lib/aws-iam';
-import { IBucket } from 'aws-cdk-lib/aws-s3';
-import { BlockPublicAccess, Bucket } from 'aws-cdk-lib/aws-s3';
+import { BlockPublicAccess, Bucket, IBucket } from 'aws-cdk-lib/aws-s3';
 import { Construct } from 'constructs';
 
 import { CfnOutputKeys } from '../constants';
@@ -199,7 +198,8 @@ export class LinzEksCluster extends Stack {
       namespace: 'fluent-bit',
     });
     fluentBitSa.node.addDependency(fluentBitNs); // Ensure the namespace created first
-    new CfnOutput(this, 'FluentBitServiceAccountRoleArn', { value: fluentBitSa.role.roleArn });
+
+    new CfnOutput(this, CfnOutputKeys.FluentBit.ServiceAccountName, { value: fluentBitSa.name });
 
     // Basic constructs for argo to be deployed into
     const argoNs = this.cluster.addManifest('ArgoNameSpace', {

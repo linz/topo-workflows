@@ -3,8 +3,12 @@ import { Construct } from 'constructs';
 
 import { applyDefaultLabels } from '../util/labels.js';
 
+export interface FluentBitProps {
+  saRoleName: string;
+}
+
 export class FluentBit extends Chart {
-  constructor(scope: Construct, id: string, props: ChartProps) {
+  constructor(scope: Construct, id: string, props: FluentBitProps & ChartProps) {
     super(scope, id, applyDefaultLabels(props, 'aws-for-fluent-bit', '2.31.11', 'logs', 'workflows'));
 
     const FluentParserName = 'containerd';
@@ -25,7 +29,7 @@ export class FluentBit extends Chart {
       version: '0.1.30',
       values: {
         input: { parser: FluentParserName, dockerMode: 'Off' },
-        serviceAccount: { name: 'aws-for-fluent-bit-sa', create: false },
+        serviceAccount: { name: props.saRoleName, create: false },
         cloudWatchLogs: { enabled: true, region: 'ap-southeast-2', autoCreateGroup: true, logRetentionDays: 30 },
         firehose: { enabled: false },
         kinesis: { enabled: false },

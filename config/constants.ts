@@ -9,4 +9,7 @@ export const CfnOutputKeys = {
     ClusterEndpoint: 'ClusterEndpoint',
     DefaultInstanceProfile: 'DefaultInstanceProfile',
   },
+  FluentBit: {
+    ServiceAccountName: 'FluentBitServiceAccountName',
+  },
 };
