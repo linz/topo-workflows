@@ -67,9 +67,13 @@ export class KarpenterProvisioner extends Chart {
     // TODO: What is the component name? 'karpenter' or 'autoscaling'?
     super(scope, id, applyDefaultLabels(props, 'karpenter', '', 'karpenter', 'workflows'));
 
+    // Subnets need to be opted into, ideally a tag on subnets would be the best bet here
+    // but CDK does not easily allow us to tag Subnets that are not created by us
+    const subnetSelector = { Name: '*' };
+
     const provider: AwsNodeTemplateSpec = {
       amiFamily: 'Bottlerocket',
-      subnetSelector: { BaseVPC: 'true' },
+      subnetSelector,
       securityGroupSelector: { [`kubernetes.io/cluster/${props.clusterName}`]: 'owned' },
       instanceProfile: props.instanceProfile,
       blockDeviceMappings: [
@@ -99,24 +103,24 @@ export class KarpenterProvisioner extends Chart {
       },
     });
 
-    // new Provisioner(this, 'ClusterArmWorkerNodes', {
-    //   metadata: { name: `eks-karpenter-${props.clusterName}-arm64`.toLowerCase(), namespace: 'karpenter' },
-    //   spec: {
-    //     // Instances that want ARM have to tolerate the arm taint
-    //     // This prevents some pods from accidentally trying to start on ARM
-    //     taints: [
-    //       { key: 'kubernetes.io/arch', value: 'arm64', effect: 'NoSchedule' },
-    //       { key: 'karpenter.sh/capacity-type', value: 'spot', effect: 'NoSchedule' },
-    //     ],
-    //     requirements: [
-    //       { key: 'karpenter.sh/capacity-type', operator: 'In', values: ['spot'] },
-    //       { key: 'kubernetes.io/arch', operator: 'In', values: ['arm64'] },
-    //       { key: 'karpenter.k8s.aws/instance-family', operator: 'In', values: ['c7g', 'c6g'] },
-    //     ],
-    //     // limits: { resources: { cpu: ProvisionerSpecLimitsResources.fromString('20000m') } },
-    //     provider,
-    //     ttlSecondsAfterEmpty: Duration.minutes(1).toSeconds(), // optional, but never scales down if not set
-    //   },
-    // });
+    new Provisioner(this, 'ClusterArmWorkerNodes', {
+      metadata: { name: `eks-karpenter-${props.clusterName}-arm64`.toLowerCase(), namespace: 'karpenter' },
+      spec: {
+        // Instances that want ARM have to tolerate the arm taint
+        // This prevents some pods from accidentally trying to start on ARM
+        taints: [
+          { key: 'kubernetes.io/arch', value: 'arm64', effect: 'NoSchedule' },
+          { key: 'karpenter.sh/capacity-type', value: 'spot', effect: 'NoSchedule' },
+        ],
+        requirements: [
+          { key: 'karpenter.sh/capacity-type', operator: 'In', values: ['spot'] },
+          { key: 'kubernetes.io/arch', operator: 'In', values: ['arm64'] },
+          { key: 'karpenter.k8s.aws/instance-family', operator: 'In', values: ['c7g', 'c6g'] },
+        ],
+        // limits: { resources: { cpu: ProvisionerSpecLimitsResources.fromString('20000m') } },
+        provider,
+        ttlSecondsAfterEmpty: Duration.minutes(1).toSeconds(), // optional, but never scales down if not set
+      },
+    });
   }
 }
