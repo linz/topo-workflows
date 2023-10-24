@@ -199,7 +199,6 @@ export class LinzEksCluster extends Stack {
       namespace: 'fluent-bit',
     });
     fluentBitSa.node.addDependency(fluentBitNs); // Ensure the namespace created first
-
     new CfnOutput(this, 'FluentBitServiceAccountRoleArn', { value: fluentBitSa.role.roleArn });
 
     // Basic constructs for argo to be deployed into
@@ -213,7 +212,6 @@ export class LinzEksCluster extends Stack {
       namespace: 'argo',
     });
     argoRunnerSa.node.addDependency(argoNs);
-
     new CfnOutput(this, 'ArgoRunnerServiceAccountRoleArn', { value: fluentBitSa.role.roleArn });
   }
 }

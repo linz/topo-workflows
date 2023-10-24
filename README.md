@@ -33,12 +33,7 @@ Then to setup the cluster, only the first time using the cluster you need to run
 You will need a AWS CLI > 2.7.x
 
 ```bash
-
-# For Imagery maintainers you will already have the correct role so no role arn is needed.
-aws eks update-kubeconfig --name Workflow --region ap-southeast-2
-
-# For AWS Admin users you will need to find the correct EKS role to use
-aws eks update-kubeconfig --name Workflow --region ap-southeast-2 --role-arn arn:aws:iam::...
+aws eks update-kubeconfig --name Workflows --region ap-southeast-2
 ```
 
 to validate the cluster is connected,
@@ -54,7 +49,7 @@ ip-255-100-39-100.ap-southeast-2.compute.internal   Ready    <none>   7d   v1.21
 to make the cli access easier you can set the default namespace to `argo`
 
 ```bash
-k config set-context --current  --namespace=argo
+k config set-context --current --namespace=argo
 ```
 
 ## Submitting a job

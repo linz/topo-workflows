@@ -1,6 +1,7 @@
 # Topo-Workflows Infrastructure
 
 The infrastructure running the workflows is mainly based on a Kubernetes (EKS) cluster and Argo Workflows. It is currently run on AWS.
+Generally all Kubernetes resources are defined with cdk8s and anything that needs AWS interactions such as service accounts are defined with CDK.
 
 ## EKS Cluster / AWS CDK
 
