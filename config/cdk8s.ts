@@ -12,14 +12,16 @@ const app = new App();
 async function main(): Promise<void> {
   // Get cloudformation outputs
   const cfnOutputs = await getCfnOutputs(ClusterName);
-  const missingKeys = [...Object.values(CfnOutputKeys.Karpenter)].filter((f) => cfnOutputs[f] == null);
+  const missingKeys = [...Object.values(CfnOutputKeys.Karpenter), ...Object.values(CfnOutputKeys.FluentBit)].filter(
+    (f) => cfnOutputs[f] == null,
+  );
   if (missingKeys.length > 0) {
     throw new Error(`Missing CloudFormation Outputs for keys ${missingKeys.join(', ')}`);
   }
 
   new ArgoSemaphore(app, 'semaphore', {});
-  new FluentBit(app, 'fluentbit', {});
-  new CoreDns(app, 'Dns', {});
+  new FluentBit(app, 'fluentbit', { saRoleName: cfnOutputs[CfnOutputKeys.FluentBit.ServiceAccountName] });
+  new CoreDns(app, 'dns', {});
 
   const karpenter = new Karpenter(app, 'karpenter', {
     clusterName: ClusterName,
