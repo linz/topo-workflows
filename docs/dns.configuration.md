@@ -1,6 +1,6 @@
 # Debugging DNS issues
 
-Because our default cluster is setup as ipv6/ipv4 it can cause a number of connection issues, below are some tips for trying to figure out where the connections are failing
+Because our default cluster is setup as ipv6/ipv4 it can cause a number of connection issues, below are some tips for trying to figure out where the connections are failing.
 
 ## Debugging tool installs
 
@@ -52,7 +52,7 @@ dig A kube-dns.kube-system.svc.cluster.local +short
 
 ### AWS testing
 
-Installing the AWS Cli can cause a huge amount of dependencies to be installed, sometimes it is easier to just use `s5cmd`
+Installing the AWS Cli can cause a huge amount of dependencies to be installed, sometimes it is easier to just use `s5cmd`.
 
 Download the package for your arch (arm64 vs amd64) https://github.com/peak/s5cmd/releases
 
@@ -65,7 +65,7 @@ s5cmd --no-sign-request cat s3://nz-imagery/catalog.json
 
 ### Script testing
 
-Depending on the container you may have access to scripting languages
+Depending on the container you may have access to scripting languages.
 
 #### NodeJS
 
