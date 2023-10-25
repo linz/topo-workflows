@@ -19,7 +19,11 @@ import { applyDefaultLabels } from '../util/labels.js';
  * - `.` - everything else
  *
  * The internal cluster allows `ipv6` resolutions, while `.` prevents `AAAA` resolutions using
- * `rewrite stop type AAAA A`
+ * ```
+ *  template ANY AAAA {
+ *     rcode NOERROR
+ * }
+ * ```
  *
  */
 export class CoreDns extends Chart {
@@ -51,7 +55,9 @@ cluster.local:53 {
     log
     errors
     health
-    rewrite stop type AAAA A
+    template ANY AAAA {
+      rcode NOERROR
+    }
     prometheus :9153
     forward . /etc/resolv.conf
     cache 30
