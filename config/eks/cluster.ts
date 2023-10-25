@@ -199,7 +199,7 @@ export class LinzEksCluster extends Stack {
     });
     fluentBitSa.node.addDependency(fluentBitNs); // Ensure the namespace created first
 
-    new CfnOutput(this, CfnOutputKeys.FluentBit.ServiceAccountName, { value: fluentBitSa.name });
+    new CfnOutput(this, CfnOutputKeys.FluentBit.ServiceAccountName, { value: fluentBitSa.serviceAccountName });
 
     // Basic constructs for argo to be deployed into
     const argoNs = this.cluster.addManifest('ArgoNameSpace', {
