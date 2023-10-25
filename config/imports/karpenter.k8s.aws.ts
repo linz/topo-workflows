@@ -406,7 +406,7 @@ export interface AwsNodeTemplateSpecBlockDeviceMappingsEbs {
    *
    * @schema AwsNodeTemplateSpecBlockDeviceMappingsEbs#volumeSize
    */
-  readonly volumeSize?: AwsNodeTemplateSpecBlockDeviceMappingsEbsVolumeSize; // FIXME this should be a string not AwsNodeTemplateSpecBlockDeviceMappingsEbs
+  readonly volumeSize?: AwsNodeTemplateSpecBlockDeviceMappingsEbsVolumeSize;
 
   /**
    * VolumeType of the block device. For more information, see Amazon EBS volume types (https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/EBSVolumeTypes.html) in the Amazon Elastic Compute Cloud User Guide.
