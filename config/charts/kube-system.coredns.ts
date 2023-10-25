@@ -19,7 +19,11 @@ import { applyDefaultLabels } from '../util/labels.js';
  * - `.` - everything else
  *
  * The internal cluster allows `ipv6` resolutions, while `.` prevents `AAAA` resolutions using
- * `rewrite stop type AAAA A`
+ * ```
+ *  template ANY AAAA {
+ *     rcode NOERROR
+ * }
+ * ```
  *
  */
 export class CoreDns extends Chart {
