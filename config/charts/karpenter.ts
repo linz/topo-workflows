@@ -8,16 +8,19 @@ import { applyDefaultLabels } from '../util/labels.js';
 export interface KarpenterProps {
   /**
    * Name of the kubernetes cluster
+   *
    * @example "Workflows"
    **/
   clusterName: string;
   /**
    * Role Arn for the service account to use
+   *
    * @example "arn:aws:iam::1234567890:role/KarpenterSa"
    * */
   saRoleName: string;
   /**
    * Name of the service account for karpenter
+   *
    * @example "karpenter-sa"
    */
   saRoleArn: string;
@@ -27,7 +30,11 @@ export interface KarpenterProps {
    * @example "https://15A3F77065B0E8F949F66.gr7.ap-southeast-2.eks.amazonaws.com"
    */
   clusterEndpoint: string;
-  /** Name of the instance profile to use */
+  /**
+   * Name of the instance profile to use
+   *
+   * @example "Workflow-InstanceProfile"
+   **/
   instanceProfile: string;
 }
 
