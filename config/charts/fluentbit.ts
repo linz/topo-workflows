@@ -25,9 +25,10 @@ export class FluentBit extends Chart {
     new Helm(this, 'aws-for-fluent-bit', {
       chart: 'aws-for-fluent-bit',
       repo: 'https://aws.github.io/eks-charts',
-      namespace: 'kube-system',
+      namespace: 'fluent-bit',
       version: '0.1.30',
       values: {
+        fullnameOverride: 'fluentbit',
         input: { parser: FluentParserName, dockerMode: 'Off' },
         serviceAccount: { name: props.saRoleName, create: false },
         cloudWatchLogs: { enabled: true, region: 'ap-southeast-2', autoCreateGroup: true, logRetentionDays: 30 },
