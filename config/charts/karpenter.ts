@@ -70,7 +70,7 @@ export class Karpenter extends Chart {
       version: 'v0.31.1',
       values: {
         serviceAccount: {
-          create: true,
+          create: false,
           name: props.saRoleName,
           annotations: { 'eks.amazonaws.com/role-arn': props.saRoleArn },
         },
