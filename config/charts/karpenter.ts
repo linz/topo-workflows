@@ -109,7 +109,7 @@ export class KarpenterProvisioner extends Chart {
     });
 
     const provisionAmd64 = new Provisioner(this, 'ClusterAmd64WorkerNodes', {
-      metadata: { name: `karpenter-amd64`.toLowerCase(), namespace: 'karpenter' },
+      metadata: { name: `karpenter-amd64-spot`, namespace: 'karpenter' },
       spec: {
         // Ensure only pods that tolerate spot run on spot instance types
         // to prevent long running pods (eg kube-dns) being moved.
@@ -126,7 +126,7 @@ export class KarpenterProvisioner extends Chart {
     });
 
     const provisionArm64 = new Provisioner(this, 'ClusterArmWorkerNodes', {
-      metadata: { name: `karpenter-arm64`.toLowerCase(), namespace: 'karpenter' },
+      metadata: { name: `karpenter-arm64-spot`, namespace: 'karpenter' },
       spec: {
         taints: [
           // Instances that want ARM have to tolerate the arm taint
