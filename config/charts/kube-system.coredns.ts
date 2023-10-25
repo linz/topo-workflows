@@ -51,7 +51,9 @@ cluster.local:53 {
     log
     errors
     health
-    rewrite stop type AAAA A
+    template ANY AAAA {
+      rcode NOERROR
+    }
     prometheus :9153
     forward . /etc/resolv.conf
     cache 30
