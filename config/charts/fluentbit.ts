@@ -26,8 +26,7 @@ export class FluentBit extends Chart {
     `;
 
     /**
-     * FIXME: We deactivated the HTTP server to avoid getting these issues:
-     * https://github.com/aws/eks-charts/issues/995
+     * FIXME: We deactivated the HTTP server to avoid getting this issue:
      * https://github.com/aws/eks-charts/issues/983
      *
      */
@@ -63,6 +62,7 @@ HC_Period 5
         kinesis: { enabled: false },
         elasticsearch: { enabled: false },
         service: { extraParsers, extraService },
+        // FIXME: `livenessProbe` and `readinessProbe` deactivated https://github.com/aws/eks-charts/issues/995
         livenessProbe: false,
         readinessProbe: false,
       },
