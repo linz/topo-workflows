@@ -191,12 +191,17 @@ export class LinzEksCluster extends Stack {
     const fluentBitNs = this.cluster.addManifest('FluentBitNamespace', {
       apiVersion: 'v1',
       kind: 'Namespace',
-      metadata: { name: 'fluent-bit' },
+      metadata: { name: 'fluentbit' },
     });
     const fluentBitSa = this.cluster.addServiceAccount('FluentBitServiceAccount', {
-      name: 'fluent-bit-sa',
-      namespace: 'fluent-bit',
+      name: 'fluentbit-sa',
+      namespace: 'fluentbit',
     });
+    // https://docs.aws.amazon.com/aws-managed-policy/latest/reference/CloudWatchAgentServerPolicy.html
+    fluentBitSa.role.addManagedPolicy(ManagedPolicy.fromAwsManagedPolicyName('CloudWatchAgentServerPolicy'));
+    fluentBitSa.role.addToPrincipalPolicy(
+      new PolicyStatement({ actions: ['logs:PutRetentionPolicy'], resources: ['*'], effect: Effect.ALLOW }),
+    );
     fluentBitSa.node.addDependency(fluentBitNs); // Ensure the namespace created first
 
     new CfnOutput(this, CfnOutputKeys.FluentBit.ServiceAccountName, { value: fluentBitSa.serviceAccountName });

@@ -54,7 +54,6 @@ However, some of the component Helm charts do not have a `values.schema.json`. F
 
 - aws-for-fluent-bit (<https://github.com/aws/eks-charts/issues/1011>)
 
-
 ## Usage (for test)
 
 Ensure all dependencies are installed

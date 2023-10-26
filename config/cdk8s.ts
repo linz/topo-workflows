@@ -20,7 +20,10 @@ async function main(): Promise<void> {
   }
 
   new ArgoSemaphore(app, 'semaphore', {});
-  new FluentBit(app, 'fluentbit', { saRoleName: cfnOutputs[CfnOutputKeys.FluentBit.ServiceAccountName] });
+  new FluentBit(app, 'fluentbit', {
+    saRoleName: cfnOutputs[CfnOutputKeys.FluentBit.ServiceAccountName],
+    clusterName: ClusterName,
+  });
   new CoreDns(app, 'dns', {});
 
   const karpenter = new Karpenter(app, 'karpenter', {
