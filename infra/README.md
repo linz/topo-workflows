@@ -70,6 +70,12 @@ Generate the kubernetes configuration yaml into `dist/`
 npx cdk8s synth
 ```
 
+To debug use the following as `cdk8s syth` swallows the errors
+
+```shell
+npx tsx infra/cdk8s.ts
+```
+
 Apply the generated yaml files
 
 ```shell
