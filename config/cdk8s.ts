@@ -20,8 +20,12 @@ async function main(): Promise<void> {
   }
 
   new ArgoSemaphore(app, 'semaphore', {});
-  new FluentBit(app, 'fluentbit', { saRoleName: cfnOutputs[CfnOutputKeys.FluentBit.ServiceAccountName] });
-  new CoreDns(app, 'dns', {});
+
+  const coredns = new CoreDns(app, 'dns', {});
+  const fluentbit = new FluentBit(app, 'fluentbit', {
+    saRoleName: cfnOutputs[CfnOutputKeys.FluentBit.ServiceAccountName],
+  });
+  fluentbit.addDependency(coredns);
 
   const karpenter = new Karpenter(app, 'karpenter', {
     clusterName: ClusterName,
