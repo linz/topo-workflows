@@ -137,7 +137,7 @@ export class LinzEksCluster extends Stack {
     );
 
     // Allow Karpenter to start ec2 instances
-    // FIXME: some policies are missing. See https://github.com/aws/karpenter/blob/8c33a40733b90aa0bb42a6436152374f7b359f69/website/content/en/docs/getting-started/getting-started-with-karpenter/cloudformation.yaml#L40
+    // @see https://github.com/aws/karpenter/blob/8c33a40733b90aa0bb42a6436152374f7b359f69/website/content/en/docs/getting-started/getting-started-with-karpenter/cloudformation.yaml#L40
     // The current policies are based on https://github.com/eksctl-io/eksctl/blob/main/pkg/cfn/builder/karpenter_test.go#L111
     new Policy(this, 'ControllerPolicy', {
       roles: [serviceAccount.role],
