@@ -35,7 +35,7 @@ To generate the Helm Construct for a specific Chart, follow the instructions [he
 
 Specify the output for the imports:
 
-`--output config/imports/`
+`--output infra/imports/`
 
 However, some of the component Helm charts do not have a `values.schema.json`. For those we won't generate any code and use the default `Helm` construct:
 
