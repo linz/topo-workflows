@@ -74,7 +74,7 @@ file: index.mjs
 ```javascript
 fetch('https://google.com').then((c) => console.log(c));
 
-import * as dns from 'dns/promises'
+import * as dns from 'dns/promises';
 
 await dns.resolve('google.com', 'A');
 await dns.resolve('google.com', 'AAAA');
