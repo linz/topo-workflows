@@ -11,8 +11,7 @@ import {
   Role,
   ServicePrincipal,
 } from 'aws-cdk-lib/aws-iam';
-import { IBucket } from 'aws-cdk-lib/aws-s3';
-import { BlockPublicAccess, Bucket } from 'aws-cdk-lib/aws-s3';
+import { BlockPublicAccess, Bucket, IBucket } from 'aws-cdk-lib/aws-s3';
 import { Construct } from 'constructs';
 
 import { CfnOutputKeys } from '../constants';
@@ -138,7 +137,7 @@ export class LinzEksCluster extends Stack {
     );
 
     // Allow Karpenter to start ec2 instances
-    // FIXME: some policies are missing. See https://github.com/aws/karpenter/blob/8c33a40733b90aa0bb42a6436152374f7b359f69/website/content/en/docs/getting-started/getting-started-with-karpenter/cloudformation.yaml#L40
+    // @see https://github.com/aws/karpenter/blob/8c33a40733b90aa0bb42a6436152374f7b359f69/website/content/en/docs/getting-started/getting-started-with-karpenter/cloudformation.yaml#L40
     // The current policies are based on https://github.com/eksctl-io/eksctl/blob/main/pkg/cfn/builder/karpenter_test.go#L111
     new Policy(this, 'ControllerPolicy', {
       roles: [serviceAccount.role],
@@ -192,14 +191,20 @@ export class LinzEksCluster extends Stack {
     const fluentBitNs = this.cluster.addManifest('FluentBitNamespace', {
       apiVersion: 'v1',
       kind: 'Namespace',
-      metadata: { name: 'fluent-bit' },
+      metadata: { name: 'fluentbit' },
     });
     const fluentBitSa = this.cluster.addServiceAccount('FluentBitServiceAccount', {
-      name: 'fluent-bit-sa',
-      namespace: 'fluent-bit',
+      name: 'fluentbit-sa',
+      namespace: 'fluentbit',
     });
+    // https://docs.aws.amazon.com/aws-managed-policy/latest/reference/CloudWatchAgentServerPolicy.html
+    fluentBitSa.role.addManagedPolicy(ManagedPolicy.fromAwsManagedPolicyName('CloudWatchAgentServerPolicy'));
+    fluentBitSa.role.addToPrincipalPolicy(
+      new PolicyStatement({ actions: ['logs:PutRetentionPolicy'], resources: ['*'], effect: Effect.ALLOW }),
+    );
     fluentBitSa.node.addDependency(fluentBitNs); // Ensure the namespace created first
-    new CfnOutput(this, 'FluentBitServiceAccountRoleArn', { value: fluentBitSa.role.roleArn });
+
+    new CfnOutput(this, CfnOutputKeys.FluentBit.ServiceAccountName, { value: fluentBitSa.serviceAccountName });
 
     // Basic constructs for argo to be deployed into
     const argoNs = this.cluster.addManifest('ArgoNameSpace', {
