@@ -1,1 +1,1 @@
-{ "app": "npx tsx config/cdk.ts" }
+{ "app": "npx tsx infra/cdk.ts" }

@@ -3,7 +3,7 @@
 Some workflows may need limits on how many can be run concurrently. This can
 be achieved using Argo's [synchronization][1] feature.
 
-The desired limit can be added in a ConfigMap in [config/semaphores.yml][2], e.g.
+The desired limit can be added in a ConfigMap in [infra/charts/argo.semaphores.ts][2], e.g.
 
 ```yaml
 apiVersion: v1
@@ -32,4 +32,4 @@ Any further instances which are started while two are running will be queued,
 and start automatically when running workflows complete.
 
 [1]: https://argoproj.github.io/argo-workflows/synchronization/
-[2]: config/semaphores.yml
+[2]: infra/charts/argo.semaphores.ts
