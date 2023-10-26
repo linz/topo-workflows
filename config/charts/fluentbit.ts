@@ -25,6 +25,12 @@ export class FluentBit extends Chart {
     Time_Format %Y-%m-%dT%H:%M:%S.%L%z
     `;
 
+    /**
+     * FIXME: We deactivated the HTTP server to avoid getting these issues:
+     * https://github.com/aws/eks-charts/issues/995
+     * https://github.com/aws/eks-charts/issues/983
+     *
+     */
     const extraService = `
 HTTP_Server  Off
 HTTP_Listen  [::]
