@@ -3,6 +3,7 @@ import { Construct } from 'constructs';
 
 import { applyDefaultLabels } from '../util/labels.js';
 
+/** version of the Helm chart (not FluentBit app) */
 const awsForFluentBitVersion = '0.1.31';
 export interface FluentBitProps {
   saRoleName: string;
