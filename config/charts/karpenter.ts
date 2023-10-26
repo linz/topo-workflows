@@ -69,7 +69,7 @@ export class Karpenter extends Chart {
       namespace: 'karpenter',
       version: 'v0.31.1',
       values: {
-        // FIXME: fullnameOverride: 'karpenter',
+        // FIXME: fullnameOverride: 'karpenter' // this value did not override the name during testing
         serviceAccount: {
           create: false,
           name: props.saRoleName,
