@@ -16,7 +16,7 @@ export class FluentBit extends Chart {
     const FluentParserName = 'containerd';
     // This needs to be properly formatted, and it was taken directly from https://github.com/microsoft/fluentbit-containerd-cri-o-json-log
     // The key part is the message must be parsed as "log" otherwise it wont be parsed as JSON
-    const FluentContainerParser = `[PARSER]
+    const extraParsers = `[PARSER]
     Name ${FluentParserName}
     Format regex
     Regex ^(?<time>[^ ]+) (?<stream>stdout|stderr) (?<logtag>[^ ]*) (?<log>.*)$
@@ -55,7 +55,7 @@ HC_Period 5
         firehose: { enabled: false },
         kinesis: { enabled: false },
         elasticsearch: { enabled: false },
-        service: { extraParsers: FluentContainerParser, extraService },
+        service: { extraParsers, extraService },
         livenessProbe: false,
         readinessProbe: false,
       },
