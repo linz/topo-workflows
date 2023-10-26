@@ -212,6 +212,6 @@ export class LinzEksCluster extends Stack {
       namespace: 'argo',
     });
     argoRunnerSa.node.addDependency(argoNs);
-    new CfnOutput(this, 'ArgoRunnerServiceAccountRoleArn', { value: fluentBitSa.role.roleArn });
+    new CfnOutput(this, 'ArgoRunnerServiceAccountRoleArn', { value: argoRunnerSa.role.roleArn });
   }
 }
