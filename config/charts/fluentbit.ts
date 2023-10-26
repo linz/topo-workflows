@@ -9,7 +9,7 @@ export interface FluentBitProps {
 
 export class FluentBit extends Chart {
   constructor(scope: Construct, id: string, props: FluentBitProps & ChartProps) {
-    super(scope, id, applyDefaultLabels(props, 'aws-for-fluent-bit', '2.31.11', 'logs', 'workflows'));
+    super(scope, id, applyDefaultLabels(props, 'aws-for-fluent-bit', '2.21.5', 'logs', 'workflows'));
 
     const FluentParserName = 'containerd';
     // This needs to be properly formatted, and it was taken directly from https://github.com/microsoft/fluentbit-containerd-cri-o-json-log
@@ -37,7 +37,7 @@ HC_Period 5
       chart: 'aws-for-fluent-bit',
       repo: 'https://aws.github.io/eks-charts',
       namespace: 'fluent-bit',
-      version: '0.1.30',
+      version: '0.1.23',
       values: {
         fullnameOverride: 'fluentbit',
         input: { parser: FluentParserName, dockerMode: 'Off' },
