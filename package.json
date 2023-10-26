@@ -1,17 +1,35 @@
 {
-  "name": "topo-workflows",
-  "version": "1.0.0",
-  "main": "index.js",
-  "repository": "git@github.com:linz/topo-workflows.git",
-  "author": "Blayne Chard <blayne@chard.com>",
+  "name": "@linzjs/topo-workflows",
+  "version": "0.0.1",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/linz/topo-workflows.git"
+  },
   "license": "MIT",
+  "type": "module",
+  "author": {
+    "name": "Toitū Te Whenua Land Information New Zealand",
+    "url": "https://linz.govt.nz",
+    "organization": true
+  },
+  "private": true,
+  "engines": {
+    "node": ">=16.0.0"
+  },
   "scripts": {
-    "format": "npx prettier . -w --ignore-path .gitignore --ignore-unknown"
+    "lint": "npx eslint . --ignore-path .gitignore",
+    "format": "npx prettier . -w"
   },
   "devDependencies": {
-    "prettier": "^2.7.1"
-  },
-  "dependencies": {
-    "yaml": "^2.3.1"
+    "@aws-sdk/client-cloudformation": "^3.429.0",
+    "@aws-sdk/client-eks": "^3.429.0",
+    "@aws-cdk/lambda-layer-kubectl-v27": "^2.0.0",
+    "@linzjs/style": "^5.0.0",
+    "aws-cdk": "2.93.x",
+    "aws-cdk-lib": "2.93.x",
+    "cdk8s": "^2.66.10",
+    "cdk8s-cli": "^2.136.0",
+    "cdk8s-plus-27": "^2.7.34",
+    "constructs": "^10.3.0"
   }
 }

@@ -12,7 +12,7 @@ spec:
   templates:
     - name: main
       retryStrategy:
-        limit: "2"
+        limit: '2'
       inputs:
         parameters:
           - name: file
@@ -20,19 +20,19 @@ spec:
 
           - name: version-argo-tasks
             description: version of argo-tasks to use
-            default: "v2"
+            default: 'v2'
 
           - name: copy-option
             description: --no-clobber Skip overwriting existing files. --force Overwrite all files. --force-no-clobber Overwrite only changed files, skip unchanged files.
-            default: "--no-clobber"
+            default: '--no-clobber'
             enum:
-              - "--no-clobber"
-              - "--force"
-              - "--force-no-clobber"
+              - '--no-clobber'
+              - '--force'
+              - '--force-no-clobber'
 
           - name: aws-role-config-path
             description: The path(s) to the aws configs that enable writing to buckets
-            default: "s3://linz-bucket-config/config-write.imagery.json,s3://linz-bucket-config/config-write.elevation.json,s3://linz-bucket-config/config-write.topographic.json"
+            default: 's3://linz-bucket-config/config-write.imagery.json,s3://linz-bucket-config/config-write.elevation.json,s3://linz-bucket-config/config-write.topographic.json'
 
       container:
         image: "019359803926.dkr.ecr.ap-southeast-2.amazonaws.com/argo-tasks:{{=sprig.trim(workflow.parameters['version-argo-tasks'])}}"
@@ -43,10 +43,5 @@ spec:
         command: [node, /app/index.js]
         env:
           - name: AWS_ROLE_CONFIG_PATH
-            value: "{{inputs.parameters.aws-role-config-path}},s3://linz-bucket-config/config.json"
-        args:
-          [
-            "copy",
-            "{{inputs.parameters.copy-option}}",
-            "{{inputs.parameters.file}}",
-          ]
+            value: '{{inputs.parameters.aws-role-config-path}},s3://linz-bucket-config/config.json'
+        args: ['copy', '{{inputs.parameters.copy-option}}', '{{inputs.parameters.file}}']

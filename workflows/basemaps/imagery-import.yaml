@@ -6,36 +6,36 @@ metadata:
 spec:
   parallelism: 40
   nodeSelector:
-    karpenter.sh/capacity-type: "spot"
+    karpenter.sh/capacity-type: 'spot'
   entrypoint: main
   arguments:
     parameters:
       - name: version-basemaps-cli
-        value: "v6"
+        value: 'v6'
       - name: source
-        value: ""
+        value: ''
       - name: category
-        value: "Rural Aerial Photos"
+        value: 'Rural Aerial Photos'
         enum:
-          - "Rural Aerial Photos"
-          - "Urban Aerial Photos"
-          - "Satellite Imagery"
-          - "New Aerial Photos"
+          - 'Rural Aerial Photos'
+          - 'Urban Aerial Photos'
+          - 'Satellite Imagery'
+          - 'New Aerial Photos'
       - name: name
-        value: ""
+        value: ''
       - name: target
-        value: "linz-basemaps"
+        value: 'linz-basemaps'
         enum:
-          - "linz-basemaps"
-          - "linz-basemaps-staging"
+          - 'linz-basemaps'
+          - 'linz-basemaps-staging'
       - name: tile-matrix
-        value: "NZTM2000Quad/WebMercatorQuad"
+        value: 'NZTM2000Quad/WebMercatorQuad'
         enum:
-          - "NZTM2000Quad"
-          - "WebMercatorQuad"
-          - "NZTM2000Quad/WebMercatorQuad"
+          - 'NZTM2000Quad'
+          - 'WebMercatorQuad'
+          - 'NZTM2000Quad/WebMercatorQuad'
       - name: cutline
-        value: "s3://linz-basemaps-source/cutline/2020-05-07-cutline-nz-coasts-rural-and-urban.geojson"
+        value: 's3://linz-basemaps-source/cutline/2020-05-07-cutline-nz-coasts-rural-and-urban.geojson'
       - name: blend
         value: 20
       - name: aligned-level
@@ -68,47 +68,47 @@ spec:
             arguments:
               parameters:
                 - name: source
-                  value: "{{inputs.parameters.source}}"
+                  value: '{{inputs.parameters.source}}'
                 - name: name
-                  value: "{{workflow.parameters.name}}"
+                  value: '{{workflow.parameters.name}}'
                 - name: target
-                  value: "{{inputs.parameters.target}}"
+                  value: '{{inputs.parameters.target}}'
                 - name: tile-matrix
-                  value: "{{workflow.parameters.tile-matrix}}"
+                  value: '{{workflow.parameters.tile-matrix}}'
                 - name: cutline
-                  value: "{{inputs.parameters.cutline}}"
+                  value: '{{inputs.parameters.cutline}}'
                 - name: blend
-                  value: "{{workflow.parameters.blend}}"
+                  value: '{{workflow.parameters.blend}}'
                 - name: aligned-level
-                  value: "{{workflow.parameters.aligned-level}}"
+                  value: '{{workflow.parameters.aligned-level}}'
           - name: cog
             template: cog
             arguments:
               parameters:
                 - name: job
-                  value: "{{item.job}}"
+                  value: '{{item.job}}'
                 - name: names
-                  value: "{{item.names}}"
-            depends: "make-cog"
-            withParam: "{{tasks.make-cog.outputs.parameters.jobs}}"
+                  value: '{{item.names}}'
+            depends: 'make-cog'
+            withParam: '{{tasks.make-cog.outputs.parameters.jobs}}'
           - name: create-overview
             template: create-overview
             arguments:
               parameters:
                 - name: path
-                  value: "{{item}}"
-            depends: "make-cog && cog"
-            withParam: "{{tasks.make-cog.outputs.parameters.paths}}"
+                  value: '{{item}}'
+            depends: 'make-cog && cog'
+            withParam: '{{tasks.make-cog.outputs.parameters.paths}}'
           - name: create-pr
             template: create-pr
             arguments:
               parameters:
                 - name: layer
-                  value: "{{tasks.make-cog.outputs.parameters.layer}}"
+                  value: '{{tasks.make-cog.outputs.parameters.layer}}'
                 - name: category
-                  value: "{{workflow.parameters.category}}"
-            when: "{{workflow.parameters.create-pull-request}} == true"
-            depends: "make-cog && create-overview"
+                  value: '{{workflow.parameters.category}}'
+            when: '{{workflow.parameters.create-pull-request}} == true'
+            depends: 'make-cog && create-overview'
 
     - name: make-cog
       inputs:
@@ -130,39 +130,39 @@ spec:
             value: https://basemaps.linz.govt.nz
         args:
           [
-            "-V",
-            "make-cog",
-            "--imagery",
-            "{{=sprig.trim(inputs.parameters.source)}}",
-            "--name",
-            "{{=sprig.trim(inputs.parameters.name)}}",
-            "--target",
-            "{{inputs.parameters.target}}",
-            "--tile-matrix",
-            "{{inputs.parameters.tile-matrix}}",
-            "--cutline",
-            "{{=sprig.trim(inputs.parameters.cutline)}}",
-            "--blend",
-            "{{inputs.parameters.blend}}",
-            "--aligned-level",
-            "{{inputs.parameters.aligned-level}}",
-            "--max-chunk-unit",
-            "6000",
-            "--aws",
-            "--output",
-            "/tmp/cog/",
+            '-V',
+            'make-cog',
+            '--imagery',
+            '{{=sprig.trim(inputs.parameters.source)}}',
+            '--name',
+            '{{=sprig.trim(inputs.parameters.name)}}',
+            '--target',
+            '{{inputs.parameters.target}}',
+            '--tile-matrix',
+            '{{inputs.parameters.tile-matrix}}',
+            '--cutline',
+            '{{=sprig.trim(inputs.parameters.cutline)}}',
+            '--blend',
+            '{{inputs.parameters.blend}}',
+            '--aligned-level',
+            '{{inputs.parameters.aligned-level}}',
+            '--max-chunk-unit',
+            '6000',
+            '--aws',
+            '--output',
+            '/tmp/cog/',
           ]
       outputs:
         parameters:
           - name: jobs
             valueFrom:
-              path: "/tmp/cog/jobs.json"
+              path: '/tmp/cog/jobs.json'
           - name: layer
             valueFrom:
-              path: "/tmp/cog/layer.json"
+              path: '/tmp/cog/layer.json'
           - name: paths
             valueFrom:
-              path: "/tmp/cog/paths.json"
+              path: '/tmp/cog/paths.json'
 
     - name: cog
       inputs:
@@ -182,18 +182,18 @@ spec:
           - name: BASEMAPS_PUBLIC_URL
             value: https://basemaps.linz.govt.nz
           - name: AWS_ROLE_DURATION_HOURS
-            value: "1"
+            value: '1'
         args:
           [
-            "-V",
-            "cog",
-            "--job",
-            "{{inputs.parameters.job}}",
-            "--name",
-            "{{inputs.parameters.names}}",
-            "--concurrency",
-            "4",
-            "--commit",
+            '-V',
+            'cog',
+            '--job',
+            '{{inputs.parameters.job}}',
+            '--name',
+            '{{inputs.parameters.names}}',
+            '--concurrency',
+            '4',
+            '--commit',
           ]
 
     - name: create-overview
@@ -210,14 +210,7 @@ spec:
           - name: AWS_ROLE_CONFIG_PATH
             value: s3://linz-bucket-config/config.basemaps.json
         args:
-          [
-            "-V",
-            "create-overview",
-            "--source",
-            "{{inputs.parameters.path}}",
-            "--output",
-            "{{inputs.parameters.path}}",
-          ]
+          ['-V', 'create-overview', '--source', '{{inputs.parameters.path}}', '--output', '{{inputs.parameters.path}}']
 
     - name: create-pr
       inputs:
@@ -235,17 +228,17 @@ spec:
                 key: github-token
         args:
           [
-            "-V",
-            "cog-pr",
-            "--layer",
-            "{{inputs.parameters.layer}}",
-            "--category",
-            "{{inputs.parameters.category}}",
-            "--output",
-            "/tmp/pr",
+            '-V',
+            'cog-pr',
+            '--layer',
+            '{{inputs.parameters.layer}}',
+            '--category',
+            '{{inputs.parameters.category}}',
+            '--output',
+            '/tmp/pr',
           ]
       outputs:
         parameters:
           - name: pr
             valueFrom:
-              path: "/tmp/pr"
+              path: '/tmp/pr'

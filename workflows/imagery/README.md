@@ -326,17 +326,17 @@ argo submit topo-workflows/imagery/standardising-publish-import.yaml -n argo -f 
 _params.yaml_:
 
 ```yaml
-source: "s3://linz-imagery-source-example/aerial-imagery/new-zealand/christchurch_urban_2021_0.05m_RGB/"
-target: "s3://linz-imagery-example/canterbury/christchurch_2021_0.05m/rgb/2193/"
-scale: "500"
-group: "29"
-cutline: "s3://linz-imagery-cutline-example/historical-imagery-cutlines/2023-01-16_84fd68f/SNC50451-combined.fgb"
-title: "Christchurch 0.05m Urban Aerial Photos (2021)"
-description: "Orthophotography within the Canterbury region captured in the 2021 flying season."
-producer: "Aerial Surveys"
-licensor: "Toitū Te Whenua Land Information New Zealand"
-start-datetime: "2021-11-02"
-end-datetime: "2021-12-02"
+source: 's3://linz-imagery-source-example/aerial-imagery/new-zealand/christchurch_urban_2021_0.05m_RGB/'
+target: 's3://linz-imagery-example/canterbury/christchurch_2021_0.05m/rgb/2193/'
+scale: '500'
+group: '29'
+cutline: 's3://linz-imagery-cutline-example/historical-imagery-cutlines/2023-01-16_84fd68f/SNC50451-combined.fgb'
+title: 'Christchurch 0.05m Urban Aerial Photos (2021)'
+description: 'Orthophotography within the Canterbury region captured in the 2021 flying season.'
+producer: 'Aerial Surveys'
+licensor: 'Toitū Te Whenua Land Information New Zealand'
+start-datetime: '2021-11-02'
+end-datetime: '2021-12-02'
 ```
 
 ### Submitting from the command line using the `-p` (`--parameter`) option (standardising-publish-import):
@@ -354,24 +354,24 @@ argo submit topo-workflows/imagery/standardising-publish-import.yaml -n argo -f 
 _params.yaml_:
 
 ```yaml
-source: "s3://linz-imagery-source-example/aerial-imagery/new-zealand/christchurch_urban_2021_0.05m_RGB/"
-target: "s3://linz-imagery-example/canterbury/christchurch_2021_0.05m/rgb/2193/"
-scale: "500"
-group: "29"
-cutline: "s3://linz-imagery-cutline-example/historical-imagery-cutlines/2023-01-16_84fd68f/SNC50451-combined.fgb"
-title: "Christchurch 0.05m Urban Aerial Photos (2021)"
-description: "Orthophotography within the Canterbury region captured in the 2021 flying season."
-producer: "Aerial Surveys"
-licensor: ""
-licensor-list: "Waka Kotahi; Nelson City Council;Tasman District Council"
-start-datetime: "2021-11-02"
-end-datetime: "2021-12-02"
-category: "Urban Aerial Photos"
-name: "christchurch_2021_0.05m"
-tile-matrix: "NZTM2000Quad/WebMercatorQuad"
-blend: "20"
-aligned-level: "6"
-create-pull-request: "true"
+source: 's3://linz-imagery-source-example/aerial-imagery/new-zealand/christchurch_urban_2021_0.05m_RGB/'
+target: 's3://linz-imagery-example/canterbury/christchurch_2021_0.05m/rgb/2193/'
+scale: '500'
+group: '29'
+cutline: 's3://linz-imagery-cutline-example/historical-imagery-cutlines/2023-01-16_84fd68f/SNC50451-combined.fgb'
+title: 'Christchurch 0.05m Urban Aerial Photos (2021)'
+description: 'Orthophotography within the Canterbury region captured in the 2021 flying season.'
+producer: 'Aerial Surveys'
+licensor: ''
+licensor-list: 'Waka Kotahi; Nelson City Council;Tasman District Council'
+start-datetime: '2021-11-02'
+end-datetime: '2021-12-02'
+category: 'Urban Aerial Photos'
+name: 'christchurch_2021_0.05m'
+tile-matrix: 'NZTM2000Quad/WebMercatorQuad'
+blend: '20'
+aligned-level: '6'
+create-pull-request: 'true'
 ```
 
 ## How To Use the Test Workflow

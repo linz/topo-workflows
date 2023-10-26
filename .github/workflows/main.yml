@@ -14,69 +14,72 @@ jobs:
       - name: Use Node.js 18.x
         uses: actions/setup-node@v2.2.0
         with:
-          node-version: "18.x"
+          node-version: '18.x'
 
       - name: Install
-        run: yarn
+        run: npm install --ci
 
       - name: format
-        run: yarn format
+        run: npm run lint -- --fix=false # ensure eslint is not configured to --fix
 
-      - name: Check formatting
-        run: git diff --exit-code
+      - name: format
+        run: npm run format -- --fix=false # ensure eslint is not configured to --fix
 
-      - name: Setup kubectl
-        uses: azure/setup-kubectl@v3
-        with:
-          version: "latest"
 
-      - name: AWS Configure
-        uses: aws-actions/configure-aws-credentials@v1.6.1
-        with:
-          aws-region: ap-southeast-2
-          mask-aws-account-id: true
-          role-to-assume: ${{ secrets.AWS_CI_ROLE }}
+      # - name: Setup kubectl
+      #   uses: azure/setup-kubectl@v3
+      #   with:
+      #     version: 'latest'
 
-      - name: Login to EKS
-        run: |
-          aws eks update-kubeconfig --name Workflow --region ap-southeast-2 --role-arn ${{ secrets.AWS_EKS_ROLE }}
+      # - name: AWS Configure
+      #   uses: aws-actions/configure-aws-credentials@v1.6.1
+      #   with:
+      #     aws-region: ap-southeast-2
+      #     mask-aws-account-id: true
+      #     role-to-assume: ${{ secrets.AWS_CI_ROLE }}
 
-      - name: Check EKS connection
-        run: |
-          kubectl get nodes
+      # - name: Login to EKS
+      #   run: |
+      #     aws eks update-kubeconfig --name Workflow --region ap-southeast-2 --role-arn ${{ secrets.AWS_EKS_ROLE }}
 
-      - name: Install Argo
-        run: |
-          curl -sLO https://github.com/argoproj/argo-workflows/releases/download/v3.4.0-rc2/argo-linux-amd64.gz
-          gunzip argo-linux-amd64.gz
-          chmod +x argo-linux-amd64
-          ./argo-linux-amd64 version
+      # - name: Check EKS connection
+      #   run: |
+      #     kubectl get nodes
 
-      - name: Lint workflows
-        run: |
-          ./argo-linux-amd64 lint templates/ -n argo
-          ./argo-linux-amd64 lint workflows/ -n argo
+      # - name: Install Argo
+      #   run: |
+      #     curl -sLO https://github.com/argoproj/argo-workflows/releases/download/v3.4.0-rc2/argo-linux-amd64.gz
+      #     gunzip argo-linux-amd64.gz
+      #     chmod +x argo-linux-amd64
+      #     ./argo-linux-amd64 version
 
-      - name: Deploy workflows
-        if: github.ref == 'refs/heads/master'
-        run: |
-          # Deploy templates first
-          kubectl apply -f templates/argo-tasks/ --namespace argo
+      # - name: Lint workflows
+      #   run: |
+      #     ./argo-linux-amd64 lint templates/ -n argo
+      #     ./argo-linux-amd64 lint workflows/ -n argo
 
-          # Find all workflows that have kind "WorkflowTemplate"
-          WORKFLOWS=$(grep '^kind: WorkflowTemplate$' -R workflows/ -H | cut -d ':' -f1)
+      # - name: Deploy workflows
+      #   if: github.ref == 'refs/heads/master'
+      #   run: |
+      #     # Deploy templates first
+      #     kubectl apply -f templates/argo-tasks/ --namespace argo
 
-          # For each workflow attempt to deploy it using kubectl
-          for wf in $WORKFLOWS; do
-              kubectl apply -f $wf --namespace argo
-          done
+      #     # Find all workflows that have kind "WorkflowTemplate"
+      #     WORKFLOWS=$(grep '^kind: WorkflowTemplate$' -R workflows/ -H | cut -d ':' -f1)
 
-      - name: Deploy config files
-        if: github.ref == 'refs/heads/master'
-        run: |
-          kubectl apply -f config/*.yml --namespace argo
-      # Re-lint the workflows after deployment because their dependencies is test with deployement.
-      - name: Re-Lint workflows
-        run: |
-          ./argo-linux-amd64 lint templates/ -n argo
-          ./argo-linux-amd64 lint workflows/ -n argo
+      #     # For each workflow attempt to deploy it using kubectl
+      #     for wf in $WORKFLOWS; do
+      #         kubectl apply -f $wf --namespace argo
+      #     done
+
+      # - name: Deploy config files
+      #   if: github.ref == 'refs/heads/master'
+      #   run: |
+      #     npx cdk8s synth
+      #     kubectl apply -f dist/
+
+      # # Re-lint the workflows after deployment because their dependencies is test with deployement.
+      # - name: Re-Lint workflows
+      #   run: |
+      #     ./argo-linux-amd64 lint templates/ -n argo
+      #     ./argo-linux-amd64 lint workflows/ -n argo

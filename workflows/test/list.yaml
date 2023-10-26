@@ -8,9 +8,9 @@ spec:
   arguments:
     parameters:
       - name: version-argo-tasks
-        value: "latest"
+        value: 'latest'
       - name: uri
-        value: "s3://linz-imagery-staging/test/sample/"
+        value: 's3://linz-imagery-staging/test/sample/'
   templateDefaults:
     container:
       imagePullPolicy: Always
@@ -23,9 +23,9 @@ spec:
             arguments:
               parameters:
                 - name: uri
-                  value: "{{workflow.parameters.uri}}"
+                  value: '{{workflow.parameters.uri}}'
                 - name: include
-                  value: ".tiff?$"
+                  value: '.tiff?$'
     - name: aws-list
       inputs:
         parameters:
@@ -39,15 +39,15 @@ spec:
             value: s3://linz-bucket-config/config.json
         args:
           [
-            "list",
-            "--verbose",
-            "--include",
-            "{{inputs.parameters.include}}",
-            "--group",
-            "2",
-            "--output",
-            "/tmp/file_list.json",
-            "{{inputs.parameters.uri}}",
+            'list',
+            '--verbose',
+            '--include',
+            '{{inputs.parameters.include}}',
+            '--group',
+            '2',
+            '--output',
+            '/tmp/file_list.json',
+            '{{inputs.parameters.uri}}',
           ]
       outputs:
         parameters:
