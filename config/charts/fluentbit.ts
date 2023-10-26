@@ -14,13 +14,24 @@ export class FluentBit extends Chart {
     const FluentParserName = 'containerd';
     // This needs to be properly formatted, and it was taken directly from https://github.com/microsoft/fluentbit-containerd-cri-o-json-log
     // The key part is the message must be parsed as "log" otherwise it wont be parsed as JSON
-    const FluentContainerParser = `[PARSER]
+    const extraParsers = `[PARSER]
         Name ${FluentParserName}
         Format regex
         Regex ^(?<time>[^ ]+) (?<stream>stdout|stderr) (?<logtag>[^ ]*) (?<log>.*)$
         Time_Key    time
         Time_Format %Y-%m-%dT%H:%M:%S.%L%z
     `;
+
+    // HTTP_Listen changed to `[::]` https://github.com/aws/eks-charts/issues/983
+    const extraService = `
+HTTP_Server  On
+HTTP_Listen  [::]
+HTTP_PORT    2020
+Health_Check On 
+HC_Errors_Count 5 
+HC_Retry_Failure_Count 5 
+HC_Period 5 
+`;
 
     new Helm(this, 'aws-for-fluent-bit', {
       chart: 'aws-for-fluent-bit',
@@ -35,7 +46,7 @@ export class FluentBit extends Chart {
         firehose: { enabled: false },
         kinesis: { enabled: false },
         elasticsearch: { enabled: false },
-        service: { extraParsers: FluentContainerParser },
+        service: { extraParsers, extraService },
       },
     });
   }
