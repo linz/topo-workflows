@@ -18,8 +18,7 @@ import {
   Role,
   ServicePrincipal,
 } from 'aws-cdk-lib/aws-iam';
-import { IBucket } from 'aws-cdk-lib/aws-s3';
-import { BlockPublicAccess, Bucket } from 'aws-cdk-lib/aws-s3';
+import { BlockPublicAccess, Bucket, IBucket } from 'aws-cdk-lib/aws-s3';
 import { Construct } from 'constructs';
 
 import { CfnOutputKeys } from '../constants';
@@ -132,14 +131,14 @@ export class LinzEksCluster extends Stack {
       groups: ['system:bootstrappers', 'system:nodes'],
     });
 
-    const karpenterSA = initService(this.cluster, 'karpenter');
+    const karpenterSA = initComponent(this.cluster, 'karpenter');
     // Nasty hack so this account has access to spin up EC2s inside of LINZ's network
     karpenterSA.role.addManagedPolicy(
       ManagedPolicy.fromAwsManagedPolicyName('service-role/AmazonEC2SpotFleetTaggingRole'),
     );
 
     // Allow Karpenter to start ec2 instances
-    // FIXME: some policies are missing. See https://github.com/aws/karpenter/blob/8c33a40733b90aa0bb42a6436152374f7b359f69/website/content/en/docs/getting-started/getting-started-with-karpenter/cloudformation.yaml#L40
+    // @see https://github.com/aws/karpenter/blob/8c33a40733b90aa0bb42a6436152374f7b359f69/website/content/en/docs/getting-started/getting-started-with-karpenter/cloudformation.yaml#L40
     // The current policies are based on https://github.com/eksctl-io/eksctl/blob/main/pkg/cfn/builder/karpenter_test.go#L111
     new Policy(this, 'ControllerPolicy', {
       roles: [karpenterSA.role],
@@ -190,8 +189,14 @@ export class LinzEksCluster extends Stack {
     new CfnOutput(this, CfnOutputKeys.Karpenter.ServiceAccountName, { value: karpenterSA.serviceAccountName });
 
     // Use fluent bit to ship logs from eks into aws
-    const fluentbitSA = initService(this.cluster, 'fluentbit');
+    const fluentbitSA = initComponent(this.cluster, 'fluentbit');
     new CfnOutput(this, 'FluentBitServiceAccountRoleArn', { value: fluentbitSA.role.roleArn });
+    // https://docs.aws.amazon.com/aws-managed-policy/latest/reference/CloudWatchAgentServerPolicy.html
+    fluentbitSA.role.addManagedPolicy(ManagedPolicy.fromAwsManagedPolicyName('CloudWatchAgentServerPolicy'));
+    fluentbitSA.role.addToPrincipalPolicy(
+      new PolicyStatement({ actions: ['logs:PutRetentionPolicy'], resources: ['*'], effect: Effect.ALLOW }),
+    );
+    new CfnOutput(this, CfnOutputKeys.FluentBit.ServiceAccountName, { value: fluentbitSA.serviceAccountName });
 
     // Basic constructs for argo to be deployed into
     const argoNs = this.cluster.addManifest('ArgoNameSpace', {
@@ -209,12 +214,12 @@ export class LinzEksCluster extends Stack {
 }
 
 /**
- * Init a new Kubernetes service (component) by creating its namespace and service account.
+ * Init a new Kubernetes Component by creating its namespace and its initial service account.
  * @param cluster
  * @param name
  * @returns the service account created
  */
-function initService(cluster: Cluster, name: string): ServiceAccount {
+function initComponent(cluster: Cluster, name: string): ServiceAccount {
   const namespace = cluster.addManifest(`${upperCaseFirstLetter(name)}Namespace`, {
     apiVersion: 'v1',
     kind: 'Namespace',
