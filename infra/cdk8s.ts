@@ -1,6 +1,7 @@
 import { App } from 'cdk8s';
 
 import { ArgoSemaphore } from './charts/argo.semaphores';
+import { ArgoWorkflows } from './charts/argo.workflows';
 import { FluentBit } from './charts/fluentbit';
 import { Karpenter, KarpenterProvisioner } from './charts/karpenter';
 import { CoreDns } from './charts/kube-system.coredns';
@@ -44,6 +45,12 @@ async function main(): Promise<void> {
   });
 
   karpenterProvisioner.addDependency(karpenter);
+
+  new ArgoWorkflows(app, 'argo-workflows', {
+    clusterName: ClusterName,
+    saName: cfnOutputs[CfnOutputKeys.Argo.RunnerServiceAccountName],
+    tempBucketName: cfnOutputs[CfnOutputKeys.Argo.TempBucketName],
+  });
 
   app.synth();
 }

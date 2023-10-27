@@ -49,6 +49,7 @@ export class LinzEksCluster extends Stack {
         },
       ],
     });
+    new CfnOutput(this, CfnOutputKeys.Argo.TempBucketName, { value: this.tempBucket.bucketName });
 
     this.configBucket = Bucket.fromBucketName(this, 'BucketConfig', 'linz-bucket-config');
 
@@ -180,7 +181,6 @@ export class LinzEksCluster extends Stack {
       roles: [this.nodeRole.roleName],
       instanceProfileName: `${this.cluster.clusterName}-${this.id}`, // Must be specified to avoid CFN error
     });
-
     // Save configuration for CDK8s to access it
     new CfnOutput(this, CfnOutputKeys.Karpenter.DefaultInstanceProfile, { value: instanceProfile.ref });
     new CfnOutput(this, CfnOutputKeys.Karpenter.ClusterEndpoint, { value: this.cluster.clusterEndpoint });
@@ -203,7 +203,6 @@ export class LinzEksCluster extends Stack {
       new PolicyStatement({ actions: ['logs:PutRetentionPolicy'], resources: ['*'], effect: Effect.ALLOW }),
     );
     fluentBitSa.node.addDependency(fluentBitNs); // Ensure the namespace created first
-
     new CfnOutput(this, CfnOutputKeys.FluentBit.ServiceAccountName, { value: fluentBitSa.serviceAccountName });
 
     // Basic constructs for argo to be deployed into
@@ -218,5 +217,6 @@ export class LinzEksCluster extends Stack {
     });
     argoRunnerSa.node.addDependency(argoNs);
     new CfnOutput(this, 'ArgoRunnerServiceAccountRoleArn', { value: argoRunnerSa.role.roleArn });
+    new CfnOutput(this, CfnOutputKeys.Argo.RunnerServiceAccountName, { value: argoRunnerSa.serviceAccountName });
   }
 }
