@@ -212,11 +212,16 @@ export class LinzEksCluster extends Stack {
       metadata: { name: 'argo' },
     });
     const argoRunnerSa = this.cluster.addServiceAccount('ArgoRunnerServiceAccount', {
-      name: 'argo-runner-sa',
+      name: 'workflow-runner-sa',
       namespace: 'argo',
     });
     argoRunnerSa.node.addDependency(argoNs);
     new CfnOutput(this, 'ArgoRunnerServiceAccountRoleArn', { value: argoRunnerSa.role.roleArn });
     new CfnOutput(this, CfnOutputKeys.Argo.RunnerServiceAccountName, { value: argoRunnerSa.serviceAccountName });
+
+    // give read/write on the temporary (scratch) bucket
+    this.tempBucket.grantReadWrite(argoRunnerSa.role);
+    // give permission to the sa to assume a role
+    argoRunnerSa.role.addToPrincipalPolicy(new PolicyStatement({ actions: ['sts:AssumeRole'], resources: ['*'] }));
   }
 }

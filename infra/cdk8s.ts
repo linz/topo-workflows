@@ -13,9 +13,12 @@ const app = new App();
 async function main(): Promise<void> {
   // Get cloudformation outputs
   const cfnOutputs = await getCfnOutputs(ClusterName);
-  const missingKeys = [...Object.values(CfnOutputKeys.Karpenter), ...Object.values(CfnOutputKeys.FluentBit)].filter(
-    (f) => cfnOutputs[f] == null,
-  );
+  //FIXME: is there a better way to do that?
+  const missingKeys = [
+    ...Object.values(CfnOutputKeys.Karpenter),
+    ...Object.values(CfnOutputKeys.FluentBit),
+    ...Object.values(CfnOutputKeys.Argo),
+  ].filter((f) => cfnOutputs[f] == null);
   if (missingKeys.length > 0) {
     throw new Error(`Missing CloudFormation Outputs for keys ${missingKeys.join(', ')}`);
   }

@@ -62,7 +62,7 @@ export class ArgoWorkflows extends Chart {
           replicas: 2,
           workflowDefaults: {
             spec: {
-              serviceAccountName: 'workflow-runner-sa',
+              serviceAccountName: props.saName,
               ttlStrategy: { secondsAfterCompletion: Duration.days(7).toSeconds() },
               podGC: { strategy: 'OnPodCompletion' },
               tolerations: [
