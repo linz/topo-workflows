@@ -216,7 +216,6 @@ export class LinzEksCluster extends Stack {
       namespace: 'argo',
     });
     argoRunnerSa.node.addDependency(argoNs);
-    new CfnOutput(this, 'ArgoRunnerServiceAccountRoleArn', { value: argoRunnerSa.role.roleArn });
     new CfnOutput(this, CfnOutputKeys.Argo.RunnerServiceAccountName, { value: argoRunnerSa.serviceAccountName });
 
     // give read/write on the temporary (scratch) bucket
