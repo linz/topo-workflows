@@ -118,79 +118,71 @@ export class LinzEksCluster extends Stack {
    * Setup the basic interactions between EKS and some of its components
    *
    * This should generally be limited to things that require direct interaction with AWS eg service accounts
-   * or name space creation
+   * or namespaces creation
    */
   configureEks(): void {
-    // Karpenter
+    const instanceProfile = new CfnInstanceProfile(this, 'InstanceProfile', {
+      roles: [this.nodeRole.roleName],
+      instanceProfileName: `${this.cluster.clusterName}-${this.id}`, // Must be specified to avoid CFN error
+    });
     this.tempBucket.grantReadWrite(this.nodeRole);
     this.configBucket.grantRead(this.nodeRole);
     this.nodeRole.addToPrincipalPolicy(new PolicyStatement({ actions: ['sts:AssumeRole'], resources: ['*'] }));
-
     this.cluster.awsAuth.addRoleMapping(this.nodeRole, {
       username: 'system:node:{{EC2PrivateDNSName}}',
       groups: ['system:bootstrappers', 'system:nodes'],
     });
 
-    const karpenterSA = initComponent(this.cluster, 'karpenter');
-    // Nasty hack so this account has access to spin up EC2s inside of LINZ's network
+    // Karpenter - to scale pods
+    const karpenterSA = initComponent(this.cluster, 'karpenter', 'karpenter-controller-sa');
+    // Necessary as this account has access to spin up EC2s inside of LINZ's network
     karpenterSA.role.addManagedPolicy(
       ManagedPolicy.fromAwsManagedPolicyName('service-role/AmazonEC2SpotFleetTaggingRole'),
     );
-
     // Allow Karpenter to start ec2 instances
     // @see https://github.com/aws/karpenter/blob/8c33a40733b90aa0bb42a6436152374f7b359f69/website/content/en/docs/getting-started/getting-started-with-karpenter/cloudformation.yaml#L40
     // The current policies are based on https://github.com/eksctl-io/eksctl/blob/main/pkg/cfn/builder/karpenter_test.go#L111
-    new Policy(this, 'ControllerPolicy', {
-      roles: [karpenterSA.role],
-      statements: [
-        new PolicyStatement({
-          actions: [
-            'ec2:CreateFleet',
-            'ec2:CreateLaunchTemplate',
-            'ec2:CreateTags',
-            'ec2:DescribeAvailabilityZones',
-            'ec2:DescribeInstanceTypeOfferings',
-            'ec2:DescribeInstanceTypes',
-            'ec2:DescribeInstances',
-            'ec2:DescribeLaunchTemplates',
-            'ec2:DescribeSecurityGroups',
-            'ec2:DescribeSubnets',
-            'ec2:DeleteLaunchTemplate',
-            'ec2:RunInstances',
-            'ec2:TerminateInstances',
-            'ec2:DescribeImages',
-            'ec2:DescribeSpotPriceHistory',
-            'iam:PassRole',
-            'iam:CreateServiceLinkedRole',
-            'ssm:GetParameter',
-            'pricing:GetProducts',
-            // LINZ requires instances to be encrypted with a KMS key
-            'kms:Encrypt',
-            'kms:Decrypt',
-            'kms:ReEncrypt*',
-            'kms:GenerateDataKey*',
-            'kms:CreateGrant',
-            'kms:DescribeKey',
-          ],
-          resources: ['*'],
-        }),
-      ],
-    });
-
-    const instanceProfile = new CfnInstanceProfile(this, 'InstanceProfile', {
-      roles: [this.nodeRole.roleName],
-      instanceProfileName: `${this.cluster.clusterName}-${this.id}`, // Must be specified to avoid CFN error
-    });
-
+    karpenterSA.role.addToPrincipalPolicy(
+      new PolicyStatement({
+        actions: [
+          'ec2:CreateFleet',
+          'ec2:CreateLaunchTemplate',
+          'ec2:CreateTags',
+          'ec2:DescribeAvailabilityZones',
+          'ec2:DescribeInstanceTypeOfferings',
+          'ec2:DescribeInstanceTypes',
+          'ec2:DescribeInstances',
+          'ec2:DescribeLaunchTemplates',
+          'ec2:DescribeSecurityGroups',
+          'ec2:DescribeSubnets',
+          'ec2:DeleteLaunchTemplate',
+          'ec2:RunInstances',
+          'ec2:TerminateInstances',
+          'ec2:DescribeImages',
+          'ec2:DescribeSpotPriceHistory',
+          'iam:PassRole',
+          'iam:CreateServiceLinkedRole',
+          'ssm:GetParameter',
+          'pricing:GetProducts',
+          // LINZ specific: requires instances to be encrypted with a KMS key
+          'kms:Encrypt',
+          'kms:Decrypt',
+          'kms:ReEncrypt*',
+          'kms:GenerateDataKey*',
+          'kms:CreateGrant',
+          'kms:DescribeKey',
+        ],
+        resources: ['*'],
+      }),
+    );
     // Save configuration for CDK8s to access it
     new CfnOutput(this, CfnOutputKeys.Karpenter.DefaultInstanceProfile, { value: instanceProfile.ref });
     new CfnOutput(this, CfnOutputKeys.Karpenter.ClusterEndpoint, { value: this.cluster.clusterEndpoint });
     new CfnOutput(this, CfnOutputKeys.Karpenter.ServiceAccountRoleArn, { value: karpenterSA.role.roleArn });
     new CfnOutput(this, CfnOutputKeys.Karpenter.ServiceAccountName, { value: karpenterSA.serviceAccountName });
 
-    // Use fluent bit to ship logs from eks into aws
+    // Fluentbit - to ship logs from eks into aws
     const fluentbitSA = initComponent(this.cluster, 'fluentbit');
-    new CfnOutput(this, 'FluentBitServiceAccountRoleArn', { value: fluentbitSA.role.roleArn });
     // https://docs.aws.amazon.com/aws-managed-policy/latest/reference/CloudWatchAgentServerPolicy.html
     fluentbitSA.role.addManagedPolicy(ManagedPolicy.fromAwsManagedPolicyName('CloudWatchAgentServerPolicy'));
     fluentbitSA.role.addToPrincipalPolicy(
@@ -198,17 +190,8 @@ export class LinzEksCluster extends Stack {
     );
     new CfnOutput(this, CfnOutputKeys.FluentBit.ServiceAccountName, { value: fluentbitSA.serviceAccountName });
 
-    // Basic constructs for argo to be deployed into
-    const argoNs = this.cluster.addManifest('ArgoNameSpace', {
-      apiVersion: 'v1',
-      kind: 'Namespace',
-      metadata: { name: 'argo' },
-    });
-    const argoRunnerSa = this.cluster.addServiceAccount('ArgoRunnerServiceAccount', {
-      name: 'argo-runner-sa',
-      namespace: 'argo',
-    });
-    argoRunnerSa.node.addDependency(argoNs);
+    // Argo - to run workflows
+    const argoRunnerSa = initComponent(this.cluster, 'argo', 'argo-runner-sa');
     new CfnOutput(this, 'ArgoRunnerServiceAccountRoleArn', { value: argoRunnerSa.role.roleArn });
   }
 }
@@ -219,14 +202,18 @@ export class LinzEksCluster extends Stack {
  * @param name
  * @returns the service account created
  */
-function initComponent(cluster: Cluster, name: string): ServiceAccount {
+function initComponent(cluster: Cluster, name: string, serviceAccountName: string = ''): ServiceAccount {
   const namespace = cluster.addManifest(`${upperCaseFirstLetter(name)}Namespace`, {
     apiVersion: 'v1',
     kind: 'Namespace',
     metadata: { name: name },
   });
+
+  if (serviceAccountName === '') {
+    serviceAccountName = `${name}-sa`;
+  }
   const serviceAccount = cluster.addServiceAccount(`${upperCaseFirstLetter(name)}ServiceAccount`, {
-    name: `${name}-sa`,
+    name: serviceAccountName,
     namespace: name,
   });
   serviceAccount.node.addDependency(namespace); // Ensure the namespace created first
