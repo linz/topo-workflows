@@ -13,7 +13,6 @@ const app = new App();
 async function main(): Promise<void> {
   // Get cloudformation outputs
   const cfnOutputs = await getCfnOutputs(ClusterName);
-  //FIXME: is there a better way to do that?
   const missingKeys = [
     ...Object.values(CfnOutputKeys.Karpenter),
     ...Object.values(CfnOutputKeys.FluentBit),
