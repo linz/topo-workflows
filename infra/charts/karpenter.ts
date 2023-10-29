@@ -43,7 +43,7 @@ export interface KarpenterProps {
  *
  * https://github.com/aws/karpenter/blob/7c989a2bfae43d4e73235aca0af50b8008c67b68/charts/karpenter/Chart.yaml#L5C10-L5C16
  */
-const version = '0.31.0';
+const version = 'v0.31.1';
 
 export class Karpenter extends Chart {
   constructor(scope: Construct, id: string, props: KarpenterProps & ChartProps) {
@@ -98,7 +98,7 @@ export class Karpenter extends Chart {
 
 export class KarpenterProvisioner extends Chart {
   constructor(scope: Construct, id: string, props: KarpenterProps & ChartProps) {
-    super(scope, id, applyDefaultLabels(props, 'karpenter', 'v0.31.0', 'karpenter', 'workflows'));
+    super(scope, id, applyDefaultLabels(props, 'karpenter', version, 'karpenter', 'workflows'));
 
     const templateName = `karpenter-template`;
     const template = new AwsNodeTemplate(this, 'template', {
