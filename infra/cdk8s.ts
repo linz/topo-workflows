@@ -49,7 +49,7 @@ async function main(): Promise<void> {
   karpenterProvisioner.addDependency(karpenter);
 
   new ArgoWorkflows(app, 'argo-workflows', {
-    clusterName: ClusterName,
+    clusterName,
     saName: cfnOutputs[CfnOutputKeys.Argo.RunnerServiceAccountName],
     tempBucketName: cfnOutputs[CfnOutputKeys.Argo.TempBucketName],
   });
