@@ -38,15 +38,22 @@ export interface KarpenterProps {
   instanceProfile: string;
 }
 
+/**
+ * Karpenter chart version and application version are following the same increments
+ *
+ * https://github.com/aws/karpenter/blob/7c989a2bfae43d4e73235aca0af50b8008c67b68/charts/karpenter/Chart.yaml#L5C10-L5C16
+ */
+const version = '0.31.0';
+
 export class Karpenter extends Chart {
   constructor(scope: Construct, id: string, props: KarpenterProps & ChartProps) {
-    super(scope, id, applyDefaultLabels(props, 'karpenter', 'v0.31.0', 'karpenter', 'workflows'));
+    super(scope, id, applyDefaultLabels(props, 'karpenter', version, 'karpenter', 'workflows'));
 
     // Deploying the CRD
     const crd = new Helm(this, 'karpenter-crd', {
       chart: 'oci://public.ecr.aws/karpenter/karpenter-crd',
       namespace: 'karpenter',
-      version: 'v0.31.1',
+      version,
     });
 
     // Karpenter is using `oci` rather than regular helm repo: https://gallery.ecr.aws/karpenter/karpenter.
@@ -67,7 +74,7 @@ export class Karpenter extends Chart {
     const karpenter = new Helm(this, 'karpenter', {
       chart: 'oci://public.ecr.aws/karpenter/karpenter',
       namespace: 'karpenter',
-      version: 'v0.31.1',
+      version,
       values: {
         fullnameOverride: 'karpenter', // override the karpenter-abcxywz
         serviceAccount: {

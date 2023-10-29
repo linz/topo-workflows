@@ -4,32 +4,43 @@ import { Construct } from 'constructs';
 import { applyDefaultLabels } from '../util/labels.js';
 
 export interface ArgoWorkflowsProps {
-  /** Name of the temporary bucket used to store artifacts
+  /**
+   * Name of the temporary bucket used to store artifacts
    *
    * @example "linz-workflows-scratch"
    */
   tempBucketName: string;
-  /** Name of the Service Account used to run workflows
+  /**
+   * Name of the Service Account used to run workflows
    *
    * @example "workflow-runner-sa"
    */
   saName: string;
-  /** Name of the EKS cluster
+  /**
+   * Name of the EKS cluster
    *
    * @example "Workflows"
    */
   clusterName: string;
 }
 
-/** This is the version of the Helm chart for Argo Workflows
+/**
+ * This is the version of the Helm chart for Argo Workflows https://github.com/argoproj/argo-helm/blob/25d7b519bc7fc37d2820721cd648f3a3403d0e38/charts/argo-workflows/Chart.yaml#L6
  *
  * (Do not mix up with Argo Workflows application version)
  */
-const version = '0.34.0';
+const chartVersion = '0.34.0';
+
+/**
+ * This is the version of Argo Workflows for the `chartVersion` we're using
+ * https://github.com/argoproj/argo-helm/blob/2730dc24c7ad69b98d3206705a5ebf5cb34dd96b/charts/argo-workflows/Chart.yaml#L2
+ *
+ */
+const appVersion = 'v3.4.11';
 
 export class ArgoWorkflows extends Chart {
   constructor(scope: Construct, id: string, props: ArgoWorkflowsProps & ChartProps) {
-    super(scope, id, applyDefaultLabels(props, 'argo-workflows', version, 'logs', 'workflows'));
+    super(scope, id, applyDefaultLabels(props, 'argo-workflows', appVersion, 'logs', 'workflows'));
 
     const artifactRepository = {
       archiveLogs: true,
@@ -57,7 +68,7 @@ export class ArgoWorkflows extends Chart {
       releaseName: 'argo-workflows',
       repo: 'https://argoproj.github.io/argo-helm',
       namespace: 'argo',
-      version: version,
+      version: chartVersion,
       values: {
         server: {
           replicas: 2,

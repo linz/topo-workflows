@@ -3,15 +3,29 @@ import { Construct } from 'constructs';
 
 import { applyDefaultLabels } from '../util/labels.js';
 
-/** version of the Helm chart (not FluentBit app) */
-const awsForFluentBitVersion = '0.1.31';
+/**
+ * version of the Helm chart (not FluentBit app)
+ *
+ * https://github.com/aws/eks-charts/blob/a644fd925ca091d881b3a42aace268322f484455/stable/aws-for-fluent-bit/Chart.yaml#L4
+ * */
+const chartVersion = '0.1.31';
+
+/**
+ * version of the application
+ *
+ * https://github.com/aws/eks-charts/blob/a644fd925ca091d881b3a42aace268322f484455/stable/aws-for-fluent-bit/Chart.yaml#L5C11-L5C29
+ */
+const appVersion = '2.31.12.20231011';
+
 export interface FluentBitProps {
-  /** Name of the Service Account used to run workflows
+  /**
+   * Name of the Service Account used to run workflows
    *
    * @example "fluentbit-sa"
    */
   saName: string;
-  /** Name of the EKS cluster
+  /**
+   * Name of the EKS cluster
    *
    * @example "Workflows"
    */
@@ -20,7 +34,7 @@ export interface FluentBitProps {
 
 export class FluentBit extends Chart {
   constructor(scope: Construct, id: string, props: FluentBitProps & ChartProps) {
-    super(scope, id, applyDefaultLabels(props, 'aws-for-fluent-bit', awsForFluentBitVersion, 'logs', 'workflows'));
+    super(scope, id, applyDefaultLabels(props, 'aws-for-fluent-bit', appVersion, 'logs', 'workflows'));
 
     const FluentParserName = 'containerd';
     // This needs to be properly formatted, and it was taken directly from https://github.com/microsoft/fluentbit-containerd-cri-o-json-log
@@ -52,7 +66,7 @@ HC_Period 5
       chart: 'aws-for-fluent-bit',
       repo: 'https://aws.github.io/eks-charts',
       namespace: 'fluentbit',
-      version: awsForFluentBitVersion,
+      version: chartVersion,
       values: {
         fullnameOverride: 'fluentbit',
         input: { parser: FluentParserName, dockerMode: 'Off' },
