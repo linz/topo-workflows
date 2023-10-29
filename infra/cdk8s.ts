@@ -68,6 +68,7 @@ async function main(): Promise<void> {
   });
 
   new Cloudflared(app, 'cloudflared', {
+    namespace: 'cloudflared',
     tunnelId: ssmConfig.tunnelId,
     tunnelSecret: ssmConfig.tunnelSecret,
     tunnelName: ssmConfig.tunnelName,
