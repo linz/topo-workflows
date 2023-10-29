@@ -1,11 +1,13 @@
 import { App } from 'cdk8s';
 
 import { ArgoSemaphore } from './charts/argo.semaphores';
+import { Cloudflared } from './charts/cloudflared';
 import { FluentBit } from './charts/fluentbit';
 import { Karpenter, KarpenterProvisioner } from './charts/karpenter';
 import { CoreDns } from './charts/kube-system.coredns';
 import { CfnOutputKeys, ClusterName } from './constants';
 import { getCfnOutputs } from './util/cloud.formation';
+import { fetchSsmParameters } from './util/ssm';
 
 const app = new App();
 
@@ -18,6 +20,17 @@ async function main(): Promise<void> {
   if (missingKeys.length > 0) {
     throw new Error(`Missing CloudFormation Outputs for keys ${missingKeys.join(', ')}`);
   }
+
+  const ssmConfig = await fetchSsmParameters({
+    // Config for Cloudflared to access argo-server
+    tunnelId: '/eks/cloudflared/argo/tunnelId',
+    tunnelSecret: '/eks/cloudflared/argo/tunnelSecret',
+    tunnelName: '/eks/cloudflared/argo/tunnelName',
+    accountId: '/eks/cloudflared/argo/accountId',
+
+    // Personal access token to gain access to linz-basemaps github user
+    githubPat: '/eks/github/linz-basemaps/pat',
+  });
 
   new ArgoSemaphore(app, 'semaphore', {});
   const coredns = new CoreDns(app, 'dns', {});
@@ -44,6 +57,14 @@ async function main(): Promise<void> {
   });
 
   karpenterProvisioner.addDependency(karpenter);
+
+  const cloudflare = new Cloudflared(app, 'cloudflared', {
+    namespace: 'cloudflared',
+    tunnelId: ssmConfig.tunnelId,
+    tunnelSecret: ssmConfig.tunnelSecret,
+    tunnelName: ssmConfig.tunnelName,
+    accountId: ssmConfig.accountId,
+  });
 
   app.synth();
 }
