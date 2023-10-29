@@ -6,7 +6,15 @@ import { applyDefaultLabels } from '../util/labels.js';
 /** version of the Helm chart (not FluentBit app) */
 const awsForFluentBitVersion = '0.1.31';
 export interface FluentBitProps {
-  saRoleName: string;
+  /** Name of the Service Account used to run workflows
+   *
+   * @example "fluentbit-sa"
+   */
+  saName: string;
+  /** Name of the EKS cluster
+   *
+   * @example "Workflows"
+   */
   clusterName: string;
 }
 
@@ -48,7 +56,7 @@ HC_Period 5
       values: {
         fullnameOverride: 'fluentbit',
         input: { parser: FluentParserName, dockerMode: 'Off' },
-        serviceAccount: { name: props.saRoleName, create: false },
+        serviceAccount: { name: props.saName, create: false },
         cloudWatchLogs: {
           enabled: true,
           region: 'ap-southeast-2',

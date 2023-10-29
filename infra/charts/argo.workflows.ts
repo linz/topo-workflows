@@ -4,16 +4,32 @@ import { Construct } from 'constructs';
 import { applyDefaultLabels } from '../util/labels.js';
 
 export interface ArgoWorkflowsProps {
+  /** Name of the temporary bucket used to store artifacts
+   *
+   * @example "linz-workflows-scratch"
+   */
   tempBucketName: string;
+  /** Name of the Service Account used to run workflows
+   *
+   * @example "workflow-runner-sa"
+   */
   saName: string;
+  /** Name of the EKS cluster
+   *
+   * @example "Workflows"
+   */
   clusterName: string;
 }
 
-const argoWorkflowsChartVersion = '0.34.0';
+/** This is the version of the Helm chart for Argo Workflows
+ *
+ * (Do not mix up with Argo Workflows application version)
+ */
+const version = '0.34.0';
 
 export class ArgoWorkflows extends Chart {
   constructor(scope: Construct, id: string, props: ArgoWorkflowsProps & ChartProps) {
-    super(scope, id, applyDefaultLabels(props, 'argo-workflows', argoWorkflowsChartVersion, 'logs', 'workflows'));
+    super(scope, id, applyDefaultLabels(props, 'argo-workflows', version, 'logs', 'workflows'));
 
     const artifactRepository = {
       archiveLogs: true,
@@ -41,7 +57,7 @@ export class ArgoWorkflows extends Chart {
       releaseName: 'argo-workflows',
       repo: 'https://argoproj.github.io/argo-helm',
       namespace: 'argo',
-      version: argoWorkflowsChartVersion,
+      version: version,
       values: {
         server: {
           replicas: 2,
