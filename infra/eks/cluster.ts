@@ -115,7 +115,6 @@ export class LinzEksCluster extends Stack {
    * or name space creation
    */
   configureEks(): void {
-    // Karpenter
     this.tempBucket.grantReadWrite(this.nodeRole);
     this.configBucket.grantRead(this.nodeRole);
     this.nodeRole.addToPrincipalPolicy(new PolicyStatement({ actions: ['sts:AssumeRole'], resources: ['*'] }));
@@ -125,6 +124,7 @@ export class LinzEksCluster extends Stack {
       groups: ['system:bootstrappers', 'system:nodes'],
     });
 
+    // Karpenter - Node autoscaler
     const namespace = this.cluster.addManifest('namespace', {
       apiVersion: 'v1',
       kind: 'Namespace',
@@ -187,7 +187,7 @@ export class LinzEksCluster extends Stack {
     new CfnOutput(this, CfnOutputKeys.Karpenter.ServiceAccountRoleArn, { value: serviceAccount.role.roleArn });
     new CfnOutput(this, CfnOutputKeys.Karpenter.ServiceAccountName, { value: serviceAccount.serviceAccountName });
 
-    // Use fluent bit to ship logs from eks into aws
+    // FluentBit - to ship logs from eks into aws
     const fluentBitNs = this.cluster.addManifest('FluentBitNamespace', {
       apiVersion: 'v1',
       kind: 'Namespace',
@@ -205,7 +205,7 @@ export class LinzEksCluster extends Stack {
     fluentBitSa.node.addDependency(fluentBitNs); // Ensure the namespace created first
     new CfnOutput(this, CfnOutputKeys.FluentBit.ServiceAccountName, { value: fluentBitSa.serviceAccountName });
 
-    // Basic constructs for argo to be deployed into
+    // Argo Workflows
     const argoNs = this.cluster.addManifest('ArgoNameSpace', {
       apiVersion: 'v1',
       kind: 'Namespace',
