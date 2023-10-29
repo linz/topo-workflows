@@ -1,0 +1,71 @@
+# Example of using ARM + Spot instances for processing
+apiVersion: argoproj.io/v1alpha1
+kind: Workflow
+metadata:
+  generateName: test-aws-list-arm64
+spec:
+  entrypoint: main
+  arguments:
+    parameters:
+      - name: version_argo_tasks
+        description: container tag to use
+        value: 'latest'
+
+      - name: uri
+        description: location to list
+        value: 's3://linz-imagery-staging/test/sample/'
+  templateDefaults:
+    container:
+      imagePullPolicy: Always
+  templates:
+    - name: main
+      dag:
+        tasks:
+          - name: aws-list
+            template: aws-list
+            arguments:
+              parameters:
+                - name: uri
+                  value: '{{workflow.parameters.uri}}'
+                - name: include
+                  value: '.tiff?$'
+    - name: aws-list
+
+      # Request a SPOT & ARM64 
+      nodeSelector:
+        karpenter.sh/capacity-type: 'spot'
+        kubernetes.io/arch: "arm64"
+
+      # Ensure the containers tolerate the taints that will be put on them
+      tolerations:
+        - key: "kubernetes.io/arch"
+          operator: "Equal"
+          value: "arm64"
+          effect: "NoSchedule"
+        - key: "karpenter.sh/capacity-type"
+          operator: "Equal"
+          value: "spot"
+          effect: "NoSchedule"
+
+      inputs:
+        parameters:
+          - name: uri
+          - name: include
+      container:
+        image: 019359803926.dkr.ecr.ap-southeast-2.amazonaws.com/argo-tasks:{{= workflow.parameters.version_argo_tasks }}
+        command: [node, /app/index.js]
+        env:
+          - name: AWS_ROLE_CONFIG_PATH
+            value: s3://linz-bucket-config/config.json
+        args:
+          - 'list'
+          - '--verbose'
+          - '--include={{inputs.parameters.include}}'
+          - '--group=2'
+          - '--output=/tmp/file_list.json'
+          - '{{inputs.parameters.uri}}'
+      outputs:
+        parameters:
+          - name: files
+            valueFrom:
+              path: /tmp/file_list.json
