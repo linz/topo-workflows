@@ -13,15 +13,15 @@ export interface KarpenterProps {
    **/
   clusterName: string;
   /**
-   * Role Arn for the service account to use
-   *
-   * @example "arn:aws:iam::1234567890:role/KarpenterSa"
-   * */
-  saRoleName: string;
-  /**
    * Name of the service account for karpenter
    *
    * @example "karpenter-sa"
+   * */
+  saName: string;
+  /**
+   * Role Arn for the service account to use
+   *
+   * @example "arn:aws:iam::1234567890:role/KarpenterSa"
    */
   saRoleArn: string;
   /**
@@ -72,7 +72,7 @@ export class Karpenter extends Chart {
         fullnameOverride: 'karpenter', // override the karpenter-abcxywz
         serviceAccount: {
           create: false,
-          name: props.saRoleName,
+          name: props.saName,
           annotations: { 'eks.amazonaws.com/role-arn': props.saRoleArn },
         },
         settings: {

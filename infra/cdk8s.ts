@@ -25,7 +25,7 @@ async function main(): Promise<void> {
   new ArgoSemaphore(app, 'semaphore', {});
   const coredns = new CoreDns(app, 'dns', {});
   const fluentbit = new FluentBit(app, 'fluentbit', {
-    saRoleName: cfnOutputs[CfnOutputKeys.FluentBit.ServiceAccountName],
+    saName: cfnOutputs[CfnOutputKeys.FluentBit.ServiceAccountName],
     clusterName: ClusterName,
   });
   fluentbit.addDependency(coredns);
@@ -33,7 +33,7 @@ async function main(): Promise<void> {
   const karpenter = new Karpenter(app, 'karpenter', {
     clusterName: ClusterName,
     clusterEndpoint: cfnOutputs[CfnOutputKeys.Karpenter.ClusterEndpoint],
-    saRoleName: cfnOutputs[CfnOutputKeys.Karpenter.ServiceAccountName],
+    saName: cfnOutputs[CfnOutputKeys.Karpenter.ServiceAccountName],
     saRoleArn: cfnOutputs[CfnOutputKeys.Karpenter.ServiceAccountRoleArn],
     instanceProfile: cfnOutputs[CfnOutputKeys.Karpenter.DefaultInstanceProfile],
   });
@@ -41,7 +41,7 @@ async function main(): Promise<void> {
   const karpenterProvisioner = new KarpenterProvisioner(app, 'karpenter-provisioner', {
     clusterName: ClusterName,
     clusterEndpoint: cfnOutputs[CfnOutputKeys.Karpenter.ClusterEndpoint],
-    saRoleName: cfnOutputs[CfnOutputKeys.Karpenter.ServiceAccountName],
+    saName: cfnOutputs[CfnOutputKeys.Karpenter.ServiceAccountName],
     saRoleArn: cfnOutputs[CfnOutputKeys.Karpenter.ServiceAccountRoleArn],
     instanceProfile: cfnOutputs[CfnOutputKeys.Karpenter.DefaultInstanceProfile],
   });
