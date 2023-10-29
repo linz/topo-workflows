@@ -58,8 +58,7 @@ async function main(): Promise<void> {
 
   karpenterProvisioner.addDependency(karpenter);
 
-  const cloudflare = new Cloudflared(app, 'cloudflared', {
-    namespace: 'cloudflared',
+  new Cloudflared(app, 'cloudflared', {
     tunnelId: ssmConfig.tunnelId,
     tunnelSecret: ssmConfig.tunnelSecret,
     tunnelName: ssmConfig.tunnelName,
