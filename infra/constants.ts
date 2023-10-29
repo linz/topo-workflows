@@ -12,4 +12,8 @@ export const CfnOutputKeys = {
   FluentBit: {
     ServiceAccountName: 'FluentBitServiceAccountName',
   },
+  Argo: {
+    RunnerServiceAccountName: 'ArgoRunnerServiceAccountName',
+    TempBucketName: 'TempBucketName',
+  },
 };

@@ -1,6 +1,7 @@
 import { App } from 'cdk8s';
 
 import { ArgoSemaphore } from './charts/argo.semaphores';
+import { ArgoWorkflows } from './charts/argo.workflows';
 import { Cloudflared } from './charts/cloudflared';
 import { FluentBit } from './charts/fluentbit';
 import { Karpenter, KarpenterProvisioner } from './charts/karpenter';
@@ -14,9 +15,11 @@ const app = new App();
 async function main(): Promise<void> {
   // Get cloudformation outputs
   const cfnOutputs = await getCfnOutputs(ClusterName);
-  const missingKeys = [...Object.values(CfnOutputKeys.Karpenter), ...Object.values(CfnOutputKeys.FluentBit)].filter(
-    (f) => cfnOutputs[f] == null,
-  );
+  const missingKeys = [
+    ...Object.values(CfnOutputKeys.Karpenter),
+    ...Object.values(CfnOutputKeys.FluentBit),
+    ...Object.values(CfnOutputKeys.Argo),
+  ].filter((f) => cfnOutputs[f] == null);
   if (missingKeys.length > 0) {
     throw new Error(`Missing CloudFormation Outputs for keys ${missingKeys.join(', ')}`);
   }
@@ -35,7 +38,7 @@ async function main(): Promise<void> {
   new ArgoSemaphore(app, 'semaphore', {});
   const coredns = new CoreDns(app, 'dns', {});
   const fluentbit = new FluentBit(app, 'fluentbit', {
-    saRoleName: cfnOutputs[CfnOutputKeys.FluentBit.ServiceAccountName],
+    saName: cfnOutputs[CfnOutputKeys.FluentBit.ServiceAccountName],
     clusterName: ClusterName,
   });
   fluentbit.addDependency(coredns);
@@ -43,7 +46,7 @@ async function main(): Promise<void> {
   const karpenter = new Karpenter(app, 'karpenter', {
     clusterName: ClusterName,
     clusterEndpoint: cfnOutputs[CfnOutputKeys.Karpenter.ClusterEndpoint],
-    saRoleName: cfnOutputs[CfnOutputKeys.Karpenter.ServiceAccountName],
+    saName: cfnOutputs[CfnOutputKeys.Karpenter.ServiceAccountName],
     saRoleArn: cfnOutputs[CfnOutputKeys.Karpenter.ServiceAccountRoleArn],
     instanceProfile: cfnOutputs[CfnOutputKeys.Karpenter.DefaultInstanceProfile],
   });
@@ -51,12 +54,18 @@ async function main(): Promise<void> {
   const karpenterProvisioner = new KarpenterProvisioner(app, 'karpenter-provisioner', {
     clusterName: ClusterName,
     clusterEndpoint: cfnOutputs[CfnOutputKeys.Karpenter.ClusterEndpoint],
-    saRoleName: cfnOutputs[CfnOutputKeys.Karpenter.ServiceAccountName],
+    saName: cfnOutputs[CfnOutputKeys.Karpenter.ServiceAccountName],
     saRoleArn: cfnOutputs[CfnOutputKeys.Karpenter.ServiceAccountRoleArn],
     instanceProfile: cfnOutputs[CfnOutputKeys.Karpenter.DefaultInstanceProfile],
   });
 
   karpenterProvisioner.addDependency(karpenter);
+
+  new ArgoWorkflows(app, 'argo-workflows', {
+    clusterName: ClusterName,
+    saName: cfnOutputs[CfnOutputKeys.Argo.RunnerServiceAccountName],
+    tempBucketName: cfnOutputs[CfnOutputKeys.Argo.TempBucketName],
+  });
 
   new Cloudflared(app, 'cloudflared', {
     tunnelId: ssmConfig.tunnelId,
