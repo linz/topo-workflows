@@ -1,9 +1,8 @@
 {
-    "extends": "@linzjs/style/tsconfig.base.json",
-    "compilerOptions": {
-      "target": "ES2022",
-      "lib": ["ES2022"],
-      "noEmit": true
-    }
+  "extends": "@linzjs/style/tsconfig.base.json",
+  "compilerOptions": {
+    "target": "ES2022",
+    "lib": ["ES2022"],
+    "noEmit": true
   }
-  
+}
