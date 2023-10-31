@@ -92,11 +92,11 @@ In the **Workflows** page:
 ### Logs in Elasticsearch
 
 Elasticsearch is an analytics engine, it allows us to store, search and analyse AWS logs.  
-Elasticsearch can be accessed through https://myapplications.microsoft.com/
+Elasticsearch can be accessed through https://myapplications.microsoft.com/.
 
 #### Example Filters:
 
-:warning: Make sure you are using `li-topo-production*` and set the correct time filter.
+:warning: Make sure you are using the `workflow` data view and set the correct time filter.
 
 _All Logs for a Workflow:_
 
