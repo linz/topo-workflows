@@ -57,6 +57,13 @@ Login to AWS
 
 Generate the kubernetes configuration yaml into `dist/`
 
+add Helm repositories (<https://cdk8s.io/docs/latest/basics/helm/#helm-support>)
+
+```shell
+helm repo add eks https://aws.github.io/eks-charts
+helm repo add argo https://argoproj.github.io/argo-helm
+```
+
 ```shell
 npx cdk8s synth
 ```
