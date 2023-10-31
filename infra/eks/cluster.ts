@@ -14,7 +14,7 @@ import {
 import { BlockPublicAccess, Bucket, IBucket } from 'aws-cdk-lib/aws-s3';
 import { Construct } from 'constructs';
 
-import { CfnOutputKeys } from '../constants';
+import { CfnOutputKeys } from '../constants.js';
 
 interface EksClusterProps extends StackProps {}
 
@@ -49,7 +49,7 @@ export class LinzEksCluster extends Stack {
         },
       ],
     });
-    new CfnOutput(this, CfnOutputKeys.Argo.TempBucketName, { value: this.tempBucket.bucketName });
+    new CfnOutput(this, CfnOutputKeys.TempBucketName, { value: this.tempBucket.bucketName });
 
     this.configBucket = Bucket.fromBucketName(this, 'BucketConfig', 'linz-bucket-config');
 
@@ -104,6 +104,8 @@ export class LinzEksCluster extends Stack {
         resources: ['arn:aws:ec2:*:*:network-interface/*'],
       }),
     );
+
+    new CfnOutput(this, CfnOutputKeys.ClusterEndpoint, { value: this.cluster.clusterEndpoint });
 
     this.configureEks();
   }
@@ -182,10 +184,9 @@ export class LinzEksCluster extends Stack {
       instanceProfileName: `${this.cluster.clusterName}-${this.id}`, // Must be specified to avoid CFN error
     });
     // Save configuration for CDK8s to access it
-    new CfnOutput(this, CfnOutputKeys.Karpenter.DefaultInstanceProfile, { value: instanceProfile.ref });
-    new CfnOutput(this, CfnOutputKeys.Karpenter.ClusterEndpoint, { value: this.cluster.clusterEndpoint });
-    new CfnOutput(this, CfnOutputKeys.Karpenter.ServiceAccountRoleArn, { value: serviceAccount.role.roleArn });
-    new CfnOutput(this, CfnOutputKeys.Karpenter.ServiceAccountName, { value: serviceAccount.serviceAccountName });
+    new CfnOutput(this, CfnOutputKeys.KarpenterDefaultInstanceProfile, { value: instanceProfile.ref });
+    new CfnOutput(this, CfnOutputKeys.KarpenterServiceAccountRoleArn, { value: serviceAccount.role.roleArn });
+    new CfnOutput(this, CfnOutputKeys.KarpenterServiceAccountName, { value: serviceAccount.serviceAccountName });
 
     // FluentBit - to ship logs from eks into aws
     const fluentBitNs = this.cluster.addManifest('FluentBitNamespace', {
@@ -203,7 +204,7 @@ export class LinzEksCluster extends Stack {
       new PolicyStatement({ actions: ['logs:PutRetentionPolicy'], resources: ['*'], effect: Effect.ALLOW }),
     );
     fluentBitSa.node.addDependency(fluentBitNs); // Ensure the namespace created first
-    new CfnOutput(this, CfnOutputKeys.FluentBit.ServiceAccountName, { value: fluentBitSa.serviceAccountName });
+    new CfnOutput(this, CfnOutputKeys.FluentBitServiceAccountName, { value: fluentBitSa.serviceAccountName });
 
     // Argo Workflows
     const argoNs = this.cluster.addManifest('ArgoNameSpace', {
@@ -216,7 +217,7 @@ export class LinzEksCluster extends Stack {
       namespace: 'argo',
     });
     argoRunnerSa.node.addDependency(argoNs);
-    new CfnOutput(this, CfnOutputKeys.Argo.RunnerServiceAccountName, { value: argoRunnerSa.serviceAccountName });
+    new CfnOutput(this, CfnOutputKeys.ArgoRunnerServiceAccountName, { value: argoRunnerSa.serviceAccountName });
 
     // give read/write on the temporary (scratch) bucket
     this.tempBucket.grantReadWrite(argoRunnerSa.role);

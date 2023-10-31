@@ -31,21 +31,21 @@ spec:
                   value: '.tiff?$'
     - name: aws-list
 
-      # Request a SPOT & ARM64 
+      # Request a SPOT & ARM64
       nodeSelector:
         karpenter.sh/capacity-type: 'spot'
-        kubernetes.io/arch: "arm64"
+        kubernetes.io/arch: 'arm64'
 
       # Ensure the containers tolerate the taints that will be put on them
       tolerations:
-        - key: "kubernetes.io/arch"
-          operator: "Equal"
-          value: "arm64"
-          effect: "NoSchedule"
-        - key: "karpenter.sh/capacity-type"
-          operator: "Equal"
-          value: "spot"
-          effect: "NoSchedule"
+        - key: 'kubernetes.io/arch'
+          operator: 'Equal'
+          value: 'arm64'
+          effect: 'NoSchedule'
+        - key: 'karpenter.sh/capacity-type'
+          operator: 'Equal'
+          value: 'spot'
+          effect: 'NoSchedule'
 
       inputs:
         parameters:
