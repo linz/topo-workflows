@@ -1,6 +1,6 @@
 import { App } from 'cdk8s';
 
-import { ArgoSemaphore } from './charts/argo.semaphores.js';
+import { ArgoExtras, ArgoSemaphore } from './charts/argo.extras.js';
 import { ArgoWorkflows } from './charts/argo.workflows.js';
 import { Cloudflared } from './charts/cloudflared.js';
 import { FluentBit } from './charts/fluentbit.js';
@@ -61,7 +61,11 @@ async function main(): Promise<void> {
     tempBucketName: cfnOutputs[CfnOutputKeys.TempBucketName],
   });
 
-  new ArgoSemaphore(app, 'argo-semaphores', { namespace: 'argo' });
+  new ArgoExtras(app, 'argo-extras', {
+    namespace: 'argo',
+    /** Argo workflows interacts with github give it access to github bot user*/
+    secrets: [{ name: 'github-linz-basemaps-pat', data: { pat: ssmConfig.githubPat } }],
+  });
 
   new Cloudflared(app, 'cloudflared', {
     namespace: 'cloudflared',
