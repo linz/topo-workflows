@@ -39,7 +39,7 @@ jobs:
 
       - name: Login to EKS
         run: |
-          aws eks update-kubeconfig --name Workflow --region ap-southeast-2
+          aws eks update-kubeconfig --name Workflows --region ap-southeast-2
 
       - name: Check EKS connection
         run: |
