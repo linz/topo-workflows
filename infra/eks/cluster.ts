@@ -16,7 +16,10 @@ import { Construct } from 'constructs';
 
 import { CfnOutputKeys } from '../constants.js';
 
-interface EksClusterProps extends StackProps {}
+interface EksClusterProps extends StackProps {
+  /** Optional CI User to grant access to the cluster */
+  ciRoleArn?: string;
+}
 
 export class LinzEksCluster extends Stack {
   /* Cluster ID */
@@ -85,6 +88,12 @@ export class LinzEksCluster extends Stack {
     // Grant the AWS Admin user ability to view the cluster
     const accountAdminRole = Role.fromRoleName(this, 'AccountAdminRole', 'AccountAdminRole');
     this.cluster.awsAuth.addMastersRole(accountAdminRole);
+
+    // If defined allow the CI user access to the cluster
+    if (props.ciRoleArn) {
+      const ciRole = Role.fromRoleArn(this, 'CiRole', props.ciRoleArn);
+      this.cluster.awsAuth.addMastersRole(ciRole);
+    }
 
     // This is the role that the new nodes will start as
     this.nodeRole = new Role(this, 'NodeRole', {
