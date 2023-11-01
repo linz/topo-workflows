@@ -6,7 +6,7 @@ import { applyDefaultLabels } from '../util/labels.js';
 
 export class ArgoSemaphore extends Chart {
   constructor(scope: Construct, id: string, props: ChartProps) {
-    super(scope, id, applyDefaultLabels(props, 'semaphores', 'v1', 'semaphores', 'workflows'));
+    super(scope, id, applyDefaultLabels(props, 'argo', 'v1', 'semaphores', 'workflows'));
 
     new kplus.ConfigMap(this, 'semaphores', {
       metadata: { name: 'semaphores' },
