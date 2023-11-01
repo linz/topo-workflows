@@ -3,6 +3,7 @@ import { App } from 'cdk8s';
 import { ArgoSemaphore } from './charts/argo.semaphores';
 import { ArgoWorkflows } from './charts/argo.workflows';
 import { Cloudflared } from './charts/cloudflared';
+import { EventExporter } from './charts/event.exporter';
 import { FluentBit } from './charts/fluentbit';
 import { Karpenter, KarpenterProvisioner } from './charts/karpenter';
 import { CoreDns } from './charts/kube-system.coredns';
@@ -13,7 +14,7 @@ import { fetchSsmParameters } from './util/ssm';
 const app = new App();
 
 async function main(): Promise<void> {
-  // Get cloudformation outputs
+  //Get cloudformation outputs
   const cfnOutputs = await getCfnOutputs(ClusterName);
   const missingKeys = [
     ...Object.values(CfnOutputKeys.Karpenter),
@@ -73,6 +74,8 @@ async function main(): Promise<void> {
     tunnelName: ssmConfig.tunnelName,
     accountId: ssmConfig.accountId,
   });
+
+  new EventExporter(app, 'event-exporter', {});
 
   app.synth();
 }
