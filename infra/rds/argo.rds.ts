@@ -2,6 +2,15 @@ import * as ec2 from 'aws-cdk-lib/aws-ec2';
 import * as rds from 'aws-cdk-lib/aws-rds';
 import { App, RemovalPolicy, Stack, StackProps } from 'aws-cdk-lib';
 
+/*
+TODO:
+What repository should the RDS deployment be in?
+Get the generated secret and add it to EKS for Argo to use during installation.
+Add the EKS security group for the EKS cluster to be able to access the database port (otherwise connection times out).
+Configure Argo Helm chart to get the secret without hard coding it?
+Database configuration decisions e.g. replication, scaling.
+*/
+
 export class ArgoRdsStack extends Stack {
   db: rds.DatabaseInstance;
   vpc: ec2.IVpc;
