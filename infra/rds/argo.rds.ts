@@ -17,7 +17,7 @@ export class ArgoRdsStack extends Stack {
   constructor(scope: App, id: string, props?: StackProps) {
     super(scope, id, props);
     this.vpc = ec2.Vpc.fromLookup(this, 'Vpc', { tags: { BaseVPC: 'true' } });
-    this.db = new rds.DatabaseInstance(this, 'ArgoDbAF', {
+    this.db = new rds.DatabaseInstance(this, 'ArgoDb', {
       // database encryption is on by default, can be changed using rds.force_ssl=0 in a parameterGroup
       engine: rds.DatabaseInstanceEngine.postgres({ version: rds.PostgresEngineVersion.VER_15_3 }),
       instanceType: ec2.InstanceType.of(ec2.InstanceClass.T3, ec2.InstanceSize.MICRO),

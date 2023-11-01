@@ -7,16 +7,16 @@ export const DbName = 'ArgoDbAF'
 /* CloudFormation Output to access from CDK8s */
 export const CfnOutputKeys = {
   Karpenter: {
-    ServiceAccountName: 'KarpenterServiceAccountNameAF',
-    ServiceAccountRoleArn: 'KarpenterServiceAccountRoleArnAF',
-    ClusterEndpoint: 'ClusterEndpointAF',
-    DefaultInstanceProfile: 'DefaultInstanceProfileAF',
+    ServiceAccountName: 'KarpenterServiceAccountName',
+    ServiceAccountRoleArn: 'KarpenterServiceAccountRoleArn',
+    ClusterEndpoint: 'ClusterEndpoint',
+    DefaultInstanceProfile: 'DefaultInstanceProfile',
   },
   FluentBit: {
-    ServiceAccountName: 'FluentBitServiceAccountNameAF',
+    ServiceAccountName: 'FluentBitServiceAccountName',
   },
   Argo: {
-    RunnerServiceAccountName: 'ArgoRunnerServiceAccountNameAF',
-    TempBucketName: 'TempBucketNameAF',
+    RunnerServiceAccountName: 'ArgoRunnerServiceAccountName',
+    TempBucketName: 'TempBucketName',
   },
 };
