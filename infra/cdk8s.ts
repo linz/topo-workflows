@@ -1,6 +1,6 @@
 import { App } from 'cdk8s';
 
-import { ArgoSemaphore } from './charts/argo.semaphores.js';
+import { ArgoExtras } from './charts/argo.extras.js';
 import { ArgoWorkflows } from './charts/argo.workflows.js';
 import { Cloudflared } from './charts/cloudflared.js';
 import { FluentBit } from './charts/fluentbit.js';
@@ -28,7 +28,6 @@ async function main(): Promise<void> {
     githubPat: '/eks/github/linz-basemaps/pat',
   });
 
-  new ArgoSemaphore(app, 'semaphore', {});
   const coredns = new CoreDns(app, 'dns', {});
   const fluentbit = new FluentBit(app, 'fluentbit', {
     saName: cfnOutputs[CfnOutputKeys.FluentBitServiceAccountName],
@@ -55,9 +54,16 @@ async function main(): Promise<void> {
   karpenterProvisioner.addDependency(karpenter);
 
   new ArgoWorkflows(app, 'argo-workflows', {
+    namespace: 'argo',
     clusterName: ClusterName,
     saName: cfnOutputs[CfnOutputKeys.ArgoRunnerServiceAccountName],
     tempBucketName: cfnOutputs[CfnOutputKeys.TempBucketName],
+  });
+
+  new ArgoExtras(app, 'argo-extras', {
+    namespace: 'argo',
+    /** Argo workflows interacts with github give it access to github bot user*/
+    secrets: [{ name: 'github-linz-basemaps-pat', data: { pat: ssmConfig.githubPat } }],
   });
 
   new Cloudflared(app, 'cloudflared', {
