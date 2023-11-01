@@ -55,10 +55,13 @@ async function main(): Promise<void> {
   karpenterProvisioner.addDependency(karpenter);
 
   new ArgoWorkflows(app, 'argo-workflows', {
+    namespace: 'argo',
     clusterName: ClusterName,
     saName: cfnOutputs[CfnOutputKeys.ArgoRunnerServiceAccountName],
     tempBucketName: cfnOutputs[CfnOutputKeys.TempBucketName],
   });
+
+  new ArgoSemaphore(app, 'argo-semaphores', { namespace: 'argo' });
 
   new Cloudflared(app, 'cloudflared', {
     namespace: 'cloudflared',
