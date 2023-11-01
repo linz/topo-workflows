@@ -73,7 +73,6 @@ async function main(): Promise<void> {
     tunnelName: ssmConfig.tunnelName,
     accountId: ssmConfig.accountId,
   });
-
   app.synth();
 }
 

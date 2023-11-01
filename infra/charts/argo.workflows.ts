@@ -83,6 +83,25 @@ export class ArgoWorkflows extends Chart {
         },
         artifactRepository,
         controller: {
+          persistence: {
+            connectionPool: {
+              maxIdleConns: 100,
+              maxOpenConns: 0,
+            },
+            nodeStatusOffLoad: false,
+            archive: true,
+            archiveTTL: '180d',
+            postgresql: {
+              host: 'argodbaf-argodatabaseaf4be14fa2-p8yjinijwbro.cmpyjhgv78aj.ap-southeast-2.rds.amazonaws.com',
+              port: 5432,
+              database: 'postgres',
+              tableName: 'argo_workflows',
+              userNameSecret: { name: 'argo-postgres-config', key: 'username' },
+              passwordSecret: { name: 'argo-postgres-config', key: 'password' },
+              ssl: true,
+              sslMode: 'require',
+            },
+          },
           nodeSelector: { ...DefaultNodeSelector },
           workflowNamespaces: ['argo'],
           extraArgs: [],
