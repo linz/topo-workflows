@@ -1,6 +1,6 @@
 import { App } from 'cdk8s';
 
-import { ArgoExtras, ArgoSemaphore } from './charts/argo.extras.js';
+import { ArgoExtras } from './charts/argo.extras.js';
 import { ArgoWorkflows } from './charts/argo.workflows.js';
 import { Cloudflared } from './charts/cloudflared.js';
 import { FluentBit } from './charts/fluentbit.js';
@@ -28,7 +28,6 @@ async function main(): Promise<void> {
     githubPat: '/eks/github/linz-basemaps/pat',
   });
 
-  new ArgoSemaphore(app, 'semaphore', {});
   const coredns = new CoreDns(app, 'dns', {});
   const fluentbit = new FluentBit(app, 'fluentbit', {
     saName: cfnOutputs[CfnOutputKeys.FluentBitServiceAccountName],

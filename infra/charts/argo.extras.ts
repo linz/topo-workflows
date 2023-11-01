@@ -17,7 +17,7 @@ export class ArgoExtras extends Chart {
     id: string,
     props: ChartProps & { secrets: { name: string; data: Record<string, string> }[] },
   ) {
-    super(scope, id, applyDefaultLabels(props, 'argo', 'v1', 'semaphores', 'workflows'));
+    super(scope, id, applyDefaultLabels(props, 'argo', 'v1', 'extras', 'workflows'));
 
     new kplus.ConfigMap(this, 'semaphores', {
       metadata: { name: 'semaphores' },
