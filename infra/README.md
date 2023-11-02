@@ -29,6 +29,10 @@ ConfigMap that list the synchronization limits for parallel execution of the wor
 
 TODO
 
+### Event Exporter
+
+[`kubernetes-event-exporter`](https://github.com/resmoio/kubernetes-event-exporter) is used to log the kubernetes events. Some events are useful to be find in the logs so we can create some alerts (`WorkflowRunning`, `WorkflowFailed`, etc.).
+
 ### Generate code
 
 It is possible to generate a specific Helm construct for the component if their chart includes a `value.schema.json`. This is useful to provide typing hints when specifying their configuration (<https://github.com/cdk8s-team/cdk8s/blob/master/docs/cli/import.md#values-schema>)
