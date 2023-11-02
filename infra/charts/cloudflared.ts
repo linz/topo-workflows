@@ -46,7 +46,7 @@ export class Cloudflared extends Chart {
       containers: [
         {
           name: 'cloudflared',
-          image: props.accountId + '.dkr.ecr.ap-southeast-2.amazonaws.com/eks:cloudflared-2023.8.2',
+          image: '019359803926.dkr.ecr.ap-southeast-2.amazonaws.com/cloudflared:2023.8.2',
           args: ['tunnel', '--loglevel', 'trace', '--config', '/etc/cloudflared/config/config.yaml', 'run'],
           volumeMounts: [
             { volume: kplus.Volume.fromConfigMap(this, 'mount-config', cm), path: '/etc/cloudflared/config' },
