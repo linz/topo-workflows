@@ -21,7 +21,7 @@ export class EventExporter extends Chart {
     super(scope, id, applyDefaultLabels(props, 'event-exporter', version, 'event-exporter', 'event-exporter'));
 
     const serviceAccount = new ServiceAccount(this, 'event-exporter-sa', {
-      metadata: { name: 'event-exporter', namespace: 'monitoring' },
+      metadata: { name: 'event-exporter', namespace: props.namespace },
       // This is the kubernetes default value? and it is not specified here: https://github.com/resmoio/kubernetes-event-exporter/blob/master/deploy/00-roles.yaml
       automountToken: true,
     });
@@ -35,23 +35,23 @@ export class EventExporter extends Chart {
     clusterRole.bind(serviceAccount);
 
     const cm = new ConfigMap(this, 'event-exporter-cfg', {
-      metadata: { name: 'event-exporter-cfg', namespace: 'monitoring' },
+      metadata: { name: 'event-exporter-cfg', namespace: props.namespace },
       data: {
         //FIXME do like cloudflared
         'config.yaml': `logLevel: error
-    logFormat: json
-    route:
-      routes:
-        - match:
-            - receiver: "dump"
-    receivers:
-      - name: "dump"
-        stdout: {}`,
+logFormat: json
+route:
+  routes:
+    - match:
+        - receiver: "dump"
+receivers:
+  - name: "dump"
+    stdout: {}`,
       },
     });
 
     const deployment = new Deployment(this, 'event-exporter', {
-      metadata: { name: 'event-exporter', namespace: 'monitoring' },
+      metadata: { name: 'event-exporter', namespace: props.namespace },
       replicas: 1,
       podMetadata: {
         labels: { app: 'event-exporter', version: 'v1' },
