@@ -2,7 +2,6 @@ import { App } from 'aws-cdk-lib';
 
 import { ClusterName, DbName } from './constants.js';
 import { LinzEksCluster } from './eks/cluster.js';
-
 import { ArgoRdsStack } from './rds/argo.rds.js';
 
 const app = new App();
