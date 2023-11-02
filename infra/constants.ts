@@ -8,6 +8,8 @@ export const DbName = 'ArgoDb';
 export const CfnOutputKeys = {
   ClusterEndpoint: 'ClusterEndpoint',
 
+  ArgoDbEndpoint: 'ArgoDbEndpoint',
+
   KarpenterServiceAccountName: 'KarpenterServiceAccountName',
   KarpenterServiceAccountRoleArn: 'KarpenterServiceAccountRoleArn',
   KarpenterDefaultInstanceProfile: 'KarpenterDefaultInstanceProfile',
@@ -17,6 +19,7 @@ export const CfnOutputKeys = {
   ArgoRunnerServiceAccountName: 'ArgoRunnerServiceAccountName',
 
   TempBucketName: 'TempBucketName',
+
 } as const;
 
 /** The list of possible keys */
