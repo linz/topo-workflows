@@ -5,6 +5,8 @@ import {
   ConfigMap,
   Deployment,
   ImagePullPolicy,
+  Node,
+  NodeLabelQuery,
   ServiceAccount,
   Volume,
 } from 'cdk8s-plus-27';
@@ -12,9 +14,11 @@ import { Construct } from 'constructs';
 
 import { applyDefaultLabels } from '../util/labels.js';
 
+const version = 'v1.5';
+
 export class EventExporter extends Chart {
   constructor(scope: Construct, id: string, props: ChartProps) {
-    super(scope, id, applyDefaultLabels(props, 'event-exporter', 'v1', 'event-exporter', 'event-exporter'));
+    super(scope, id, applyDefaultLabels(props, 'event-exporter', version, 'event-exporter', 'event-exporter'));
 
     const serviceAccount = new ServiceAccount(this, 'event-exporter-sa', {
       metadata: { name: 'event-exporter', namespace: 'monitoring' },
@@ -34,20 +38,19 @@ export class EventExporter extends Chart {
       metadata: { name: 'event-exporter-cfg', namespace: 'monitoring' },
       data: {
         //FIXME do like cloudflared
-        'config.yaml': `logLevel: warn
+        'config.yaml': `logLevel: error
     logFormat: json
-    metricsNamePrefix: event_exporter_
     route:
       routes:
         - match:
-          - receiver: "dump"
+            - receiver: "dump"
     receivers:
       - name: "dump"
         stdout: {}`,
       },
     });
 
-    new Deployment(this, 'event-exporter', {
+    const deployment = new Deployment(this, 'event-exporter', {
       metadata: { name: 'event-exporter', namespace: 'monitoring' },
       replicas: 1,
       podMetadata: {
@@ -56,7 +59,7 @@ export class EventExporter extends Chart {
       },
       containers: [
         {
-          image: 'ghcr.io/resmoio/kubernetes-event-exporter:latest',
+          image: `ghcr.io/resmoio/kubernetes-event-exporter:${version}`,
           imagePullPolicy: ImagePullPolicy.IF_NOT_PRESENT,
           args: ['conf=/data/config.yaml'],
           name: 'event-exporter',
@@ -67,5 +70,13 @@ export class EventExporter extends Chart {
       serviceAccount: serviceAccount,
       securityContext: { ensureNonRoot: true },
     });
+
+    const onDemandNode = Node.labeled(
+      NodeLabelQuery.is('eks.amazonaws.com/capacityType', 'ON_DEMAND'), // Making sure not running on spot
+      NodeLabelQuery.is('kubernetes.io/arch', 'amd64'), // Making sure not running on ARM
+      NodeLabelQuery.is('kubernetes.io/os', 'linux'),
+    );
+    // This uses the `affinity` constraint rather than `nodeSelector`: https://kubernetes.io/docs/concepts/scheduling-eviction/assign-pod-node/#affinity-and-anti-affinity
+    deployment.scheduling.attract(onDemandNode);
   }
 }
