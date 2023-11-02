@@ -5,6 +5,7 @@ import {
   ConfigMap,
   Deployment,
   ImagePullPolicy,
+  Namespace,
   Node,
   NodeLabelQuery,
   ServiceAccount,
@@ -19,6 +20,10 @@ const version = 'v1.5';
 export class EventExporter extends Chart {
   constructor(scope: Construct, id: string, props: ChartProps) {
     super(scope, id, applyDefaultLabels(props, 'event-exporter', version, 'event-exporter', 'event-exporter'));
+
+    new Namespace(this, 'namespace', {
+      metadata: { name: props.namespace },
+    });
 
     const serviceAccount = new ServiceAccount(this, 'event-exporter-sa', {
       metadata: { name: 'event-exporter', namespace: props.namespace },
@@ -38,7 +43,8 @@ export class EventExporter extends Chart {
       metadata: { name: 'event-exporter-cfg', namespace: props.namespace },
       data: {
         //FIXME do like cloudflared
-        'config.yaml': `logLevel: error
+        'config.yaml': `
+logLevel: error
 logFormat: json
 route:
   routes:
@@ -55,13 +61,12 @@ receivers:
       replicas: 1,
       podMetadata: {
         labels: { app: 'event-exporter', version: 'v1' },
-        annotations: { 'prometheus.io/scrape': 'true', 'prometheus.io/port': '2112', 'prometheus.io/path': '/metrics' },
       },
       containers: [
         {
           image: `ghcr.io/resmoio/kubernetes-event-exporter:${version}`,
           imagePullPolicy: ImagePullPolicy.IF_NOT_PRESENT,
-          args: ['conf=/data/config.yaml'],
+          args: ['-conf=/data/config.yaml'],
           name: 'event-exporter',
           volumeMounts: [{ path: '/data', volume: Volume.fromConfigMap(this, 'cfg', cm, { name: 'cfg' }) }],
           securityContext: { allowPrivilegeEscalation: false },
@@ -69,6 +74,7 @@ receivers:
       ],
       serviceAccount: serviceAccount,
       securityContext: { ensureNonRoot: true },
+      automountServiceAccountToken: true,
     });
 
     const onDemandNode = Node.labeled(
