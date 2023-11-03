@@ -15,7 +15,7 @@ import {
 import { BlockPublicAccess, Bucket, IBucket } from 'aws-cdk-lib/aws-s3';
 import { Construct } from 'constructs';
 
-import * as sm from "aws-cdk-lib/aws-secretsmanager";
+import * as sm from 'aws-cdk-lib/aws-secretsmanager';
 
 import { CfnOutputKeys } from '../constants.js';
 
@@ -57,11 +57,12 @@ export class LinzEksCluster extends Stack {
     new CfnOutput(this, CfnOutputKeys.TempBucketName, { value: this.tempBucket.bucketName });
 
     const argoDbSecret = new sm.Secret(this, 'Secret', {
+      secretName: 'argodbsecret',
       generateSecretString: {
         secretStringTemplate: JSON.stringify({
-        username: 'argodbuser',
-    })},
-      secretName: 'argodbsecret',
+          username: 'argodbuser',
+        }),
+      },
     });
 
     this.configBucket = Bucket.fromBucketName(this, 'BucketConfig', 'linz-bucket-config');
@@ -73,18 +74,17 @@ export class LinzEksCluster extends Stack {
       engine: DatabaseInstanceEngine.postgres({ version: PostgresEngineVersion.VER_15_3 }),
       instanceType: InstanceType.of(InstanceClass.T3, InstanceSize.MICRO),
       vpc: this.vpc,
-      publiclyAccessible: false, // will default to false in a non-public VPC
-      allocatedStorage: 10,
-      maxAllocatedStorage: 40,
-      credentials: Credentials.fromGeneratedSecret('argodbuser'), // Cannot use IAM with Argo?
-      deletionProtection: false,
+      publiclyAccessible: false,
+      allocatedStorage: 10, // TODO decide
+      maxAllocatedStorage: 40, // TODO decide
+      credentials: Credentials.fromSecret(argoDbSecret),
+      deletionProtection: false, // setting for nonprod
       removalPolicy: RemovalPolicy.DESTROY, // setting for nonprod
       storageEncrypted: false, // default is false with no key, noted here as something we might want
       multiAz: false, // default is false, noted in as something we might want
       enablePerformanceInsights: false, // default is false, noted in as something we might want
       // Configure CloudWatch options?
     });
-    new CfnOutput(this, CfnOutputKeys.ArgoDbCredentials, { value: this.argoDb });
     new CfnOutput(this, CfnOutputKeys.ArgoDbEndpoint, { value: this.argoDb.dbInstanceEndpointAddress });
 
     this.cluster = new Cluster(this, `Eks${id}`, {
