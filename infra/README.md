@@ -7,6 +7,25 @@ Generally all Kubernetes resources are defined with cdk8s and anything that need
 
 The EKS Cluster base configuration is defined in `./cdk.ts` using [`aws-cdk`](https://aws.amazon.com/cdk/).
 
+### Deployment
+
+To deploy with AWS CDK a few configuration variables need to be set
+
+Due to VPC lookups a AWS account ID needs to be provided
+
+This can be done with either a `export CDK_DEFAULT_ACCOUNT=1234567890` or passed in at run time with `-c aws-account-id=1234567890`
+
+Then a deployment can be made with `cdk`
+
+```
+npx cdk diff -c aws-account-id=1234567890 -c ci-role-arn=arn::...
+```
+
+#### Context
+
+- `aws-account-id`: Account ID to deploy into
+- `ci-role-arn`: AWS Role ARN for the CI user
+
 ## Kubernetes resources / CDK8s
 
 The additional components (or Kubernetes resources) running on the EKS cluster are defined in `./cdk8s` using [`cdk8s`](https://cdk8s.io/).
