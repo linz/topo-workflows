@@ -1,6 +1,7 @@
 import { KubectlV27Layer } from '@aws-cdk/lambda-layer-kubectl-v27';
 import { Aws, CfnOutput, Duration, RemovalPolicy, Stack, StackProps } from 'aws-cdk-lib';
-import { InstanceType, IVpc, SubnetType, Vpc } from 'aws-cdk-lib/aws-ec2';
+import { InstanceClass, InstanceSize, InstanceType, IVpc, SubnetType, Vpc } from 'aws-cdk-lib/aws-ec2';
+import { Credentials, DatabaseInstance, DatabaseInstanceEngine, PostgresEngineVersion } from 'aws-cdk-lib/aws-rds';
 import { Cluster, ClusterLoggingTypes, IpFamily, KubernetesVersion, NodegroupAmiType } from 'aws-cdk-lib/aws-eks';
 import {
   CfnInstanceProfile,
@@ -14,6 +15,8 @@ import {
 import { BlockPublicAccess, Bucket, IBucket } from 'aws-cdk-lib/aws-s3';
 import { Construct } from 'constructs';
 
+import * as sm from "aws-cdk-lib/aws-secretsmanager";
+
 import { CfnOutputKeys } from '../constants.js';
 
 interface EksClusterProps extends StackProps {}
@@ -23,6 +26,8 @@ export class LinzEksCluster extends Stack {
   id: string;
   /** Version of EKS to use, this must be aligned to the `kubectlLayer` */
   version = KubernetesVersion.V1_27;
+  /** Argo needs a database for workflow archive */
+  argoDb: DatabaseInstance;
   /** Argo needs a temporary bucket to store objects */
   tempBucket: Bucket;
   /* Bucket where read/write roles config files are stored */
@@ -51,9 +56,36 @@ export class LinzEksCluster extends Stack {
     });
     new CfnOutput(this, CfnOutputKeys.TempBucketName, { value: this.tempBucket.bucketName });
 
+    const argoDbSecret = new sm.Secret(this, 'Secret', {
+      generateSecretString: {
+        secretStringTemplate: JSON.stringify({
+        username: 'argodbuser',
+    })},
+      secretName: 'argodbsecret',
+    });
+
     this.configBucket = Bucket.fromBucketName(this, 'BucketConfig', 'linz-bucket-config');
 
     this.vpc = Vpc.fromLookup(this, 'Vpc', { tags: { BaseVPC: 'true' } });
+
+    this.argoDb = new DatabaseInstance(this, 'ArgoDbAF', {
+      // database encryption is on by default, can be changed using rds.force_ssl=0 in a parameterGroup
+      engine: DatabaseInstanceEngine.postgres({ version: PostgresEngineVersion.VER_15_3 }),
+      instanceType: InstanceType.of(InstanceClass.T3, InstanceSize.MICRO),
+      vpc: this.vpc,
+      publiclyAccessible: false, // will default to false in a non-public VPC
+      allocatedStorage: 10,
+      maxAllocatedStorage: 40,
+      credentials: Credentials.fromGeneratedSecret('argodbuser'), // Cannot use IAM with Argo?
+      deletionProtection: false,
+      removalPolicy: RemovalPolicy.DESTROY, // setting for nonprod
+      storageEncrypted: false, // default is false with no key, noted here as something we might want
+      multiAz: false, // default is false, noted in as something we might want
+      enablePerformanceInsights: false, // default is false, noted in as something we might want
+      // Configure CloudWatch options?
+    });
+    new CfnOutput(this, CfnOutputKeys.ArgoDbCredentials, { value: this.argoDb });
+    new CfnOutput(this, CfnOutputKeys.ArgoDbEndpoint, { value: this.argoDb.dbInstanceEndpointAddress });
 
     this.cluster = new Cluster(this, `Eks${id}`, {
       clusterName: id,
@@ -75,7 +107,8 @@ export class LinzEksCluster extends Stack {
        * Instances are requested in order listed.
        * https://docs.aws.amazon.com/eks/latest/userguide/managed-node-groups.html#managed-node-group-capacity-types
        **/
-      instanceTypes: ['c6i.large', 'c6a.large'].map((f) => new InstanceType(f)),
+      // instanceTypes: ['c6i.large', 'c6a.large'].map((f) => new InstanceType(f)),
+      instanceTypes: ['t3.medium', 't3.medium'].map((f) => new InstanceType(f)),
       minSize: 2,
       amiType: NodegroupAmiType.BOTTLEROCKET_X86_64,
       subnets: { subnetType: SubnetType.PRIVATE_WITH_EGRESS },

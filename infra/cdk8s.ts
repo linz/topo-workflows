@@ -58,6 +58,7 @@ async function main(): Promise<void> {
     clusterName: ClusterName,
     saName: cfnOutputs[CfnOutputKeys.ArgoRunnerServiceAccountName],
     tempBucketName: cfnOutputs[CfnOutputKeys.TempBucketName],
+    argoDbEndpoint: cfnOutputs[CfnOutputKeys.ArgoDbEndpoint],
   });
 
   new ArgoExtras(app, 'argo-extras', {
