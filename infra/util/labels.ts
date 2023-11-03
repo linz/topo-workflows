@@ -21,6 +21,8 @@ export function defaultLabels(
     'app.kubernetes.io/component': component,
     'app.kubernetes.io/part-of': partOf,
     'app.kubernetes.io/managed-by': 'cdk8s',
+    // TODO these are not "well-known" maybe we should move them into the linz namespace?
+    'app.kubernetes.io/git-repository': 'linz/topo-workflows',
     'app.kubernetes.io/git-hash': getGitBuildInfo().hash,
     'app.kubernetes.io/git-version': getGitBuildInfo().version,
     'app.kubernetes.io/build-id': getGitBuildInfo().buildId,
