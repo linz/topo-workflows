@@ -15,6 +15,7 @@ import { Construct } from 'constructs';
 
 import { applyDefaultLabels } from '../util/labels.js';
 
+/** `resmoio/kubernetes-event-exporter` image version */
 const version = 'v1.5';
 
 export class EventExporter extends Chart {
