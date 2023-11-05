@@ -28,7 +28,6 @@ export class EventExporter extends Chart {
 
     const serviceAccount = new ServiceAccount(this, 'event-exporter-sa', {
       metadata: { name: 'event-exporter', namespace: props.namespace },
-      automountToken: true,
     });
 
     // https://cdk8s.io/docs/latest/plus/cdk8s-plus-27/rbac/#role
@@ -76,13 +75,5 @@ receivers:
       securityContext: { ensureNonRoot: true },
       automountServiceAccountToken: true,
     });
-
-    const onDemandNode = Node.labeled(
-      NodeLabelQuery.is('eks.amazonaws.com/capacityType', 'ON_DEMAND'), // Making sure not running on spot
-      NodeLabelQuery.is('kubernetes.io/arch', 'amd64'), // Making sure not running on ARM
-      NodeLabelQuery.is('kubernetes.io/os', 'linux'),
-    );
-    // This uses the `affinity` constraint rather than `nodeSelector`: https://kubernetes.io/docs/concepts/scheduling-eviction/assign-pod-node/#affinity-and-anti-affinity
-    deployment.scheduling.attract(onDemandNode);
   }
 }
