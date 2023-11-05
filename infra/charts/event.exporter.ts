@@ -28,7 +28,6 @@ export class EventExporter extends Chart {
 
     const serviceAccount = new ServiceAccount(this, 'event-exporter-sa', {
       metadata: { name: 'event-exporter', namespace: props.namespace },
-      // This is the kubernetes default value? and it is not specified here: https://github.com/resmoio/kubernetes-event-exporter/blob/master/deploy/00-roles.yaml
       automountToken: true,
     });
 
