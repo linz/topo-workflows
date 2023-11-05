@@ -53,18 +53,24 @@ async function main(): Promise<void> {
 
   karpenterProvisioner.addDependency(karpenter);
 
+  new ArgoExtras(app, 'argo-extras', {
+    namespace: 'argo',
+    /**
+     * Argo workflows interacts with github give it access to github bot user
+     * Argo needs the RDS database credentials to enable Workflows Archive
+     * */
+    secrets: [
+      { name: 'github-linz-basemaps-pat', data: { pat: ssmConfig.githubPat } },
+      { name: 'argo-postgres-config', data: { secret: 'argodbsecret' } },
+    ],
+  });
+
   new ArgoWorkflows(app, 'argo-workflows', {
     namespace: 'argo',
     clusterName: ClusterName,
     saName: cfnOutputs[CfnOutputKeys.ArgoRunnerServiceAccountName],
     tempBucketName: cfnOutputs[CfnOutputKeys.TempBucketName],
     argoDbEndpoint: cfnOutputs[CfnOutputKeys.ArgoDbEndpoint],
-  });
-
-  new ArgoExtras(app, 'argo-extras', {
-    namespace: 'argo',
-    /** Argo workflows interacts with github give it access to github bot user*/
-    secrets: [{ name: 'github-linz-basemaps-pat', data: { pat: ssmConfig.githubPat } }],
   });
 
   new Cloudflared(app, 'cloudflared', {
@@ -75,7 +81,3 @@ async function main(): Promise<void> {
     accountId: ssmConfig.accountId,
   });
 
-  app.synth();
-}
-
-main();

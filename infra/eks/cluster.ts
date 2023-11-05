@@ -3,6 +3,7 @@ import { Aws, CfnOutput, Duration, RemovalPolicy, Stack, StackProps } from 'aws-
 import { InstanceClass, InstanceSize, InstanceType, IVpc, SubnetType, Vpc } from 'aws-cdk-lib/aws-ec2';
 import { Credentials, DatabaseInstance, DatabaseInstanceEngine, PostgresEngineVersion } from 'aws-cdk-lib/aws-rds';
 import { Cluster, ClusterLoggingTypes, IpFamily, KubernetesVersion, NodegroupAmiType } from 'aws-cdk-lib/aws-eks';
+import { Secret } from 'aws-cdk-lib/aws-secretsmanager';
 import {
   CfnInstanceProfile,
   Effect,
@@ -14,8 +15,6 @@ import {
 } from 'aws-cdk-lib/aws-iam';
 import { BlockPublicAccess, Bucket, IBucket } from 'aws-cdk-lib/aws-s3';
 import { Construct } from 'constructs';
-
-import * as sm from 'aws-cdk-lib/aws-secretsmanager';
 
 import { CfnOutputKeys } from '../constants.js';
 
@@ -56,7 +55,7 @@ export class LinzEksCluster extends Stack {
     });
     new CfnOutput(this, CfnOutputKeys.TempBucketName, { value: this.tempBucket.bucketName });
 
-    const argoDbSecret = new sm.Secret(this, 'Secret', {
+    const argoDbSecret = new Secret(this, 'Secret', {
       secretName: 'argodbsecret',
       generateSecretString: {
         secretStringTemplate: JSON.stringify({
