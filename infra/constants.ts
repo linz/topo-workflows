@@ -17,7 +17,6 @@ export const CfnOutputKeys = {
   ArgoRunnerServiceAccountName: 'ArgoRunnerServiceAccountName',
 
   TempBucketName: 'TempBucketName',
-
 } as const;
 
 /** The list of possible keys */

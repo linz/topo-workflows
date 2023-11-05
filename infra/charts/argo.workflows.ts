@@ -23,7 +23,7 @@ export interface ArgoWorkflowsProps {
    * @example "Workflows"
    */
   clusterName: string;
-    /**
+  /**
    * The Argo database endpoint
    *
    * @example "argodb-argodb4be14fa2-p8yjinijwbro.cmpyjhgv78aj.ap-southeast-2.rds.amazonaws.com"

@@ -81,3 +81,7 @@ async function main(): Promise<void> {
     accountId: ssmConfig.accountId,
   });
 
+  app.synth();
+}
+
+main();

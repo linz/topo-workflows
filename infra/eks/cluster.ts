@@ -1,9 +1,7 @@
 import { KubectlV27Layer } from '@aws-cdk/lambda-layer-kubectl-v27';
 import { Aws, CfnOutput, Duration, RemovalPolicy, Stack, StackProps } from 'aws-cdk-lib';
 import { InstanceClass, InstanceSize, InstanceType, IVpc, SubnetType, Vpc } from 'aws-cdk-lib/aws-ec2';
-import { Credentials, DatabaseInstance, DatabaseInstanceEngine, PostgresEngineVersion } from 'aws-cdk-lib/aws-rds';
 import { Cluster, ClusterLoggingTypes, IpFamily, KubernetesVersion, NodegroupAmiType } from 'aws-cdk-lib/aws-eks';
-import { Secret } from 'aws-cdk-lib/aws-secretsmanager';
 import {
   CfnInstanceProfile,
   Effect,
@@ -13,7 +11,9 @@ import {
   Role,
   ServicePrincipal,
 } from 'aws-cdk-lib/aws-iam';
+import { Credentials, DatabaseInstance, DatabaseInstanceEngine, PostgresEngineVersion } from 'aws-cdk-lib/aws-rds';
 import { BlockPublicAccess, Bucket, IBucket } from 'aws-cdk-lib/aws-s3';
+import { Secret } from 'aws-cdk-lib/aws-secretsmanager';
 import { Construct } from 'constructs';
 
 import { CfnOutputKeys } from '../constants.js';
