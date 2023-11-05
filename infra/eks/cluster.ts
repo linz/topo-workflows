@@ -61,6 +61,7 @@ export class LinzEksCluster extends Stack {
         secretStringTemplate: JSON.stringify({
           username: 'argodbuser',
         }),
+        generateStringKey: 'password',
       },
     });
 
