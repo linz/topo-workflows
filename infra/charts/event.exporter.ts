@@ -6,8 +6,6 @@ import {
   Deployment,
   ImagePullPolicy,
   Namespace,
-  Node,
-  NodeLabelQuery,
   ServiceAccount,
   Volume,
 } from 'cdk8s-plus-27';
@@ -55,7 +53,7 @@ receivers:
       },
     });
 
-    const deployment = new Deployment(this, 'event-exporter', {
+    new Deployment(this, 'event-exporter', {
       metadata: { name: 'event-exporter', namespace: props.namespace },
       replicas: 1,
       podMetadata: {
