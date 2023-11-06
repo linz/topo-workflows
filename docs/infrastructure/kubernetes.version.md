@@ -69,4 +69,24 @@ Resources
 
 **Version bump deployments can take 10+ minutes**
 
-6. Cycle out EC2 Nodes to the new version.
+## Cycle out EC2 Nodes to the new version.
+
+1. Find the nodegroup name for the cluster
+
+```bash
+aws eks list-nodegroups --cluster-name Workflows
+```
+
+2. Describe the nodegroup to validate the versions
+
+By describing the node group you can check the current version, or you can use `k get nodes` to see what version is currently running
+
+```bash
+aws eks describe-nodegroup --cluster-name Workflows --nodegroup-name EksWorkflowsNodegroupCluste
+```
+
+3. Update the version to match
+
+```bash
+aws eks update-nodegroup-version --cluster-name Workflows --nodegroup-name EksWorkflowsNodegroupCluste-OWsXxRuVz2B7
+```

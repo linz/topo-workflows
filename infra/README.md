@@ -110,3 +110,8 @@ The deployment of the K8s config is managed by GithubActions in [main](../.githu
 ## Troubleshoot
 
 - [DNS](../docs/dns.configuration.md)
+
+## Upgrading Kubernetes Versions
+
+Kubernetes upgrades very frequently to deploy a new version follow the
+[Version Upgrade Guide](../docs/infrastructure/kubernetes.version.md)
