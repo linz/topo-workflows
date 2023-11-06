@@ -73,6 +73,7 @@ export class LinzEksCluster extends Stack {
     this.vpc = Vpc.fromLookup(this, 'Vpc', { tags: { BaseVPC: 'true' } });
 
     this.argoDb = new DatabaseInstance(this, 'ArgoDbAF', {
+      // TODO: need to add Security Group rule to allow traffic from Argo to RDS on port 5432
       // database encryption is on by default, can be changed using rds.force_ssl=0 in a parameterGroup
       engine: DatabaseInstanceEngine.postgres({ version: PostgresEngineVersion.VER_15_3 }),
       instanceType: InstanceType.of(InstanceClass.T3, InstanceSize.MICRO),
@@ -80,6 +81,7 @@ export class LinzEksCluster extends Stack {
       publiclyAccessible: false,
       allocatedStorage: 10, // TODO decide
       maxAllocatedStorage: 40, // TODO decide
+      // TODO: decide on method to add DB secret to K8s from AWS Secrets Manager
       credentials: Credentials.fromSecret(this.argoDbSecret),
       deletionProtection: false, // setting for nonprod
       removalPolicy: RemovalPolicy.DESTROY, // setting for nonprod
@@ -259,5 +261,6 @@ export class LinzEksCluster extends Stack {
     this.tempBucket.grantReadWrite(argoRunnerSa.role);
     // give permission to the sa to assume a role
     argoRunnerSa.role.addToPrincipalPolicy(new PolicyStatement({ actions: ['sts:AssumeRole'], resources: ['*'] }));
+
   }
 }
