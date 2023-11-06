@@ -59,10 +59,7 @@ async function main(): Promise<void> {
      * Argo workflows interacts with github give it access to github bot user
      * Argo needs the RDS database credentials to enable Workflows Archive
      * */
-    secrets: [
-      { name: 'github-linz-basemaps-pat', data: { pat: ssmConfig.githubPat } },
-      { name: 'argo-postgres-config', data: { secret: 'argodbsecret' } },
-    ],
+    secrets: [{ name: 'github-linz-basemaps-pat', data: { pat: ssmConfig.githubPat } }],
   });
 
   new ArgoWorkflows(app, 'argo-workflows', {

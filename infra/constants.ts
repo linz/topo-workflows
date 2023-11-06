@@ -6,7 +6,7 @@ export const CfnOutputKeys = {
   ClusterEndpoint: 'ClusterEndpoint',
 
   ArgoDbEndpoint: 'ArgoDbEndpoint',
-  ArgoDbCredentials: 'ArgoDbCredentials',
+  ArgoDbSecretName: 'ArgoDbSecretName',
 
   KarpenterServiceAccountName: 'KarpenterServiceAccountName',
   KarpenterServiceAccountRoleArn: 'KarpenterServiceAccountRoleArn',

@@ -27,6 +27,8 @@ export class LinzEksCluster extends Stack {
   version = KubernetesVersion.V1_27;
   /** Argo needs a database for workflow archive */
   argoDb: DatabaseInstance;
+  /** Argo needs a secret to use for the RDS database */
+  argoDbSecret: Secret;
   /** Argo needs a temporary bucket to store objects */
   tempBucket: Bucket;
   /* Bucket where read/write roles config files are stored */
@@ -55,7 +57,7 @@ export class LinzEksCluster extends Stack {
     });
     new CfnOutput(this, CfnOutputKeys.TempBucketName, { value: this.tempBucket.bucketName });
 
-    const argoDbSecret = new Secret(this, 'Secret', {
+    this.argoDbSecret = new Secret(this, 'Secret', {
       secretName: 'argodbsecret',
       generateSecretString: {
         secretStringTemplate: JSON.stringify({
@@ -64,6 +66,7 @@ export class LinzEksCluster extends Stack {
         generateStringKey: 'password',
       },
     });
+    new CfnOutput(this, CfnOutputKeys.ArgoDbSecretName, { value: this.argoDbSecret.secretName });
 
     this.configBucket = Bucket.fromBucketName(this, 'BucketConfig', 'linz-bucket-config');
 
@@ -77,7 +80,7 @@ export class LinzEksCluster extends Stack {
       publiclyAccessible: false,
       allocatedStorage: 10, // TODO decide
       maxAllocatedStorage: 40, // TODO decide
-      credentials: Credentials.fromSecret(argoDbSecret),
+      credentials: Credentials.fromSecret(this.argoDbSecret),
       deletionProtection: false, // setting for nonprod
       removalPolicy: RemovalPolicy.DESTROY, // setting for nonprod
       storageEncrypted: false, // default is false with no key, noted here as something we might want
