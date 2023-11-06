@@ -3,6 +3,7 @@ import { App } from 'cdk8s';
 import { ArgoExtras } from './charts/argo.extras.js';
 import { ArgoWorkflows } from './charts/argo.workflows.js';
 import { Cloudflared } from './charts/cloudflared.js';
+import { EventExporter } from './charts/event.exporter.js';
 import { FluentBit } from './charts/fluentbit.js';
 import { Karpenter, KarpenterProvisioner } from './charts/karpenter.js';
 import { CoreDns } from './charts/kube-system.coredns.js';
@@ -73,6 +74,8 @@ async function main(): Promise<void> {
     tunnelName: ssmConfig.tunnelName,
     accountId: ssmConfig.accountId,
   });
+
+  new EventExporter(app, 'event-exporter', { namespace: 'event-exporter' });
 
   app.synth();
 }
