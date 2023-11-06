@@ -6,6 +6,7 @@ export const CfnOutputKeys = {
   ClusterEndpoint: 'ClusterEndpoint',
 
   ArgoDbEndpoint: 'ArgoDbEndpoint',
+  // TODO: decide on method to add DB secret to K8s from AWS Secrets Manager
   ArgoDbSecretName: 'ArgoDbSecretName',
 
   KarpenterServiceAccountName: 'KarpenterServiceAccountName',

@@ -78,6 +78,7 @@ export class ArgoWorkflows extends Chart {
         port: 5432,
         database: 'postgres',
         tableName: 'argo_workflows',
+        // TODO: decide on method to add DB secret to K8s from AWS Secrets Manager
         userNameSecret: { name: 'argo-postgres-config', key: 'username' },
         passwordSecret: { name: 'argo-postgres-config', key: 'password' },
         ssl: true,
