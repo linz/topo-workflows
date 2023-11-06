@@ -25,7 +25,7 @@ export class LinzEksCluster extends Stack {
   /* Cluster ID */
   id: string;
   /** Version of EKS to use, this must be aligned to the `kubectlLayer` */
-  version = { version: '1.27' } as KubernetesVersion;
+  version = KubernetesVersion.of('1.28');
   /** Argo needs a temporary bucket to store objects */
   tempBucket: Bucket;
   /* Bucket where read/write roles config files are stored */
