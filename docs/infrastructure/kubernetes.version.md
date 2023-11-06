@@ -1,6 +1,6 @@
 # Upgrade Kubernetes Versions
 
-Because Kubernetes deprecates quickly and releases often. We need to keep our kubernetes cluster up to date.
+Because Kubernetes deprecates quickly and releases often, we need to keep our kubernetes cluster up to date.
 
 **You cannot jump multiple versions** You must do a deployment per individual version bump.
 
