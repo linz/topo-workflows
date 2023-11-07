@@ -87,6 +87,10 @@ HC_Period 5
         // FIXME: `livenessProbe` and `readinessProbe` deactivated https://github.com/aws/eks-charts/issues/995
         livenessProbe: false,
         readinessProbe: false,
+        tolerations: [
+          { key: 'karpenter.sh/capacity-type', operator: 'Equal', value: 'spot', effect: 'NoSchedule' },
+          { key: 'kubernetes.io/arch', operator: 'Equal', value: 'arm64', effect: 'NoSchedule' },
+        ],
       },
     });
   }
