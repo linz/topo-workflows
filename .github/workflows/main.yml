@@ -77,7 +77,7 @@ jobs:
       - name: (CDK8s) Diff
         if: github.ref != 'refs/heads/master'
         run: |
-          kubectl apply -f dist/ --dry-run=server
+          kubectl apply -f dist/ --dry-run=client
 
       - name: (CDK8s) Deploy
         if: github.ref != 'refs/heads/master'
