@@ -1,6 +1,6 @@
 import { KubectlV27Layer } from '@aws-cdk/lambda-layer-kubectl-v27';
 import { Aws, CfnOutput, Duration, RemovalPolicy, Stack, StackProps } from 'aws-cdk-lib';
-import { InstanceClass, InstanceSize, InstanceType, IVpc, SubnetType, Vpc } from 'aws-cdk-lib/aws-ec2';
+import { InstanceType, IVpc, SubnetType, Vpc } from 'aws-cdk-lib/aws-ec2';
 import { Cluster, ClusterLoggingTypes, IpFamily, KubernetesVersion, NodegroupAmiType } from 'aws-cdk-lib/aws-eks';
 import {
   CfnInstanceProfile,
@@ -11,9 +11,7 @@ import {
   Role,
   ServicePrincipal,
 } from 'aws-cdk-lib/aws-iam';
-import { Credentials, DatabaseInstance, DatabaseInstanceEngine, PostgresEngineVersion } from 'aws-cdk-lib/aws-rds';
 import { BlockPublicAccess, Bucket, IBucket } from 'aws-cdk-lib/aws-s3';
-import { Secret } from 'aws-cdk-lib/aws-secretsmanager';
 import { Construct } from 'constructs';
 
 import { CfnOutputKeys } from '../constants.js';
@@ -25,10 +23,6 @@ export class LinzEksCluster extends Stack {
   id: string;
   /** Version of EKS to use, this must be aligned to the `kubectlLayer` */
   version = KubernetesVersion.V1_27;
-  /** Argo needs a database for workflow archive */
-  argoDb: DatabaseInstance;
-  /** Argo needs a secret to use for the RDS database */
-  argoDbSecret: Secret;
   /** Argo needs a temporary bucket to store objects */
   tempBucket: Bucket;
   /* Bucket where read/write roles config files are stored */
@@ -57,40 +51,9 @@ export class LinzEksCluster extends Stack {
     });
     new CfnOutput(this, CfnOutputKeys.TempBucketName, { value: this.tempBucket.bucketName });
 
-    this.argoDbSecret = new Secret(this, 'Secret', {
-      secretName: 'argodbsecret',
-      generateSecretString: {
-        secretStringTemplate: JSON.stringify({
-          username: 'argodbuser',
-        }),
-        generateStringKey: 'password',
-      },
-    });
-    new CfnOutput(this, CfnOutputKeys.ArgoDbSecretName, { value: this.argoDbSecret.secretName });
-
     this.configBucket = Bucket.fromBucketName(this, 'BucketConfig', 'linz-bucket-config');
 
     this.vpc = Vpc.fromLookup(this, 'Vpc', { tags: { BaseVPC: 'true' } });
-
-    this.argoDb = new DatabaseInstance(this, 'ArgoDbAF', {
-      // TODO: need to add Security Group rule to allow traffic from Argo to RDS on port 5432
-      // database encryption is on by default, can be changed using rds.force_ssl=0 in a parameterGroup
-      engine: DatabaseInstanceEngine.postgres({ version: PostgresEngineVersion.VER_15_3 }),
-      instanceType: InstanceType.of(InstanceClass.T3, InstanceSize.MICRO),
-      vpc: this.vpc,
-      publiclyAccessible: false,
-      allocatedStorage: 10, // TODO decide
-      maxAllocatedStorage: 40, // TODO decide
-      // TODO: decide on method to add DB secret to K8s from AWS Secrets Manager
-      credentials: Credentials.fromSecret(this.argoDbSecret),
-      deletionProtection: false, // setting for nonprod
-      removalPolicy: RemovalPolicy.DESTROY, // setting for nonprod
-      storageEncrypted: false, // default is false with no key, noted here as something we might want
-      multiAz: false, // default is false, noted in as something we might want
-      enablePerformanceInsights: false, // default is false, noted in as something we might want
-      // Configure CloudWatch options?
-    });
-    new CfnOutput(this, CfnOutputKeys.ArgoDbEndpoint, { value: this.argoDb.dbInstanceEndpointAddress });
 
     this.cluster = new Cluster(this, `Eks${id}`, {
       clusterName: id,
@@ -104,6 +67,7 @@ export class LinzEksCluster extends Stack {
       ipFamily: IpFamily.IP_V6,
       clusterLogging: [ClusterLoggingTypes.API, ClusterLoggingTypes.CONTROLLER_MANAGER, ClusterLoggingTypes.SCHEDULER],
     });
+    new CfnOutput(this, 'SecurityGroupId', { value: this.cluster.clusterSecurityGroupId });
 
     const nodeGroup = this.cluster.addNodegroupCapacity('ClusterDefault', {
       /**
@@ -144,6 +108,7 @@ export class LinzEksCluster extends Stack {
     );
 
     new CfnOutput(this, CfnOutputKeys.ClusterEndpoint, { value: this.cluster.clusterEndpoint });
+    new CfnOutput(this, CfnOutputKeys.ClusterSecurityGroupId, { value: this.cluster.clusterSecurityGroupId });
 
     this.configureEks();
   }
@@ -261,6 +226,5 @@ export class LinzEksCluster extends Stack {
     this.tempBucket.grantReadWrite(argoRunnerSa.role);
     // give permission to the sa to assume a role
     argoRunnerSa.role.addToPrincipalPolicy(new PolicyStatement({ actions: ['sts:AssumeRole'], resources: ['*'] }));
-
   }
 }

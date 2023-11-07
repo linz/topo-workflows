@@ -1,13 +1,16 @@
 /* Cluster name */
 export const ClusterName = 'WorkflowsAF';
+export const ArgoDbName = 'ArgoDbAF';
 
 /* CloudFormation Output to access from CDK8s */
 export const CfnOutputKeys = {
   ClusterEndpoint: 'ClusterEndpoint',
+  ClusterSecurityGroupId: 'ClusterSecurityGroupId',
 
   ArgoDbEndpoint: 'ArgoDbEndpoint',
   // TODO: decide on method to add DB secret to K8s from AWS Secrets Manager
   ArgoDbSecretName: 'ArgoDbSecretName',
+  ArgoDbSecGrpId: 'ArgoDbSecGrpId',
 
   KarpenterServiceAccountName: 'KarpenterServiceAccountName',
   KarpenterServiceAccountRoleArn: 'KarpenterServiceAccountRoleArn',
