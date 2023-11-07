@@ -88,8 +88,8 @@ HC_Period 5
         livenessProbe: false,
         readinessProbe: false,
         tolerations: [
-          { key: 'karpenter.sh/capacity-type', value: 'spot', effect: 'NoSchedule', operator: 'Equal' },
-          { key: 'kubernetes.io/arch', value: 'arm64', effect: 'NoSchedule', operator: 'Equal' },
+          { key: 'karpenter.sh/capacity-type', operator: 'Equal', value: 'spot', effect: 'NoSchedule' },
+          { key: 'kubernetes.io/arch', operator: 'Equal', value: 'arm64', effect: 'NoSchedule' },
         ],
       },
     });
