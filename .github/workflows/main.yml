@@ -63,7 +63,7 @@ jobs:
             -c aws-account-id=${{ secrets.AWS_ACCOUNT_ID }}
 
       - name: (CDK) Deploy
-        if: github.ref != 'refs/heads/master'
+        if: github.ref == 'refs/heads/master'
         run: |
           npx cdk deploy Workflows \
             -c ci-role-arn=${{ secrets.AWS_CI_ROLE }} \
@@ -80,7 +80,7 @@ jobs:
           kubectl apply -f dist/ --dry-run=server
 
       - name: (CDK8s) Deploy
-        if: github.ref == 'refs/heads/master'
+        if: github.ref != 'refs/heads/master'
         run: |
           kubectl apply -f dist/
 
