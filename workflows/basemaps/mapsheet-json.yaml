@@ -18,7 +18,7 @@ spec:
       - name: include
         value: ''
       - name: exclude
-        value: 'nz_satellite'
+        value: 'nz-satellite'
   templateDefaults:
     container:
       imagePullPolicy: Always
@@ -84,7 +84,7 @@ spec:
           - name: flatGeobuf
             path: /tmp/flatGeobuf.fgb
       container:
-        image: ghcr.io/linz/basemaps/cli:{{=sprig.trim(workflow.parameters['version-basemaps-cli'])}}
+        image: 019359803926.dkr.ecr.ap-southeast-2.amazonaws.com/argo-tasks:{{=sprig.trim(workflow.parameters['version-argo-tasks'])}}
         command: [node, index.cjs]
         env:
           - name: AWS_ROLE_CONFIG_PATH
