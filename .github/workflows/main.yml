@@ -74,11 +74,10 @@ jobs:
         run: |
           npx cdk8s synth
 
-      - name: (CDK8s) Diff
-        if: github.ref != 'refs/heads/master'
-        run: |
-          kubectl diff -f dist/
+      # kubectl diff - is somewhat dangerous as it dumps out secrets in plain text
+      # so it should not be used in this pipeline
 
+      # TODO use a --prune and --applyset to remove unused objects
       - name: (CDK8s) Deploy
         if: github.ref != 'refs/heads/master'
         run: |
