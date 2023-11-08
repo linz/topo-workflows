@@ -12,8 +12,6 @@ export const CfnOutputKeys = {
   FluentBitServiceAccountName: 'FluentBitServiceAccountName',
 
   ArgoRunnerServiceAccountName: 'ArgoRunnerServiceAccountName',
-
-  TempBucketName: 'TempBucketName',
 } as const;
 
 /** The list of possible keys */

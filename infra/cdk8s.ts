@@ -58,7 +58,7 @@ async function main(): Promise<void> {
     namespace: 'argo',
     clusterName: ClusterName,
     saName: cfnOutputs[CfnOutputKeys.ArgoRunnerServiceAccountName],
-    tempBucketName: cfnOutputs[CfnOutputKeys.TempBucketName],
+    tempBucketName: `linz-${ClusterName}-scratch`, // our conventional name for Argo artifact bucket
   });
 
   new ArgoExtras(app, 'argo-extras', {

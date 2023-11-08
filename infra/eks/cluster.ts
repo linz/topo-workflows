@@ -27,7 +27,7 @@ export class LinzEksCluster extends Stack {
   /** Version of EKS to use, this must be aligned to the `kubectlLayer` */
   version = KubernetesVersion.of('1.28');
   /** Argo needs a temporary bucket to store objects */
-  tempBucket: Bucket;
+  tempBucket: IBucket;
   /* Bucket where read/write roles config files are stored */
   configBucket: IBucket;
   vpc: IVpc;
@@ -38,21 +38,7 @@ export class LinzEksCluster extends Stack {
     super(scope, id, props);
     this.id = id;
 
-    this.tempBucket = new Bucket(this, 'Scratch', {
-      /** linz-workflows-scratch */
-      bucketName: `linz-${id.toLowerCase()}-scratch`,
-      removalPolicy: RemovalPolicy.RETAIN,
-      blockPublicAccess: BlockPublicAccess.BLOCK_ALL,
-      lifecycleRules: [
-        {
-          /** All artifacts are deleted after 90 days */
-          expiration: Duration.days(90),
-          /** This bucket is not used for multipart uploads so clean them up quickly */
-          abortIncompleteMultipartUploadAfter: Duration.days(3),
-        },
-      ],
-    });
-    new CfnOutput(this, CfnOutputKeys.TempBucketName, { value: this.tempBucket.bucketName });
+    this.tempBucket = Bucket.fromBucketName(this, 'Scratch', `linz-${id.toLowerCase()}-scratch`);
 
     this.configBucket = Bucket.fromBucketName(this, 'BucketConfig', 'linz-bucket-config');
 
