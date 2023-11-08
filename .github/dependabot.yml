@@ -10,9 +10,18 @@ updates:
     interval: daily
   open-pull-requests-limit: 10
   groups:
-    aws:
+    aws-sdk:
       patterns:
         - "@aws-sdk/*"
+    aws-cdk:
+      patterns:
+        - "@aws-cdk/*"
+        - "aws-cdk"
+        - "aws-cdk-lib"
+        - "cdk8s"
+        - "cdk8s-cli"
+        - "cdk8s-plus-27"
+        - "constructs"
   ignore:
     - dependency-name: "@aws-sdk/*"
       update-types: ["version-update:semver-patch"]
