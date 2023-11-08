@@ -1,5 +1,13 @@
 # ArgoTasks Templates
 
+## Contents:
+
+- [Group](##argo-tasks/group)
+- [Copy](##argo-tasks/copy)
+- [Create Manifest](##argo-tasks/create-manifest)
+- [Push to Github](##argo-tasks/push-to-github)
+- [Lint Inputs](##argo-tasks/lint-inputs)
+
 ## argo-tasks/group - `tpl-at-group`
 
 Group inputs into outputs to be used with `withParam` to run one task per grouping
@@ -159,4 +167,25 @@ See https://github.com/linz/argo-tasks#stac-github-import
       - name: repository
         value: 'elevation'
   depends: 'copy-with-github'
+```
+
+## argo-tasks/lint-inputs
+
+Template for linting the inputs to the publish workflows, to be run before data is moved/published to public locations.
+See https://github.com/linz/argo-tasks#lint-inputs
+
+### Template usage
+
+```yaml
+- name: lint-inputs
+  templateRef:
+    name: tpl-at-lint-inputs
+    template: main
+  arguments:
+    parameters:
+      - name: version
+        value: '{{workflow.parameters.version-argo-tasks}}'
+      - name: path
+        value: '{{workflow.parameters.target}}'
+  when: '{{workflow.parameters.skip-lint}} != true'
 ```
