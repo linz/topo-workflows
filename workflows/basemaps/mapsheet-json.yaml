@@ -9,8 +9,6 @@ spec:
     parameters:
       - name: version-argo-tasks
         value: 'v2'
-      - name: version-basemaps-cli
-        value: 'v6'
       - name: layer
         value: '104687'
       - name: config
@@ -85,17 +83,17 @@ spec:
             path: /tmp/flatGeobuf.fgb
       container:
         image: 019359803926.dkr.ecr.ap-southeast-2.amazonaws.com/argo-tasks:{{=sprig.trim(workflow.parameters['version-argo-tasks'])}}
-        command: [node, index.cjs]
+        command: [node, index.js]
         env:
           - name: AWS_ROLE_CONFIG_PATH
             value: s3://linz-bucket-config/config.json
         args:
           [
-            '-V',
+            'bmc',
             'create-mapsheet',
             '--path',
             '/tmp/flatGeobuf.fgb',
-            '--config',
+            '--bm-config',
             '{{=sprig.trim(workflow.parameters.config)}}',
             '--output',
             '/tmp/mapsheet.json',
