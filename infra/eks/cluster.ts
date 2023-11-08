@@ -14,7 +14,7 @@ import {
 import { Bucket, IBucket } from 'aws-cdk-lib/aws-s3';
 import { Construct } from 'constructs';
 
-import { CfnOutputKeys } from '../constants.js';
+import { CfnOutputKeys, ScratchBucketName } from '../constants.js';
 
 interface EksClusterProps extends StackProps {
   /** Optional CI User to grant access to the cluster */
@@ -38,7 +38,7 @@ export class LinzEksCluster extends Stack {
     super(scope, id, props);
     this.id = id;
 
-    this.tempBucket = Bucket.fromBucketName(this, 'Scratch', `linz-${id.toLowerCase()}-scratch`);
+    this.tempBucket = Bucket.fromBucketName(this, 'Scratch', ScratchBucketName);
 
     this.configBucket = Bucket.fromBucketName(this, 'BucketConfig', 'linz-bucket-config');
 

@@ -7,7 +7,7 @@ import { EventExporter } from './charts/event.exporter.js';
 import { FluentBit } from './charts/fluentbit.js';
 import { Karpenter, KarpenterProvisioner } from './charts/karpenter.js';
 import { CoreDns } from './charts/kube-system.coredns.js';
-import { CfnOutputKeys, ClusterName, validateKeys } from './constants.js';
+import { CfnOutputKeys, ClusterName, ScratchBucketName, validateKeys } from './constants.js';
 import { getCfnOutputs } from './util/cloud.formation.js';
 import { fetchSsmParameters } from './util/ssm.js';
 
@@ -58,7 +58,7 @@ async function main(): Promise<void> {
     namespace: 'argo',
     clusterName: ClusterName,
     saName: cfnOutputs[CfnOutputKeys.ArgoRunnerServiceAccountName],
-    tempBucketName: `linz-${ClusterName}-scratch`, // our conventional name for Argo artifact bucket
+    tempBucketName: ScratchBucketName,
   });
 
   new ArgoExtras(app, 'argo-extras', {
