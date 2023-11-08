@@ -53,6 +53,7 @@ jobs:
 
       # TODO It would be nice to split the AWS-CDK/CDK8s deployments into steps
       # and run them only when infra/cdk or infra/cdk8s is modified.
+      # and use github deployments to track when things were deployed.
 
       # Setup the EKS cluster with AWS-CDK
       - name: (CDK) Diff
@@ -79,7 +80,7 @@ jobs:
 
       # TODO use a --prune and --applyset to remove unused objects
       - name: (CDK8s) Deploy
-        if: github.ref != 'refs/heads/master'
+        if: github.ref == 'refs/heads/master'
         run: |
           kubectl apply -f dist/
 
