@@ -10,7 +10,7 @@ updates:
     interval: daily
   open-pull-requests-limit: 10
   groups:
-    aws:
+    aws-sdk:
       patterns:
         - "@aws-sdk/*"
   ignore:
