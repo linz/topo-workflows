@@ -10,6 +10,6 @@ Specify the output for the imports:
 
 However, some of the component Helm charts do not have a `values.schema.json`. And that the case for most of our components:
 
-- aws-for-fluent-bit (<https://github.com/aws/eks-charts/issues/1011>)
-- Karpenter
-- Argo workflows
+- [aws-for-fluent-bit](./components/fluentbit.md) (<https://github.com/aws/eks-charts/issues/1011>)
+- [Karpenter](./components/karpenter.md)
+- [Argo workflows](./components/argo.workflows.md)
