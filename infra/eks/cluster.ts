@@ -1,5 +1,5 @@
 import { KubectlV28Layer } from '@aws-cdk/lambda-layer-kubectl-v28';
-import { Aws, CfnOutput, Duration, RemovalPolicy, Stack, StackProps } from 'aws-cdk-lib';
+import { Aws, CfnOutput, Stack, StackProps } from 'aws-cdk-lib';
 import { InstanceType, IVpc, SubnetType, Vpc } from 'aws-cdk-lib/aws-ec2';
 import { Cluster, ClusterLoggingTypes, IpFamily, KubernetesVersion, NodegroupAmiType } from 'aws-cdk-lib/aws-eks';
 import {
@@ -11,7 +11,7 @@ import {
   Role,
   ServicePrincipal,
 } from 'aws-cdk-lib/aws-iam';
-import { BlockPublicAccess, Bucket, IBucket } from 'aws-cdk-lib/aws-s3';
+import { Bucket, IBucket } from 'aws-cdk-lib/aws-s3';
 import { Construct } from 'constructs';
 
 import { CfnOutputKeys } from '../constants.js';
