@@ -4,15 +4,19 @@ jobs:
   main:
     name: Format & Deploy(master)
     runs-on: ubuntu-latest
+
+    concurrency: deploy-${{ github.ref }}
+
     permissions:
       id-token: write
       contents: read
 
     steps:
-      - uses: actions/checkout@v1
+      - uses: actions/checkout@v4
 
+      # Initial build and linting
       - name: Use Node.js 18.x
-        uses: actions/setup-node@v2.2.0
+        uses: actions/setup-node@v4
         with:
           node-version: '18.x'
 
@@ -25,13 +29,15 @@ jobs:
       - name: format
         run: npm run format -- --fix=false # ensure eslint is not configured to --fix
 
-      # - name: Setup kubectl
-      #   uses: azure/setup-kubectl@v3
-      #   with:
-      #     version: 'latest'
+
+      # Configure access to AWS / EKS
+      - name: Setup kubectl
+        uses: azure/setup-kubectl@v3
+        with:
+          version: 'latest'
 
       - name: AWS Configure
-        uses: aws-actions/configure-aws-credentials@v1.6.1
+        uses: aws-actions/configure-aws-credentials@v4
         with:
           aws-region: ap-southeast-2
           mask-aws-account-id: true
@@ -44,6 +50,39 @@ jobs:
       - name: Check EKS connection
         run: |
           kubectl get nodes
+
+      # TODO It would be nice to split the AWS-CDK/CDK8s deployments into steps
+      # and run them only when infra/cdk or infra/cdk8s is modified.
+      # and use github deployments to track when things were deployed.
+
+      # Setup the EKS cluster with AWS-CDK
+      - name: (CDK) Diff
+        if: github.ref != 'refs/heads/master'
+        run: |
+          npx cdk diff Workflows \
+            -c ci-role-arn=${{ secrets.AWS_CI_ROLE }} \
+            -c aws-account-id=${{ secrets.AWS_ACCOUNT_ID }}
+
+      - name: (CDK) Deploy
+        if: github.ref == 'refs/heads/master'
+        run: |
+          npx cdk deploy Workflows \
+            -c ci-role-arn=${{ secrets.AWS_CI_ROLE }} \
+            -c aws-account-id=${{ secrets.AWS_ACCOUNT_ID }}
+
+      # Configure the Kubernetes cluster with CDK8s
+      - name: (CDK8s) Synth
+        run: |
+          npx cdk8s synth
+
+      # kubectl diff - is somewhat dangerous as it dumps out secrets in plain text
+      # so it should not be used in this pipeline
+
+      # TODO use a --prune and --applyset to remove unused objects
+      - name: (CDK8s) Deploy
+        if: github.ref == 'refs/heads/master'
+        run: |
+          kubectl apply -f dist/
 
       # - name: Install Argo
       #   run: |
