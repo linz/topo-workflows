@@ -29,7 +29,7 @@ Most other objects deployed via AWS-CDK and CDK8s should also include informatio
 | -------------------------- | ---------------------------------------- | ------------------------------------------ |
 | `linz.govt.nz/git-hash`    | git hash that deployed the object        | "bb3dab2779922094d2b8ecd4c67f30c66b38613d" |
 | `linz.govt.nz/git-version` | git version information                  | "v6.46.0", "v0.0.1-20-gbb3dab27"           |
-| `linz.govt.nz/git-repo`    | git repository that the object came from | "linz\_\_topo-workflows"                   |
+| `linz.govt.nz/git-repository`    | git repository that the object came from | "linz\_\_topo-workflows"                   |
 | `linz.govt.nz/build-id`    | Unique ID of the build that deployed     | "6806791032-1"                             |
 
 ## Label Usage
