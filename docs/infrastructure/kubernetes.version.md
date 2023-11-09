@@ -71,6 +71,12 @@ Resources
 
 ## Cycle out EC2 Nodes to the new version
 
+<https://docs.aws.amazon.com/eks/latest/userguide/kubernetes-versions.html#version-deprecation>
+> **Are Amazon EKS managed node groups automatically updated along with the cluster control plane version?**
+No. A managed node group creates Amazon EC2 instances in your account. These instances aren't automatically upgraded when you or Amazon EKS update your control plane. For more information, see Updating a managed node group. We recommend maintaining the same Kubernetes version on your control plane and nodes.
+
+This process is necessary to avoid being blocked for a future Kubernetes version upgrade. For example, if Kubernetes get upgraded from `1.27` to `1.28` and the nodes remain in `1.27`, the next time Kubernetes will be upgraded to `1.29`, the upgrade will fail.
+
 1. Find the nodegroup name for the cluster
 
 ```bash
