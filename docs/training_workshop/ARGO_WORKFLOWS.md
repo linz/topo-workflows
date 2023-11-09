@@ -65,7 +65,7 @@ The infrastructure running Argo Workflows:
 ![Kubernetes and Argo Workflows](images/pods.png)
 
 For more in-depth information, see:
-[Argo Configuration Guide - Introduction to Argo Workflows](../../CONFIGURATION.md#IntroductiontotheArgoWorkflowsEnvironment)
+[Argo Configuration Guide - Introduction to Argo Workflows](../configuration.md#IntroductiontotheArgoWorkflowsEnvironment)
 
 ## What is a Workflow?
 
@@ -461,7 +461,7 @@ The completed workflow should look like this in the Argo UI:
 The outputs of one task can be passed as inputs to other tasks using parameters, artifacts, or custom code.
 
 For more in-depth information, see:
-[Argo Configuration Guide - Introduction to Argo Workflows](../../CONFIGURATION.md#IntroductiontotheArgoWorkflowsEnvironment)
+[Argo Configuration Guide - Introduction to Argo Workflows](../configuration.md#IntroductiontotheArgoWorkflowsEnvironment)
 
 ### Parallelising a task to run in multiple pods
 
@@ -560,7 +560,7 @@ The output should look like this in the Argo UI:
 
 ### A note about performance and scaling workflows
 
-> Refer to the [Argo Configuration Guide](../../CONFIGURATION.md) to learn about how to optimise the performance of your workflows.
+> Refer to the [Argo Configuration Guide](../configuration.md) to learn about how to optimise the performance of your workflows.
 
 ## A Workflow example: Standardising Workflow
 
@@ -602,4 +602,4 @@ Recommended for further information about:
 
 ## Need more help?
 
-Ask on the `#team-topo-data-engineering` Slack channel :smile:
+Ask on the `#team-li-geospatial-data-engineering` Slack channel :smile:
