@@ -83,11 +83,11 @@ In the **Workflows** page:
 
 ### Workflow Parameters
 
-![WorkflowParameters](/docs/workflow_parameters.png)
+![WorkflowParameters](./docs/static/workflow-parameters.png)
 
 ### Workflow Logs
 
-![WorkflowLogs](/docs/workflow_logs.png)
+![WorkflowLogs](./docs/static/workflow-logs.png)
 
 ### Logs in Elasticsearch
 
