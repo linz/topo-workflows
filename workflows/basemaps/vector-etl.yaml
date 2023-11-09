@@ -1,4 +1,5 @@
----
+# yaml-language-server: $schema=https://raw.githubusercontent.com/argoproj/argo-workflows/v3.4.13/api/jsonschema/schema.json
+
 apiVersion: argoproj.io/v1alpha1
 kind: WorkflowTemplate
 metadata:
@@ -17,13 +18,14 @@ spec:
           - 'linz-basemaps'
           - 'linz-basemaps-staging'
       - name: create-pull-request
-        value: true
+        value: 'true'
         enum:
-          - true
-          - false
+          - 'true'
+          - 'false'
   templateDefaults:
     container:
       imagePullPolicy: Always
+      image: ''
   templates:
     - name: main
       dag:
