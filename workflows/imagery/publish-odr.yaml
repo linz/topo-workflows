@@ -37,6 +37,8 @@ spec:
         value: '100Gi'
       - name: transform
         value: 'f'
+      - name: lint
+        value: 'false'
   templateDefaults:
     container:
       imagePullPolicy: Always
@@ -51,6 +53,17 @@ spec:
           - name: group-size
       dag:
         tasks:
+          - name: lint-inputs
+            templateRef:
+              name: tpl-at-lint-inputs
+              template: main
+            arguments:
+              parameters:
+                - name: version
+                  value: '{{workflow.parameters.version-argo-tasks}}'
+                - name: path
+                  value: '{{workflow.parameters.target}}'
+            when: '{{workflow.parameters.lint}}'
           - name: create-manifest-github
             templateRef:
               name: tpl-create-manifest

@@ -1,0 +1,33 @@
+# yaml-language-server: $schema=https://raw.githubusercontent.com/argoproj/argo-workflows/v3.4.13/api/jsonschema/schema.json
+
+apiVersion: argoproj.io/v1alpha1
+kind: WorkflowTemplate
+metadata:
+  # Template from linz/argo-tasks
+  # see https://github.com/linz/argo-tasks#lint-inputs
+  name: tpl-at-lint-inputs
+spec:
+  templateDefaults:
+    container:
+      imagePullPolicy: Always
+  entrypoint: main
+  templates:
+    - name: main
+      inputs:
+        parameters:
+          - name: path
+            description: s3 path to lint
+
+          - name: version
+            description: argo-task Container version to use
+            default: 'v2'
+
+      container:
+        image: '019359803926.dkr.ecr.ap-southeast-2.amazonaws.com/argo-tasks:{{= inputs.parameters.version }}'
+        command: [node, /app/index.js]
+        env:
+          - name: AWS_ROLE_CONFIG_PATH
+            value: s3://linz-bucket-config/config.json
+        args:
+          - 'lint-inputs'
+          - '{{inputs.parameters.path}}'
