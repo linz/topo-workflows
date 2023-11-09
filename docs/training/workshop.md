@@ -58,7 +58,7 @@ If you have a question about a particular Workflow that has run on Argo, you can
 
 A workflow running in Argo:
 
-![Argo Workflow UI](images/workflow_ui.png)
+![Argo Workflow UI](images/workflow-ui.png)
 
 The infrastructure running Argo Workflows:
 
@@ -78,7 +78,7 @@ Workflow structure concepts (see diagram below):
 - Templates (e.g. container, script)
 - Template Invocators (e.g. dag: task)
 
-![Simplified Workflow Structure](images/wf_structure.png)
+![Simplified Workflow Structure](images/wf-structure.png)
 
 This diagram is simplified and we will look at a more detailed, real-world, example later on.
 
@@ -150,11 +150,11 @@ Note: prefixing the name of the workflow with `test-` prevents alerts for the wo
 Submit the workflow through the UI:
 "+ SUBMIT NEW WORKFLOW" > "Edit using full workflow options" > "UPLOAD FILE" > "+ CREATE".
 
-![Submitting a new workflow](images/argo_ui_submit_new_workflow.png)
+![Submitting a new workflow](images/argo-ui-submit-new-workflow.png)
 
 The completed workflow should look like this in the Argo UI:
 
-![Hello World example](images/wf_hello_world.png)
+![Hello World example](images/wf-hello-world.png)
 
 ### "hello world" example with argument parameter
 
@@ -162,7 +162,7 @@ The completed workflow should look like this in the Argo UI:
 
 Below is an example of parameters when submitting the Standardising workflow in the UI:
 
-![Standardising workflow parameters](images/standardising_parameters.png)
+![Standardising workflow parameters](images/standardising-parameters.png)
 
 Parameters are referenced using **Argo variables**.
 
@@ -222,7 +222,7 @@ Submit it through the UI.
 
 The completed workflow should look like this in the Argo UI:
 
-![Hello World Args example](images/wf_hello_world_args.png)
+![Hello World Args example](images/wf-hello-world-args.png)
 
 ### Creating and running workflows from the CLI
 
@@ -250,7 +250,7 @@ You can also do that for kubectl if you want to:
 argo submit docs/training_workshop/example_workflows/wf_hello_world.yaml -n argo --watch
 ```
 
-![Hello World CLI example](images/cli_hello_world.png)
+![Hello World CLI example](images/cli-hello-world.png)
 
 ### CLI "hello world" example with argument parameters
 
@@ -258,7 +258,7 @@ argo submit docs/training_workshop/example_workflows/wf_hello_world.yaml -n argo
 argo submit docs/training_workshop/example_workflows/wf_hello_world_args.yaml -p message1="hello world" --watch
 ```
 
-![Hello World Args CLI example](images/cli_hello_world_args.png)
+![Hello World Args CLI example](images/cli-hello-world-args.png)
 
 **Using a parameters file:** If there are many parameters in a workflow, the parameters can be placed in a separate YAML file which can be referenced when submitting the workflow on the CLI. For example:
 
@@ -296,7 +296,7 @@ Some generic and specific alerts have been configured to happen in `#alert-argo-
 ### Argo UI
 
 The application logs are accessible in the Argo UI Workflow page in the task description (by clicking on one of the task/pod - `SUMMARY` tab):
-![Workflows logs](images/argo_ui_show_logs.png)
+![Workflows logs](images/argo-ui-show-logs.png)
 
 They are also downloadable in the `INPUTS/OUTPUTS` tab as `main.log`.
 
@@ -383,7 +383,7 @@ Submit the workflow through the CLI.
 
 The completed workflow should look like this in the Argo UI:
 
-![Hello World Args and Tasks example](images/wf_hello_world_args_tasks.png)
+![Hello World Args and Tasks example](images/wf-hello-world-args-tasks.png)
 
 ### DAG example - dependent tasks
 
@@ -454,7 +454,7 @@ Submit the workflow.
 
 The completed workflow should look like this in the Argo UI:
 
-![Hello World DAG example](images/wf_hello_world_dag.png)
+![Hello World DAG example](images/wf-hello-world-dag.png)
 
 ### Inputs and Outputs - passing information between tasks in a Workflow
 
@@ -556,7 +556,7 @@ Example workflow file: [wf_output_parallel.yaml](example_workflows/wf_output_par
 
 The output should look like this in the Argo UI:
 
-![Parallel Output](images/parallel_output.png)
+![Parallel Output](images/parallel-output.png)
 
 ### A note about performance and scaling workflows
 
@@ -566,12 +566,12 @@ The output should look like this in the Argo UI:
 
 General structure (YAML):
 
-![Standardising Workflow Structure - YAML](images/standardising_structure.png)
+![Standardising Workflow Structure - YAML](images/standardising-structure.png)
 
 Compare the structure shown above with the Argo Workflows UI view:
 (TODO: Update screenshot with `standardising` workflow using `topo-imagery` `v2`)
 
-![Standardising Workflow Structure - GUI](images/standardising_argo_ui.png)
+![Standardising Workflow Structure - GUI](images/standardising-argo-ui.png)
 
 Now check out in the YAML file [standardising.yaml](../../workflows/imagery/standardising.yaml):
 
