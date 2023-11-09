@@ -12,7 +12,7 @@ The following list of labels should be used in conjunction with kubernetes [well
 | --------------------- | ---------------------------------------- | ------------------------------------- |
 | `linz.govt.nz/ticket` | JIRA Ticket number                       | `TDE-912`, `BM-37`                    |
 | `linz.govt.nz/region` | Geographic region that object relates to | "wellington", "auckland"              |
-| `linz.govt.nz/group`  | The LINZ group that owns the workflow    | "basemaps", "imagery", "test", "util" |
+| `linz.govt.nz/category`  | The LINZ group that owns the workflow    | "basemaps", "imagery", "test", "util" |
 
 For the type of data that is being processed
 
@@ -46,7 +46,7 @@ Find pods based off component names
 k get pods -n argo -l "app.kubernetes.io/component=server"
 ```
 
-Find all pods deployed from linz/topo-workflows, Kubernetes does not work with "/" so repository names are replaced with "\_\_"
+Find all resources deployed from linz/topo-workflows github repository, Kubernetes does not work with "/" so repository names are replaced with "\_\_"
 
 ```bash
 k get all -A -l "linz.govt.nz/git-repo=linz__topo-workflows"
