@@ -6,7 +6,7 @@ Because Kubernetes deprecates quickly and releases often, we need to keep our ku
 
 ## Upgrade steps
 
-**It is a [good idea](https://cdk8s.io/docs/latest/plus/#i-operate-kubernetes-version-1xx-which-cdk8s-library-should-i-be-using) to check if a `CDK8s` version matches the Kubernetes version you want to upgrade to.**
+**It is a [good idea](https://cdk8s.io/docs/latest/plus/#i-operate-kubernetes-version-1xx-which-cdk8s-library-should-i-be-using) to check if a `CDK8s-plus` version matches the Kubernetes version you want to upgrade to.**
 
 Below is an example of upgrading from v1.27 to v1.28
 
