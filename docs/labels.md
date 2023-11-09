@@ -1,10 +1,10 @@
 # Kubernetes & Workflow Labels
 
-To make it easier to filter and parse the huge amount of workflows and other objects that are inside our cluster. A number of labels need to be applied to every workflow.
+To make it easier to filter and parse the huge amount of workflows and other objects that are inside our cluster, a number of labels need to be applied to every workflow.
 
-The labels can be used in both [Argo Workflows](./infrastructure/components/argo.workflows.md) and the kubectl command line.
+The labels can be used in both [Argo Workflows](./infrastructure/components/argo.workflows.md) and the `kubectl` command line.
 
-The following list of labels should be used in conjunction with kubernetes [well known labels](https://kubernetes.io/docs/reference/labels-annotations-taints/) and [recommended labels](https://kubernetes.io/docs/concepts/overview/working-with-objects/common-labels/)
+The following list of labels should be used in conjunction with Kubernetes [well known labels](https://kubernetes.io/docs/reference/labels-annotations-taints/) and [recommended labels](https://kubernetes.io/docs/concepts/overview/working-with-objects/common-labels/).
 
 ## Workflows
 
