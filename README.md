@@ -4,7 +4,7 @@ Topo workflows are run on a AWS EKS Cluster using [Argo Workflows](https://argop
 
 To get setup you need access to the Argo user role inside the EKS cluster, you will need to contact someone from Topo Data Engineering to get access, all Imagery maintainers will already have access.
 
-If creating your own workflow, or interested in the details of a current workflow please also read the [CONFIGURATION.md](./CONFIGURATION.md).
+If creating your own workflow, or interested in the details of a current workflow please also read the [CONFIGURATION.md](docs/configuration.md).
 
 - [Setup](#setup)
 - [Submitting a Job](#submitting-a-job)
@@ -83,11 +83,11 @@ In the **Workflows** page:
 
 ### Workflow Parameters
 
-![WorkflowParameters](/docs/workflow_parameters.png)
+![WorkflowParameters](./docs/static/workflow-parameters.png)
 
 ### Workflow Logs
 
-![WorkflowLogs](/docs/workflow_logs.png)
+![WorkflowLogs](./docs/static/workflow-logs.png)
 
 ### Logs in Elasticsearch
 

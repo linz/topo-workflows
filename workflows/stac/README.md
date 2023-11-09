@@ -27,7 +27,7 @@ If any schema validation failures are found, the workflow will fail.
 
 Logs can be viewed in Argo by selecting the `stac-validate` workflow component > CONTAINERS > LOGS.
 
-![WorkflowLogs](../../docs/workflow_logs.png)
+![WorkflowLogs](../../docs/static/workflow-logs.png)
 
 Example failure messages:
 

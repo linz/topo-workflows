@@ -161,7 +161,7 @@ Below is an example of pods running concurrently - in this case, the `flatten-co
 
 _Note: the Argo Workflows flowchart UI refers to pods as “nodes”._
 
-![FigureOne](/docs/configuration-figure-1.png)
+![FigureOne](./static/configuration-figure-1.png)
 
 **Example - running a task in parallel**
 
@@ -207,7 +207,7 @@ The first `standardise-validate` task pod receives the input:
 
 The number of files in each list is specified in the workflow parameters when the workflow is submitted (the `group` parameter). How many files are processed by each pod is the result of experimentation to find a good point between the size requirements and how long the overhead of starting a pod takes. Processing too many images could exceed the storage available on the pod.
 
-![FigureTwo](/docs/configuration-figure-2.png)
+![FigureTwo](./static/configuration-figure-2.png)
 
 #### <a name='Performanceoptimisationsinthecodeitselfconcurrency'></a>3. Performance optimisations in the code itself (concurrency)
 
@@ -231,7 +231,7 @@ The example shows that the `standardise-validate` task has run on 62 pods (3097/
 
 `flatten-copy` was run with a batch size of 1000 (TIFF and STAC) files per pod, and has run in 7 pods (6194/1000 files).
 
-![FigureThree](/docs/configuration-figure-3.png)
+![FigureThree](./static/configuration-figure-3.png)
 
 ## <a name='ApproachesforImprovingWorkflowPerformance'></a>Approaches for Improving Workflow Performance
 
@@ -251,7 +251,7 @@ You can see the EC2 Instance usage in Elasticsearch: My Applications > LI Elasti
 
 Below is an example of a CPU-intensive workflow task running, in this case the stage of the standardising workflow that runs `gdal_translate`.
 
-![FigureFour](/docs/configuration-figure-4.png)
+![FigureFour](./static/configuration-figure-4.png)
 
 This shows that the workflow is making good use of the CPU. Before the standardising code was changed to run 4 `gdal_translate` commands concurrently, the CPU usage was much lower.
 
