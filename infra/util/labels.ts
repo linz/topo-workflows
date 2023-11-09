@@ -21,12 +21,13 @@ export function defaultLabels(
     'app.kubernetes.io/component': component,
     'app.kubernetes.io/part-of': partOf,
     'app.kubernetes.io/managed-by': 'cdk8s',
-    // TODO these are not "well-known" maybe we should move them into the linz namespace?
+
+    // See /docs/labels.md for more information on LINZ's labels
     // Labels cannot include "/" so replace with "__"
-    'app.kubernetes.io/git-repository': 'linz__topo-workflows',
-    'app.kubernetes.io/git-hash': getGitBuildInfo().hash,
-    'app.kubernetes.io/git-version': getGitBuildInfo().version,
-    'app.kubernetes.io/build-id': getGitBuildInfo().buildId,
+    'linz.govt.nz/git-repository': 'linz__topo-workflows',
+    'linz.govt.nz/git-hash': getGitBuildInfo().hash,
+    'linz.govt.nz/git-version': getGitBuildInfo().version,
+    'linz.govt.nz/build-id': getGitBuildInfo().buildId,
   };
 }
 
