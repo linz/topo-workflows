@@ -187,5 +187,5 @@ See https://github.com/linz/argo-tasks#lint-inputs
         value: '{{workflow.parameters.version-argo-tasks}}'
       - name: path
         value: '{{workflow.parameters.target}}'
-  when: '{{workflow.parameters.skip-lint}} != true'
+  when: '{{workflow.parameters.lint}} == true'
 ```

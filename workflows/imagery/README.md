@@ -201,7 +201,7 @@ Access permissions are controlled by the [Bucket Sharing Config](https://github.
 | group       | int   | 1000                                          | The maximum number of files for each pod to copy (will use the value of `group` or `group-size` that is reached first).                                          |
 | group-size  | str   | 100Gi                                         | The maximum group size of files for each pod to copy (will use the value of `group` or `group-size` that is reached first).                                      |
 | transform   | str   | `f`                                           | String to be transformed from source to target to renamed filenames, e.g. `f.replace("text to replace", "new_text_to_use")`. Leave as `f` for no transformation. |
-| skip-lint   | str   | `false`                                       | False: lint the target path; True: skip linting of target path - to be used when publishing to a location other than `linz-imagery` or using a non-standard path |
+| lint        | str   | `true`                                        | true: lint the target path; false: skip linting of target path - to be used when publishing to a location other than `linz-imagery` or using a non-standard path |
 
 ## Examples
 
@@ -227,7 +227,7 @@ Access permissions are controlled by the [Bucket Sharing Config](https://github.
 
 **copy-option:** `--no-clobber`
 
-**skip-lint:** `true`
+**lint:** `true`
 
 # Publish-odr
 

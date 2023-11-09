@@ -37,8 +37,8 @@ spec:
         value: '100Gi'
       - name: transform
         value: 'f'
-      - name: 'skip-lint'
-        value: 'false'
+      - name: 'lint'
+        value: 'true'
   templateDefaults:
     container:
       imagePullPolicy: Always
@@ -64,7 +64,7 @@ spec:
                   value: '{{workflow.parameters.version-argo-tasks}}'
                 - name: path
                   value: '{{workflow.parameters.target}}'
-            when: '{{workflow.parameters.skip-lint}} != true'
+            when: '{{workflow.parameters.lint}} == true'
           - name: create-manifest-github
             templateRef:
               name: tpl-create-manifest
