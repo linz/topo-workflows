@@ -67,9 +67,9 @@ Resources
 
 5. Create a pull request and wait for CI/CD to deploy the changes.
 
-**Version bump deployments can take 10+ minutes :coffee: **
+**Version bump deployments can take 10+ minutes :coffee:**
 
-## Cycle out EC2 Nodes to the new version.
+## Cycle out EC2 Nodes to the new version
 
 1. Find the nodegroup name for the cluster
 
