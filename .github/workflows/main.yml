@@ -4,12 +4,12 @@ jobs:
   main:
     name: Format & Deploy(master)
     runs-on: ubuntu-latest
-
     concurrency: deploy-${{ github.ref }}
-
     permissions:
       id-token: write
       contents: read
+    env:
+      CLUSTER_NAME: Workflows
 
     steps:
       - uses: actions/checkout@v4
@@ -29,7 +29,6 @@ jobs:
       - name: format
         run: npm run format -- --fix=false # ensure eslint is not configured to --fix
 
-
       # Configure access to AWS / EKS
       - name: Setup kubectl
         uses: azure/setup-kubectl@v3
@@ -45,7 +44,7 @@ jobs:
 
       - name: Login to EKS
         run: |
-          aws eks update-kubeconfig --name Workflows --region ap-southeast-2
+          aws eks update-kubeconfig --name ${{ env.CLUSTER_NAME }} --region ap-southeast-2
 
       - name: Check EKS connection
         run: |
@@ -59,14 +58,14 @@ jobs:
       - name: (CDK) Diff
         if: github.ref != 'refs/heads/master'
         run: |
-          npx cdk diff Workflows \
+          npx cdk diff ${{ env.CLUSTER_NAME }} \
             -c ci-role-arn=${{ secrets.AWS_CI_ROLE }} \
             -c aws-account-id=${{ secrets.AWS_ACCOUNT_ID }}
 
       - name: (CDK) Deploy
         if: github.ref == 'refs/heads/master'
         run: |
-          npx cdk deploy Workflows \
+          npx cdk deploy ${{ env.CLUSTER_NAME }} \
             -c ci-role-arn=${{ secrets.AWS_CI_ROLE }} \
             -c aws-account-id=${{ secrets.AWS_ACCOUNT_ID }}
 
