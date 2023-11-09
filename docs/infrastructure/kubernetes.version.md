@@ -65,7 +65,7 @@ Resources
          └─ [+] 1.28
 ```
 
-5. Create a pull request and wait for CI/CD to deploy the changes.
+5. Create a pull request and wait for CI/CD to deploy the changes
 
 **Version bump deployments can take 10+ minutes :coffee:**
 
