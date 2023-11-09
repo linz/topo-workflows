@@ -1,5 +1,5 @@
 import { KubectlV28Layer } from '@aws-cdk/lambda-layer-kubectl-v28';
-import { Aws, CfnOutput, Duration, RemovalPolicy, Stack, StackProps } from 'aws-cdk-lib';
+import { Aws, CfnOutput, Stack, StackProps } from 'aws-cdk-lib';
 import { InstanceType, IVpc, SubnetType, Vpc } from 'aws-cdk-lib/aws-ec2';
 import { Cluster, ClusterLoggingTypes, IpFamily, KubernetesVersion, NodegroupAmiType } from 'aws-cdk-lib/aws-eks';
 import {
@@ -11,10 +11,10 @@ import {
   Role,
   ServicePrincipal,
 } from 'aws-cdk-lib/aws-iam';
-import { BlockPublicAccess, Bucket, IBucket } from 'aws-cdk-lib/aws-s3';
+import { Bucket, IBucket } from 'aws-cdk-lib/aws-s3';
 import { Construct } from 'constructs';
 
-import { CfnOutputKeys } from '../constants.js';
+import { CfnOutputKeys, ScratchBucketName } from '../constants.js';
 
 interface EksClusterProps extends StackProps {
   /** Optional CI User to grant access to the cluster */
@@ -27,7 +27,7 @@ export class LinzEksCluster extends Stack {
   /** Version of EKS to use, this must be aligned to the `kubectlLayer` */
   version = KubernetesVersion.of('1.28');
   /** Argo needs a temporary bucket to store objects */
-  tempBucket: Bucket;
+  tempBucket: IBucket;
   /* Bucket where read/write roles config files are stored */
   configBucket: IBucket;
   vpc: IVpc;
@@ -38,21 +38,7 @@ export class LinzEksCluster extends Stack {
     super(scope, id, props);
     this.id = id;
 
-    this.tempBucket = new Bucket(this, 'Scratch', {
-      /** linz-workflows-scratch */
-      bucketName: `linz-${id.toLowerCase()}-scratch`,
-      removalPolicy: RemovalPolicy.RETAIN,
-      blockPublicAccess: BlockPublicAccess.BLOCK_ALL,
-      lifecycleRules: [
-        {
-          /** All artifacts are deleted after 90 days */
-          expiration: Duration.days(90),
-          /** This bucket is not used for multipart uploads so clean them up quickly */
-          abortIncompleteMultipartUploadAfter: Duration.days(3),
-        },
-      ],
-    });
-    new CfnOutput(this, CfnOutputKeys.TempBucketName, { value: this.tempBucket.bucketName });
+    this.tempBucket = Bucket.fromBucketName(this, 'Scratch', ScratchBucketName);
 
     this.configBucket = Bucket.fromBucketName(this, 'BucketConfig', 'linz-bucket-config');
 

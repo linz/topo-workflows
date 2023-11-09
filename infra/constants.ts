@@ -1,5 +1,7 @@
 /* Cluster name */
 export const ClusterName = 'Workflows';
+/* LINZ conventional name for Argo Workflows artifact bucket */
+export const ScratchBucketName = `linz-${ClusterName.toLowerCase()}-scratch`;
 
 /* CloudFormation Output to access from CDK8s */
 export const CfnOutputKeys = {
@@ -12,8 +14,6 @@ export const CfnOutputKeys = {
   FluentBitServiceAccountName: 'FluentBitServiceAccountName',
 
   ArgoRunnerServiceAccountName: 'ArgoRunnerServiceAccountName',
-
-  TempBucketName: 'TempBucketName',
 } as const;
 
 /** The list of possible keys */
