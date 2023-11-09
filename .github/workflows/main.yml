@@ -2,33 +2,26 @@ on: [push]
 
 jobs:
   main:
-    name: Format & Deploy(master)
+    name: Build, Format and Test
     runs-on: ubuntu-latest
+    steps:
+      - uses: linz/action-typescript@v3
 
-    concurrency: deploy-${{ github.ref }}
+  deploy-prod:
+    runs-on: ubuntu-latest
+    concurrency: deploy-prod-${{ github.ref }}
+    needs: [main]
+    if: ${{ github.ref == 'refs/heads/master' }}
+
+    environment:
+      name: prod
 
     permissions:
       id-token: write
       contents: read
 
     steps:
-      - uses: actions/checkout@v4
-
-      # Initial build and linting
-      - name: Use Node.js 18.x
-        uses: actions/setup-node@v4
-        with:
-          node-version: '18.x'
-
-      - name: Install
-        run: npm install --ci
-
-      - name: format
-        run: npm run lint -- --fix=false # ensure eslint is not configured to --fix
-
-      - name: format
-        run: npm run format -- --fix=false # ensure eslint is not configured to --fix
-
+      - uses: linz/action-typescript@v3
 
       # Configure access to AWS / EKS
       - name: Setup kubectl
@@ -55,16 +48,7 @@ jobs:
       # and run them only when infra/cdk or infra/cdk8s is modified.
       # and use github deployments to track when things were deployed.
 
-      # Setup the EKS cluster with AWS-CDK
-      - name: (CDK) Diff
-        if: github.ref != 'refs/heads/master'
-        run: |
-          npx cdk diff Workflows \
-            -c ci-role-arn=${{ secrets.AWS_CI_ROLE }} \
-            -c aws-account-id=${{ secrets.AWS_ACCOUNT_ID }}
-
       - name: (CDK) Deploy
-        if: github.ref == 'refs/heads/master'
         run: |
           npx cdk deploy Workflows \
             -c ci-role-arn=${{ secrets.AWS_CI_ROLE }} \
@@ -80,7 +64,6 @@ jobs:
 
       # TODO use a --prune and --applyset to remove unused objects
       - name: (CDK8s) Deploy
-        if: github.ref == 'refs/heads/master'
         run: |
           kubectl apply -f dist/
 
