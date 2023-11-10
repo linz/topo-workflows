@@ -67,7 +67,7 @@ export class LinzEksCluster extends Stack {
       ipFamily: IpFamily.IP_V6,
       clusterLogging: [ClusterLoggingTypes.API, ClusterLoggingTypes.CONTROLLER_MANAGER, ClusterLoggingTypes.SCHEDULER],
     });
-    new CfnOutput(this, 'SecurityGroupId', { value: this.cluster.clusterSecurityGroupId });
+    new CfnOutput(this, CfnOutputKeys.ClusterSecurityGroupId, { value: this.cluster.clusterSecurityGroupId });
 
     const nodeGroup = this.cluster.addNodegroupCapacity('ClusterDefault', {
       /**
@@ -108,7 +108,6 @@ export class LinzEksCluster extends Stack {
     );
 
     new CfnOutput(this, CfnOutputKeys.ClusterEndpoint, { value: this.cluster.clusterEndpoint });
-    new CfnOutput(this, CfnOutputKeys.ClusterSecurityGroupId, { value: this.cluster.clusterSecurityGroupId });
 
     this.configureEks();
   }

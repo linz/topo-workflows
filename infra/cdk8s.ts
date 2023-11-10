@@ -6,7 +6,14 @@ import { Cloudflared } from './charts/cloudflared.js';
 import { FluentBit } from './charts/fluentbit.js';
 import { Karpenter, KarpenterProvisioner } from './charts/karpenter.js';
 import { CoreDns } from './charts/kube-system.coredns.js';
-import { CfnOutputKeys, ClusterName, validateKeys } from './constants.js';
+import {
+  ArgoDbName,
+  CfnOutputKeys,
+  CfnOutputKeysArgoDb,
+  ClusterName,
+  validateKeys,
+  validateKeysArgoDb,
+} from './constants.js';
 import { getCfnOutputs } from './util/cloud.formation.js';
 import { fetchSsmParameters } from './util/ssm.js';
 
@@ -16,6 +23,9 @@ async function main(): Promise<void> {
   // Get cloudformation outputs
   const cfnOutputs = await getCfnOutputs(ClusterName);
   validateKeys(cfnOutputs);
+  // TODO this is a horrible hack that needs refactoring to validate keys from multiple stacks
+  const cfnOutputsArgoDb = await getCfnOutputs(ArgoDbName);
+  validateKeysArgoDb(cfnOutputsArgoDb);
 
   const ssmConfig = await fetchSsmParameters({
     // Config for Cloudflared to access argo-server
@@ -67,7 +77,7 @@ async function main(): Promise<void> {
     clusterName: ClusterName,
     saName: cfnOutputs[CfnOutputKeys.ArgoRunnerServiceAccountName],
     tempBucketName: cfnOutputs[CfnOutputKeys.TempBucketName],
-    argoDbEndpoint: cfnOutputs[CfnOutputKeys.ArgoDbEndpoint],
+    argoDbEndpoint: cfnOutputsArgoDb[CfnOutputKeysArgoDb.ArgoDbEndpoint],
   });
 
   new Cloudflared(app, 'cloudflared', {
