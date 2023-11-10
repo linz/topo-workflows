@@ -42,13 +42,14 @@ export type CfnOutputMapArgoDb = Record<ICfnOutputKeysArgoDb, string>;
  */
 
 export function validateKeys(cfnOutputs: Record<string, string>): asserts cfnOutputs is CfnOutputMap {
-  const missingKeys = Object.values(cfnOutputs).filter((f) => cfnOutputs[f] == null);
+  const missingKeys = Object.values(CfnOutputKeys).filter((f) => cfnOutputs[f] == null);
   if (missingKeys.length > 0) {
     throw new Error(`Missing CloudFormation Outputs for keys ${missingKeys.join(', ')}`);
   }
 }
+
 export function validateKeysArgoDb(cfnOutputs: Record<string, string>): asserts cfnOutputs is CfnOutputMapArgoDb {
-  const missingKeys = Object.values(cfnOutputs).filter((f) => cfnOutputs[f] == null);
+  const missingKeys = Object.values(CfnOutputKeysArgoDb).filter((f) => cfnOutputs[f] == null);
   if (missingKeys.length > 0) {
     throw new Error(`Missing CloudFormation Outputs for keys ${missingKeys.join(', ')}`);
   }
