@@ -118,3 +118,5 @@ aws eks describe-nodegroup --cluster-name Workflows --nodegroup-name EksWorkflow
 ```bash
 aws eks update-nodegroup-version --cluster-name Workflows --nodegroup-name EksWorkflowsNodegroupCluste-OWsXxRuVz2B7
 ```
+
+This step takes some time too...
