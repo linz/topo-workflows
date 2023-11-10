@@ -6,6 +6,28 @@ Because Kubernetes deprecates quickly and releases often, we need to keep our ku
 
 ## Upgrade steps
 
+### Upgrade `cdk8s-plus`
+
+**It is a [good idea](https://cdk8s.io/docs/latest/plus/#i-operate-kubernetes-version-1xx-which-cdk8s-library-should-i-be-using) to check if a `CDK8s-plus` version matches the Kubernetes version you want to upgrade to.**
+
+If there is a version matching to the Kubernetes version to upgrade to, upgrade CDK8s-plus before proceeding to upgrade Kubernetes steps.
+
+1. Install the new version
+
+```bash
+npm install --save-dev cdk8s-plus-27
+```
+
+2. Remove the previous version
+
+```bash
+npm rm cdk8s-plus-26
+```
+
+If there is no version matching, keep the version installed and proceed to upgrade Kubernetes steps.
+
+### Upgrade Kubernetes
+
 Below is an example of upgrading from v1.27 to v1.28
 
 1. Update lambda-layer version to the matching version number
