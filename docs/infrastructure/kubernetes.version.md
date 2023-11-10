@@ -119,4 +119,26 @@ aws eks describe-nodegroup --cluster-name Workflows --nodegroup-name EksWorkflow
 aws eks update-nodegroup-version --cluster-name Workflows --nodegroup-name EksWorkflowsNodegroupCluste-OWsXxRuVz2B7
 ```
 
-This step takes some time to run...
+This step takes some time to run (status `InProgress`):
+
+```json
+{
+    "update": {
+        "id": "19523050-000",
+        "status": "InProgress",
+        "type": "VersionUpdate",
+        "params": [
+            {
+                "type": "Version",
+                "value": "1.28"
+            },
+            {
+                "type": "ReleaseVersion",
+                "value": "1.16.0-d2d9cf87"
+            }
+        ],
+        "createdAt": "2023-11-10T14:49:47.697000+13:00",
+        "errors": []
+    }
+}
+```
