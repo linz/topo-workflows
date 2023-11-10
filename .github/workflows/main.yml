@@ -20,6 +20,9 @@ jobs:
       id-token: write
       contents: read
 
+    env:
+      CLUSTER_NAME: Workflows
+
     steps:
       - uses: linz/action-typescript@v3
 
@@ -38,7 +41,7 @@ jobs:
 
       - name: Login to EKS
         run: |
-          aws eks update-kubeconfig --name Workflows --region ap-southeast-2
+          aws eks update-kubeconfig --name ${{ env.CLUSTER_NAME }} --region ap-southeast-2
 
       - name: Check EKS connection
         run: |
@@ -50,7 +53,7 @@ jobs:
 
       - name: (CDK) Deploy
         run: |
-          npx cdk deploy Workflows \
+          npx cdk deploy ${{ env.CLUSTER_NAME }} \
             -c ci-role-arn=${{ secrets.AWS_CI_ROLE }} \
             -c aws-account-id=${{ secrets.AWS_ACCOUNT_ID }}
 
