@@ -1,8 +1,12 @@
 import { Chart, ChartProps, Duration, Helm } from 'cdk8s';
 import { Construct } from 'constructs';
 
-import { CfnOutputKeysArgoDb } from '../constants.js';
+import { ArgoDbName, CfnOutputKeysArgoDb, validateKeysArgoDb } from '../constants.js';
+import { getCfnOutputs } from '../util/cloud.formation.js';
 import { applyDefaultLabels } from '../util/labels.js';
+
+const cfnOutputsArgoDb = await getCfnOutputs(ArgoDbName);
+validateKeysArgoDb(cfnOutputsArgoDb);
 
 export interface ArgoWorkflowsProps {
   /**
@@ -74,7 +78,7 @@ export class ArgoWorkflows extends Chart {
       archive: true,
       archiveTTL: '180d',
       postgresql: {
-        host: CfnOutputKeysArgoDb.ArgoDbEndpoint,
+        host: cfnOutputsArgoDb[CfnOutputKeysArgoDb.ArgoDbEndpoint],
         port: 5432,
         database: 'postgres',
         tableName: 'argo_workflows',

@@ -1,6 +1,6 @@
 /* Cluster name */
-export const ClusterName = 'WorkflowsAF';
-export const ArgoDbName = 'ArgoDbAF';
+export const ClusterName = 'Workflows';
+export const ArgoDbName = 'ArgoDb';
 
 /* CloudFormation Output to access from CDK8s */
 export const CfnOutputKeys = {
