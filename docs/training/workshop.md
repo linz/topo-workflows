@@ -190,12 +190,12 @@ metadata:
   namespace: argo
 spec:
   nodeSelector:
-    karpenter.sh/capacity-type: "spot"
+    karpenter.sh/capacity-type: 'spot'
   entrypoint: main
   arguments:
     parameters:
       - name: message
-        value: "hello world"
+        value: 'hello world'
   templates:
     - name: main
       dag:
@@ -204,16 +204,16 @@ spec:
             template: say-hello-template
             arguments:
               parameters:
-              - name: message
-                  value: "{{workflow.parameters.message}}"
+                - name: message
+                  value: '{{workflow.parameters.message}}'
     - name: say-hello-template
       inputs:
         parameters:
           - name: message
       container:
-        image: "019359803926.dkr.ecr.ap-southeast-2.amazonaws.com/topo-imagery:v3"
+        image: '019359803926.dkr.ecr.ap-southeast-2.amazonaws.com/topo-imagery:v3'
         command: [echo]
-        args: ["{{inputs.parameters.message}}"]
+        args: ['{{inputs.parameters.message}}']
 ```
 
 Example workflow file: [wf_hello_world_args.yaml](examples/wf_hello_world_args.yaml)
@@ -399,14 +399,14 @@ metadata:
   namespace: argo
 spec:
   nodeSelector:
-    karpenter.sh/capacity-type: "spot"
+    karpenter.sh/capacity-type: 'spot'
   entrypoint: main
   arguments:
     parameters:
       - name: message1
-        value: "hello world 1"
+        value: 'hello world 1'
       - name: message2
-        value: "hello world 2"
+        value: 'hello world 2'
   templates:
     - name: main
       dag:
@@ -416,37 +416,36 @@ spec:
             arguments:
               parameters:
                 - name: message
-                  value: "{{workflow.parameters.message1}}"
+                  value: '{{workflow.parameters.message1}}'
           - name: say-hello-task2
             template: say-hello-template
             arguments:
               parameters:
                 - name: message
-                  value: "{{workflow.parameters.message2}}"
-            depends: "say-hello-task1"
+                  value: '{{workflow.parameters.message2}}'
+            depends: 'say-hello-task1'
           - name: say-hello-task3
             template: say-hello-template
             arguments:
               parameters:
                 - name: message
-                  value: "say hello task 3"
-            depends: "say-hello-task1"
+                  value: 'say hello task 3'
+            depends: 'say-hello-task1'
           - name: say-hello-task4
             template: say-hello-template
             arguments:
-`wf_hello_world_args_tasks.yaml`
               parameters:
                 - name: message
-                  value: "say hello task 4"
-            depends: "say-hello-task2 && say-hello-task3"
+                  value: 'say hello task 4'
+            depends: 'say-hello-task2 && say-hello-task3'
     - name: say-hello-template
       inputs:
         parameters:
           - name: message
       container:
-        image: "019359803926.dkr.ecr.ap-southeast-2.amazonaws.com/topo-imagery:v3"
+        image: '019359803926.dkr.ecr.ap-southeast-2.amazonaws.com/topo-imagery:v3'
         command: [echo]
-        args: ["{{inputs.parameters.message}}"]
+        args: ['{{inputs.parameters.message}}']
 ```
 
 Example workflow file: [wf_hello_world_dag.yaml](examples/wf_hello_world_dag.yaml)
@@ -475,17 +474,15 @@ kind: Workflow
 metadata:
   generateName: test-output-parallel-
 spec:
-  nodeSelector:
-    karpenter.sh/capacity-type: "spot"
   parallelism: 20
   nodeSelector:
-    karpenter.sh/capacity-type: "spot"
+    karpenter.sh/capacity-type: 'spot'
   serviceAccountName: workflow-runner-sa
   entrypoint: main
   arguments:
     parameters:
       - name: uri
-        value: "s3://linz-imagery-staging/test/stac-validate/"
+        value: 's3://linz-imagery-staging/test/stac-validate/'
   templateDefaults:
     container:
       imagePullPolicy: Always
@@ -498,39 +495,39 @@ spec:
             arguments:
               parameters:
                 - name: uri
-                  value: "{{workflow.parameters.uri}}"
+                  value: '{{workflow.parameters.uri}}'
                 - name: include
-                  value: "json$"
+                  value: 'json$'
           - name: stac-print-path
             template: stac-print-path
             arguments:
               parameters:
                 - name: file
-                  value: "{{item}}"
-            depends: "aws-list"
-            withParam: "{{tasks.aws-list.outputs.parameters.files}}"
+                  value: '{{item}}'
+            depends: 'aws-list'
+            withParam: '{{tasks.aws-list.outputs.parameters.files}}'
     - name: aws-list
       inputs:
         parameters:
           - name: uri
           - name: include
       container:
-        image: "019359803926.dkr.ecr.ap-southeast-2.amazonaws.com/argo-tasks:v2"
+        image: '019359803926.dkr.ecr.ap-southeast-2.amazonaws.com/argo-tasks:v2'
         command: [node, /app/index.js]
         env:
           - name: AWS_ROLE_CONFIG_PATH
             value: s3://linz-bucket-config/config.json
         args:
           [
-            "list",
-            "--verbose",
-            "--include",
-            "{{inputs.parameters.include}}",
-            "--group",
-            "4",
-            "--output",
-            "/tmp/file_list.json",
-            "{{inputs.parameters.uri}}",
+            'list',
+            '--verbose',
+            '--include',
+            '{{inputs.parameters.include}}',
+            '--group',
+            '4',
+            '--output',
+            '/tmp/file_list.json',
+            '{{inputs.parameters.uri}}',
           ]
       outputs:
         parameters:
@@ -542,12 +539,12 @@ spec:
         parameters:
           - name: file
       script:
-        image: "019359803926.dkr.ecr.ap-southeast-2.amazonaws.com/argo-tasks:v2"
+        image: '019359803926.dkr.ecr.ap-southeast-2.amazonaws.com/argo-tasks:v2'
         env:
           - name: AWS_ROLE_CONFIG_PATH
             value: s3://linz-bucket-config/config.json
         command:
-          - "bash"
+          - 'bash'
         source: |
           PATH_OUT=$(echo "{{inputs.parameters.file}}" | sed 's/,/ /g; s/\[/ /g; s/\]/ /g')
           echo $PATH_OUT
