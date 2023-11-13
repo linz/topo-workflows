@@ -1,7 +1,8 @@
 import { Chart, ChartProps, Duration, Helm } from 'cdk8s';
+import { Secret } from 'cdk8s-plus-27';
 import { Construct } from 'constructs';
 
-import { ArgoDbName, CfnOutputKeysArgoDb, validateKeysArgoDb } from '../constants.js';
+import { ArgoDbName, ArgoDbUser, CfnOutputKeysArgoDb, validateKeysArgoDb } from '../constants.js';
 import { getCfnOutputs } from '../util/cloud.formation.js';
 import { applyDefaultLabels } from '../util/labels.js';
 
@@ -33,6 +34,7 @@ export interface ArgoWorkflowsProps {
    * @example "argodb-argodb4be14fa2-p8yjinijwbro.cmpyjhgv78aj.ap-southeast-2.rds.amazonaws.com"
    */
   argoDbEndpoint: string;
+  argoDbPassword: string;
 }
 
 /**
@@ -69,6 +71,10 @@ export class ArgoWorkflows extends Chart {
       },
     };
 
+    const argoDb = new Secret(this, 'argo-postgres-config', {});
+    argoDb.addStringData('username', ArgoDbUser);
+    argoDb.addStringData('password', props.argoDbPassword);
+
     const persistence = {
       connectionPool: {
         maxIdleConns: 100,
@@ -83,8 +89,8 @@ export class ArgoWorkflows extends Chart {
         database: 'postgres',
         tableName: 'argo_workflows',
         // TODO: decide on method to add DB secret to K8s from AWS Secrets Manager
-        userNameSecret: { name: 'argo-postgres-config', key: 'username' },
-        passwordSecret: { name: 'argo-postgres-config', key: 'password' },
+        userNameSecret: { name: argoDb.name, key: 'username' },
+        passwordSecret: { name: argoDb.name, key: 'password' },
         ssl: true,
         sslMode: 'require',
       },

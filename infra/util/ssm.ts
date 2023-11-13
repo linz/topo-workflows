@@ -7,7 +7,7 @@ const ssm = new SSM();
  *
  * @example
  * ```typescript
- * const result = fetchSsmParameters({ clientId: '/eks/client-id' })
+ * const result = fetchSsmParameters({ clientId: '/eks/client-id', dbPassword: '/eks/rds/password'})
  * result.clientId // Value of '/eks/client-id'
  * ```
  *
@@ -15,7 +15,7 @@ const ssm = new SSM();
  */
 export async function fetchSsmParameters<T extends Record<string, string>>(query: T): Promise<T> {
   console.log('FetchSSM', Object.values(query));
-  const ret = await ssm.getParameters({ Names: Object.values(query) });
+  const ret = await ssm.getParameters({ Names: Object.values(query), WithDecryption: true });
 
   const output: Record<string, string> = {};
   const missing: string[] = [];
@@ -25,6 +25,7 @@ export async function fetchSsmParameters<T extends Record<string, string>>(query
       missing.push(parameterName);
       continue;
     }
+    console.log(val);
     output[key] = val.Value;
   }
 

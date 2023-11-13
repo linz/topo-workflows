@@ -1,6 +1,6 @@
 /* Cluster name */
 export const ClusterName = 'Workflows';
-export const ArgoDbName = 'ArgoDb';
+export const ArgoDbName = 'ArgoDbAF';
 
 /* CloudFormation Output to access from CDK8s */
 export const CfnOutputKeys = {
@@ -54,3 +54,5 @@ export function validateKeysArgoDb(cfnOutputs: Record<string, string>): asserts 
     throw new Error(`Missing CloudFormation Outputs for keys ${missingKeys.join(', ')}`);
   }
 }
+
+export const ArgoDbUser = 'argo_user';

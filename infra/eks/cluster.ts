@@ -11,6 +11,7 @@ import {
   Role,
   ServicePrincipal,
 } from 'aws-cdk-lib/aws-iam';
+import { DatabaseSecret } from 'aws-cdk-lib/aws-rds';
 import { BlockPublicAccess, Bucket, IBucket } from 'aws-cdk-lib/aws-s3';
 import { Construct } from 'constructs';
 
