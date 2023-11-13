@@ -3,7 +3,7 @@
 This document describes the settings that can be applied to Argo Workflows in general, to manage the performance of the workflows, and the settings that are currently applied. If you would like help, talk to the Topo Data Engineering team.
 
 - [Introduction to the Argo Workflows Environment](#introduction-to-the-argo-workflows-environment)
-- [Workflow Structure and General Settings](#workflow-structureand-general-settings)
+- [Workflow Structure and General Settings](#workflow-structure-and-general-settings)
   - [Inputs and Outputs](#inputs-and-outputs)
   - [Container Images](#container-images)
   - [Container Environment Variables](#container-environment-variables)
@@ -33,7 +33,7 @@ Workflows that need to be run multiple times are stored as WorkflowTemplates.
 
 Workflows can be run from the Argo UI or the command line.
 
-## Workflow Structure and General Settings
+## Workflow Structure and General Settings
 
 Workflows are written in YAML and follow a nested structure, first defining settings that apply to the whole workflow and the initial workflow parameters (specified when submitting a workflow), then which tasks to run. Settings for individual tasks within the workflow are then specified:
 
@@ -153,7 +153,7 @@ Two example workflow tasks requesting specific resources (memory and CPU) from t
 
 #### 2. Running tasks in parallel on multiple pods
 
-The number of pods to run simultaneously can be set at the workflow level and overridden at a task level using `parallelism`. This is the number of pods to run concurrently for tasks. For most of our workflows this is set to `50`, which, combined with the sizing of the EC2 instances, works well for speed and cost. If not specified the default value of `3` will be used (set when configuring Argo Workflows).
+The number of pods to run simultaneously can be set at the workflow level and overridden at a task level using `parallelism`. This is the number of pods to run concurrently for tasks. For most of our workflows this is set to `50`, which, combined with the sizing of the EC2 instances, works well for speed and cost. If not specified the default value of `3` will be used (set when configuring Argo Workflows).
 
 Running a task in parallel is done by using `withParam` in a workflow task. The parameter specified must be a JSON list. Each item in the list will be used as the input to a task pod running in parallel.
 
