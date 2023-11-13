@@ -320,7 +320,8 @@ Some filters can be applied:
 
 - `--sort-by=.metadata.creationTimestamp` to sort them in chronological order
 - `--types=Warning` to show only the warnings
-  Older events (more than 60 minutes) are still available in Elastic Search (see next section).
+
+Older events (more than 60 minutes) are still available in Elastic Search (see next section).
 
 ### Elastic Search
 
