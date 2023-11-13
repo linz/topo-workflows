@@ -319,12 +319,13 @@ kubectl get events -n argo
 Some filters can be applied:
 
 - `--sort-by=.metadata.creationTimestamp` to sort them in chronological order
-- `--types=Warning` to show only the warnings
-  Older events (more than 60 minutes) are still available in Elastic Search (see next section).
+- `--field-selector=type=Warning` to show only the warnings
 
-### Elastic Search
+Older events (more than 60 minutes) are still available in Elasticsearch (see next section).
 
-The logs and events that are output by the Argo Workflows ecosystem are accessible inside Elastic Search. Elastic Search allows the user to execute queries. It contains application logs and system events at the same place.
+### Elasticsearch
+
+The logs and events that are output by the Argo Workflows ecosystem are accessible inside Elasticsearch. Elasticsearch allows the user to execute queries. It contains application logs and system events at the same place.
 
 ## Workflow Concepts - more exercises
 

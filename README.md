@@ -131,7 +131,7 @@ data.title : "Wellington Urban Aerial Photos (1987-1988) SN8790" and data.url : 
 
 #### Container version used
 
-`kubernetes.container_hash` field, available in Elastic Search, gives the container hash that was used to run the task. It allows to get the version from the container registry for further investigations.
+`kubernetes.container_hash` field, available in Elasticsearch, gives the container hash that was used to run the task. It allows to get the version from the container registry for further investigations.
 
 ### Workflow Artifacts
 
