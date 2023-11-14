@@ -1,5 +1,5 @@
 import { KubectlV28Layer } from '@aws-cdk/lambda-layer-kubectl-v28';
-import { Aws, CfnOutput, RemovalPolicy, Stack, StackProps } from 'aws-cdk-lib';
+import { Aws, CfnOutput, RemovalPolicy, SecretValue, Stack, StackProps } from 'aws-cdk-lib';
 import {
   InstanceClass,
   InstanceSize,
@@ -24,7 +24,7 @@ import { Credentials, DatabaseInstance, DatabaseInstanceEngine, PostgresEngineVe
 import { Bucket, IBucket } from 'aws-cdk-lib/aws-s3';
 import { Construct } from 'constructs';
 
-import { ArgoDbUser, CfnOutputKeys, ScratchBucketName } from '../constants.js';
+import { ArgoDbName, ArgoDbUser, CfnOutputKeys, ScratchBucketName } from '../constants.js';
 
 interface EksClusterProps extends StackProps {
   /** Optional CI User to grant access to the cluster */
@@ -69,7 +69,7 @@ export class LinzEksCluster extends Stack {
       clusterLogging: [ClusterLoggingTypes.API, ClusterLoggingTypes.CONTROLLER_MANAGER, ClusterLoggingTypes.SCHEDULER],
     });
 
-    this.argoDb = new DatabaseInstance(this, 'ArgoDb', {
+    this.argoDb = new DatabaseInstance(this, ArgoDbName, {
       engine: DatabaseInstanceEngine.postgres({ version: PostgresEngineVersion.VER_15_3 }),
       instanceType: InstanceType.of(InstanceClass.T3, InstanceSize.SMALL),
       vpc: this.vpc,
