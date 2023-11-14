@@ -1,6 +1,9 @@
 import { Chart, ChartProps, Duration, Helm } from 'cdk8s';
+import { Secret } from 'cdk8s-plus-27';
 import { Construct } from 'constructs';
 
+import { ArgoDbUser, CfnOutputKeys, ClusterName, validateKeys } from '../constants.js';
+import { getCfnOutputs } from '../util/cloud.formation.js';
 import { applyDefaultLabels } from '../util/labels.js';
 
 export interface ArgoWorkflowsProps {
@@ -22,6 +25,13 @@ export interface ArgoWorkflowsProps {
    * @example "Workflows"
    */
   clusterName: string;
+  /**
+   * The Argo database endpoint
+   *
+   * @example "argodb-argodb4be14fa2-p8yjinijwbro.cmpyjhgv78aj.ap-southeast-2.rds.amazonaws.com"
+   */
+  argoDbEndpoint: string;
+  argoDbPassword: string;
 }
 
 /**
@@ -37,6 +47,9 @@ const chartVersion = '0.34.0';
  *
  */
 const appVersion = 'v3.4.11';
+
+const cfnOutputs = await getCfnOutputs(ClusterName);
+validateKeys(cfnOutputs);
 
 export class ArgoWorkflows extends Chart {
   constructor(scope: Construct, id: string, props: ArgoWorkflowsProps & ChartProps) {
@@ -55,6 +68,31 @@ export class ArgoWorkflows extends Chart {
         endpoint: 's3.amazonaws.com',
         useSDKCreds: true,
         insecure: false,
+      },
+    };
+
+    const argoDb = new Secret(this, 'argo-postgres-config', {});
+    argoDb.addStringData('username', ArgoDbUser);
+    argoDb.addStringData('password', props.argoDbPassword);
+
+    const persistence = {
+      connectionPool: {
+        maxIdleConns: 100,
+        maxOpenConns: 0,
+      },
+      nodeStatusOffLoad: false,
+      archive: true,
+      archiveTTL: '180d',
+      postgresql: {
+        host: cfnOutputs[CfnOutputKeys.ArgoDbEndpoint],
+        port: 5432,
+        database: 'argo',
+        tableName: 'argo_workflows',
+        // TODO: decide on method to add DB secret to K8s from AWS Secrets Manager
+        userNameSecret: { name: argoDb.name, key: 'username' },
+        passwordSecret: { name: argoDb.name, key: 'password' },
+        ssl: true,
+        sslMode: 'require',
       },
     };
 
@@ -86,6 +124,7 @@ export class ArgoWorkflows extends Chart {
           nodeSelector: { ...DefaultNodeSelector },
           workflowNamespaces: ['argo'],
           extraArgs: [],
+          persistence,
           replicas: 2,
           workflowDefaults: {
             spec: {
