@@ -75,7 +75,7 @@ export class LinzEksCluster extends Stack {
     //allow the maintainer roles access to the cluster
     for (const roleArn of props.maintainerRoleArns) {
       const roleId = `MaintainerRole-${createHash('sha256').update(roleArn).digest('hex').slice(0, 12)}`;
-      const role = Role.fromRoleArn(this, roleId, roleArn);
+      const role = Role.fromRoleArn(this, roleId, roleArn, { defaultPolicyName: this.stackName });
       this.cluster.awsAuth.addMastersRole(role);
     }
 
