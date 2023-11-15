@@ -27,6 +27,9 @@ async function main(): Promise<void> {
 
     // Personal access token to gain access to linz-basemaps github user
     githubPat: '/eks/github/linz-basemaps/pat',
+
+    // Argo Database connection password
+    argoDbPassword: '/eks/argo/postgres/password',
   });
 
   const coredns = new CoreDns(app, 'dns', {});
@@ -59,6 +62,8 @@ async function main(): Promise<void> {
     clusterName: ClusterName,
     saName: cfnOutputs[CfnOutputKeys.ArgoRunnerServiceAccountName],
     tempBucketName: ScratchBucketName,
+    argoDbEndpoint: cfnOutputs[CfnOutputKeys.ArgoDbEndpoint],
+    argoDbPassword: ssmConfig.argoDbPassword,
   });
 
   new ArgoExtras(app, 'argo-extras', {

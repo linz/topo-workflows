@@ -1,9 +1,11 @@
 /* Cluster name */
 export const ClusterName = 'Workflows';
-/* Cluster name */
-export const ArgoDbName = 'ArgoDb';
 /* LINZ conventional name for Argo Workflows artifact bucket */
 export const ScratchBucketName = `linz-${ClusterName.toLowerCase()}-scratch`;
+/* Argo Database Instance name */
+export const ArgoDbInstanceName = 'ArgoDb';
+/* Argo Database user */
+export const ArgoDbName = 'argo';
 /* Argo Database user */
 export const ArgoDbUser = 'argo_user';
 

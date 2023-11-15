@@ -2,8 +2,7 @@ import { Chart, ChartProps, Duration, Helm } from 'cdk8s';
 import { Secret } from 'cdk8s-plus-27';
 import { Construct } from 'constructs';
 
-import { ArgoDbUser, CfnOutputKeys, ClusterName, validateKeys } from '../constants.js';
-import { getCfnOutputs } from '../util/cloud.formation.js';
+import { ArgoDbName, ArgoDbUser } from '../constants.js';
 import { applyDefaultLabels } from '../util/labels.js';
 
 export interface ArgoWorkflowsProps {
@@ -48,9 +47,6 @@ const chartVersion = '0.34.0';
  */
 const appVersion = 'v3.4.11';
 
-const cfnOutputs = await getCfnOutputs(ClusterName);
-validateKeys(cfnOutputs);
-
 export class ArgoWorkflows extends Chart {
   constructor(scope: Construct, id: string, props: ArgoWorkflowsProps & ChartProps) {
     super(scope, id, applyDefaultLabels(props, 'argo-workflows', appVersion, 'logs', 'workflows'));
@@ -71,26 +67,25 @@ export class ArgoWorkflows extends Chart {
       },
     };
 
-    const argoDb = new Secret(this, 'argo-postgres-config', {});
-    argoDb.addStringData('username', ArgoDbUser);
-    argoDb.addStringData('password', props.argoDbPassword);
+    const argoDbSecret = new Secret(this, 'argo-postgres-config', {});
+    argoDbSecret.addStringData('username', ArgoDbUser);
+    argoDbSecret.addStringData('password', props.argoDbPassword);
 
     const persistence = {
       connectionPool: {
         maxIdleConns: 100,
         maxOpenConns: 0,
       },
-      nodeStatusOffLoad: false,
+      nodeStatusOffLoad: true,
       archive: true,
-      archiveTTL: '180d',
+      // archiveTTL: '180d', default is never expire archived workflows
       postgresql: {
-        host: cfnOutputs[CfnOutputKeys.ArgoDbEndpoint],
+        host: props.argoDbEndpoint,
         port: 5432,
-        database: 'argo',
+        database: ArgoDbName,
         tableName: 'argo_workflows',
-        // TODO: decide on method to add DB secret to K8s from AWS Secrets Manager
-        userNameSecret: { name: argoDb.name, key: 'username' },
-        passwordSecret: { name: argoDb.name, key: 'password' },
+        userNameSecret: { name: argoDbSecret.name, key: 'username' },
+        passwordSecret: { name: argoDbSecret.name, key: 'password' },
         ssl: true,
         sslMode: 'require',
       },
@@ -129,7 +124,7 @@ export class ArgoWorkflows extends Chart {
           workflowDefaults: {
             spec: {
               serviceAccountName: props.saName,
-              ttlStrategy: { secondsAfterCompletion: Duration.days(7).toSeconds() },
+              ttlStrategy: { secondsAfterCompletion: Duration.days(1).toSeconds() },
               podGC: { strategy: 'OnPodCompletion' },
               tolerations: [
                 {

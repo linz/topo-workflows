@@ -24,7 +24,7 @@ import { Credentials, DatabaseInstance, DatabaseInstanceEngine, PostgresEngineVe
 import { Bucket, IBucket } from 'aws-cdk-lib/aws-s3';
 import { Construct } from 'constructs';
 
-import { ArgoDbName, ArgoDbUser, CfnOutputKeys, ScratchBucketName } from '../constants.js';
+import { ArgoDbName, ArgoDbInstanceName, ArgoDbUser, CfnOutputKeys, ScratchBucketName } from '../constants.js';
 
 interface EksClusterProps extends StackProps {
   /** Optional CI User to grant access to the cluster */
@@ -69,14 +69,14 @@ export class LinzEksCluster extends Stack {
       clusterLogging: [ClusterLoggingTypes.API, ClusterLoggingTypes.CONTROLLER_MANAGER, ClusterLoggingTypes.SCHEDULER],
     });
 
-    this.argoDb = new DatabaseInstance(this, ArgoDbName, {
+    this.argoDb = new DatabaseInstance(this, ArgoDbInstanceName, {
       engine: DatabaseInstanceEngine.postgres({ version: PostgresEngineVersion.VER_15_3 }),
       instanceType: InstanceType.of(InstanceClass.T3, InstanceSize.SMALL),
       vpc: this.vpc,
       publiclyAccessible: false,
+      databaseName: ArgoDbName,
       allocatedStorage: 10,
       maxAllocatedStorage: 40,
-      // TODO: decide on method to add DB secret to K8s from AWS Secrets Manager
       credentials: Credentials.fromPassword(ArgoDbUser, SecretValue.ssmSecure('/eks/argo/postgres/password')),
       deletionProtection: true,
       removalPolicy: RemovalPolicy.RETAIN,
@@ -84,6 +84,8 @@ export class LinzEksCluster extends Stack {
       multiAz: true,
       enablePerformanceInsights: true,
     });
+
+    this.argoDb.node.addDependency(this.cluster);
 
     const eksSG = SecurityGroup.fromSecurityGroupId(this, 'ArgoSG', this.cluster.clusterSecurityGroupId, {});
     this.argoDb.connections.allowFrom(eksSG, Port.tcp(5432), 'EKS to Argo Database');
