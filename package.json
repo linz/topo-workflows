@@ -18,7 +18,8 @@
   },
   "scripts": {
     "lint": "npx eslint . --ignore-path .gitignore",
-    "format": "npx prettier . -w"
+    "format": "npx prettier . -w",
+    "test": "node --loader tsx --test infra/**/*.test.ts"
   },
   "devDependencies": {
     "@aws-cdk/lambda-layer-kubectl-v28": "^2.0.0",

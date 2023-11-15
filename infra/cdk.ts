@@ -1,7 +1,7 @@
 import { App } from 'aws-cdk-lib';
 
 import { ClusterName } from './constants.js';
-import { tryGetContextArn } from './eks/arns.js';
+import { tryGetContextArn } from './eks/arn.js';
 import { LinzEksCluster } from './eks/cluster.js';
 
 const app = new App();
