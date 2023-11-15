@@ -13,6 +13,7 @@ import {
 } from 'aws-cdk-lib/aws-iam';
 import { Bucket, IBucket } from 'aws-cdk-lib/aws-s3';
 import { Construct } from 'constructs';
+import { createHash } from 'crypto';
 
 import { CfnOutputKeys, ScratchBucketName } from '../constants.js';
 
@@ -73,8 +74,8 @@ export class LinzEksCluster extends Stack {
 
     //allow the maintainer roles access to the cluster
     for (const roleArn of props.maintainerRoleArns) {
-      // TODO: this can't be CiRole
-      const role = Role.fromRoleArn(this, 'CiRole', roleArn);
+      const roleId = createHash('sha256').update(roleArn).digest('hex').slice(0, 12);
+      const role = Role.fromRoleArn(this, roleId, roleArn);
       this.cluster.awsAuth.addMastersRole(role);
     }
 
