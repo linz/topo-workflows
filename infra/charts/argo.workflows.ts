@@ -78,7 +78,7 @@ export class ArgoWorkflows extends Chart {
       },
       nodeStatusOffLoad: true,
       archive: true,
-      // archiveTTL: '180d', default is never expire archived workflows
+      archiveTTL: '', // never expire archived workflows
       postgresql: {
         host: props.argoDbEndpoint,
         port: 5432,

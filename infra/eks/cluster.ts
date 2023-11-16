@@ -1,5 +1,5 @@
 import { KubectlV28Layer } from '@aws-cdk/lambda-layer-kubectl-v28';
-import { Aws, CfnOutput, RemovalPolicy, SecretValue, Stack, StackProps } from 'aws-cdk-lib';
+import { Aws, CfnOutput, Duration, RemovalPolicy, SecretValue, Stack, StackProps } from 'aws-cdk-lib';
 import {
   InstanceClass,
   InstanceSize,
@@ -78,14 +78,14 @@ export class LinzEksCluster extends Stack {
       allocatedStorage: 10,
       maxAllocatedStorage: 40,
       credentials: Credentials.fromPassword(ArgoDbUser, SecretValue.ssmSecure('/eks/argo/postgres/password')),
-      deletionProtection: true,
-      removalPolicy: RemovalPolicy.RETAIN,
+      deletionProtection: false,
+      removalPolicy: RemovalPolicy.SNAPSHOT,
+      backupRetention: Duration.days(7),
+      deleteAutomatedBackups: false,
       storageEncrypted: false,
       multiAz: true,
       enablePerformanceInsights: true,
     });
-
-    this.argoDb.node.addDependency(this.cluster);
 
     const eksSG = SecurityGroup.fromSecurityGroupId(this, 'ArgoSG', this.cluster.clusterSecurityGroupId, {});
     this.argoDb.connections.allowFrom(eksSG, Port.tcp(5432), 'EKS to Argo Database');
@@ -99,7 +99,7 @@ export class LinzEksCluster extends Stack {
        * Instances are requested in order listed.
        * https://docs.aws.amazon.com/eks/latest/userguide/managed-node-groups.html#managed-node-group-capacity-types
        **/
-      instanceTypes: ['c6i.large', 'c6a.large'].map((f) => new InstanceType(f)),
+     instanceTypes: ['c6i.large', 'c6a.large'].map((f) => new InstanceType(f)),
       minSize: 2,
       amiType: NodegroupAmiType.BOTTLEROCKET_X86_64,
       subnets: { subnetType: SubnetType.PRIVATE_WITH_EGRESS },
