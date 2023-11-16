@@ -60,7 +60,7 @@ jobs:
       - name: (CDK) Deploy
         run: |
           npx cdk deploy ${{ env.CLUSTER_NAME }} \
-            -c ci-role-arn=${{ secrets.AWS_CI_ROLE }} \
+            -c maintainer-arns=${{ secrets.AWS_CI_ROLE }},${{ secrets.AWS_ADMIN_ROLE }},${{ secrets.AWS_WFMAINTAINER_ROLE }} \
             -c aws-account-id=${{ secrets.AWS_ACCOUNT_ID }}
 
       # Configure the Kubernetes cluster with CDK8s
