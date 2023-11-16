@@ -11,6 +11,7 @@ import {
   Role,
   ServicePrincipal,
 } from 'aws-cdk-lib/aws-iam';
+import * as iam from 'aws-cdk-lib/aws-iam';
 import { Bucket, IBucket } from 'aws-cdk-lib/aws-s3';
 import { Construct } from 'constructs';
 import { createHash } from 'crypto';
@@ -76,6 +77,9 @@ export class LinzEksCluster extends Stack {
     for (const roleArn of props.maintainerRoleArns) {
       const roleId = `MaintainerRole-${createHash('sha256').update(roleArn).digest('hex').slice(0, 12)}`;
       const role = Role.fromRoleArn(this, roleId, roleArn, { defaultPolicyName: this.stackName });
+      role.addToPrincipalPolicy(
+        new iam.PolicyStatement({ actions: ['eks:DescribeCluster'], resources: [this.cluster.clusterArn] }),
+      );
       this.cluster.awsAuth.addMastersRole(role);
     }
 
