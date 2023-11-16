@@ -24,7 +24,7 @@ import { Credentials, DatabaseInstance, DatabaseInstanceEngine, PostgresEngineVe
 import { Bucket, IBucket } from 'aws-cdk-lib/aws-s3';
 import { Construct } from 'constructs';
 
-import { ArgoDbName, ArgoDbInstanceName, ArgoDbUser, CfnOutputKeys, ScratchBucketName } from '../constants.js';
+import { ArgoDbInstanceName, ArgoDbName, ArgoDbUser, CfnOutputKeys, ScratchBucketName } from '../constants.js';
 
 interface EksClusterProps extends StackProps {
   /** Optional CI User to grant access to the cluster */
@@ -99,7 +99,7 @@ export class LinzEksCluster extends Stack {
        * Instances are requested in order listed.
        * https://docs.aws.amazon.com/eks/latest/userguide/managed-node-groups.html#managed-node-group-capacity-types
        **/
-     instanceTypes: ['c6i.large', 'c6a.large'].map((f) => new InstanceType(f)),
+      instanceTypes: ['c6i.large', 'c6a.large'].map((f) => new InstanceType(f)),
       minSize: 2,
       amiType: NodegroupAmiType.BOTTLEROCKET_X86_64,
       subnets: { subnetType: SubnetType.PRIVATE_WITH_EGRESS },
