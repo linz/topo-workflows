@@ -20,7 +20,13 @@ import {
   Role,
   ServicePrincipal,
 } from 'aws-cdk-lib/aws-iam';
-import { Credentials, DatabaseInstance, DatabaseInstanceEngine, PostgresEngineVersion } from 'aws-cdk-lib/aws-rds';
+import {
+  Credentials,
+  DatabaseInstance,
+  DatabaseInstanceEngine,
+  DatabaseInstanceFromSnapshot,
+  PostgresEngineVersion,
+} from 'aws-cdk-lib/aws-rds';
 import { Bucket, IBucket } from 'aws-cdk-lib/aws-s3';
 import { Construct } from 'constructs';
 
@@ -29,6 +35,8 @@ import { ArgoDbInstanceName, ArgoDbName, ArgoDbUser, CfnOutputKeys, ScratchBucke
 interface EksClusterProps extends StackProps {
   /** Optional CI User to grant access to the cluster */
   ciRoleArn?: string;
+  /** Optional paraqmeter to restore Argo workflow archive from a database snapshot */
+  argoDbSnapshotName?: string;
 }
 
 export class LinzEksCluster extends Stack {
@@ -69,23 +77,57 @@ export class LinzEksCluster extends Stack {
       clusterLogging: [ClusterLoggingTypes.API, ClusterLoggingTypes.CONTROLLER_MANAGER, ClusterLoggingTypes.SCHEDULER],
     });
 
-    this.argoDb = new DatabaseInstance(this, ArgoDbInstanceName, {
-      engine: DatabaseInstanceEngine.postgres({ version: PostgresEngineVersion.VER_15_3 }),
-      instanceType: InstanceType.of(InstanceClass.T3, InstanceSize.SMALL),
-      vpc: this.vpc,
-      publiclyAccessible: false,
-      databaseName: ArgoDbName,
-      allocatedStorage: 10,
-      maxAllocatedStorage: 40,
-      credentials: Credentials.fromPassword(ArgoDbUser, SecretValue.ssmSecure('/eks/argo/postgres/password')),
-      deletionProtection: false,
-      removalPolicy: RemovalPolicy.SNAPSHOT,
-      backupRetention: Duration.days(7),
-      deleteAutomatedBackups: false,
-      storageEncrypted: false,
-      multiAz: true,
-      enablePerformanceInsights: true,
-    });
+    // TODO: reduce parameter duplication
+    // const dbCommonParams = {
+    //   engine: DatabaseInstanceEngine.postgres({ version: PostgresEngineVersion.VER_15_3 }),
+    //   instanceType: InstanceType.of(InstanceClass.T3, InstanceSize.SMALL),
+    //   vpc: this.vpc,
+    //   publiclyAccessible: false,
+    //   allocatedStorage: 10,
+    //   maxAllocatedStorage: 40,
+    //   multiAz: true,
+    //   enablePerformanceInsights: true,
+    //   deletionProtection: false,
+    //   removalPolicy: RemovalPolicy.SNAPSHOT,
+    //   backupRetention: Duration.days(7),
+    //   deleteAutomatedBackups: false,
+    //   }
+
+    if (!props.argoDbSnapshotName) {
+      this.argoDb = new DatabaseInstance(this, ArgoDbInstanceName, {
+        engine: DatabaseInstanceEngine.postgres({ version: PostgresEngineVersion.VER_15_3 }),
+        instanceType: InstanceType.of(InstanceClass.T3, InstanceSize.SMALL),
+        vpc: this.vpc,
+        databaseName: ArgoDbName,
+        credentials: Credentials.fromPassword(ArgoDbUser, SecretValue.ssmSecure('/eks/argo/postgres/password')),
+        storageEncrypted: false,
+        publiclyAccessible: false,
+        allocatedStorage: 10,
+        maxAllocatedStorage: 40,
+        multiAz: true,
+        enablePerformanceInsights: true,
+        deletionProtection: false,
+        removalPolicy: RemovalPolicy.SNAPSHOT,
+        backupRetention: Duration.days(7),
+        deleteAutomatedBackups: false,
+      });
+    } else {
+      this.argoDb = new DatabaseInstanceFromSnapshot(this, ArgoDbInstanceName, {
+        engine: DatabaseInstanceEngine.postgres({ version: PostgresEngineVersion.VER_15_3 }),
+        instanceType: InstanceType.of(InstanceClass.T3, InstanceSize.SMALL),
+        vpc: this.vpc,
+        snapshotIdentifier: props.argoDbSnapshotName,
+        publiclyAccessible: false,
+        allocatedStorage: 10,
+        maxAllocatedStorage: 40,
+        multiAz: true,
+        enablePerformanceInsights: true,
+        deletionProtection: false,
+        removalPolicy: RemovalPolicy.SNAPSHOT,
+        backupRetention: Duration.days(7),
+        deleteAutomatedBackups: false,
+      });
+    };
 
     const eksSG = SecurityGroup.fromSecurityGroupId(this, 'ArgoSG', this.cluster.clusterSecurityGroupId, {});
     this.argoDb.connections.allowFrom(eksSG, Port.tcp(5432), 'EKS to Argo Database');
