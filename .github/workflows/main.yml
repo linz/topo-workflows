@@ -14,6 +14,7 @@ jobs:
         run: docker run --volume="${PWD}:/repo" --workdir=/repo actionlint -color
 
   get-infra-changes:
+    name: Check for Edits in ./infra/
     outputs:
       run_infra: ${{ steps.check_infra.outputs.infra_change}}
     runs-on: ubuntu-latest
@@ -31,7 +32,7 @@ jobs:
         id: check_infra
         run: |
           mapfile -d '' modified_infra_files < <(git diff --name-only -z ${{ github.event.before }} ${{ github.event.after }} -- "infra/*")
-          if ["${#modified_infra_files[@]}" >= 1]
+          if [ "${#modified_infra_files[@]}" -ge 1 ]
           then
             echo "::set-output bame=infra_change::true" 
           else
