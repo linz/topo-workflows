@@ -17,6 +17,10 @@ jobs:
     outputs:
       run_infra: ${{ steps.check_infra.outputs.infra_change}}
     runs-on: ubuntu-latest
+    if: ${{ github.ref == 'refs/heads/master' }}
+
+    environment:
+      name: prod
 
     steps:
       - uses: actions/checkout@v4
