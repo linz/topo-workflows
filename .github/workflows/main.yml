@@ -13,10 +13,31 @@ jobs:
       - name: Run actionlint to check workflow files
         run: docker run --volume="${PWD}:/repo" --workdir=/repo actionlint -color
 
+  get-infra-changes:
+    outputs:
+      run_infra: ${{ steps.check_infra.outputs.infra_change}}
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: get changes
+        id: check_infra
+        run: |
+          mapfile -d '' modified_infra_files < <(git diff --name-only -z ${{ github.event.before }} ${{ github.event.after }} -- "infra/*")
+          if ["${#modified_infra_files[@]}" >= 1]
+          then
+            echo "::set-output bame=infra_change::true" 
+          else
+          echo "::set-output bame=infra_change::false" 
+          fi
+
   deploy-prod:
     runs-on: ubuntu-latest
     concurrency: deploy-prod-${{ github.ref }}
-    needs: [main]
+    needs: [main, get-infra-changes]
     if: ${{ github.ref == 'refs/heads/master' }}
 
     environment:
@@ -53,11 +74,8 @@ jobs:
         run: |
           kubectl get nodes
 
-      # TODO It would be nice to split the AWS-CDK/CDK8s deployments into steps
-      # and run them only when infra/cdk or infra/cdk8s is modified.
-      # and use github deployments to track when things were deployed.
-
       - name: (CDK) Deploy
+        if: needs.get-infra-changes.outputs.run_infra == 'true'
         run: |
           npx cdk deploy ${{ env.CLUSTER_NAME }} \
             -c maintainer-arns=${{ secrets.AWS_CI_ROLE }},${{ secrets.AWS_ADMIN_ROLE }},${{ secrets.AWS_WFMAINTAINER_ROLE }} \
@@ -66,14 +84,15 @@ jobs:
 
       # Configure the Kubernetes cluster with CDK8s
       - name: (CDK8s) Synth
+        if: needs.get-infra-changes.outputs.run_infra == 'true'
         run: |
           npx cdk8s synth
-
-      # kubectl diff - is somewhat dangerous as it dumps out secrets in plain text
-      # so it should not be used in this pipeline
+          # nb: kubectl diff - is somewhat dangerous as it dumps out secrets in plain text
+          # so it should not be used in this pipeline
 
       # TODO use a --prune and --applyset to remove unused objects
       - name: (CDK8s) Deploy
+        if: needs.get-infra-changes.outputs.run_infra == 'true'
         run: |
           kubectl apply -f dist/
 
