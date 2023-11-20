@@ -21,14 +21,16 @@ import {
   ServicePrincipal,
 } from 'aws-cdk-lib/aws-iam';
 import { Credentials, DatabaseInstance, DatabaseInstanceEngine, PostgresEngineVersion } from 'aws-cdk-lib/aws-rds';
+import * as iam from 'aws-cdk-lib/aws-iam';
 import { Bucket, IBucket } from 'aws-cdk-lib/aws-s3';
 import { Construct } from 'constructs';
+import { createHash } from 'crypto';
 
 import { ArgoDbInstanceName, ArgoDbName, ArgoDbUser, CfnOutputKeys, ScratchBucketName } from '../constants.js';
 
 interface EksClusterProps extends StackProps {
-  /** Optional CI User to grant access to the cluster */
-  ciRoleArn?: string;
+  /** List of role ARNs to grant access to the cluster */
+  maintainerRoleArns: string[];
 }
 
 export class LinzEksCluster extends Stack {
@@ -109,14 +111,14 @@ export class LinzEksCluster extends Stack {
     });
     this.tempBucket.grantReadWrite(nodeGroup.role);
 
-    // Grant the AWS Admin user ability to view the cluster
-    const accountAdminRole = Role.fromRoleName(this, 'AccountAdminRole', 'AccountAdminRole');
-    this.cluster.awsAuth.addMastersRole(accountAdminRole);
-
-    // If defined allow the CI user access to the cluster
-    if (props.ciRoleArn) {
-      const ciRole = Role.fromRoleArn(this, 'CiRole', props.ciRoleArn);
-      this.cluster.awsAuth.addMastersRole(ciRole);
+    //allow the maintainer roles access to the cluster
+    for (const roleArn of props.maintainerRoleArns) {
+      const roleId = `MaintainerRole-${createHash('sha256').update(roleArn).digest('hex').slice(0, 12)}`;
+      const role = Role.fromRoleArn(this, roleId, roleArn, { defaultPolicyName: this.stackName });
+      role.addToPrincipalPolicy(
+        new iam.PolicyStatement({ actions: ['eks:DescribeCluster'], resources: [this.cluster.clusterArn] }),
+      );
+      this.cluster.awsAuth.addMastersRole(role);
     }
 
     // This is the role that the new nodes will start as
