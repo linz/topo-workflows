@@ -36,7 +36,7 @@ jobs:
           then
             echo "::set-output bame=infra_change::true" 
           else
-          echo "::set-output bame=infra_change::false" 
+            echo "::set-output bame=infra_change::false" 
           fi
 
   deploy-prod:
