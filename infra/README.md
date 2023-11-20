@@ -76,6 +76,7 @@ npx tsx infra/cdk8s.ts
 ## CICD Deployment
 
 The deployment of the K8s config is managed by GithubActions in [main](../.github/workflows/main.yml).
+It will be deployed if there are changes to any files within the `./infra/` folder.
 
 ## Notes
 
