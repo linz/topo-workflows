@@ -13,36 +13,10 @@ jobs:
       - name: Run actionlint to check workflow files
         run: docker run --volume="${PWD}:/repo" --workdir=/repo actionlint -color
 
-  get-infra-changes:
-    name: Check for Edits in ./infra/
-    outputs:
-      run_infra: ${{ steps.check_infra.outputs.infra_change}}
-    runs-on: ubuntu-latest
-    if: ${{ github.ref == 'refs/heads/master' }}
-
-    environment:
-      name: prod
-
-    steps:
-      - uses: actions/checkout@v4
-        with:
-          fetch-depth: 0
-
-      - name: get changes
-        id: check_infra
-        run: |
-          mapfile -d '' modified_infra_files < <(git diff --name-only -z ${{ github.event.before }} ${{ github.event.after }} -- "infra/*")
-          if [ "${#modified_infra_files[@]}" -ge 1 ]
-          then
-            echo "::set-output bame=infra_change::true" 
-          else
-            echo "::set-output bame=infra_change::false" 
-          fi
-
   deploy-prod:
     runs-on: ubuntu-latest
     concurrency: deploy-prod-${{ github.ref }}
-    needs: [main, get-infra-changes]
+    needs: [main]
     if: ${{ github.ref == 'refs/heads/master' }}
 
     environment:
@@ -79,8 +53,18 @@ jobs:
         run: |
           kubectl get nodes
 
+      - name: Find Changes in Infra
+        id: get-infra-changes
+        run: |
+          mapfile -d '' modified_infra_files < <(git diff --name-only -z ${{ github.event.before }} ${{ github.event.after }} -- "infra/*")
+          if [[ "${#modified_infra_files[@]}" -ge 1 ]]; then
+            echo "run_infra=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "run_infra=false" >> "$GITHUB_OUTPUT"
+          fi
+
       - name: (CDK) Deploy
-        if: needs.get-infra-changes.outputs.run_infra == 'true'
+        if:  steps.get-infra-changes.outputs.run_infra == 'true'
         run: |
           npx cdk deploy ${{ env.CLUSTER_NAME }} \
             -c maintainer-arns=${{ secrets.AWS_CI_ROLE }},${{ secrets.AWS_ADMIN_ROLE }},${{ secrets.AWS_WFMAINTAINER_ROLE }} \
@@ -89,7 +73,7 @@ jobs:
 
       # Configure the Kubernetes cluster with CDK8s
       - name: (CDK8s) Synth
-        if: needs.get-infra-changes.outputs.run_infra == 'true'
+        if:  steps.get-infra-changes.outputs.run_infra == 'true'
         run: |
           npx cdk8s synth
           # nb: kubectl diff - is somewhat dangerous as it dumps out secrets in plain text
@@ -97,7 +81,7 @@ jobs:
 
       # TODO use a --prune and --applyset to remove unused objects
       - name: (CDK8s) Deploy
-        if: needs.get-infra-changes.outputs.run_infra == 'true'
+        if:  steps.get-infra-changes.outputs.run_infra == 'true'
         run: |
           kubectl apply -f dist/
 
