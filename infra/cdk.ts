@@ -9,7 +9,6 @@ const app = new App();
 async function main(): Promise<void> {
   const accountId = app.node.tryGetContext('aws-account-id') ?? process.env['CDK_DEFAULT_ACCOUNT'];
   const ciRoleArn = tryGetContextArn(app.node, 'ci-role-arn');
-  const argoDbSnapshotName = app.node.tryGetContext('db-snapshot-name');
 
   if (ciRoleArn == null) throw new Error('Missing context: ci-role-arn');
   if (accountId == null) {
@@ -19,7 +18,6 @@ async function main(): Promise<void> {
   new LinzEksCluster(app, ClusterName, {
     env: { region: 'ap-southeast-2', account: accountId },
     ciRoleArn,
-    argoDbSnapshotName,
   });
 
   app.synth();
