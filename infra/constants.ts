@@ -2,10 +2,18 @@
 export const ClusterName = 'Workflows';
 /* LINZ conventional name for Argo Workflows artifact bucket */
 export const ScratchBucketName = `linz-${ClusterName.toLowerCase()}-scratch`;
+/* Argo Database Instance name */
+export const ArgoDbInstanceName = 'ArgoDb';
+/* Argo Database name */
+export const ArgoDbName = 'argo';
+/* Argo Database user */
+export const ArgoDbUser = 'argo_user';
 
 /* CloudFormation Output to access from CDK8s */
 export const CfnOutputKeys = {
   ClusterEndpoint: 'ClusterEndpoint',
+
+  ArgoDbEndpoint: 'ArgoDbEndpoint',
 
   KarpenterServiceAccountName: 'KarpenterServiceAccountName',
   KarpenterServiceAccountRoleArn: 'KarpenterServiceAccountRoleArn',

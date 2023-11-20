@@ -1,6 +1,15 @@
 import { KubectlV28Layer } from '@aws-cdk/lambda-layer-kubectl-v28';
-import { Aws, CfnOutput, Stack, StackProps } from 'aws-cdk-lib';
-import { InstanceType, IVpc, SubnetType, Vpc } from 'aws-cdk-lib/aws-ec2';
+import { Aws, CfnOutput, Duration, RemovalPolicy, SecretValue, Stack, StackProps } from 'aws-cdk-lib';
+import {
+  InstanceClass,
+  InstanceSize,
+  InstanceType,
+  IVpc,
+  Port,
+  SecurityGroup,
+  SubnetType,
+  Vpc,
+} from 'aws-cdk-lib/aws-ec2';
 import { Cluster, ClusterLoggingTypes, IpFamily, KubernetesVersion, NodegroupAmiType } from 'aws-cdk-lib/aws-eks';
 import {
   CfnInstanceProfile,
@@ -12,11 +21,12 @@ import {
   ServicePrincipal,
 } from 'aws-cdk-lib/aws-iam';
 import * as iam from 'aws-cdk-lib/aws-iam';
+import { Credentials, DatabaseInstance, DatabaseInstanceEngine, PostgresEngineVersion } from 'aws-cdk-lib/aws-rds';
 import { Bucket, IBucket } from 'aws-cdk-lib/aws-s3';
 import { Construct } from 'constructs';
 import { createHash } from 'crypto';
 
-import { CfnOutputKeys, ScratchBucketName } from '../constants.js';
+import { ArgoDbInstanceName, ArgoDbName, ArgoDbUser, CfnOutputKeys, ScratchBucketName } from '../constants.js';
 
 interface EksClusterProps extends StackProps {
   /** List of role ARNs to grant access to the cluster */
@@ -28,6 +38,8 @@ export class LinzEksCluster extends Stack {
   id: string;
   /** Version of EKS to use, this must be aligned to the `kubectlLayer` */
   version = KubernetesVersion.of('1.28');
+  /** Argo needs a database for workflow archive */
+  argoDb: DatabaseInstance;
   /** Argo needs a temporary bucket to store objects */
   tempBucket: IBucket;
   /* Bucket where read/write roles config files are stored */
@@ -58,6 +70,32 @@ export class LinzEksCluster extends Stack {
       ipFamily: IpFamily.IP_V6,
       clusterLogging: [ClusterLoggingTypes.API, ClusterLoggingTypes.CONTROLLER_MANAGER, ClusterLoggingTypes.SCHEDULER],
     });
+
+    // TODO: setup up a database CNAME for changing Argo DB without updating Argo config
+    // TODO: run a Disaster Recovery test to recover database data
+    this.argoDb = new DatabaseInstance(this, ArgoDbInstanceName, {
+      engine: DatabaseInstanceEngine.postgres({ version: PostgresEngineVersion.VER_15_3 }),
+      instanceType: InstanceType.of(InstanceClass.T3, InstanceSize.SMALL),
+      vpc: this.vpc,
+      databaseName: ArgoDbName,
+      credentials: Credentials.fromPassword(ArgoDbUser, SecretValue.ssmSecure('/eks/argo/postgres/password')),
+      storageEncrypted: false,
+      publiclyAccessible: false,
+      allocatedStorage: 10,
+      maxAllocatedStorage: 40,
+      multiAz: true,
+      enablePerformanceInsights: true,
+      deletionProtection: false,
+      removalPolicy: RemovalPolicy.SNAPSHOT,
+      backupRetention: Duration.days(35),
+      deleteAutomatedBackups: false,
+    });
+
+    // Allow Argo Workflows to connect to the RDS Instances on port 5432 (Postgres default port)
+    const eksSG = SecurityGroup.fromSecurityGroupId(this, 'ArgoSG', this.cluster.clusterSecurityGroupId, {});
+    this.argoDb.connections.allowFrom(eksSG, Port.tcp(5432), 'EKS to Argo Database');
+
+    new CfnOutput(this, CfnOutputKeys.ArgoDbEndpoint, { value: this.argoDb.dbInstanceEndpointAddress });
 
     const nodeGroup = this.cluster.addNodegroupCapacity('ClusterDefault', {
       /**

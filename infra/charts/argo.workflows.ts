@@ -1,6 +1,8 @@
 import { Chart, ChartProps, Duration, Helm } from 'cdk8s';
+import { Secret } from 'cdk8s-plus-27';
 import { Construct } from 'constructs';
 
+import { ArgoDbName, ArgoDbUser } from '../constants.js';
 import { applyDefaultLabels } from '../util/labels.js';
 
 export interface ArgoWorkflowsProps {
@@ -22,6 +24,18 @@ export interface ArgoWorkflowsProps {
    * @example "Workflows"
    */
   clusterName: string;
+  /**
+   * The Argo database endpoint
+   *
+   * @example "argodb-argodb4be14fa2-p8yjinijwbro.cmpyjhgv78aj.ap-southeast-2.rds.amazonaws.com"
+   */
+  argoDbEndpoint: string;
+  /**
+   * The Argo database password
+   *
+   * @example "eighoo5room0aeM^ahz0Otoh4aakiipo"
+   */
+  argoDbPassword: string;
 }
 
 /**
@@ -58,6 +72,30 @@ export class ArgoWorkflows extends Chart {
       },
     };
 
+    const argoDbSecret = new Secret(this, 'argo-postgres-config', {});
+    argoDbSecret.addStringData('username', ArgoDbUser);
+    argoDbSecret.addStringData('password', props.argoDbPassword);
+
+    const persistence = {
+      connectionPool: {
+        maxIdleConns: 100,
+        maxOpenConns: 0,
+      },
+      nodeStatusOffLoad: true,
+      archive: true,
+      archiveTTL: '', // never expire archived workflows
+      postgresql: {
+        host: props.argoDbEndpoint,
+        port: 5432,
+        database: ArgoDbName,
+        tableName: 'argo_workflows',
+        userNameSecret: { name: argoDbSecret.name, key: 'username' },
+        passwordSecret: { name: argoDbSecret.name, key: 'password' },
+        ssl: true,
+        sslMode: 'require',
+      },
+    };
+
     const DefaultNodeSelector = {
       'eks.amazonaws.com/capacityType': 'ON_DEMAND',
       'kubernetes.io/arch': 'amd64',
@@ -86,11 +124,12 @@ export class ArgoWorkflows extends Chart {
           nodeSelector: { ...DefaultNodeSelector },
           workflowNamespaces: ['argo'],
           extraArgs: [],
+          persistence,
           replicas: 2,
           workflowDefaults: {
             spec: {
               serviceAccountName: props.saName,
-              ttlStrategy: { secondsAfterCompletion: Duration.days(7).toSeconds() },
+              ttlStrategy: { secondsAfterCompletion: Duration.days(1).toSeconds() },
               podGC: { strategy: 'OnPodCompletion' },
               tolerations: [
                 {
