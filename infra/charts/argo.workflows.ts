@@ -30,6 +30,11 @@ export interface ArgoWorkflowsProps {
    * @example "argodb-argodb4be14fa2-p8yjinijwbro.cmpyjhgv78aj.ap-southeast-2.rds.amazonaws.com"
    */
   argoDbEndpoint: string;
+  /**
+   * The Argo database password
+   *
+   * @example "eighoo5room0aeM^ahz0Otoh4aakiipo"
+   */
   argoDbPassword: string;
 }
 

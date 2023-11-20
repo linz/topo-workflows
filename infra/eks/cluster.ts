@@ -29,8 +29,6 @@ import { ArgoDbInstanceName, ArgoDbName, ArgoDbUser, CfnOutputKeys, ScratchBucke
 interface EksClusterProps extends StackProps {
   /** Optional CI User to grant access to the cluster */
   ciRoleArn?: string;
-  /** Optional paraqmeter to restore Argo workflow archive from a database snapshot */
-  argoDbSnapshotName?: string;
 }
 
 export class LinzEksCluster extends Stack {

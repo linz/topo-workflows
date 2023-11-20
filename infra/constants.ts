@@ -4,7 +4,7 @@ export const ClusterName = 'WorkflowsAF';
 export const ScratchBucketName = `linz-${ClusterName.toLowerCase()}-scratch`;
 /* Argo Database Instance name */
 export const ArgoDbInstanceName = 'ArgoDbAF';
-/* Argo Database user */
+/* Argo Database name */
 export const ArgoDbName = 'argo';
 /* Argo Database user */
 export const ArgoDbUser = 'argo_user';
