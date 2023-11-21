@@ -41,8 +41,12 @@ spec:
         value: 'true'
       - name: retile
         value: 'false'
+      - name: version_argo_tasks
+        value: 'v2'
       - name: version-argo-tasks
         value: 'v2'
+      - name: version_basemaps_cli
+        value: 'v6'
       - name: version-basemaps-cli
         value: 'v6'
       - name: version-topo-imagery
@@ -78,7 +82,7 @@ spec:
                   value: '100Gi'
         # - - name: import # uncomment this stanza for basemaps imagery import and amend as necessary. All other inputs should be workflow parameters
         #     templateRef:
-        #       name: basemaps-imagery-import
+        #       name: basemaps-imagery-import-cogify
         #       template: main
         #     arguments:
         #       parameters:
@@ -88,6 +92,11 @@ spec:
         #           value: "linz-basemaps" # change to "linz-basemaps-staging" for staging environment
         #         - name: cutline
         #           value: "s3://linz-basemaps-source/cutline/2020-05-07-cutline-nz-coasts-rural-and-urban.geojson"
+        #         - name: create_pull_request
+        #           value: "aerial" # change as required
+        #         - name: category
+        #           value: "Rural Aerial Photos" # change as required
+
   volumes:
     - name: ephemeral
       emptyDir: {}
