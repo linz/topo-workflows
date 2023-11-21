@@ -171,4 +171,3 @@ spec:
   volumes:
     - name: ephemeral
       emptyDir: {}
-
