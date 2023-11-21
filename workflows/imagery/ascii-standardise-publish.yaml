@@ -171,3 +171,7 @@ spec:
   volumes:
     - name: ephemeral
       emptyDir: {}
+    - name: secret-volume # this is for the publish-copy step
+      secret:
+        secretName: github-linz-basemaps-config
+        defaultMode: 384
