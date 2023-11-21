@@ -96,7 +96,6 @@ spec:
         #           value: "aerial" # change as required
         #         - name: category
         #           value: "Rural Aerial Photos" # change as required
-
   volumes:
     - name: ephemeral
       emptyDir: {}
