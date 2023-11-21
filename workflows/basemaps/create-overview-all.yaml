@@ -5,6 +5,8 @@ kind: Workflow
 metadata:
   name: create-all-overviews-
   namespace: argo
+  labels:
+    linz.govt.nz/category: basemaps
 spec:
   parallelism: 20
   nodeSelector:

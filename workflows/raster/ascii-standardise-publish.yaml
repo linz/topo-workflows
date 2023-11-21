@@ -5,6 +5,8 @@ kind: Workflow
 metadata:
   generateName: ascii-imagery-standardising-publish-
   namespace: argo
+  labels:
+    linz.govt.nz/category: raster
 spec:
   parallelism: 50
   nodeSelector:

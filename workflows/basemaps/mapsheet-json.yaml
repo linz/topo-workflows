@@ -5,6 +5,8 @@ kind: WorkflowTemplate
 metadata:
   name: basemaps-create-mapsheet-json
   namespace: argo
+  labels:
+    linz.govt.nz/category: basemaps
 spec:
   entrypoint: main
   arguments:

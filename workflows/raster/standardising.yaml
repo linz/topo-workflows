@@ -5,6 +5,8 @@ kind: WorkflowTemplate
 metadata:
   name: imagery-standardising
   namespace: argo
+  labels:
+    linz.govt.nz/category: raster
 spec:
   parallelism: 50
   nodeSelector:
