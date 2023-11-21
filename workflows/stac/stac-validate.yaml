@@ -4,6 +4,8 @@ kind: WorkflowTemplate
 metadata:
   name: stac-validate
   namespace: argo
+  labels:
+    linz.govt.nz/category: stac
 spec:
   parallelism: 20
   nodeSelector:

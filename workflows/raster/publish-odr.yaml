@@ -5,6 +5,8 @@ kind: WorkflowTemplate
 metadata:
   name: publish-odr
   namespace: argo
+  labels:
+    linz.govt.nz/category: raster
 spec:
   parallelism: 50
   nodeSelector:
