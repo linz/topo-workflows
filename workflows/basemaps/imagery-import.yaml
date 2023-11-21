@@ -48,11 +48,6 @@ spec:
           - 'true'
           - 'false'
 
-  volumes:
-    - name: secret-vol
-      secret:
-        secretName: github
-
   templateDefaults:
     container:
       imagePullPolicy: Always
@@ -227,8 +222,8 @@ spec:
           - name: GITHUB_API_TOKEN
             valueFrom:
               secretKeyRef:
-                name: github-bot-pat
-                key: github-token
+                name: github-linz-basemaps-pat
+                key: pat
         args:
           [
             '-V',

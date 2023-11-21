@@ -95,6 +95,3 @@ spec:
       secret:
         secretName: "github-linz-{{=sprig.regexFind('(elevation|imagery)', workflow.parameters.target)}}"
         defaultMode: 384
-    # - name: secret-vol # uncomment for basemaps imagery import
-    #   secret:
-    #     secretName: github-linz-basemaps-config

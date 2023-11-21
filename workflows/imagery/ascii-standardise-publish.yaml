@@ -171,7 +171,4 @@ spec:
   volumes:
     - name: ephemeral
       emptyDir: {}
-    - name: secret-volume # this is for the publish-copy step
-      secret:
-        secretName: github-linz-imagery
-        defaultMode: 384
+
