@@ -263,7 +263,7 @@ argo submit docs/training_workshop/example_workflows/wf_hello_world_args.yaml -p
 **Using a parameters file:** If there are many parameters in a workflow, the parameters can be placed in a separate YAML file which can be referenced when submitting the workflow on the CLI. For example:
 
 ```bash
-argo submit topo-workflows/imagery/standardising-publish-import.yaml -n argo -f params.yaml
+argo submit workflows/imagery/standardising-publish-import.yaml -n argo -f params.yaml
 ```
 
 _params.yaml_:
