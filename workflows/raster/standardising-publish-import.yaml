@@ -1,0 +1,100 @@
+# yaml-language-server: $schema=https://raw.githubusercontent.com/argoproj/argo-workflows/v3.4.13/api/jsonschema/schema.json
+
+apiVersion: argoproj.io/v1alpha1
+kind: Workflow
+metadata:
+  generateName: imagery-standardising-publish-import-
+  namespace: argo
+spec:
+  parallelism: 50
+  nodeSelector:
+    karpenter.sh/capacity-type: 'spot'
+  entrypoint: main
+  synchronization:
+    semaphore:
+      configMapKeyRef:
+        name: semaphores
+        key: bulk
+  arguments:
+    parameters:
+      - name: source
+        value: ''
+      - name: cutline # optional standardising cutline
+        value: ''
+      - name: collection-id # optional
+        value: ''
+      - name: compression
+        value: 'webp'
+      - name: source-epsg
+        value: '2193'
+      - name: target-epsg
+        value: '2193'
+      - name: group
+        value: '50'
+      - name: copy-option
+        value: '--no-clobber'
+      - name: include
+        value: '.tiff?$'
+      - name: transform
+        value: 'f'
+      - name: validate
+        value: 'true'
+      - name: retile
+        value: 'false'
+      - name: version-argo-tasks
+        value: 'v2'
+      - name: version-basemaps-cli
+        value: 'v6'
+      - name: version-topo-imagery
+        value: 'v3'
+  templateDefaults:
+    container:
+      imagePullPolicy: Always
+      image: ''
+  templates:
+    - name: main
+      steps:
+        - - name: standardise
+            templateRef:
+              name: imagery-standardising
+              template: main
+            arguments:
+              parameters:
+                - name: source
+                  value: '{{workflow.parameters.source}}'
+        - - name: publish
+            templateRef:
+              name: publish-copy
+              template: main
+            arguments:
+              parameters:
+                - name: source
+                  value: '{{steps.standardise.outputs.parameters.target}}flat/'
+                - name: include
+                  value: '.tiff?$|.json$'
+                - name: group
+                  value: '1000'
+                - name: group-size
+                  value: '100Gi'
+        # - - name: import # uncomment this stanza for basemaps imagery import and amend as necessary. All other inputs should be workflow parameters
+        #     templateRef:
+        #       name: basemaps-imagery-import
+        #       template: main
+        #     arguments:
+        #       parameters:
+        #         - name: source
+        #           value: "{{workflow.parameters.target}}"
+        #         - name: target
+        #           value: "linz-basemaps" # change to "linz-basemaps-staging" for staging environment
+        #         - name: cutline
+        #           value: "s3://linz-basemaps-source/cutline/2020-05-07-cutline-nz-coasts-rural-and-urban.geojson"
+  volumes:
+    - name: ephemeral
+      emptyDir: {}
+    - name: secret-volume # this is for the publish-copy step
+      secret:
+        secretName: "github-linz-{{=sprig.regexFind('(elevation|imagery)', workflow.parameters.target)}}"
+        defaultMode: 384
+    # - name: secret-vol # uncomment for basemaps imagery import
+    #   secret:
+    #     secretName: github-linz-basemaps-config

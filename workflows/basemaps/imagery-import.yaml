@@ -1,3 +1,5 @@
+# yaml-language-server: $schema=https://raw.githubusercontent.com/argoproj/argo-workflows/v3.4.13/api/jsonschema/schema.json
+
 apiVersion: argoproj.io/v1alpha1
 kind: WorkflowTemplate
 metadata:
@@ -37,14 +39,14 @@ spec:
       - name: cutline
         value: 's3://linz-basemaps-source/cutline/2020-05-07-cutline-nz-coasts-rural-and-urban.geojson'
       - name: blend
-        value: 20
+        value: '20'
       - name: aligned-level
-        value: 6
+        value: '6'
       - name: create-pull-request
-        value: true
+        value: 'true'
         enum:
-          - true
-          - false
+          - 'true'
+          - 'false'
 
   volumes:
     - name: secret-vol
@@ -54,6 +56,7 @@ spec:
   templateDefaults:
     container:
       imagePullPolicy: Always
+      image: ''
   templates:
     - name: main
       inputs:

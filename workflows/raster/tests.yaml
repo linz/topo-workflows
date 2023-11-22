@@ -1,0 +1,31 @@
+# yaml-language-server: $schema=https://raw.githubusercontent.com/argoproj/argo-workflows/v3.4.13/api/jsonschema/schema.json
+
+apiVersion: argoproj.io/v1alpha1
+kind: Workflow
+metadata:
+  generateName: test-topo-imagery-
+spec:
+  serviceAccountName: workflow-runner-sa
+  podGC:
+    strategy: OnPodCompletion # Delete pod once its finished
+  entrypoint: test-script
+  arguments:
+    parameters:
+      - name: version-topo-imagery
+        value: 'latest'
+  templateDefaults:
+    container:
+      imagePullPolicy: Always
+      image: ''
+  templates:
+    - name: test-script
+      script:
+        image: 019359803926.dkr.ecr.ap-southeast-2.amazonaws.com/topo-imagery:{{workflow.parameters.version-topo-imagery}}
+        command: [python]
+        source: |
+          import sys
+
+          # Because Argo Workflow executes the script under "/argo/staging/script"
+          sys.path.append("/app/scripts/")
+
+          # Put your code below

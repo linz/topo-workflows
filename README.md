@@ -1,10 +1,10 @@
 # Topo Workflows
 
-Topo workflows are run on a AWS EKS Cluster using [Argo Workflows](https://argoproj.github.io/argo-workflows/)
+Topo workflows are run on a AWS EKS Cluster using [Argo Workflows](https://argoproj.github.io/argo-workflows/). The detailed configuration is available in [this repo](./infra/).
 
 To get setup you need access to the Argo user role inside the EKS cluster, you will need to contact someone from Topo Data Engineering to get access, all Imagery maintainers will already have access.
 
-If creating your own workflow, or interested in the details of a current workflow please also read the [CONFIGURATION.md](./CONFIGURATION.md).
+If creating your own workflow, or interested in the details of a current workflow please also read the [CONFIGURATION.md](docs/configuration.md).
 
 - [Setup](#setup)
 - [Submitting a Job](#submitting-a-job)
@@ -33,12 +33,7 @@ Then to setup the cluster, only the first time using the cluster you need to run
 You will need a AWS CLI > 2.7.x
 
 ```bash
-
-# For Imagery maintainers you will already have the correct role so no role arn is needed.
-aws eks update-kubeconfig --name Workflow --region ap-southeast-2
-
-# For AWS Admin users you will need to find the correct EKS role to use
-aws eks update-kubeconfig --name Workflow --region ap-southeast-2 --role-arn arn:aws:iam::...
+aws eks update-kubeconfig --name Workflows --region ap-southeast-2
 ```
 
 to validate the cluster is connected,
@@ -54,7 +49,7 @@ ip-255-100-39-100.ap-southeast-2.compute.internal   Ready    <none>   7d   v1.21
 to make the cli access easier you can set the default namespace to `argo`
 
 ```bash
-k config set-context --current  --namespace=argo
+k config set-context --current --namespace=argo
 ```
 
 ## Submitting a job
@@ -62,7 +57,7 @@ k config set-context --current  --namespace=argo
 Once the cluster connection is setup a job can be submitted with the cli or accessed via the running argo-server
 
 ```bash
-argo submit --watch workflows/imagery/standardising.yaml
+argo submit --watch workflows/raster/standardising.yaml
 ```
 
 To open the web interface:
@@ -88,20 +83,20 @@ In the **Workflows** page:
 
 ### Workflow Parameters
 
-![WorkflowParameters](/docs/workflow_parameters.png)
+![WorkflowParameters](./docs/static/workflow-parameters.png)
 
 ### Workflow Logs
 
-![WorkflowLogs](/docs/workflow_logs.png)
+![WorkflowLogs](./docs/static/workflow-logs.png)
 
 ### Logs in Elasticsearch
 
 Elasticsearch is an analytics engine, it allows us to store, search and analyse AWS logs.  
-Elasticsearch can be accessed through https://myapplications.microsoft.com/
+Elasticsearch can be accessed through https://myapplications.microsoft.com/.
 
 #### Example Filters:
 
-:warning: Make sure you are using `li-topo-production*` and set the correct time filter.
+:warning: Make sure you are using the `workflow` data view and set the correct time filter.
 
 _All Logs for a Workflow:_
 
@@ -136,7 +131,7 @@ data.title : "Wellington Urban Aerial Photos (1987-1988) SN8790" and data.url : 
 
 #### Container version used
 
-`kubernetes.container_hash` field, available in Elastic Search, gives the container hash that was used to run the task. It allows to get the version from the container registry for further investigations.
+`kubernetes.container_hash` field, available in Elasticsearch, gives the container hash that was used to run the task. It allows to get the version from the container registry for further investigations.
 
 ### Workflow Artifacts
 

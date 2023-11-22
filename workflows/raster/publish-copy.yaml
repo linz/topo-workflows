@@ -1,0 +1,158 @@
+# yaml-language-server: $schema=https://raw.githubusercontent.com/argoproj/argo-workflows/v3.4.13/api/jsonschema/schema.json
+
+apiVersion: argoproj.io/v1alpha1
+kind: WorkflowTemplate
+metadata:
+  name: publish-copy
+  namespace: argo
+spec:
+  parallelism: 50
+  nodeSelector:
+    karpenter.sh/capacity-type: 'spot'
+  entrypoint: main
+  synchronization:
+    semaphore:
+      configMapKeyRef:
+        name: semaphores
+        key: bulkcopy
+  arguments:
+    parameters:
+      - name: version-argo-tasks
+        value: 'v2'
+      - name: source
+        value: 's3://linz-imagery-staging/test/sample/'
+      - name: target
+        value: 's3://linz-imagery-staging/test/sample_target/'
+      - name: include
+        value: '.tiff?$|.json$|.tfw$'
+      - name: copy-option
+        value: '--no-clobber'
+        enum:
+          - '--no-clobber'
+          - '--force'
+          - '--force-no-clobber'
+      - name: group
+        value: '1000'
+      - name: group-size
+        value: '100Gi'
+      - name: transform
+        value: 'f'
+      - name: 'lint'
+        value: 'true'
+  templateDefaults:
+    container:
+      imagePullPolicy: Always
+      image: ''
+
+  templates:
+    - name: main
+      inputs:
+        parameters:
+          - name: source
+          - name: include
+          - name: group
+          - name: group-size
+      dag:
+        tasks:
+          - name: lint-inputs
+            templateRef:
+              name: tpl-at-lint-inputs
+              template: main
+            arguments:
+              parameters:
+                - name: version
+                  value: '{{workflow.parameters.version-argo-tasks}}'
+                - name: path
+                  value: '{{workflow.parameters.target}}'
+            when: '{{workflow.parameters.lint}}'
+          - name: create-manifest-github
+            templateRef:
+              name: tpl-create-manifest
+              template: main
+            arguments:
+              parameters:
+                - name: source
+                  value: '{{inputs.parameters.source}}'
+                - name: target
+                  value: '{{workflow.parameters.target}}'
+                - name: include
+                  value: '{{inputs.parameters.include}}'
+                - name: exclude
+                  value: 'collection.json$'
+                - name: group
+                  value: '{{inputs.parameters.group}}'
+                - name: group-size
+                  value: '{{inputs.parameters.group-size}}'
+                - name: version-argo-tasks
+                  value: '{{workflow.parameters.version-argo-tasks}}'
+            when: "{{=sprig.regexMatch('s3://linz-elevation/', workflow.parameters.target)}}"
+
+          - name: create-manifest
+            templateRef:
+              name: tpl-create-manifest
+              template: main
+            arguments:
+              parameters:
+                - name: source
+                  value: '{{inputs.parameters.source}}'
+                - name: target
+                  value: '{{workflow.parameters.target}}'
+                - name: include
+                  value: '{{inputs.parameters.include}}'
+                - name: exclude
+                  value: ''
+                - name: group
+                  value: '{{inputs.parameters.group}}'
+                - name: group-size
+                  value: '{{inputs.parameters.group-size}}'
+                - name: version-argo-tasks
+                  value: '{{workflow.parameters.version-argo-tasks}}'
+            depends: 'create-manifest-github.Skipped'
+
+          - name: copy-with-github
+            templateRef:
+              name: tpl-copy
+              template: main
+            arguments:
+              parameters:
+                - name: copy-option
+                  value: '{{workflow.parameters.copy-option}}'
+                - name: file
+                  value: '{{item}}'
+                - name: version-argo-tasks
+                  value: '{{workflow.parameters.version-argo-tasks}}'
+            depends: 'create-manifest-github.Succeeded'
+            withParam: '{{tasks.create-manifest-github.outputs.parameters.files}}'
+
+          - name: copy
+            templateRef:
+              name: tpl-copy
+              template: main
+            arguments:
+              parameters:
+                - name: copy-option
+                  value: '{{workflow.parameters.copy-option}}'
+                - name: file
+                  value: '{{item}}'
+                - name: version-argo-tasks
+                  value: '{{workflow.parameters.version-argo-tasks}}'
+                - name: aws-role-config-path
+                  value: 's3://linz-bucket-config/config-write.imagery.json'
+            depends: 'create-manifest'
+            withParam: '{{tasks.create-manifest.outputs.parameters.files}}'
+
+          - name: push-to-github
+            templateRef:
+              name: tpl-push-to-github
+              template: main
+            arguments:
+              parameters:
+                - name: source
+                  value: '{{inputs.parameters.source}}'
+                - name: target
+                  value: '{{workflow.parameters.target}}'
+                - name: version-argo-tasks
+                  value: '{{workflow.parameters.version-argo-tasks}}'
+                - name: repository
+                  value: 'elevation'
+            depends: 'copy-with-github'

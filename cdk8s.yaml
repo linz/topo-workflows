@@ -1,2 +1,5 @@
-app: npx tsx config/app.ts
+app: npx tsx infra/cdk8s.ts
 language: typescript
+imports:
+  - https://raw.githubusercontent.com/aws/karpenter/main/pkg/apis/crds/karpenter.sh_provisioners.yaml
+  - https://raw.githubusercontent.com/aws/karpenter/main/pkg/apis/crds/karpenter.k8s.aws_awsnodetemplates.yaml

@@ -1,3 +1,5 @@
+# yaml-language-server: $schema=https://raw.githubusercontent.com/argoproj/argo-workflows/v3.4.13/api/jsonschema/schema.json
+
 apiVersion: argoproj.io/v1alpha1
 kind: WorkflowTemplate
 metadata:
@@ -9,8 +11,6 @@ spec:
     parameters:
       - name: version-argo-tasks
         value: 'v2'
-      - name: version-basemaps-cli
-        value: 'v6'
       - name: layer
         value: '104687'
       - name: config
@@ -18,10 +18,11 @@ spec:
       - name: include
         value: ''
       - name: exclude
-        value: 'nz_satellite'
+        value: 'nz-satellite'
   templateDefaults:
     container:
       imagePullPolicy: Always
+      image: ''
   templates:
     - name: main
       dag:
@@ -57,7 +58,7 @@ spec:
         env:
           - name: AWS_ROLE_CONFIG_PATH
             value: s3://linz-bucket-config/config.json
-        args: ['lds-fetch-layer', '{{=sprig.trim(inputs.parameters.layer)}}', '--target', '/tmp/lds-layer']
+        args: ['lds-fetch-layer', '{{=sprig.trim(inputs.parameters.layer)}}', '--target=/tmp/lds-layer']
       outputs:
         artifacts:
           - name: geopackage
@@ -84,25 +85,20 @@ spec:
           - name: flatGeobuf
             path: /tmp/flatGeobuf.fgb
       container:
-        image: ghcr.io/linz/basemaps/cli:{{=sprig.trim(workflow.parameters['version-basemaps-cli'])}}
-        command: [node, index.cjs]
+        image: 019359803926.dkr.ecr.ap-southeast-2.amazonaws.com/argo-tasks:{{=sprig.trim(workflow.parameters['version-argo-tasks'])}}
+        command: [node, index.js]
         env:
           - name: AWS_ROLE_CONFIG_PATH
             value: s3://linz-bucket-config/config.json
         args:
           [
-            '-V',
+            'bmc',
             'create-mapsheet',
-            '--path',
-            '/tmp/flatGeobuf.fgb',
-            '--config',
-            '{{=sprig.trim(workflow.parameters.config)}}',
-            '--output',
-            '/tmp/mapsheet.json',
-            '--include',
-            '{{=sprig.trim(workflow.parameters.include)}}',
-            '--exclude',
-            '{{=sprig.trim(workflow.parameters.exclude)}}',
+            '--path=/tmp/flatGeobuf.fgb',
+            '--bm-config={{=sprig.trim(workflow.parameters.config)}}',
+            '--output=/tmp/mapsheet.json',
+            '--include={{=sprig.trim(workflow.parameters.include)}}',
+            '--exclude={{=sprig.trim(workflow.parameters.exclude)}}',
           ]
       outputs:
         artifacts:
