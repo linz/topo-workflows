@@ -112,7 +112,7 @@ The EC2 instance types Karpenter can choose from are limited to the instance typ
 
 This configuration can be changed if larger instance types are required in future workflows.
 
-Two example workflow tasks requesting specific resources (memory and CPU) from the [topo-workflows GitHub repo standardising workflow](https://github.com/linz/topo-workflows/blob/master/workflows/imagery/standardising.yaml):
+Two example workflow tasks requesting specific resources (memory and CPU) from the [topo-workflows GitHub repo standardising workflow](https://github.com/linz/topo-workflows/blob/master/workflows/raster/standardising.yaml):
 
 ```yaml
 - name: standardise-validate
