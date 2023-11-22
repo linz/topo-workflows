@@ -94,7 +94,6 @@ jobs:
 
       - name: Lint workflows
         if: github.ref != 'refs/heads/master'
-        continue-on-error: true
         run: |
           # Create test namespace
           TEST_NAMESPACE=$GITHUB_SHA
@@ -122,10 +121,17 @@ jobs:
           ./argo-linux-amd64 lint test/workflows/ -n "$TEST_NAMESPACE"
 
       - name: Delete Test namespace
-        if: github.ref != 'refs/heads/master'
+        if: always()
         run: |
           # Delete the test namespace
-          kubectl delete namespaces "$GITHUB_SHA"
+          work_dir="$(mktemp --directory)"
+          if ! kubectl delete namespaces "$GITHUB_SHA" --dry-run=server 2>"$work_dir"/stderr
+          then 
+              grep 'Error from server (NotFound): namespaces ".*" not found' "$work_dir"/stderr
+          else
+              cat "$work_dir"/stderr >&2
+              exit 1
+          fi
 
       - name: Deploy workflows
         if: github.ref == 'refs/heads/master'
