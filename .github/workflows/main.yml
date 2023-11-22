@@ -113,8 +113,8 @@ jobs:
           # For each workflow attempt to deploy it using kubectl
           for wf in $WORKFLOWS; do
               # Change namespace in files
-              sed -i "/^\([[:space:]]*namespace: \).*/s//\1"$TEST_NAMESPACE"/" $wf
-              kubectl apply -f $wf --namespace "$TEST_NAMESPACE"
+              sed -i "/^\([[:space:]]*namespace: \).*/s//\1$TEST_NAMESPACE/" "$wf"
+              kubectl apply -f "$wf" --namespace "$TEST_NAMESPACE"
           done
 
           # Finally lint the templates
