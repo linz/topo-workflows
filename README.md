@@ -57,7 +57,7 @@ k config set-context --current --namespace=argo
 Once the cluster connection is setup a job can be submitted with the cli or accessed via the running argo-server
 
 ```bash
-argo submit --watch workflows/imagery/standardising.yaml
+argo submit --watch workflows/raster/standardising.yaml
 ```
 
 To open the web interface:

@@ -263,7 +263,7 @@ argo submit docs/training_workshop/example_workflows/wf_hello_world_args.yaml -p
 **Using a parameters file:** If there are many parameters in a workflow, the parameters can be placed in a separate YAML file which can be referenced when submitting the workflow on the CLI. For example:
 
 ```bash
-argo submit workflows/imagery/standardising-publish-import.yaml -n argo -f params.yaml
+argo submit workflows/raster/standardising-publish-import.yaml -n argo -f params.yaml
 ```
 
 _params.yaml_:
@@ -571,7 +571,7 @@ Compare the structure shown above with the Argo Workflows UI view:
 
 ![Standardising Workflow Structure - GUI](static/standardising-argo-ui.png)
 
-Now check out in the YAML file [standardising.yaml](../../workflows/imagery/standardising.yaml):
+Now check out in the YAML file [standardising.yaml](../../workflows/raster/standardising.yaml):
 
 - how inputs and outputs are passed between tasks
 - dependencies
@@ -584,7 +584,7 @@ Once you are confident submitting and creating basic workflows, explore the foll
 
 - Artifacts
 - Conditionals
-- Referencing other Workflows/WorkflowTemplates. For an example, see [standardising-publish-import.yaml](../../workflows/imagery/standardising-publish-import.yaml)
+- Referencing other Workflows/WorkflowTemplates. For an example, see [standardising-publish-import.yaml](../../workflows/raster/standardising-publish-import.yaml)
 - Sprig scripting
 
 ## Argo Workflows Resources
