@@ -284,6 +284,16 @@ spec:
                   value: '{{tasks.get-location.outputs.parameters.location}}'
             depends: 'standardise-validate'
 
+          - name: stac-format
+            templateRef:
+              name: tpl-at-format
+              template: main
+            arguments:
+              parameters:
+                - name: source
+                  value: "{{tasks.get-location.outputs.parameters.location}}flat/"
+            depends: "create-collection"
+
           - name: stac-validate
             template: stac-validate
             arguments:
@@ -293,8 +303,8 @@ spec:
               artifacts:
                 - name: stac-result
                   raw:
-                    data: '{{tasks.stac-validate.outputs.result}}'
-            depends: 'create-collection'
+                    data: "{{tasks.stac-validate.outputs.result}}"
+            depends: "stac-format"
 
           - name: get-location
             template: get-location
