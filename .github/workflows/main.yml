@@ -125,12 +125,9 @@ jobs:
         run: |
           # Delete the test namespace
           stderr_tmp="$(mktemp --directory)/stderr"
-          if ! kubectl delete namespaces fdfgdfgdf --dry-run=server 2> >(tee "$stderr_tmp" >&2)
+          if ! kubectl delete namespaces "$TEST_NAMESPACE" --dry-run=server 2> >(tee "$stderr_tmp" >&2)
           then 
-              if ! grep -q 'Error from server (NotFound): namespaces ".*" not found' "$stderr_tmp"
-              then
-                  exit 1
-              fi
+              grep -q 'Error from server (NotFound): namespaces ".*" not found' "$stderr_tmp"
           fi
 
       - name: Deploy workflows
