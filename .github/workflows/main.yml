@@ -124,13 +124,13 @@ jobs:
         if: always()
         run: |
           # Delete the test namespace
-          work_dir="$(mktemp --directory)"
-          if ! kubectl delete namespaces "$GITHUB_SHA" --dry-run=server 2>"$work_dir"/stderr
+          stderr_tmp="$(mktemp --directory)/stderr"
+          if ! kubectl delete namespaces fdfgdfgdf --dry-run=server 2> >(tee "$stderr_tmp" >&2)
           then 
-              grep 'Error from server (NotFound): namespaces ".*" not found' "$work_dir"/stderr
-          else
-              cat "$work_dir"/stderr >&2
-              exit 1
+              if ! grep -q 'Error from server (NotFound): namespaces ".*" not found' "$stderr_tmp"
+              then
+                  exit 1
+              fi
           fi
 
       - name: Deploy workflows
