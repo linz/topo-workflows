@@ -7,6 +7,8 @@ metadata:
   namespace: argo
   labels:
     linz.govt.nz/category: raster
+    linz.govt.nz/data-type: raster
+    linz.govt.nz/data-sub-type: elevation
 spec:
   parallelism: 50
   nodeSelector:
