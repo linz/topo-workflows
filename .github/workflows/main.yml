@@ -45,6 +45,24 @@ jobs:
           mask-aws-account-id: true
           role-to-assume: ${{ secrets.AWS_CI_ROLE }}
 
+      - name: Find Changes in Infra
+        id: get-infra-changes
+        run: |
+          mapfile -d '' modified_infra_files < <(git diff --name-only -z ${{ github.event.before }} ${{ github.event.after }} -- "infra/*")
+          if [[ "${#modified_infra_files[@]}" -ge 1 ]]; then
+            echo "run_infra=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "run_infra=false" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: (CDK) Deploy
+        if: steps.get-infra-changes.outputs.run_infra == 'true'
+        run: |
+          npx cdk deploy ${{ env.CLUSTER_NAME }} \
+            -c maintainer-arns=${{ secrets.AWS_CI_ROLE }},${{ secrets.AWS_ADMIN_ROLE }},${{ secrets.AWS_WFMAINTAINER_ROLE }} \
+            -c aws-account-id=${{ secrets.AWS_ACCOUNT_ID }} \
+            --require-approval never
+
       - name: Login to EKS
         run: |
           aws eks update-kubeconfig --name ${{ env.CLUSTER_NAME }} --region ap-southeast-2
@@ -53,64 +71,48 @@ jobs:
         run: |
           kubectl get nodes
 
-      # TODO It would be nice to split the AWS-CDK/CDK8s deployments into steps
-      # and run them only when infra/cdk or infra/cdk8s is modified.
-      # and use github deployments to track when things were deployed.
-
-      - name: (CDK) Deploy
-        run: |
-          npx cdk deploy ${{ env.CLUSTER_NAME }} \
-            -c maintainer-arns=${{ secrets.AWS_CI_ROLE }},${{ secrets.AWS_ADMIN_ROLE }},${{ secrets.AWS_WFMAINTAINER_ROLE }} \
-            -c aws-account-id=${{ secrets.AWS_ACCOUNT_ID }} \
-            --require-approval never
-
       # Configure the Kubernetes cluster with CDK8s
       - name: (CDK8s) Synth
+        if: steps.get-infra-changes.outputs.run_infra == 'true'
         run: |
           npx cdk8s synth
-
-      # kubectl diff - is somewhat dangerous as it dumps out secrets in plain text
-      # so it should not be used in this pipeline
+          # nb: kubectl diff - is somewhat dangerous as it dumps out secrets in plain text
+          # so it should not be used in this pipeline
 
       # TODO use a --prune and --applyset to remove unused objects
       - name: (CDK8s) Deploy
+        if: steps.get-infra-changes.outputs.run_infra == 'true'
         run: |
           kubectl apply -f dist/
 
-      # - name: Install Argo
-      #   run: |
-      #     curl -sLO https://github.com/argoproj/argo-workflows/releases/download/v3.4.0-rc2/argo-linux-amd64.gz
-      #     gunzip argo-linux-amd64.gz
-      #     chmod +x argo-linux-amd64
-      #     ./argo-linux-amd64 version
+      - name: Install Argo
+        run: |
+          curl -sLO https://github.com/argoproj/argo-workflows/releases/download/v3.4.0-rc2/argo-linux-amd64.gz
+          gunzip argo-linux-amd64.gz
+          chmod +x argo-linux-amd64
+          ./argo-linux-amd64 version
 
-      # - name: Lint workflows
-      #   run: |
-      #     ./argo-linux-amd64 lint templates/ -n argo
-      #     ./argo-linux-amd64 lint workflows/ -n argo
+      - name: Lint workflows
+        run: |
+          ./argo-linux-amd64 lint templates/ -n argo
+          ./argo-linux-amd64 lint workflows/ -n argo
 
-      # - name: Deploy workflows
-      #   if: github.ref == 'refs/heads/master'
-      #   run: |
-      #     # Deploy templates first
-      #     kubectl apply -f templates/argo-tasks/ --namespace argo
+      - name: Deploy workflows
+        if: github.ref == 'refs/heads/master'
+        run: |
+          # Deploy templates first
+          kubectl apply -f templates/argo-tasks/ --namespace argo
 
-      #     # Find all workflows that have kind "WorkflowTemplate"
-      #     WORKFLOWS=$(grep '^kind: WorkflowTemplate$' -R workflows/ -H | cut -d ':' -f1)
+          # Find all workflows that have kind "WorkflowTemplate"
+          WORKFLOWS=$(grep '^kind: WorkflowTemplate$' -R workflows/ -H | cut -d ':' -f1)
 
-      #     # For each workflow attempt to deploy it using kubectl
-      #     for wf in $WORKFLOWS; do
-      #         kubectl apply -f $wf --namespace argo
-      #     done
+          # For each workflow attempt to deploy it using kubectl
+          for wf in $WORKFLOWS; do
+              kubectl apply -f "$wf" --namespace argo
+          done
 
-      # - name: Deploy config files
-      #   if: github.ref == 'refs/heads/master'
-      #   run: |
-      #     npx cdk8s synth
-      #     kubectl apply -f dist/
-
-      # # Re-lint the workflows after deployment because their dependencies is test with deployement.
-      # - name: Re-Lint workflows
-      #   run: |
-      #     ./argo-linux-amd64 lint templates/ -n argo
-      #     ./argo-linux-amd64 lint workflows/ -n argo
+      # Re-lint the workflows after deployment because their dependencies is test with deployement.
+      - name: Re-Lint workflows
+        run: |
+          ./argo-linux-amd64 lint templates/ -n argo
+          ./argo-linux-amd64 lint workflows/ -n argo
