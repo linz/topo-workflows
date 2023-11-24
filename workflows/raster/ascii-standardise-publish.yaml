@@ -15,8 +15,15 @@ spec:
       configMapKeyRef:
         name: semaphores
         key: bulk
+  workflowMetadata:
+    labelsFrom:
+      linz.govt.nz/ticket:
+        expression: workflow.parameters.ticket
   arguments:
     parameters:
+      - name: ticket
+        description: Ticket ID e.g. 'AIP-55'
+        value: ''
       - name: source
         value: 's3://path/'
       - name: cutline # optional standardising cutline

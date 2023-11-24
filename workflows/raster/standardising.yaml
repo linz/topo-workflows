@@ -15,6 +15,10 @@ spec:
       configMapKeyRef:
         name: semaphores
         key: standardising
+  workflowMetadata:
+    labelsFrom:
+      linz.govt.nz/ticket:
+        expression: workflow.parameters.ticket
   arguments:
     parameters:
       # FIXME: Should use camelCase or underscore?
@@ -24,6 +28,9 @@ spec:
         value: 'v6'
       - name: version-topo-imagery
         value: 'v3'
+      - name: ticket
+        description: Ticket ID e.g. 'AIP-55'
+        value: ''
       - name: source
         value: 's3://linz-imagery-staging/test/sample/'
       - name: include
