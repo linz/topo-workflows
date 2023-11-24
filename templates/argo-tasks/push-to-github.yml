@@ -39,13 +39,11 @@ spec:
         env:
           - name: AWS_ROLE_CONFIG_PATH
             value: s3://linz-bucket-config/config.json
-          - name: GIT_AUTHOR_NAME
-            value: '{{=sprig.regexFind(inputs.parameters.repository, inputs.parameters.target)}}[bot]'
-          - name: GIT_AUTHOR_EMAIL
-            value: '{{=sprig.regexFind(inputs.parameters.repository, inputs.parameters.target)}}@linz.govt.nz'
-        volumeMounts:
-          - name: secret-volume
-            mountPath: '/root/.ssh/'
+          - name: GITHUB_API_TOKEN
+            valueFrom:
+              secretKeyRef:
+                name: github-linz-basemaps-pat
+                key: pat
         command: [node, /app/index.js]
         args:
           [
