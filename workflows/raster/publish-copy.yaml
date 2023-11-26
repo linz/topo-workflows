@@ -15,10 +15,17 @@ spec:
       configMapKeyRef:
         name: semaphores
         key: bulkcopy
+  workflowMetadata:
+    labelsFrom:
+      linz.govt.nz/ticket:
+        expression: workflow.parameters.ticket
   arguments:
     parameters:
       - name: version-argo-tasks
         value: 'v2'
+      - name: ticket
+        description: Ticket ID e.g. 'AIP-55'
+        value: ''
       - name: source
         value: 's3://linz-imagery-staging/test/sample/'
       - name: target

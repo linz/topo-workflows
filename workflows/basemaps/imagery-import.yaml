@@ -9,11 +9,18 @@ spec:
   parallelism: 40
   nodeSelector:
     karpenter.sh/capacity-type: 'spot'
+  workflowMetadata:
+    labelsFrom:
+      linz.govt.nz/ticket:
+        expression: workflow.parameters.ticket
   entrypoint: main
   arguments:
     parameters:
       - name: version-basemaps-cli
         value: 'v6'
+      - name: ticket
+        description: Ticket ID e.g. 'AIP-55'
+        value: ''
       - name: source
         value: ''
       - name: category
