@@ -27,7 +27,7 @@ spec:
         description: Region of the dataset
         value: 'new-zealand'
         enum:
-          - 'antartica'
+          - 'antarctica'
           - 'auckland'
           - 'bay-of-plenty'
           - 'canterbury'
