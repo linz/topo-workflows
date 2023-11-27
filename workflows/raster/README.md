@@ -259,7 +259,7 @@ This workflow carries out the steps in the [Standardising](#Standardising) workf
 | Parameter      | Type | Default | Description                                                                                                                                                     |
 | -------------- | ---- | ------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | ticket         | str  |         | Ticket ID e.g. 'AIP-55'                                                                                                                                         |
-| region         | enum |         | Region of the dataset :warning: The name has to be exactly one in the region enum in `standardising.                                                            |
+| region         | enum |         | Region of the dataset :warning: The name has to be exactly one in the region enum in `standardising`.                                                            |
 | source         | str  |         | the uri (path) to the input tiffs e.g. s3://linz-imagery-upload/test/sample                                                                                     |
 | target         | str  |         | the uri (path) to the published tiffs in the format s3://linz-imagery-target-example/region/city-or-sub-region_year_resolution/product/crs/                     |
 | title          | str  |         | Collection title in the format "\*Region/District/City\* \*GSD\* \*Urban/Rural\* Aerial Photos (\*Year-Year\*)"                                                 |
