@@ -19,9 +19,13 @@ spec:
     labelsFrom:
       linz.govt.nz/ticket:
         expression: workflow.parameters.ticket
+      linz.govt.nz/region:
+        expression: workflow.parameters.region
   arguments:
     parameters:
       - name: ticket
+        value: ''
+      - name: region
         value: ''
       - name: source
         value: ''

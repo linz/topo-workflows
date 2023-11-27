@@ -18,6 +18,7 @@ In addition, a Basemaps link is produced enabling visual QA.
 | Parameter      | Type  | Default                                                                                             | Description                                                                                                                                             |
 | -------------- | ----- | --------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | ticket         | str   |                                                                                                     | Ticket ID e.g. 'AIP-55'                                                                                                                                 |
+| region         | enum  |                                                                                                     | Region of the dataset                                                                                                                                   |
 | source         | str   | s3://linz-imagery-staging/test/sample                                                               | the uri (path) to the input tiffs                                                                                                                       |
 | include        | regex | .tiff?$                                                                                             | A regular expression to match object path(s) or name(s) from within the source path to include in standardising\*.                                      |
 | scale          | enum  | 500                                                                                                 | The scale of the TIFFs                                                                                                                                  |
@@ -46,6 +47,7 @@ In addition, a Basemaps link is produced enabling visual QA.
 | Parameter      | Value                                                                                     |
 | -------------- | ----------------------------------------------------------------------------------------- |
 | ticket         | AIP-55                                                                                    |
+| region         | bay-of-plenty                                                                             |
 | source         | s3://linz-imagery-upload/PRJ39741_BOPLASS_Imagery_2021-22/PRJ39741_03/01_GeoTiff/         |
 | include        | .tiff?$                                                                                   |
 | scale          | 2000                                                                                      |
@@ -197,6 +199,7 @@ Access permissions are controlled by the [Bucket Sharing Config](https://github.
 | Parameter   | Type  | Default                                       | Description                                                                                                                                                      |
 | ----------- | ----- | --------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | ticket      | str   |                                               | Ticket ID e.g. 'AIP-55'                                                                                                                                          |
+| region      | enum  |                                               | Region of the dataset                                                                                                                                            |
 | source      | str   | s3://linz-imagery-staging/test/sample/        | The URIs (paths) to the s3 source location                                                                                                                       |
 | target      | str   | s3://linz-imagery-staging/test/sample_target/ | The URIs (paths) to the s3 target location                                                                                                                       |
 | include     | regex | .tiff?\$\|.json\$\|.tfw\$                     | A regular expression to match object path(s) or name(s) from within the source path to include in the copy.                                                      |
@@ -256,6 +259,7 @@ This workflow carries out the steps in the [Standardising](#Standardising) workf
 | Parameter      | Type | Default | Description                                                                                                                                                     |
 | -------------- | ---- | ------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | ticket         | str  |         | Ticket ID e.g. 'AIP-55'                                                                                                                                         |
+| region         | enum |         | Region of the dataset :warning: The name has to be exactly one in the region enum in `standardising.                                                            |
 | source         | str  |         | the uri (path) to the input tiffs e.g. s3://linz-imagery-upload/test/sample                                                                                     |
 | target         | str  |         | the uri (path) to the published tiffs in the format s3://linz-imagery-target-example/region/city-or-sub-region_year_resolution/product/crs/                     |
 | title          | str  |         | Collection title in the format "\*Region/District/City\* \*GSD\* \*Urban/Rural\* Aerial Photos (\*Year-Year\*)"                                                 |
@@ -321,7 +325,7 @@ These are hardcoded due to parameter naming collisions in the downstream Workflo
 ### Submitting from the command line using the `-p` (`--parameter`) option (standardising-publish):
 
 ```bash
-argo submit workflows/raster/standardising-publish-import.yaml -n argo -p ticket="AIP-55" -p source="s3://linz-imagery-source-example/aerial-imagery/new-zealand/christchurch_urban_2021_0.05m_RGB/" -p target="s3://linz-imagery-example/canterbury/christchurch_2021_0.05m/rgb/2193/" -p scale="500" -p group="29" -p cutline="s3://linz-imagery-cutline-example/historical-imagery-cutlines/2023-01-16_84fd68f/SNC50451-combined.fgb" -p title="Christchurch 0.05m Urban Aerial Photos (2021)" -p description="Orthophotography within the Canterbury region captured in the 2021 flying season." -p producer="Aerial Surveys" -p licensor="Toitū Te Whenua Land Information New Zealand" -p start-datetime="2021-11-02" -p end-datetime="2021-12-02"
+argo submit workflows/raster/standardising-publish-import.yaml -n argo -p ticket="AIP-55" -p region="canterbury" -p source="s3://linz-imagery-source-example/aerial-imagery/new-zealand/christchurch_urban_2021_0.05m_RGB/" -p target="s3://linz-imagery-example/canterbury/christchurch_2021_0.05m/rgb/2193/" -p scale="500" -p group="29" -p cutline="s3://linz-imagery-cutline-example/historical-imagery-cutlines/2023-01-16_84fd68f/SNC50451-combined.fgb" -p title="Christchurch 0.05m Urban Aerial Photos (2021)" -p description="Orthophotography within the Canterbury region captured in the 2021 flying season." -p producer="Aerial Surveys" -p licensor="Toitū Te Whenua Land Information New Zealand" -p start-datetime="2021-11-02" -p end-datetime="2021-12-02"
 ```
 
 ### Submitting from the command line using a parameters yaml file and the `-f` (`--parameter-file`) option (standardising-publish):
@@ -334,6 +338,7 @@ _params.yaml_:
 
 ```yaml
 ticket: 'AIP-55'
+region: 'canterbury'
 source: 's3://linz-imagery-source-example/aerial-imagery/new-zealand/christchurch_urban_2021_0.05m_RGB/'
 target: 's3://linz-imagery-example/canterbury/christchurch_2021_0.05m/rgb/2193/'
 scale: '500'
@@ -350,7 +355,7 @@ end-datetime: '2021-12-02'
 ### Submitting from the command line using the `-p` (`--parameter`) option (standardising-publish-import):
 
 ```bash
-argo submit workflows/raster/standardising-publish-import.yaml -n argo -p ticket="AIP-55" -p source="s3://linz-imagery-source-example/aerial-imagery/new-zealand/christchurch_urban_2021_0.05m_RGB/" -p target="s3://linz-imagery-example/canterbury/christchurch_2021_0.05m/rgb/2193/" -p scale="500" -p group="29" -p cutline="s3://linz-imagery-cutline-example/historical-imagery-cutlines/2023-01-16_84fd68f/SNC50451-combined.fgb" -p title="Christchurch 0.05m Urban Aerial Photos (2021)" -p description="Orthophotography within the Canterbury region captured in the 2021 flying season." -p producer="Aerial Surveys" -p licensor="Toitū Te Whenua Land Information New Zealand" -p start-datetime="2021-11-02" -p end-datetime="2021-12-02" -p category="Urban Aerial Photos" -p name="christchurch_2021_0.05m" -p tile-matrix="NZTM2000Quad/WebMercatorQuad" -p blend="20" -p aligned-level="6" -p create-pull-request="true"
+argo submit workflows/raster/standardising-publish-import.yaml -n argo -p ticket="AIP-55" -p region="canterbury" -p source="s3://linz-imagery-source-example/aerial-imagery/new-zealand/christchurch_urban_2021_0.05m_RGB/" -p target="s3://linz-imagery-example/canterbury/christchurch_2021_0.05m/rgb/2193/" -p scale="500" -p group="29" -p cutline="s3://linz-imagery-cutline-example/historical-imagery-cutlines/2023-01-16_84fd68f/SNC50451-combined.fgb" -p title="Christchurch 0.05m Urban Aerial Photos (2021)" -p description="Orthophotography within the Canterbury region captured in the 2021 flying season." -p producer="Aerial Surveys" -p licensor="Toitū Te Whenua Land Information New Zealand" -p start-datetime="2021-11-02" -p end-datetime="2021-12-02" -p category="Urban Aerial Photos" -p name="christchurch_2021_0.05m" -p tile-matrix="NZTM2000Quad/WebMercatorQuad" -p blend="20" -p aligned-level="6" -p create-pull-request="true"
 ```
 
 ### Submitting from the command line using a parameters yaml file and the `-f` (`--parameter-file`) option (standardising-publish-import):
@@ -363,6 +368,7 @@ _params.yaml_:
 
 ```yaml
 ticket: 'AIP-55'
+region: 'canterbury'
 source: 's3://linz-imagery-source-example/aerial-imagery/new-zealand/christchurch_urban_2021_0.05m_RGB/'
 target: 's3://linz-imagery-example/canterbury/christchurch_2021_0.05m/rgb/2193/'
 scale: '500'

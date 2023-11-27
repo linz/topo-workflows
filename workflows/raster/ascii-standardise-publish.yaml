@@ -19,11 +19,34 @@ spec:
     labelsFrom:
       linz.govt.nz/ticket:
         expression: workflow.parameters.ticket
+      linz.govt.nz/region:
+        expression: workflow.parameters.region
   arguments:
     parameters:
       - name: ticket
         description: Ticket ID e.g. 'AIP-55'
         value: ''
+      - name: region
+        description: Region of the dataset
+        value: 'new-zealand'
+        enum:
+          - 'auckland'
+          - 'bay-of-plenty'
+          - 'canterbury'
+          - 'gisborne'
+          - 'hawkes-bay'
+          - 'manawatu-whanganui'
+          - 'marlborough'
+          - 'nelson'
+          - 'new-zealand'
+          - 'northland'
+          - 'otago'
+          - 'southland'
+          - 'taranaki'
+          - 'tasman'
+          - 'waikato'
+          - 'wellington'
+          - 'west-coast'
       - name: source
         value: 's3://path/'
       - name: cutline # optional standardising cutline
