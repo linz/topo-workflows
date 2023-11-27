@@ -32,10 +32,12 @@ spec:
         description: Region of the dataset
         value: 'new-zealand'
         enum:
+          - 'antartica'
           - 'auckland'
           - 'bay-of-plenty'
           - 'canterbury'
           - 'gisborne'
+          - 'global'
           - 'hawkes-bay'
           - 'manawatu-whanganui'
           - 'marlborough'
@@ -43,6 +45,7 @@ spec:
           - 'new-zealand'
           - 'northland'
           - 'otago'
+          - 'pacific-islands'
           - 'southland'
           - 'taranaki'
           - 'tasman'
