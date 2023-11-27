@@ -4,6 +4,10 @@ kind: WorkflowTemplate
 metadata:
   name: create-thumbnails
   namespace: argo
+  labels:
+    linz.govt.nz/category: util
+    linz.govt.nz/data-type: raster
+    linz.govt.nz/data-sub-type: maps
 spec:
   parallelism: 50
   nodeSelector:

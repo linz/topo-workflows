@@ -5,6 +5,9 @@ kind: WorkflowTemplate
 metadata:
   name: basemaps-imagery-import-cogify
   namespace: argo
+  labels:
+    linz.govt.nz/category: basemaps
+    linz.govt.nz/data-type: raster
 spec:
   parallelism: 100
   entrypoint: main

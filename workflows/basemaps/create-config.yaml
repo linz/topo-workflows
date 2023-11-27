@@ -5,6 +5,8 @@ kind: WorkflowTemplate
 metadata:
   name: basemaps-config-create
   namespace: argo
+  labels:
+    linz.govt.nz/category: basemaps
 spec:
   entrypoint: main
   arguments:
