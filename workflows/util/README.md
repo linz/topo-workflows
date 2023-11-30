@@ -15,7 +15,7 @@ Upon completion all standardised TIFF and STAC files will be located within the 
 | Parameter | Type  | Default                           | Description                                                                                     |
 | --------- | ----- | --------------------------------- | ----------------------------------------------------------------------------------------------- |
 | source    | str   | s3://linz-topgraphic/maps/topo50/ | the uri (path) to the input tiffs                                                               |
-| include   | regex | .\*.\*.tif?$                      | A regular expression to match object path(s) or name(s) from within the source path to include. |
+| include   | regex | .\*.tiff?$                      | A regular expression to match object path(s) or name(s) from within the source path to include.   |
 
 ## Workflow Outputs
 
