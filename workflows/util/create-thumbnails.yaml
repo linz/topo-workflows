@@ -19,7 +19,7 @@ spec:
       - name: source
         value: 's3://linz-topographic-upload/maps/topo50/'
       - name: include
-        value: '.*.*.tif?$'
+        value: '.*.tiff?$'
   templateDefaults:
     container:
       imagePullPolicy: Always
