@@ -1,4 +1,5 @@
----
+# yaml-language-server: $schema=https://raw.githubusercontent.com/argoproj/argo-workflows/v3.4.13/api/jsonschema/schema.json
+
 apiVersion: argoproj.io/v1alpha1
 kind: WorkflowTemplate
 metadata:
@@ -11,28 +12,18 @@ spec:
   entrypoint: main
   arguments:
     parameters:
-      # FIXME: Should use camelCase or underscore?
       - name: version-argo-tasks
         value: 'v2'
       - name: version-topo-imagery
         value: 'v3'
       - name: source
         value: 's3://linz-topographic-upload/maps/topo50/'
-      - name: target
-        value: 's3://linz-'
       - name: include
         value: '.*.*.tif?$'
-      - name: transform
-        value: 'f'
-      - name: copy-option
-        value: '--no-clobber'
-        enum:
-          - '--no-clobber'
-          - '--force'
-          - '--force-no-clobber'
   templateDefaults:
     container:
       imagePullPolicy: Always
+      image: ''
   templates:
     - name: main
       dag:
@@ -53,42 +44,9 @@ spec:
                 - name: files
                   from: '{{ tasks.aws-list.outputs.artifacts.files }}'
             depends: 'aws-list && get-location'
-
-          - name: publish-source
-            templateRef:
-              name: publish-copy
-              template: main
-            arguments:
-              parameters:
-                - name: source
-                  value: '{{workflow.parameters.source}}'
-                - name: include
-                  value: '{{workflow.parameters.include}}'
-                - name: group
-                  value: '1000'
-                - name: group-size
-                  value: '100Gi'
-            depends: 'thumbnails'
-
-          - name: publish-thumbnails
-            templateRef:
-              name: publish-copy
-              template: main
-            arguments:
-              parameters:
-                - name: source
-                  value: '{{tasks.get-location.outputs.parameters.location}}thumbnails/'
-                - name: include
-                  value: '.jpg?$'
-                - name: group
-                  value: '1000'
-                - name: group-size
-                  value: '100Gi'
-            depends: 'thumbnails'
       # END TEMPLATE `main`
 
     - name: aws-list
-      inputs:
       container:
         image: 019359803926.dkr.ecr.ap-southeast-2.amazonaws.com/argo-tasks:{{workflow.parameters.version-argo-tasks}}
         command: [node, /app/index.js]
