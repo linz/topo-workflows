@@ -22,6 +22,8 @@ spec:
     labelsFrom:
       linz.govt.nz/ticket:
         expression: workflow.parameters.ticket
+      linz.govt.nz/region:
+        expression: workflow.parameters.region
   arguments:
     parameters:
       # FIXME: Should use camelCase or underscore?
@@ -34,6 +36,30 @@ spec:
       - name: ticket
         description: Ticket ID e.g. 'AIP-55'
         value: ''
+      - name: region
+        description: Region of the dataset
+        value: 'new-zealand'
+        enum:
+          - 'antarctica'
+          - 'auckland'
+          - 'bay-of-plenty'
+          - 'canterbury'
+          - 'gisborne'
+          - 'global'
+          - 'hawkes-bay'
+          - 'manawatu-whanganui'
+          - 'marlborough'
+          - 'nelson'
+          - 'new-zealand'
+          - 'northland'
+          - 'otago'
+          - 'pacific-islands'
+          - 'southland'
+          - 'taranaki'
+          - 'tasman'
+          - 'waikato'
+          - 'wellington'
+          - 'west-coast'
       - name: source
         value: 's3://linz-imagery-staging/test/sample/'
       - name: include
