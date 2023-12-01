@@ -25,8 +25,8 @@ async function main(): Promise<void> {
     tunnelName: '/eks/cloudflared/argo/tunnelName',
     accountId: '/eks/cloudflared/argo/accountId',
 
-    // Personal access token to gain access to linz-basemaps github user
-    githubPat: '/eks/github/linz-basemaps/pat',
+    // Personal access token to gain access to linz-li-bot github user
+    githubPat: '/eks/github/linz-li-bot/pat',
 
     // Argo Database connection password
     argoDbPassword: '/eks/argo/postgres/password',
@@ -69,7 +69,7 @@ async function main(): Promise<void> {
   new ArgoExtras(app, 'argo-extras', {
     namespace: 'argo',
     /** Argo workflows interacts with github give it access to github bot user*/
-    secrets: [{ name: 'github-linz-basemaps-pat', data: { pat: ssmConfig.githubPat } }],
+    secrets: [{ name: 'github-linz-li-bot-pat', data: { pat: ssmConfig.githubPat } }],
   });
 
   new Cloudflared(app, 'cloudflared', {
