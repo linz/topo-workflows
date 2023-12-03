@@ -382,4 +382,3 @@ spec:
             "--individual={{= workflow.parameters.create_pull_request == 'individual'? 'true' : 'false' }}",
             '--category={{workflow.parameters.category}}',
           ]
-
