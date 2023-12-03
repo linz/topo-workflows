@@ -93,9 +93,42 @@ jobs:
           ./argo-linux-amd64 version
 
       - name: Lint workflows
+        if: github.ref != 'refs/heads/master'
         run: |
-          ./argo-linux-amd64 lint templates/ -n argo
-          ./argo-linux-amd64 lint workflows/ -n argo
+          # Create test namespace
+          TEST_NAMESPACE=$GITHUB_SHA
+          kubectl create namespace "$TEST_NAMESPACE"
+
+          # Create copy of Workflows files to change their namespaces
+          mkdir test
+          cp -r workflows/ test/workflows/ 
+
+          # Deploy templates in the test namespace
+          # Note: the templates have no default namespace so no need to modify them
+          kubectl apply -f templates/argo-tasks/ --namespace "$TEST_NAMESPACE"
+
+          # Find all workflows that have kind "WorkflowTemplate"
+          WORKFLOWS=$(grep -R -H '^kind: WorkflowTemplate$' test/workflows/ | cut -d ':' -f1)
+          # For each workflow attempt to deploy it using kubectl
+          for wf in $WORKFLOWS; do
+              # Change namespace in files
+              sed -i "/^\([[:space:]]*namespace: \).*/s//\1$TEST_NAMESPACE/" "$wf"
+              kubectl apply -f "$wf" --namespace "$TEST_NAMESPACE"
+          done
+
+          # Finally lint the templates
+          ./argo-linux-amd64 lint templates/ -n "$TEST_NAMESPACE"
+          ./argo-linux-amd64 lint test/workflows/ -n "$TEST_NAMESPACE"
+
+      - name: Delete Test namespace
+        if: always()
+        run: |
+          # Delete the test namespace
+          stderr_tmp="$(mktemp --directory)/stderr"
+          if ! kubectl delete namespaces "$TEST_NAMESPACE" 2> >(tee "$stderr_tmp" >&2)
+          then 
+              grep -q 'Error from server (NotFound): namespaces ".*" not found' "$stderr_tmp"
+          fi
 
       - name: Deploy workflows
         if: github.ref == 'refs/heads/master'
@@ -110,9 +143,3 @@ jobs:
           for wf in $WORKFLOWS; do
               kubectl apply -f "$wf" --namespace argo
           done
-
-      # Re-lint the workflows after deployment because their dependencies is test with deployement.
-      - name: Re-Lint workflows
-        run: |
-          ./argo-linux-amd64 lint templates/ -n argo
-          ./argo-linux-amd64 lint workflows/ -n argo
