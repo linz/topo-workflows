@@ -83,11 +83,10 @@ spec:
         env:
           - name: AWS_ROLE_CONFIG_PATH
             value: s3://linz-bucket-config/config.basemaps.json
-
           - name: GITHUB_API_TOKEN
             valueFrom:
               secretKeyRef:
-                name: github-linz-basemaps-pat
+                name: github-linz-li-bot-pat
                 key: pat
         args:
           - 'bmc'

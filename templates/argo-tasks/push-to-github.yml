@@ -42,7 +42,7 @@ spec:
           - name: GITHUB_API_TOKEN
             valueFrom:
               secretKeyRef:
-                name: github-linz-basemaps-pat
+                name: github-linz-li-bot-pat
                 key: pat
         command: [node, /app/index.js]
         args:
