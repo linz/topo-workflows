@@ -125,7 +125,7 @@ jobs:
         run: |
           # Delete the test namespace
           stderr_tmp="$(mktemp --directory)/stderr"
-          if ! kubectl delete namespaces "$TEST_NAMESPACE" 2> >(tee "$stderr_tmp" >&2)
+          if ! kubectl delete namespaces "$GITHUB_SHA" 2> >(tee "$stderr_tmp" >&2)
           then 
               grep -q 'Error from server (NotFound): namespaces ".*" not found' "$stderr_tmp"
           fi
