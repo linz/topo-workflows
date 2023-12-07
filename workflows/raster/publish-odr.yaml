@@ -118,7 +118,8 @@ spec:
                   value: '{{inputs.parameters.group-size}}'
                 - name: version-argo-tasks
                   value: '{{workflow.parameters.version-argo-tasks}}'
-            when: "{{=sprig.regexMatch('s3://nz-imagery/', workflow.parameters.target)}} && lint-inputs"
+            when: "{{=sprig.regexMatch('s3://nz-imagery/', workflow.parameters.target)}}"
+            depends: 'lint-inputs'
 
           - name: create-manifest
             templateRef:
