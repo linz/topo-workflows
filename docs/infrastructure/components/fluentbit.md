@@ -41,7 +41,6 @@ To upgrade the Fluent Bit version, as per the installation, you need to do it vi
 
 After choosing a new version to upgrade to (you want a bug fix or a new feature), modify the chart using CDK8s (`infra/charts/fluentbit.ts`).
 The Fluent Bit application version is stored in `appVersion` but this is only here for reference. The version to upgrade is the version of the corresponding Helm Chart delivered by `aws-for-fluent-bit` which is defined in `chartVersion`.
-For example, the current Fluent Bit version installed is `2.31.12.20231011` and we want to upgrade to `2.32`. We need to find a version of the Helm Chart that points to the `2.32` version of Fluent Bit.
 
 ## Troubleshooting
 
