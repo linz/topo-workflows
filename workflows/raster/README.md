@@ -15,58 +15,66 @@ In addition, a Basemaps link is produced enabling visual QA.
 
 ## Workflow Input Parameters
 
-| Parameter      | Type  | Default                                                                                             | Description                                                                                                                                             |
-| -------------- | ----- | --------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| ticket         | str   |                                                                                                     | Ticket ID e.g. 'AIP-55'                                                                                                                                 |
-| region         | enum  |                                                                                                     | Region of the dataset                                                                                                                                   |
-| source         | str   | s3://linz-imagery-staging/test/sample                                                               | the uri (path) to the input tiffs                                                                                                                       |
-| include        | regex | .tiff?$                                                                                             | A regular expression to match object path(s) or name(s) from within the source path to include in standardising\*.                                      |
-| scale          | enum  | 500                                                                                                 | The scale of the TIFFs                                                                                                                                  |
-| validate       | enum  | true                                                                                                | Validate the TIFFs files with `tileindex-validate`.                                                                                                     |
-| retile         | enum  | false                                                                                               | Prepare the data for retiling TIFFs files to `scale` with `tileindex-validate`.                                                                         |
-| group          | int   | 50                                                                                                  | The number of files to group into the pods (testing has recommended using 50 for large datasets).                                                       |
-| compression    | enum  | webp                                                                                                | Standardised file format                                                                                                                                |
-| cutline        | str   |                                                                                                     | (Optional) location of a cutline file to cut the imagery to `.fgb` or `.geojson` (leave blank if no cutline)                                            |
-| collection-id  | str   |                                                                                                     | (Optional) Provide a Collection ID if re-processing an existing published survery, otherwise a ULID will be generated for the collection.json ID field. |
-| title          | str   | \*Region/District/City\* \*GSD\* \*Urban/Rural\* Aerial Photos (\*Year-Year\*)                      | Collection title                                                                                                                                        |
-| description    | str   | Orthophotography within the \*Region Name\* region captured in the \*Year\*-\*Year\* flying season. | Collection description                                                                                                                                  |
-| producer       | enum  | Unknown                                                                                             | Imagery producer                                                                                                                                        |
-| producer-list  | str   |                                                                                                     | List of imagery producers, separated by a semicolons (;). :warning: Has no effect unless a semicolon delimited list is entered.                         |
-| licensor       | enum  | Unknown                                                                                             | Imagery licensor. :warning: Ignored if `licensor-list` takes effect.                                                                                    |
-| licensor-list  | str   |                                                                                                     | List of imagery licensors, separated by a semicolons (;). :warning: Has no effect unless a semicolon delimited list is entered.                         |
-| start-datetime | str   | YYYY-MM-DD                                                                                          | Imagery start date (flown from), must be in default formatting                                                                                          |
-| end-datetime   | str   | YYYY-MM-DD                                                                                          | Imagery end date (flown to), must be in default formatting                                                                                              |
-| copy-option    | enum  | --no-clobber                                                                                        | `--no-clobber` Skip overwriting existing files. `--force` Overwrite all files. `--force-no-clobber` Overwrite only changed files, skip unchanged files. |
-| source-epsg    | str   | 2193                                                                                                | The EPSG code of the source imagery                                                                                                                     |
-| target-epsg    | str   | 2193                                                                                                | The target EPSG code - if different to source the imagery will be reprojected                                                                           |
+| Parameter              | Type  | Default                               | Description                                                                                                                                             |
+| ---------------------- | ----- | ------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| ticket                 | str   |                                       | Ticket ID e.g. 'AIP-55'                                                                                                                                 |
+| region                 | enum  |                                       | Region of the dataset                                                                                                                                   |
+| source                 | str   | s3://linz-imagery-staging/test/sample | the uri (path) to the input tiffs                                                                                                                       |
+| include                | regex | .tiff?$                               | A regular expression to match object path(s) or name(s) from within the source path to include in standardising\*.                                      |
+| scale                  | enum  | 500                                   | The scale of the TIFFs                                                                                                                                  |
+| validate               | enum  | true                                  | Validate the TIFFs files with `tileindex-validate`.                                                                                                     |
+| retile                 | enum  | false                                 | Prepare the data for retiling TIFFs files to `scale` with `tileindex-validate`.                                                                         |
+| group                  | int   | 50                                    | The number of files to group into the pods (testing has recommended using 50 for large datasets).                                                       |
+| compression            | enum  | webp                                  | Standardised file format                                                                                                                                |
+| cutline                | str   |                                       | (Optional) location of a cutline file to cut the imagery to `.fgb` or `.geojson` (leave blank if no cutline)                                            |
+| collection-id          | str   |                                       | (Optional) Provide a Collection ID if re-processing an existing published survery, otherwise a ULID will be generated for the collection.json ID field. |
+| subtype                | enum  | Urban Aerial Photos                   | Dataset type for collection metadata, also used to Build Dataset title & description                                                                    |
+| gsd                    | str   | 0.3m                                  | Dataset GSD for collection metadata, also used to build dataset title                                                                                   |
+| producer               | enum  | Unknown                               | Imagery producer                                                                                                                                        |
+| producer-list          | str   |                                       | List of imagery producers, separated by a semicolons (;). :warning: Has no effect unless a semicolon delimited list is entered.                         |
+| licensor               | enum  | Unknown                               | Imagery licensor. :warning: Ignored if `licensor-list` takes effect.                                                                                    |
+| licensor-list          | str   |                                       | List of imagery licensors, separated by a semicolons (;). :warning: Has no effect unless a semicolon delimited list is entered.                         |
+| start-datetime         | str   | YYYY-MM-DD                            | Imagery start date (flown from), must be in default formatting                                                                                          |
+| end-datetime           | str   | YYYY-MM-DD                            | Imagery end date (flown to), must be in default formatting                                                                                              |
+| location               | str   | Hamilton                              | (Optional) Additional datatset description, to be used in dataset title / description in place of the Region.                                           |
+| lifeycle               | enum  | Completed                             | Lifecycle Status of Collection                                                                                                                          |
+| event                  | str   | Cyclone Gabrielle                     | (Optional) Event name if dataset has been captured in association with an event.                                                                        |
+| historic-survey-number | str   | SNC8844                               | (Optional) Survey Number associated with historical datasets.                                                                                           |
+| copy-option            | enum  | --no-clobber                          | `--no-clobber` Skip overwriting existing files. `--force` Overwrite all files. `--force-no-clobber` Overwrite only changed files, skip unchanged files. |
+| source-epsg            | str   | 2193                                  | The EPSG code of the source imagery                                                                                                                     |
+| target-epsg            | str   | 2193                                  | The target EPSG code - if different to source the imagery will be reprojected                                                                           |
 
 \* This regex can be used to exclude paths as well, e.g. if there are RBG and RGBI directories, the following regex will only include TIFF files in the RGB directory: `RGB(?!I).*.tiff?$`. For more complicated exclusions, there is an `--exclude` parameter, which would need to be added to the Argo WorkflowTemplate.
 
 ### Example Input Parameters
 
-| Parameter      | Value                                                                                     |
-| -------------- | ----------------------------------------------------------------------------------------- |
-| ticket         | AIP-55                                                                                    |
-| region         | bay-of-plenty                                                                             |
-| source         | s3://linz-imagery-upload/PRJ39741_BOPLASS_Imagery_2021-22/PRJ39741_03/01_GeoTiff/         |
-| include        | .tiff?$                                                                                   |
-| scale          | 2000                                                                                      |
-| validate       | true                                                                                      |
-| retile         | false                                                                                     |
-| group          | 50                                                                                        |
-| compression    | webp                                                                                      |
-| cutline        | s3://linz-imagery-staging/cutline/bay-of-plenty_2021-2022.fgb                             |
-| collection-id  | 01FP371BHWDSREECKQAH9E8XQ                                                                 |
-| title          | Bay of Plenty 0.2m Rural Aerial Photos (2021-2022)                                        |
-| description    | Orthophotography within the Bay of Plenty region captured in the 2021-2022 flying season. |
-| producer       | Aerial Surveys                                                                            |
-| licensor       | Toitū Te Whenua Land Information New Zealand                                              |
-| licensor-list  | Waka Kotahi; Nelson City Council;Tasman District Council                                  |
-| start-datetime | 2021-12-02                                                                                |
-| end-datetime   | 2022-05-06                                                                                |
-| copy-option    | --no-clobber                                                                              |
-| source-epsg    | 2193                                                                                      |
-| target-epsg    | 2193                                                                                      |
+| Parameter              | Value                                                                             |
+| ---------------------- | --------------------------------------------------------------------------------- |
+| ticket                 | AIP-55                                                                            |
+| region                 | bay-of-plenty                                                                     |
+| source                 | s3://linz-imagery-upload/PRJ39741_BOPLASS_Imagery_2021-22/PRJ39741_03/01_GeoTiff/ |
+| include                | .tiff?$                                                                           |
+| scale                  | 2000                                                                              |
+| validate               | true                                                                              |
+| retile                 | false                                                                             |
+| group                  | 50                                                                                |
+| compression            | webp                                                                              |
+| cutline                | s3://linz-imagery-staging/cutline/bay-of-plenty_2021-2022.fgb                     |
+| collection-id          | 01FP371BHWDSREECKQAH9E8XQ                                                         |
+| subtype                | Rural Aerial Photos                                                               |
+| gsd                    | 0.3m                                                                              |
+| producer               | Aerial Surveys                                                                    |
+| licensor               | Toitū Te Whenua Land Information New Zealand                                      |
+| licensor-list          | Waka Kotahi; Nelson City Council;Tasman District Council                          |
+| start-datetime         | 2021-12-02                                                                        |
+| end-datetime           | 2022-05-06                                                                        |
+| location               | Napier                                                                            |
+| lifecycle              | Completed                                                                         |
+| event                  | Top of the South Floods                                                           |
+| historic-survey-number | SNC3546                                                                           |
+| copy-option            | --no-clobber                                                                      |
+| source-epsg            | 2193                                                                              |
+| target-epsg            | 2193                                                                              |
 
 ## Workflow Outputs
 
@@ -162,7 +170,7 @@ Finds the output location of this workflow within the artifacts bucket.
 
 ### [create-collection](https://github.com/linz/topo-imagery/blob/master/scripts/collection_from_items.py)
 
-Iterates through the items within the `flat` directory and creates a collection.json.
+Iterates through the items within the `flat` directory and creates a collection.json. Also builds the dataset title and description using parameter inputs.
 
 ### [stac-validate](./stac/readme.md)
 
@@ -259,11 +267,11 @@ This workflow carries out the steps in the [Standardising](#Standardising) workf
 | Parameter      | Type | Default | Description                                                                                                                                                     |
 | -------------- | ---- | ------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | ticket         | str  |         | Ticket ID e.g. 'AIP-55'                                                                                                                                         |
-| region         | enum |         | Region of the dataset :warning: The name has to be exactly one in the region enum in `standardising`.                                                            |
+| region         | enum |         | Region of the dataset :warning: The name has to be exactly one in the region enum in `standardising`.                                                           |
 | source         | str  |         | the uri (path) to the input tiffs e.g. s3://linz-imagery-upload/test/sample                                                                                     |
 | target         | str  |         | the uri (path) to the published tiffs in the format s3://linz-imagery-target-example/region/city-or-sub-region_year_resolution/product/crs/                     |
-| title          | str  |         | Collection title in the format "\*Region/District/City\* \*GSD\* \*Urban/Rural\* Aerial Photos (\*Year-Year\*)"                                                 |
-| description    | str  |         | Collection description in the format "Orthophotography within the \*Region Name\* region captured in the \*Year\*-\*Year\* flying season."                      |
+| subtype        | enum |         | Dataset type for collection metadata, also used to Build Dataset title & description                                                                            |
+| gsd            | str  |         | dataset GSD required for dataset title                                                                                                                          |
 | producer       | str  |         | Imagery producer name :warning: The name has to be exactly one in the producer enum in `standardising.yaml`                                                     |
 | licensor       | str  |         | Imagery licensor name :warning: The name has to be exactly one in the licensor enum in `standardising.yaml`. Use `licensor-list` instead if multiple licensors. |
 | licensor-list  | str  |         | List of imagery licensor name :warning: The names have to be exactly some of the licensor enum in `standardising.yaml` and separated by a semicolon.            |
@@ -273,16 +281,20 @@ This workflow carries out the steps in the [Standardising](#Standardising) workf
 
 ### Standardising-Publish Optional Parameters - can be specified on the command line to override default value
 
-| Parameter     | Type  | Default      | Description                                                                                                                                                                                                                                      |
-| ------------- | ----- | ------------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
-| cutline       | str   |              | (Optional) location of a cutline file to cut the imagery to `.fgb` or `.geojson` (do not include if no cutline)                                                                                                                                  |
-| collection-id | str   |              | (Optional) Provide a Collection ID if re-processing an existing published survery, otherwise a ULID will be generated for the collection.json ID field.                                                                                          |
-| compression   | str   | webp         | Standardised file format. Must be `webp` or `lzw`                                                                                                                                                                                                |
-| group         | int   | 50           | Applies to the standardising workflow. The number of files to group into the pods (testing has recommended using 50 for large datasets).                                                                                                         |
-| include       | regex | .tiff?$      | Applies to the standardising workflow. A regular expression to match object path(s) or name(s) from within the source path to include in standardising\*.                                                                                        |
-| copy-option   | str   | --no-clobber | Applies to the standardising and publishing workflows and should not need to be changed. `--no-clobber` Skip overwriting existing files. `--force` Overwrite all files. `--force-no-clobber` Overwrite only changed files, skip unchanged files. |
-| source-epsg   | str   | 2193         | The EPSG code of the source imagery.                                                                                                                                                                                                             |
-| target-epsg   | str   | 2193         | The Target EPSG code, if different to source-epsg the imagery will be reprojected.                                                                                                                                                               |
+| Parameter              | Type  | Default      | Description                                                                                                                                                                                                                                      |
+| ---------------------- | ----- | ------------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| cutline                | str   |              | (Optional) location of a cutline file to cut the imagery to `.fgb` or `.geojson` (do not include if no cutline)                                                                                                                                  |
+| collection-id          | str   |              | (Optional) Provide a Collection ID if re-processing an existing published survery, otherwise a ULID will be generated for the collection.json ID field.                                                                                          |
+| compression            | str   | webp         | Standardised file format. Must be `webp` or `lzw`                                                                                                                                                                                                |
+| group                  | int   | 50           | Applies to the standardising workflow. The number of files to group into the pods (testing has recommended using 50 for large datasets).                                                                                                         |
+| include                | regex | .tiff?$      | Applies to the standardising workflow. A regular expression to match object path(s) or name(s) from within the source path to include in standardising\*.                                                                                        |
+| copy-option            | str   | --no-clobber | Applies to the standardising and publishing workflows and should not need to be changed. `--no-clobber` Skip overwriting existing files. `--force` Overwrite all files. `--force-no-clobber` Overwrite only changed files, skip unchanged files. |
+| source-epsg            | str   | 2193         | The EPSG code of the source imagery.                                                                                                                                                                                                             |
+| target-epsg            | str   | 2193         | The Target EPSG code, if different to source-epsg the imagery will be reprojected.                                                                                                                                                               |
+| location               | str   | ''           | (Optional) Additional datatset description, to be used in dataset title / description in place of the Region.                                                                                                                                    |
+| lifecycle              | enum  | Completed    | Lifecycle Status of Collection                                                                                                                                                                                                                   |
+| event                  | str   | ''           | (Optional) Event name if dataset has been captured in association with an event.                                                                                                                                                                 |
+| historic-survey-number | str   | ''           | (Optional) Survey Number associated with historical datasets.                                                                                                                                                                                    |
 
 \* This regex can be used to exclude paths as well, e.g. if there are RBG and RGBI directories, the following regex will only include TIFF files in the RGB directory: `RGB(?!I).*.tiff?$`.
 
@@ -325,7 +337,7 @@ These are hardcoded due to parameter naming collisions in the downstream Workflo
 ### Submitting from the command line using the `-p` (`--parameter`) option (standardising-publish):
 
 ```bash
-argo submit workflows/raster/standardising-publish-import.yaml -n argo -p ticket="AIP-55" -p region="canterbury" -p source="s3://linz-imagery-source-example/aerial-imagery/new-zealand/christchurch_urban_2021_0.05m_RGB/" -p target="s3://linz-imagery-example/canterbury/christchurch_2021_0.05m/rgb/2193/" -p scale="500" -p group="29" -p cutline="s3://linz-imagery-cutline-example/historical-imagery-cutlines/2023-01-16_84fd68f/SNC50451-combined.fgb" -p title="Christchurch 0.05m Urban Aerial Photos (2021)" -p description="Orthophotography within the Canterbury region captured in the 2021 flying season." -p producer="Aerial Surveys" -p licensor="Toitū Te Whenua Land Information New Zealand" -p start-datetime="2021-11-02" -p end-datetime="2021-12-02"
+argo submit workflows/raster/standardising-publish-import.yaml -n argo -p ticket="AIP-55" -p region="canterbury" -p source="s3://linz-imagery-source-example/aerial-imagery/new-zealand/christchurch_urban_2021_0.05m_RGB/" -p target="s3://linz-imagery-example/canterbury/christchurch_2021_0.05m/rgb/2193/" -p scale="500" -p group="29" -p cutline="s3://linz-imagery-cutline-example/historical-imagery-cutlines/2023-01-16_84fd68f/SNC50451-combined.fgb" -p subtype="Urban Aerial Photos" -p gsd="0.05m" -p producer="Aerial Surveys" -p licensor="Toitū Te Whenua Land Information New Zealand" -p start-datetime="2021-11-02" -p end-datetime="2021-12-02"
 ```
 
 ### Submitting from the command line using a parameters yaml file and the `-f` (`--parameter-file`) option (standardising-publish):
@@ -344,8 +356,8 @@ target: 's3://linz-imagery-example/canterbury/christchurch_2021_0.05m/rgb/2193/'
 scale: '500'
 group: '29'
 cutline: 's3://linz-imagery-cutline-example/historical-imagery-cutlines/2023-01-16_84fd68f/SNC50451-combined.fgb'
-title: 'Christchurch 0.05m Urban Aerial Photos (2021)'
-description: 'Orthophotography within the Canterbury region captured in the 2021 flying season.'
+subtype: Urban Aerial Photos
+gsd: 0.05m
 producer: 'Aerial Surveys'
 licensor: 'Toitū Te Whenua Land Information New Zealand'
 start-datetime: '2021-11-02'
@@ -355,7 +367,7 @@ end-datetime: '2021-12-02'
 ### Submitting from the command line using the `-p` (`--parameter`) option (standardising-publish-import):
 
 ```bash
-argo submit workflows/raster/standardising-publish-import.yaml -n argo -p ticket="AIP-55" -p region="canterbury" -p source="s3://linz-imagery-source-example/aerial-imagery/new-zealand/christchurch_urban_2021_0.05m_RGB/" -p target="s3://linz-imagery-example/canterbury/christchurch_2021_0.05m/rgb/2193/" -p scale="500" -p group="29" -p cutline="s3://linz-imagery-cutline-example/historical-imagery-cutlines/2023-01-16_84fd68f/SNC50451-combined.fgb" -p title="Christchurch 0.05m Urban Aerial Photos (2021)" -p description="Orthophotography within the Canterbury region captured in the 2021 flying season." -p producer="Aerial Surveys" -p licensor="Toitū Te Whenua Land Information New Zealand" -p start-datetime="2021-11-02" -p end-datetime="2021-12-02" -p category="Urban Aerial Photos" -p name="christchurch_2021_0.05m" -p tile-matrix="NZTM2000Quad/WebMercatorQuad" -p blend="20" -p aligned-level="6" -p create-pull-request="true"
+argo submit workflows/raster/standardising-publish-import.yaml -n argo -p ticket="AIP-55" -p region="canterbury" -p source="s3://linz-imagery-source-example/aerial-imagery/new-zealand/christchurch_urban_2021_0.05m_RGB/" -p target="s3://linz-imagery-example/canterbury/christchurch_2021_0.05m/rgb/2193/" -p scale="500" -p group="29" -p cutline="s3://linz-imagery-cutline-example/historical-imagery-cutlines/2023-01-16_84fd68f/SNC50451-combined.fgb" -p gsd="0.05m" -p producer="Aerial Surveys" -p licensor="Toitū Te Whenua Land Information New Zealand" -p start-datetime="2021-11-02" -p end-datetime="2021-12-02" -p category="Urban Aerial Photos" -p name="christchurch_2021_0.05m" -p tile-matrix="NZTM2000Quad/WebMercatorQuad" -p blend="20" -p aligned-level="6" -p create-pull-request="true"
 ```
 
 ### Submitting from the command line using a parameters yaml file and the `-f` (`--parameter-file`) option (standardising-publish-import):
@@ -374,8 +386,7 @@ target: 's3://linz-imagery-example/canterbury/christchurch_2021_0.05m/rgb/2193/'
 scale: '500'
 group: '29'
 cutline: 's3://linz-imagery-cutline-example/historical-imagery-cutlines/2023-01-16_84fd68f/SNC50451-combined.fgb'
-title: 'Christchurch 0.05m Urban Aerial Photos (2021)'
-description: 'Orthophotography within the Canterbury region captured in the 2021 flying season.'
+gsd: '0.05m'
 producer: 'Aerial Surveys'
 licensor: ''
 licensor-list: 'Waka Kotahi; Nelson City Council;Tasman District Council'
