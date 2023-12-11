@@ -1,5 +1,6 @@
 import { KubectlV28Layer } from '@aws-cdk/lambda-layer-kubectl-v28';
-import { Aws, CfnOutput, Duration, RemovalPolicy, SecretValue, Stack, StackProps } from 'aws-cdk-lib';
+import { Aws, CfnOutput, Duration, RemovalPolicy, SecretValue, Size, Stack, StackProps } from 'aws-cdk-lib';
+import * as cloudwatch from 'aws-cdk-lib/aws-cloudwatch';
 import {
   InstanceClass,
   InstanceSize,
@@ -96,6 +97,15 @@ export class LinzEksCluster extends Stack {
     this.argoDb.connections.allowFrom(eksSG, Port.tcp(5432), 'EKS to Argo Database');
 
     new CfnOutput(this, CfnOutputKeys.ArgoDbEndpoint, { value: this.argoDb.dbInstanceEndpointAddress });
+
+    this.argoDb
+    .metricFreeStorageSpace()
+    .createAlarm(this, 'FreeStorageSpace', {
+      threshold: Size.gibibytes(2).toBytes(),
+      evaluationPeriods: 2,
+      comparisonOperator: cloudwatch.ComparisonOperator.LESS_THAN_THRESHOLD,
+    });
+    this.argoDb.metricCPUUtilization().createAlarm(this, 'CPUUtilization', { threshold: 75, evaluationPeriods: 2 });
 
     const nodeGroup = this.cluster.addNodegroupCapacity('ClusterDefault', {
       /**
