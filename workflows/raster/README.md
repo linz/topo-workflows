@@ -28,7 +28,7 @@ In addition, a Basemaps link is produced enabling visual QA.
 | compression            | enum  | webp                                  | Standardised file format                                                                                                                                |
 | cutline                | str   |                                       | (Optional) location of a cutline file to cut the imagery to `.fgb` or `.geojson` (leave blank if no cutline)                                            |
 | collection-id          | str   |                                       | (Optional) Provide a Collection ID if re-processing an existing published survery, otherwise a ULID will be generated for the collection.json ID field. |
-| subtype                | enum  | Urban Aerial Photos                   | Dataset type for collection metadata, also used to Build Dataset title & description                                                                    |
+| category               | enum  | Urban Aerial Photos                   | Dataset type for collection metadata, also used to Build Dataset title & description                                                                    |
 | gsd                    | str   | 0.3m                                  | Dataset GSD for collection metadata, also used to build dataset title                                                                                   |
 | producer               | enum  | Unknown                               | Imagery producer                                                                                                                                        |
 | producer-list          | str   |                                       | List of imagery producers, separated by a semicolons (;). :warning: Has no effect unless a semicolon delimited list is entered.                         |
@@ -61,7 +61,7 @@ In addition, a Basemaps link is produced enabling visual QA.
 | compression            | webp                                                                              |
 | cutline                | s3://linz-imagery-staging/cutline/bay-of-plenty_2021-2022.fgb                     |
 | collection-id          | 01FP371BHWDSREECKQAH9E8XQ                                                         |
-| subtype                | Rural Aerial Photos                                                               |
+| category               | Rural Aerial Photos                                                               |
 | gsd                    | 0.3m                                                                              |
 | producer               | Aerial Surveys                                                                    |
 | licensor               | Toitū Te Whenua Land Information New Zealand                                      |
@@ -270,7 +270,7 @@ This workflow carries out the steps in the [Standardising](#Standardising) workf
 | region         | enum |         | Region of the dataset :warning: The name has to be exactly one in the region enum in `standardising`.                                                           |
 | source         | str  |         | the uri (path) to the input tiffs e.g. s3://linz-imagery-upload/test/sample                                                                                     |
 | target         | str  |         | the uri (path) to the published tiffs in the format s3://linz-imagery-target-example/region/city-or-sub-region_year_resolution/product/crs/                     |
-| subtype        | enum |         | Dataset type for collection metadata, also used to Build Dataset title & description                                                                            |
+| category       | enum |         | Dataset type for collection metadata, also used to Build Dataset title & description                                                                            |
 | gsd            | str  |         | dataset GSD required for dataset title                                                                                                                          |
 | producer       | str  |         | Imagery producer name :warning: The name has to be exactly one in the producer enum in `standardising.yaml`                                                     |
 | licensor       | str  |         | Imagery licensor name :warning: The name has to be exactly one in the licensor enum in `standardising.yaml`. Use `licensor-list` instead if multiple licensors. |
@@ -337,7 +337,7 @@ These are hardcoded due to parameter naming collisions in the downstream Workflo
 ### Submitting from the command line using the `-p` (`--parameter`) option (standardising-publish):
 
 ```bash
-argo submit workflows/raster/standardising-publish-import.yaml -n argo -p ticket="AIP-55" -p region="canterbury" -p source="s3://linz-imagery-source-example/aerial-imagery/new-zealand/christchurch_urban_2021_0.05m_RGB/" -p target="s3://linz-imagery-example/canterbury/christchurch_2021_0.05m/rgb/2193/" -p scale="500" -p group="29" -p cutline="s3://linz-imagery-cutline-example/historical-imagery-cutlines/2023-01-16_84fd68f/SNC50451-combined.fgb" -p subtype="Urban Aerial Photos" -p gsd="0.05m" -p producer="Aerial Surveys" -p licensor="Toitū Te Whenua Land Information New Zealand" -p start-datetime="2021-11-02" -p end-datetime="2021-12-02"
+argo submit workflows/raster/standardising-publish-import.yaml -n argo -p ticket="AIP-55" -p region="canterbury" -p source="s3://linz-imagery-source-example/aerial-imagery/new-zealand/christchurch_urban_2021_0.05m_RGB/" -p target="s3://linz-imagery-example/canterbury/christchurch_2021_0.05m/rgb/2193/" -p scale="500" -p group="29" -p cutline="s3://linz-imagery-cutline-example/historical-imagery-cutlines/2023-01-16_84fd68f/SNC50451-combined.fgb" -p category="Urban Aerial Photos" -p gsd="0.05m" -p producer="Aerial Surveys" -p licensor="Toitū Te Whenua Land Information New Zealand" -p start-datetime="2021-11-02" -p end-datetime="2021-12-02"
 ```
 
 ### Submitting from the command line using a parameters yaml file and the `-f` (`--parameter-file`) option (standardising-publish):
@@ -356,7 +356,7 @@ target: 's3://linz-imagery-example/canterbury/christchurch_2021_0.05m/rgb/2193/'
 scale: '500'
 group: '29'
 cutline: 's3://linz-imagery-cutline-example/historical-imagery-cutlines/2023-01-16_84fd68f/SNC50451-combined.fgb'
-subtype: Urban Aerial Photos
+category: Urban Aerial Photos
 gsd: 0.05m
 producer: 'Aerial Surveys'
 licensor: 'Toitū Te Whenua Land Information New Zealand'

@@ -102,7 +102,7 @@ spec:
       - name: collection-id
         description: '(Optional) If an existing dataset add collection ID here, else a new one will be generated.'
         value: ''
-      - name: subtype
+      - name: category
         value: 'Urban Aerial Photos'
         enum:
           - 'Aerial Photos'
@@ -472,8 +472,8 @@ spec:
           - '{{inputs.parameters.location}}flat/'
           - '--collection-id'
           - '{{inputs.parameters.collection-id}}'
-          - '--subtype'
-          - '{{=sprig.trim(workflow.parameters.subtype)}}'
+          - '--category'
+          - '{{=sprig.trim(workflow.parameters.category)}}'
           - '--region'
           - '{{=sprig.trim(workflow.parameters.region)}}'
           - '--gsd'
