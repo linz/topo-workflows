@@ -2,7 +2,7 @@
 
 ## Presentation
 
-[Fluent Bit](https://docs.fluentbit.io/manual/installation/kubernetes) is deployed as a [DeamonSet](https://kubernetes.io/docs/concepts/workloads/controllers/daemonset/) and collects logs from every pod of the cluster.
+[Fluent Bit](https://docs.fluentbit.io/manual/installation/kubernetes) is deployed as a [DaemonSet](https://kubernetes.io/docs/concepts/workloads/controllers/daemonset/) and collects logs from every pod of the cluster.
 
 ![Fluent Bit in EKS](static/fluentbit_in_eks.png)
 
