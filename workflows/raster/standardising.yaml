@@ -113,8 +113,7 @@ spec:
           - 'DSM'
           - 'Satellite Imagery'
       - name: gsd
-        description: 'Dataset GSD. e.g.- 0.3m'
-        value: ''
+        description: 'Dataset GSD (e.g., 0.3m)'
       - name: producer
         value: 'Unknown'
         enum:
@@ -481,14 +480,14 @@ spec:
           - '{{=sprig.trim(workflow.parameters.gsd)}}'
           - '--location'
           - '{{=sprig.trim(workflow.parameters.location)}}'
-          - '--start-datetime'
-          - '{{=sprig.trim(workflow.parameters.start-datetime)}}'
-          - '--end-datetime'
-          - '{{=sprig.trim(workflow.parameters.end-datetime)}}'
+          - '--start-date'
+          - "{{=sprig.trim(workflow.parameters['start-datetime'])}}"
+          - '--end-date'
+          - "{{=sprig.trim(workflow.parameters['end-datetime'])}}"
           - '--event'
           - '{{=sprig.trim(workflow.parameters.event)}}'
           - '--historic-survey-number'
-          - '{{=sprig.trim(workflow.parameters.historic-survey-number)}}'
+          - "{{=sprig.trim(workflow.parameters['historic-survey-number'])}}"
           - '--lifecycle'
           - '{{=sprig.trim(workflow.parameters.lifecycle)}}'
           - '--producer'
