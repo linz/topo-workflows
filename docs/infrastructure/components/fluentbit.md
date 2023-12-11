@@ -2,7 +2,7 @@
 
 ## Presentation
 
-[Fluent Bit](https://docs.fluentbit.io/manual/installation/kubernetes) is deployed as a [DeaemonSet](https://kubernetes.io/docs/concepts/workloads/controllers/daemonset/) and collects logs from every pod of the cluster.
+[Fluent Bit](https://docs.fluentbit.io/manual/installation/kubernetes) is deployed as a [DeamonSet](https://kubernetes.io/docs/concepts/workloads/controllers/daemonset/) and collects logs from every pod of the cluster.
 
 ![Fluent Bit in EKS](static/fluentbit_in_eks.png)
 
@@ -44,7 +44,7 @@ The Fluent Bit application version is stored in `appVersion` but this is only he
 
 1. Verify Fluent Bit is deployed and available in the K8s cluster
 
-```shell
+```   shell
 kubectl get daemonset -n fluentbit
 NAME        DESIRED   CURRENT   READY   UP-TO-DATE   AVAILABLE   NODE SELECTOR   AGE
 fluentbit   2         2         2       2            2           <none>          28d
