@@ -247,7 +247,7 @@ spec:
       - name: end-datetime
         value: 'YYYY-MM-DD'
       - name: location
-        description: '(Optional) Additional datatset description, to be used in the title in place of the Region, e.g.- Hamilton 0.05m Urban Aerial Photos (2023)'
+        description: '(Optional) Additional datatset description, to be used in the title in place of the Region (e.g., "Hamilton")'
         value: ''
       - name: lifecycle
         value: 'completed'
@@ -258,10 +258,10 @@ spec:
           - 'completed'
           - 'deprecated'
       - name: event
-        description: '(Optional) Event name if dataset has been captured in association with an event, e.g.- Top of the South Floods'
+        description: '(Optional) Event name if dataset has been captured in association with an event (e.g., "Top of the South Floods")'
         value: ''
       - name: historic-survey-number
-        description: '(Optional) Survey Number associated with historical datasets'
+        description: '(Optional) Survey Number associated with historical datasets, (e.g., "SN8844")'
         value: ''
       - name: copy-option
         value: '--no-clobber'
