@@ -21,9 +21,9 @@ Fluent Bit is installed using the `aws-for-fluent-bit` [Helm Chart](https://gith
 ### CloudWatch logs
 
 `cloudWatchLogs` (which is the new CloudWatch plugin [providing better performance](https://github.com/aws/eks-charts/pull/903) than `cloudWatch`) needs to be enabled.
-When making any change to the `logGroupName`, be aware that this path is used by the `aws-log-config` to redirect the logs to Elastic Search.
+When making any change to the `logGroupName`, be aware that this path is used by the `aws-log-config` to redirect the logs to Elastisearch.
 
-### Elastic Search
+### Elasticsearch
 
 Elasticsearch forwarder should not be enabled. Our logs are shipped into Elasticsearch using the [elasticsearch-shipper](https://github.com/linz/elasticsearch-shipper)
 
