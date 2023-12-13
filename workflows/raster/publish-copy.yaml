@@ -74,7 +74,7 @@ spec:
       - name: transform
         value: 'f'
       - name: 'lint'
-        value: 'true'
+        value: 'false'
   templateDefaults:
     container:
       imagePullPolicy: Always
@@ -122,6 +122,7 @@ spec:
                 - name: version-argo-tasks
                   value: '{{workflow.parameters.version-argo-tasks}}'
             when: "{{=sprig.regexMatch('s3://linz-elevation/', workflow.parameters.target)}}"
+            depends: 'lint-inputs'
 
           - name: create-manifest
             templateRef:
@@ -143,7 +144,7 @@ spec:
                   value: '{{inputs.parameters.group-size}}'
                 - name: version-argo-tasks
                   value: '{{workflow.parameters.version-argo-tasks}}'
-            depends: 'create-manifest-github.Skipped'
+            depends: 'create-manifest-github.Skipped && lint-inputs'
 
           - name: copy-with-github
             templateRef:

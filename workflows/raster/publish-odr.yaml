@@ -73,8 +73,6 @@ spec:
         value: '100Gi'
       - name: transform
         value: 'f'
-      - name: lint
-        value: 'false'
   templateDefaults:
     container:
       imagePullPolicy: Always
@@ -99,7 +97,7 @@ spec:
                   value: '{{workflow.parameters.version-argo-tasks}}'
                 - name: path
                   value: '{{workflow.parameters.target}}'
-            when: '{{workflow.parameters.lint}}'
+            when: '{{=sprig.regexMatch('s3://nz-imagery/', workflow.parameters.target)}}'
           - name: create-manifest-github
             templateRef:
               name: tpl-create-manifest
@@ -121,6 +119,7 @@ spec:
                 - name: version-argo-tasks
                   value: '{{workflow.parameters.version-argo-tasks}}'
             when: "{{=sprig.regexMatch('s3://nz-imagery/', workflow.parameters.target)}}"
+            depends: 'lint-inputs'
 
           - name: create-manifest
             templateRef:
@@ -142,7 +141,7 @@ spec:
                   value: '{{inputs.parameters.group-size}}'
                 - name: version-argo-tasks
                   value: '{{workflow.parameters.version-argo-tasks}}'
-            depends: 'create-manifest-github.Skipped'
+            depends: 'create-manifest-github.Skipped && lint-inputs'
 
           - name: copy-with-github
             templateRef:
