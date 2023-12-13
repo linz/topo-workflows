@@ -44,7 +44,7 @@ The Fluent Bit application version is stored in `appVersion` but this is only he
 
 1. Verify Fluent Bit is deployed and available in the K8s cluster
 
-   ``` shell
+   ```shell
    kubectl get daemonset -n fluentbit
    NAME        DESIRED   CURRENT   READY   UP-TO-DATE   AVAILABLE   NODE SELECTOR   AGE
    fluentbit   2         2         2       2            2           <none>          28d
@@ -54,18 +54,18 @@ The Fluent Bit application version is stored in `appVersion` but this is only he
 
    - Get pod names
 
-   ```shell
-   kubectl get pods -n fluentbit
-   NAME              READY   STATUS    RESTARTS   AGE
-   fluentbit-brx5n   1/1     Running   0          27d
-   fluentbit-btb9b   1/1     Running   0          27d
-   ```
+     ```shell
+     kubectl get pods -n fluentbit
+     NAME              READY   STATUS    RESTARTS   AGE
+     fluentbit-brx5n   1/1     Running   0          27d
+     fluentbit-btb9b   1/1     Running   0          27d
+     ```
 
    - Check pod logs for any errors
 
-   ```shell
-   kubectl logs fluentbit-brx5n -n fluentbit
-   ```
+     ```shell
+     kubectl logs fluentbit-brx5n -n fluentbit
+     ```
 
 3. Check configuration (`ConfigMap`) in the cluster
 
