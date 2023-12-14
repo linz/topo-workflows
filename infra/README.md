@@ -19,7 +19,7 @@ Main entry point: [app](./cdk8s.ts)
 
 - [ArgoWorkflows](../docs/infrastructure/components/argo.workflows.md) - Main Workflow engine
 - [Karpenter](../docs/infrastructure/components/karpenter.md) - Autoscale EC2 Nodes
-- [FluentBit](../docs/infrastructure/components/karpenter.md) - Forward logs to AWS CloudWatch
+- [FluentBit](../docs/infrastructure/components/fluentbit.md) - Forward logs to AWS CloudWatch
 
 
 
