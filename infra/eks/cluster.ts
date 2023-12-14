@@ -105,7 +105,7 @@ export class LinzEksCluster extends Stack {
     new CfnOutput(this, CfnOutputKeys.ArgoDbEndpoint, { value: this.argoDb.dbInstanceEndpointAddress });
 
     // Set up CloudWatch alarms to Slack for RDS free disk space and CPU utilization
-    const rdsTopic = new sns.Topic(this, 'Topic', {
+    const rdsTopic = new sns.Topic(this, 'RDSAlertsTopic', {
       displayName: 'RDS Slack Notification',
     });
     const slackChannel = new chatbot.SlackChannelConfiguration(this, 'AlertArgoWorkflowDev', {
