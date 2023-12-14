@@ -17,9 +17,10 @@
     "node": ">=16.0.0"
   },
   "scripts": {
+    "build": "tsc",
     "lint": "npx eslint . --ignore-path .gitignore",
     "format": "npx prettier . -w",
-    "test": "node --loader tsx --test infra/**/*.test.ts"
+    "test": "node --import tsx --test infra/**/*.test.ts"
   },
   "devDependencies": {
     "@aws-cdk/lambda-layer-kubectl-v28": "^2.1.0",
@@ -33,6 +34,6 @@
     "cdk8s-cli": "^2.177.0",
     "cdk8s-plus-27": "^2.7.61",
     "constructs": "^10.3.0",
-    "tsx": "^3.14.0"
+    "tsx": "^4.6.2"
   }
 }
