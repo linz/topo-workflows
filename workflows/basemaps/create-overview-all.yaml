@@ -15,7 +15,7 @@ spec:
   entrypoint: main
   arguments:
     parameters:
-      - name: version-basemaps-cli
+      - name: version_basemaps_cli
         value: 'v6'
   templateDefaults:
     container:
@@ -57,7 +57,7 @@ spec:
         parameters:
           - name: source
       container:
-        image: ghcr.io/linz/basemaps/cli:{{workflow.parameters.version-basemaps-cli}}
+        image: ghcr.io/linz/basemaps/cli:{{workflow.parameters.version_basemaps_cli}}
         resources:
           requests:
             cpu: 3000m

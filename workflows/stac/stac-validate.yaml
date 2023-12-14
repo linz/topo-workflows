@@ -13,7 +13,7 @@ spec:
   entrypoint: main
   arguments:
     parameters:
-      - name: version-argo-tasks
+      - name: version_argo_tasks
         value: 'v2'
       - name: uri
         description: 'Path(s) to the STAC file(s).'
@@ -45,7 +45,7 @@ spec:
             withParam: '{{tasks.aws-list-collections.outputs.parameters.files}}'
     - name: aws-list-collections
       container:
-        image: "019359803926.dkr.ecr.ap-southeast-2.amazonaws.com/argo-tasks:{{=sprig.trim(workflow.parameters['version-argo-tasks'])}}"
+        image: '019359803926.dkr.ecr.ap-southeast-2.amazonaws.com/argo-tasks:{{=sprig.trim(workflow.parameters.version_argo_tasks)}}'
         command: [node, /app/index.js]
         env:
           - name: AWS_ROLE_CONFIG_PATH
@@ -74,7 +74,7 @@ spec:
         parameters:
           - name: file
       container:
-        image: "019359803926.dkr.ecr.ap-southeast-2.amazonaws.com/argo-tasks:{{=sprig.trim(workflow.parameters['version-argo-tasks'])}}"
+        image: '019359803926.dkr.ecr.ap-southeast-2.amazonaws.com/argo-tasks:{{=sprig.trim(workflow.parameters.version_argo_tasks)}}'
         resources:
           requests:
             cpu: 15000m

@@ -34,23 +34,23 @@ spec:
         value: ''
       - name: cutline # optional standardising cutline
         value: ''
-      - name: collection-id # optional
+      - name: collection_id # optional
         value: ''
       - name: location # optional
         value: ''
       - name: event # optional
         value: ''
-      - name: historic-survey-number # optional
+      - name: historic_survey_number # optional
         value: ''
       - name: compression
         value: 'webp'
-      - name: source-epsg
+      - name: source_epsg
         value: '2193'
-      - name: target-epsg
+      - name: target_epsg
         value: '2193'
       - name: group
         value: '50'
-      - name: copy-option
+      - name: copy_option
         value: '--no-clobber'
       - name: include
         value: '.tiff?$'
@@ -62,11 +62,11 @@ spec:
         value: 'false'
       - name: lifecycle
         value: 'completed'
-      - name: version-argo-tasks
+      - name: version_argo_tasks
         value: 'v2'
-      - name: version-basemaps-cli
+      - name: version_basemaps_cli
         value: 'v6'
-      - name: version-topo-imagery
+      - name: version_topo_imagery
         value: 'v3'
   templateDefaults:
     container:
@@ -95,7 +95,7 @@ spec:
                   value: '.tiff?$|.json$'
                 - name: group
                   value: '1000'
-                - name: group-size
+                - name: group_size
                   value: '100Gi'
         # - - name: import # uncomment this stanza for basemaps imagery import and amend as necessary. All other inputs should be workflow parameters
         #     templateRef:

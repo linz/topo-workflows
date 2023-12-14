@@ -26,7 +26,7 @@ spec:
         expression: workflow.parameters.region
   arguments:
     parameters:
-      - name: version-argo-tasks
+      - name: version_argo_tasks
         value: 'v2'
       - name: ticket
         description: Ticket ID e.g. 'AIP-55'
@@ -61,7 +61,7 @@ spec:
         value: 's3://linz-imagery-staging/test/sample_target/'
       - name: include
         value: '.tiff?$|.json$|.tfw$'
-      - name: copy-option
+      - name: copy_option
         value: '--no-clobber'
         enum:
           - '--no-clobber'
@@ -69,7 +69,7 @@ spec:
           - '--force-no-clobber'
       - name: group
         value: '1000'
-      - name: group-size
+      - name: group_size
         value: '100Gi'
       - name: transform
         value: 'f'
@@ -84,7 +84,7 @@ spec:
           - name: source
           - name: include
           - name: group
-          - name: group-size
+          - name: group_size
       dag:
         tasks:
           - name: lint-inputs
@@ -94,7 +94,7 @@ spec:
             arguments:
               parameters:
                 - name: version
-                  value: '{{workflow.parameters.version-argo-tasks}}'
+                  value: '{{workflow.parameters.version_argo_tasks}}'
                 - name: path
                   value: '{{workflow.parameters.target}}'
             when: "{{=sprig.regexMatch('s3://nz-imagery/', workflow.parameters.target)}}"
@@ -115,10 +115,10 @@ spec:
                   value: 'collection.json$'
                 - name: group
                   value: '{{inputs.parameters.group}}'
-                - name: group-size
-                  value: '{{inputs.parameters.group-size}}'
-                - name: version-argo-tasks
-                  value: '{{workflow.parameters.version-argo-tasks}}'
+                - name: group_size
+                  value: '{{inputs.parameters.group_size}}'
+                - name: version_argo_tasks
+                  value: '{{workflow.parameters.version_argo_tasks}}'
             when: "{{=sprig.regexMatch('s3://nz-imagery/', workflow.parameters.target)}}"
             depends: 'lint-inputs'
 
@@ -138,10 +138,10 @@ spec:
                   value: ''
                 - name: group
                   value: '{{inputs.parameters.group}}'
-                - name: group-size
-                  value: '{{inputs.parameters.group-size}}'
-                - name: version-argo-tasks
-                  value: '{{workflow.parameters.version-argo-tasks}}'
+                - name: group_size
+                  value: '{{inputs.parameters.group_size}}'
+                - name: version_argo_tasks
+                  value: '{{workflow.parameters.version_argo_tasks}}'
             depends: 'create-manifest-github.Skipped && lint-inputs'
 
           - name: copy-with-github
@@ -150,12 +150,12 @@ spec:
               template: main
             arguments:
               parameters:
-                - name: copy-option
-                  value: '{{workflow.parameters.copy-option}}'
+                - name: copy_option
+                  value: '{{workflow.parameters.copy_option}}'
                 - name: file
                   value: '{{item}}'
-                - name: version-argo-tasks
-                  value: '{{workflow.parameters.version-argo-tasks}}'
+                - name: version_argo_tasks
+                  value: '{{workflow.parameters.version_argo_tasks}}'
                 - name: aws-role-config-path
                   value: 's3://linz-bucket-config/config-write.open-data-registry.json,s3://linz-bucket-config/config.json'
             depends: 'create-manifest-github.Succeeded'
@@ -167,12 +167,12 @@ spec:
               template: main
             arguments:
               parameters:
-                - name: copy-option
-                  value: '{{workflow.parameters.copy-option}}'
+                - name: copy_option
+                  value: '{{workflow.parameters.copy_option}}'
                 - name: file
                   value: '{{item}}'
-                - name: version-argo-tasks
-                  value: '{{workflow.parameters.version-argo-tasks}}'
+                - name: version_argo_tasks
+                  value: '{{workflow.parameters.version_argo_tasks}}'
                 - name: aws-role-config-path
                   value: 's3://linz-bucket-config/config-write.open-data-registry.json'
             depends: 'create-manifest'
@@ -188,8 +188,8 @@ spec:
                   value: '{{inputs.parameters.source}}'
                 - name: target
                   value: '{{workflow.parameters.target}}'
-                - name: version-argo-tasks
-                  value: '{{workflow.parameters.version-argo-tasks}}'
+                - name: version_argo_tasks
+                  value: '{{workflow.parameters.version_argo_tasks}}'
                 - name: repository
                   value: 'imagery'
             depends: 'copy-with-github'

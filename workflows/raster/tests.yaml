@@ -14,7 +14,7 @@ spec:
   entrypoint: test-script
   arguments:
     parameters:
-      - name: version-topo-imagery
+      - name: version_topo_imagery
         value: 'latest'
   templateDefaults:
     container:
@@ -23,7 +23,7 @@ spec:
   templates:
     - name: test-script
       script:
-        image: 019359803926.dkr.ecr.ap-southeast-2.amazonaws.com/topo-imagery:{{workflow.parameters.version-topo-imagery}}
+        image: 019359803926.dkr.ecr.ap-southeast-2.amazonaws.com/topo-imagery:{{workflow.parameters.version_topo_imagery}}
         command: [python]
         source: |
           import sys
