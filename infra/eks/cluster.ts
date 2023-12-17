@@ -1,5 +1,8 @@
 import { KubectlV28Layer } from '@aws-cdk/lambda-layer-kubectl-v28';
-import { Aws, CfnOutput, Duration, RemovalPolicy, SecretValue, Stack, StackProps } from 'aws-cdk-lib';
+import { Aws, CfnOutput, Duration, RemovalPolicy, SecretValue, Size, Stack, StackProps } from 'aws-cdk-lib';
+import * as chatbot from 'aws-cdk-lib/aws-chatbot';
+import * as cloudwatch from 'aws-cdk-lib/aws-cloudwatch';
+import * as actions from 'aws-cdk-lib/aws-cloudwatch-actions';
 import {
   InstanceClass,
   InstanceSize,
@@ -23,6 +26,7 @@ import {
 import * as iam from 'aws-cdk-lib/aws-iam';
 import { Credentials, DatabaseInstance, DatabaseInstanceEngine, PostgresEngineVersion } from 'aws-cdk-lib/aws-rds';
 import { Bucket, IBucket } from 'aws-cdk-lib/aws-s3';
+import * as sns from 'aws-cdk-lib/aws-sns';
 import { Construct } from 'constructs';
 import { createHash } from 'crypto';
 
@@ -31,6 +35,9 @@ import { ArgoDbInstanceName, ArgoDbName, ArgoDbUser, CfnOutputKeys, ScratchBucke
 interface EksClusterProps extends StackProps {
   /** List of role ARNs to grant access to the cluster */
   maintainerRoleArns: string[];
+  slackChannelConfigurationName: string;
+  slackWorkspaceId: string;
+  slackChannelId: string;
 }
 
 export class LinzEksCluster extends Stack {
@@ -96,6 +103,30 @@ export class LinzEksCluster extends Stack {
     this.argoDb.connections.allowFrom(eksSG, Port.tcp(5432), 'EKS to Argo Database');
 
     new CfnOutput(this, CfnOutputKeys.ArgoDbEndpoint, { value: this.argoDb.dbInstanceEndpointAddress });
+
+    // Set up CloudWatch alarms to Slack for RDS free disk space and CPU utilization
+    const rdsTopic = new sns.Topic(this, 'RDSAlertsTopic', {
+      displayName: 'RDS Slack Notification',
+    });
+    const slackChannel = new chatbot.SlackChannelConfiguration(this, 'AlertArgoWorkflowDev', {
+      slackChannelConfigurationName: props.slackChannelConfigurationName,
+      slackWorkspaceId: props.slackWorkspaceId,
+      slackChannelId: props.slackChannelId,
+    });
+    slackChannel.addNotificationTopic(rdsTopic);
+    // https://docs.aws.amazon.com/cdk/api/v2/docs/aws-cdk-lib.aws_cloudwatch.MetricOptions.html
+    const alarmStorage = this.argoDb
+      .metricFreeStorageSpace({ period: Duration.minutes(5) })
+      .createAlarm(this, 'FreeStorageSpace', {
+        threshold: Size.gibibytes(2).toBytes(),
+        evaluationPeriods: 2,
+        comparisonOperator: cloudwatch.ComparisonOperator.LESS_THAN_THRESHOLD,
+      });
+    const alarmCpu = this.argoDb
+      .metricCPUUtilization({ period: Duration.minutes(5) })
+      .createAlarm(this, 'CPUUtilization', { threshold: 75, evaluationPeriods: 2 });
+    alarmStorage.addAlarmAction(new actions.SnsAction(rdsTopic));
+    alarmCpu.addAlarmAction(new actions.SnsAction(rdsTopic));
 
     const nodeGroup = this.cluster.addNodegroupCapacity('ClusterDefault', {
       /**
