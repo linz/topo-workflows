@@ -123,7 +123,9 @@ export class LinzEksCluster extends Stack {
       evaluationPeriods: 2,
       comparisonOperator: cloudwatch.ComparisonOperator.LESS_THAN_THRESHOLD,
     });
-    const alarmCpu = this.argoDb.metricCPUUtilization().createAlarm(this, 'CPUUtilization', { threshold: 75, evaluationPeriods: 2 });
+    const alarmCpu = this.argoDb
+      .metricCPUUtilization()
+      .createAlarm(this, 'CPUUtilization', { threshold: 75, evaluationPeriods: 2 });
     alarmStorage.addAlarmAction(new actions.SnsAction(rdsTopic));
     alarmCpu.addAlarmAction(new actions.SnsAction(rdsTopic));
 
