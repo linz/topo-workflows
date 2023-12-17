@@ -97,7 +97,8 @@ spec:
                   value: '{{workflow.parameters.version-argo-tasks}}'
                 - name: path
                   value: '{{workflow.parameters.target}}'
-            when: '{{=sprig.regexMatch('s3://nz-imagery/', workflow.parameters.target)}}'
+            when: "{{=sprig.regexMatch('s3://nz-imagery/', workflow.parameters.target)}}"
+
           - name: create-manifest-github
             templateRef:
               name: tpl-create-manifest
