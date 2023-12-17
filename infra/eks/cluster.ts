@@ -114,17 +114,16 @@ export class LinzEksCluster extends Stack {
       slackChannelId: props.slackChannelId,
     });
     slackChannel.addNotificationTopic(rdsTopic);
-    /**
-     * RDS metric default evaluation period is average over 5 minutes
-     * https://docs.aws.amazon.com/cdk/api/v2/docs/aws-cdk-lib.aws_cloudwatch.MetricOptions.html
-     */
-    const alarmStorage = this.argoDb.metricFreeStorageSpace().createAlarm(this, 'FreeStorageSpace', {
-      threshold: Size.gibibytes(2).toBytes(),
-      evaluationPeriods: 2,
-      comparisonOperator: cloudwatch.ComparisonOperator.LESS_THAN_THRESHOLD,
-    });
+    // https://docs.aws.amazon.com/cdk/api/v2/docs/aws-cdk-lib.aws_cloudwatch.MetricOptions.html
+    const alarmStorage = this.argoDb
+      .metricFreeStorageSpace({ period: Duration.minutes(5) })
+      .createAlarm(this, 'FreeStorageSpace', {
+        threshold: Size.gibibytes(2).toBytes(),
+        evaluationPeriods: 2,
+        comparisonOperator: cloudwatch.ComparisonOperator.LESS_THAN_THRESHOLD,
+      });
     const alarmCpu = this.argoDb
-      .metricCPUUtilization()
+      .metricCPUUtilization({ period: Duration.minutes(5) })
       .createAlarm(this, 'CPUUtilization', { threshold: 75, evaluationPeriods: 2 });
     alarmStorage.addAlarmAction(new actions.SnsAction(rdsTopic));
     alarmCpu.addAlarmAction(new actions.SnsAction(rdsTopic));
