@@ -42,6 +42,8 @@ The Fluent Bit application version is stored in `appVersion` but this is only he
 
 ## Troubleshooting
 
+[Guide to Debugging Fluent Bit issues](https://github.com/aws/aws-for-fluent-bit/blob/mainline/troubleshooting/debugging.md)
+
 1. Verify Fluent Bit is deployed and available in the K8s cluster
 
    ```shell
