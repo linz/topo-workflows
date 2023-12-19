@@ -81,7 +81,7 @@ The Fluent Bit application version is stored in `appVersion` but this is only he
 
 ### `broken connection to logs.ap-southeast-2.amazonaws.com:443`
 
-We can see this error happening time to time. It is OK as long as the connection retry succeed:
+We can see this error happening from time to time. It is OK as long as the connection retry succeed:
 
 ```shell
 [2023/12/19 11:31:00] [ warn] [engine] failed to flush chunk '1-1702985459.558236192.flb', retry in 10 seconds: task_id=0, input=tail.0 > output=cloudwatch_logs.0 (out_id=0)
