@@ -42,6 +42,10 @@ The Fluent Bit application version is stored in `appVersion` but this is only he
 
 ## Troubleshooting
 
+[Guide to Debugging Fluent Bit issues](https://github.com/aws/aws-for-fluent-bit/blob/mainline/troubleshooting/debugging.md)
+
+### Basic checks
+
 1. Verify Fluent Bit is deployed and available in the K8s cluster
 
    ```shell
@@ -74,3 +78,16 @@ The Fluent Bit application version is stored in `appVersion` but this is only he
    ```
 
    - Check configuration that might have been deployed by running `cdk8s synth` and look at the `fluentbit` yaml file.
+
+### `broken connection to logs.ap-southeast-2.amazonaws.com:443`
+
+We can see this error happening from time to time. It is OK as long as the connection retry succeed:
+
+```console
+[2023/12/19 11:31:00] [ warn] [engine] failed to flush chunk [...] retry in 10 seconds: task_id=0, [...]
+[2023/12/19 11:31:10] [ info] [engine] flush chunk [...] succeeded at retry 1: task_id=0, [...]
+```
+
+However, this issue could potentially cause [a delay for the log](https://github.com/aws/aws-for-fluent-bit/blob/mainline/troubleshooting/debugging.md#log-delay) to come into CloudWatch (the time to retry).
+
+If the retry fails, that could mean logs being lost. In that case it would need investigation. [More information here](https://github.com/aws/aws-for-fluent-bit/blob/mainline/troubleshooting/debugging.md#how-do-i-tell-if-fluent-bit-is-losing-logs).
