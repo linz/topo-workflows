@@ -83,7 +83,7 @@ The Fluent Bit application version is stored in `appVersion` but this is only he
 
 We can see this error happening from time to time. It is OK as long as the connection retry succeed:
 
-```shell
+```console
 [2023/12/19 11:31:00] [ warn] [engine] failed to flush chunk '1-1702985459.558236192.flb', retry in 10 seconds: task_id=0, input=tail.0 > output=cloudwatch_logs.0 (out_id=0)
 [2023/12/19 11:31:10] [ info] [engine] flush chunk '1-1702985459.558236192.flb' succeeded at retry 1: task_id=0, input=tail.0 > output=cloudwatch_logs.0 (out_id=0)
 ```
