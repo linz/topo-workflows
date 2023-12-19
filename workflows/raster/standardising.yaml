@@ -102,10 +102,18 @@ spec:
       - name: collection-id
         description: '(Optional) If an existing dataset add collection ID here, else a new one will be generated.'
         value: ''
-      - name: title
-        value: '*Region/District/City* *GSD* *Urban/Rural* Aerial Photos (*Year-Year*)'
-      - name: description
-        value: 'Orthophotography within the *Region Name* region captured in the *Year*-*Year* flying season.'
+      - name: category
+        value: 'Urban Aerial Photos'
+        enum:
+          - 'Aerial Photos'
+          - 'Urban Aerial Photos'
+          - 'Rural Aerial Photos'
+          - 'Scanned Aerial Imagery'
+          - 'DEM'
+          - 'DSM'
+          - 'Satellite Imagery'
+      - name: gsd
+        description: 'Dataset GSD (e.g., "0.3m")'
       - name: producer
         value: 'Unknown'
         enum:
@@ -238,6 +246,23 @@ spec:
         value: 'YYYY-MM-DD'
       - name: end-datetime
         value: 'YYYY-MM-DD'
+      - name: location
+        description: '(Optional) Additional datatset description, to be used in the title in place of the Region (e.g., "Hamilton")'
+        value: ''
+      - name: lifecycle
+        value: 'completed'
+        enum:
+          - 'under development'
+          - 'preview'
+          - 'ongoing'
+          - 'completed'
+          - 'deprecated'
+      - name: event
+        description: '(Optional) Event name if dataset has been captured in association with an event (e.g., "Top of the South Floods")'
+        value: ''
+      - name: historic-survey-number
+        description: '(Optional) Survey Number associated with historical datasets, (e.g., "SN8844")'
+        value: ''
       - name: copy-option
         value: '--no-clobber'
         enum:
@@ -447,10 +472,24 @@ spec:
           - '{{inputs.parameters.location}}flat/'
           - '--collection-id'
           - '{{inputs.parameters.collection-id}}'
-          - '--title'
-          - '{{=sprig.trim(workflow.parameters.title)}}'
-          - '--description'
-          - '{{=sprig.trim(workflow.parameters.description)}}'
+          - '--category'
+          - '{{=sprig.trim(workflow.parameters.category)}}'
+          - '--region'
+          - '{{=sprig.trim(workflow.parameters.region)}}'
+          - '--gsd'
+          - '{{=sprig.trim(workflow.parameters.gsd)}}'
+          - '--location'
+          - '{{=sprig.trim(workflow.parameters.location)}}'
+          - '--start-date'
+          - "{{=sprig.trim(workflow.parameters['start-datetime'])}}"
+          - '--end-date'
+          - "{{=sprig.trim(workflow.parameters['end-datetime'])}}"
+          - '--event'
+          - '{{=sprig.trim(workflow.parameters.event)}}'
+          - '--historic-survey-number'
+          - "{{=sprig.trim(workflow.parameters['historic-survey-number'])}}"
+          - '--lifecycle'
+          - '{{=sprig.trim(workflow.parameters.lifecycle)}}'
           - '--producer'
           - '{{workflow.parameters.producer}}'
           - '--producer-list'

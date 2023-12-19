@@ -60,6 +60,12 @@ spec:
         value: ''
       - name: collection-id # optional
         value: ''
+      - name: location # optional
+        value: ''
+      - name: event # optional
+        value: ''
+      - name: historic-survey-number # optional
+        value: ''
       - name: compression
         value: 'webp'
       - name: source-epsg
@@ -78,6 +84,8 @@ spec:
         value: 'true'
       - name: retile
         value: 'false'
+      - name: lifecycle
+        value: 'completed'
       - name: version-argo-tasks
         value: 'v2'
       - name: version-basemaps-cli
