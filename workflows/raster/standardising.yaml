@@ -480,7 +480,7 @@ spec:
           - '--location'
           - '{{=sprig.trim(workflow.parameters.location)}}'
           - '--start-date'
-          - '{{=sprig.trim(workflow.parameter.start_datetime)}}'
+          - '{{=sprig.trim(workflow.parameters.start_datetime)}}'
           - '--end-date'
           - '{{=sprig.trim(workflow.parameters.end_datetime)}}'
           - '--event'
