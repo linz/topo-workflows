@@ -14,7 +14,7 @@ The additional components (or Kubernetes resources) running on the EKS cluster a
 
 Main entry point: [app](./cdk8s.ts)
 
-#### Components:
+## Components
 
 - [ArgoWorkflows](../docs/infrastructure/components/argo.workflows.md) - Main Workflow engine
 - [Karpenter](../docs/infrastructure/components/karpenter.md) - Autoscale EC2 Nodes
@@ -43,7 +43,7 @@ This can be done with either a `export CDK_DEFAULT_ACCOUNT=1234567890` or passed
 
 Then a deployment can be made with `cdk`
 
-```
+```shell
 npx cdk diff -c aws-account-id=1234567890 -c ci-role-arn=arn::...
 ```
 
