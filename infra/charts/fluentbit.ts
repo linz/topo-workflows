@@ -91,6 +91,11 @@ HC_Period 5
           { key: 'karpenter.sh/capacity-type', operator: 'Equal', value: 'spot', effect: 'NoSchedule' },
           { key: 'kubernetes.io/arch', operator: 'Equal', value: 'arm64', effect: 'NoSchedule' },
         ],
+        /* To reduce the log volume being sent to CloudWatch (shipped to AWS s3 => storage cost),
+         tells Fluent Bit to not send the logs from the Fluent Bit application pods.
+         The Fluent Bit application pods have some (a lot!) network errors that are being logged.
+        */
+        annotations: { 'fluentbit.io/exclude': 'true' },
       },
     });
   }
