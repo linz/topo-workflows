@@ -28,11 +28,11 @@
     "@aws-sdk/client-eks": "3.451.0",
     "@aws-sdk/client-ssm": "3.451.0",
     "@linzjs/style": "^5.1.0",
-    "aws-cdk": "2.108.x",
-    "aws-cdk-lib": "2.108.x",
-    "cdk8s": "^2.68.4",
-    "cdk8s-cli": "^2.177.0",
-    "cdk8s-plus-27": "^2.7.61",
+    "aws-cdk": "2.118.x",
+    "aws-cdk-lib": "2.118.x",
+    "cdk8s": "^2.68.23",
+    "cdk8s-cli": "^2.198.26",
+    "cdk8s-plus-27": "^2.7.70",
     "constructs": "^10.3.0",
     "tsx": "^4.6.2"
   }
