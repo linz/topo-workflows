@@ -81,7 +81,7 @@ The Fluent Bit application version is stored in `appVersion` but this is only he
 
 ### `broken connection to logs.ap-southeast-2.amazonaws.com:443`
 
-We can see this error happening from time to time. It is OK as long as the connection retry succeed:
+We can see this error happening a lot. It is OK as long as the connection retry succeed:
 
 ```console
 [2023/12/19 11:31:00] [ warn] [engine] failed to flush chunk [...] retry in 10 seconds: task_id=0, [...]
@@ -91,3 +91,5 @@ We can see this error happening from time to time. It is OK as long as the conne
 However, this issue could potentially cause [a delay for the log](https://github.com/aws/aws-for-fluent-bit/blob/mainline/troubleshooting/debugging.md#log-delay) to come into CloudWatch (the time to retry).
 
 If the retry fails, that could mean logs being lost. In that case it would need investigation. [More information here](https://github.com/aws/aws-for-fluent-bit/blob/mainline/troubleshooting/debugging.md#how-do-i-tell-if-fluent-bit-is-losing-logs).
+
+> **_NOTE:_** One of the consequences of this error is that it increases considerably the amount of the Fluent Bit application pods logs. We had to exclude these logs from being sent to CloudWatch to avoid an increase of our AWS S3 storage cost (as CloudWatch logs are shipped to AWS S3 in our system).
