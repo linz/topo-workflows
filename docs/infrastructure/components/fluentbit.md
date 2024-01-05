@@ -42,7 +42,11 @@ The Fluent Bit application version is stored in `appVersion` but this is only he
 
 ## Troubleshooting
 
-[Guide to Debugging Fluent Bit issues](https://github.com/aws/aws-for-fluent-bit/blob/mainline/troubleshooting/debugging.md)
+### Resources
+
+- [Guide to Debugging Fluent Bit issues](https://github.com/aws/aws-for-fluent-bit/blob/mainline/troubleshooting/debugging.md)
+- [2023 High Impact Issues Notice/Catalogue Ticket](https://github.com/aws/aws-for-fluent-bit/issues/542)
+- [Recommended Cloudwatch_Logs Configuration](https://github.com/aws/aws-for-fluent-bit/issues/340)
 
 ### Basic checks
 
@@ -92,4 +96,4 @@ However, this issue could potentially cause [a delay for the log](https://github
 
 If the retry fails, that could mean logs being lost. In that case it would need investigation. [More information here](https://github.com/aws/aws-for-fluent-bit/blob/mainline/troubleshooting/debugging.md#how-do-i-tell-if-fluent-bit-is-losing-logs).
 
-> **_NOTE:_** One of the consequences of this error is that it increases considerably the amount of the Fluent Bit application pods logs. We had to exclude these logs from being sent to CloudWatch to avoid an increase of our AWS S3 storage cost (as CloudWatch logs are shipped to AWS S3 in our system).
+> **_NOTE:_** One of the consequences of this error is that it increases considerably the amount of the Fluent Bit application pods logs. We had by the past to exclude these logs from being sent to CloudWatch to avoid an increase of our AWS S3 storage cost (as CloudWatch logs are shipped to AWS S3 in our system). To do so, add the `annotations: { 'fluentbit.io/exclude': 'true' }` to the Fluent Bit Helm Chart configuration (`values.yaml`).
