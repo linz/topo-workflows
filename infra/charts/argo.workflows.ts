@@ -121,6 +121,7 @@ export class ArgoWorkflows extends Chart {
         },
         artifactRepository,
         controller: {
+          podAnnotations: { 'fluentbit.io/exclude': 'true' },
           nodeSelector: { ...DefaultNodeSelector },
           workflowNamespaces: ['argo'],
           extraArgs: [],
