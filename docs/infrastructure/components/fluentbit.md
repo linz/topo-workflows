@@ -31,6 +31,10 @@ Elasticsearch forwarder should not be enabled. Our logs are shipped into Elastic
 
 Fluent Bit application logs are sent by default to CloudWatch.
 
+### Exclude a pod
+
+You can exclude a pod logs to be treated by Fluent Bit by adding the annotation `'fluentbit.io/exclude': 'true'`.
+
 ## Upgrade
 
 To upgrade the Fluent Bit version, as per the installation, you need to do it via upgrading `aws-for-fluent-bit`.
@@ -91,5 +95,3 @@ We can see this error happening a lot. It is OK as long as the connection retry 
 However, this issue could potentially cause [a delay for the log](https://github.com/aws/aws-for-fluent-bit/blob/mainline/troubleshooting/debugging.md#log-delay) to come into CloudWatch (the time to retry).
 
 If the retry fails, that could mean logs being lost. In that case it would need investigation. [More information here](https://github.com/aws/aws-for-fluent-bit/blob/mainline/troubleshooting/debugging.md#how-do-i-tell-if-fluent-bit-is-losing-logs).
-
-> **_NOTE:_** One of the consequences of this error is that it increases considerably the amount of the Fluent Bit application pods logs. We had to exclude these logs from being sent to CloudWatch to avoid an increase of our AWS S3 storage cost (as CloudWatch logs are shipped to AWS S3 in our system).
