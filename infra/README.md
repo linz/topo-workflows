@@ -8,31 +8,31 @@ Generally all Kubernetes resources are defined with [`cdk8s`](https://cdk8s.io/)
 
 The EKS Cluster base configuration is defined in [./cdk.ts](./cdk.ts) using [`aws-cdk`](https://aws.amazon.com/cdk/).
 
-
 ## Kubernetes resources / CDK8s
 
 The additional components (or Kubernetes resources) running on the EKS cluster are defined in [./cdk8s.ts](./cdk8s.ts) using [`cdk8s`](https://cdk8s.io/).
 
 Main entry point: [app](./cdk8s.ts)
 
-#### Components:
+## Components
 
 - [ArgoWorkflows](../docs/infrastructure/components/argo.workflows.md) - Main Workflow engine
 - [Karpenter](../docs/infrastructure/components/karpenter.md) - Autoscale EC2 Nodes
 - [FluentBit](../docs/infrastructure/components/fluentbit.md) - Forward logs to AWS CloudWatch
 
-
-
-
 ## Deployments
 
-Ensure all dependencies are installed
+### Prerequisites
 
-```shell
-npm install
-```
+- [Helm](https://helm.sh/docs/intro/install/)
+- Ensure all dependencies are installed
 
-Login to AWS
+  ```shell
+  npm install
+  ```
+
+- Login to AWS
+
 ### Deploy CDK
 
 To deploy with AWS CDK a few configuration variables need to be set
@@ -43,7 +43,7 @@ This can be done with either a `export CDK_DEFAULT_ACCOUNT=1234567890` or passed
 
 Then a deployment can be made with `cdk`
 
-```
+```shell
 npx cdk diff -c aws-account-id=1234567890 -c ci-role-arn=arn::...
 ```
 
@@ -53,6 +53,7 @@ npx cdk diff -c aws-account-id=1234567890 -c ci-role-arn=arn::...
 - `ci-role-arn`: AWS Role ARN for the CI user
 
 ### Deploy CDK8s
+
 Generate the kubernetes configuration yaml into `dist/`
 
 ```shell
@@ -83,6 +84,3 @@ The deployment of the K8s config is managed by GithubActions in [main](../.githu
 - [Version Upgrade Guide](../docs/infrastructure/kubernetes.version.md)
 - [DNS Troubleshooting](../docs/dns.configuration.md)
 - [Working with Helm](../docs/infrastructure/helm.md)
-
-
-
