@@ -121,6 +121,10 @@ export class ArgoWorkflows extends Chart {
         },
         artifactRepository,
         controller: {
+          /* Tells Fluent Bit to not send Argo Controller log to CloudWatch
+            https://github.com/argoproj/argo-workflows/issues/11657 is spamming the logs
+            and increase our logs storage cost.
+          */
           podAnnotations: { 'fluentbit.io/exclude': 'true' },
           nodeSelector: { ...DefaultNodeSelector },
           workflowNamespaces: ['argo'],
