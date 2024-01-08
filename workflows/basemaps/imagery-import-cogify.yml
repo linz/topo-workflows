@@ -241,6 +241,8 @@ spec:
     - name: create-covering
       retryStrategy:
         limit: '2'
+      nodeSelector:
+        karpenter.sh/capacity-type: 'spot'
       inputs:
         parameters:
           - name: source
@@ -250,6 +252,9 @@ spec:
           - name: cutline_blend
       container:
         image: ghcr.io/linz/basemaps/cli:{{ workflow.parameters.version_basemaps_cli }}
+        resources:
+          requests:
+            memory: 2Gi
         command: [node, /app/node_modules/.bin/cogify]
         env:
           - name: AWS_ROLE_CONFIG_PATH
