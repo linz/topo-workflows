@@ -102,12 +102,12 @@ Copy the input parameter manifest file without overriding.
     template: main
   arguments:
     parameters:
-      - name: copy-option
+      - name: copy_option
         value: '--no-clobber'
       - name: file
         value: '{{item}}'
-      - name: version-argo-tasks
-        value: '{{workflow.parameters.version-argo-tasks}}'
+      - name: version_argo_tasks
+        value: '{{workflow.parameters.version_argo_tasks}}'
   depends: 'create-manifest'
   withParam: '{{tasks.create-manifest.outputs.parameters.files}}'
 ```
@@ -138,10 +138,10 @@ Create a manifest file for a user specified source and target that includes `.ti
         value: ''
       - name: group
         value: '1000'
-      - name: group-size
+      - name: group_size
         value: '100Gi'
-      - name: version-argo-tasks
-        value: '{{workflow.parameters.version-argo-tasks}}'
+      - name: version_argo_tasks
+        value: '{{workflow.parameters.version_argo_tasks}}'
 ```
 
 ## argo-tasks/push-to-github - `tpl-push-to-github`
@@ -162,8 +162,8 @@ See https://github.com/linz/argo-tasks#stac-github-import
         value: '{{inputs.parameters.source}}'
       - name: target
         value: '{{workflow.parameters.target}}'
-      - name: version-argo-tasks
-        value: '{{workflow.parameters.version-argo-tasks}}'
+      - name: version_argo_tasks
+        value: '{{workflow.parameters.version_argo_tasks}}'
       - name: repository
         value: 'elevation'
   depends: 'copy-with-github'
@@ -184,7 +184,7 @@ See https://github.com/linz/argo-tasks#lint-inputs
   arguments:
     parameters:
       - name: version
-        value: '{{workflow.parameters.version-argo-tasks}}'
+        value: '{{workflow.parameters.version_argo_tasks}}'
       - name: path
         value: '{{workflow.parameters.target}}'
   when: '{{workflow.parameters.lint}} == true'

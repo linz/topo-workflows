@@ -26,12 +26,11 @@ spec:
         expression: workflow.parameters.region
   arguments:
     parameters:
-      # FIXME: Should use camelCase or underscore?
-      - name: version-argo-tasks
+      - name: version_argo_tasks
         value: 'v2'
-      - name: version-basemaps-cli
+      - name: version_basemaps_cli
         value: 'v6'
-      - name: version-topo-imagery
+      - name: version_topo_imagery
         value: 'v3'
       - name: ticket
         description: Ticket ID e.g. 'AIP-55'
@@ -84,9 +83,9 @@ spec:
         enum:
           - 'true'
           - 'false'
-      - name: source-epsg
+      - name: source_epsg
         value: '2193'
-      - name: target-epsg
+      - name: target_epsg
         value: '2193'
       - name: group
         value: '50'
@@ -99,7 +98,7 @@ spec:
       - name: cutline
         description: '(Optional) location of a cutline file to cut the imagery to .fgb or .geojson'
         value: ''
-      - name: collection-id
+      - name: collection_id
         description: '(Optional) If an existing dataset add collection ID here, else a new one will be generated.'
         value: ''
       - name: category
@@ -136,7 +135,7 @@ spec:
             'Terralink International',
             'UAV Mapping NZ',
           ]
-      - name: producer-list
+      - name: producer_list
         description: '(Optional) List of imagery producers, separated by a semicolons (;). Has no effect unless a semicolon delimited list is entered.'
         value: ''
       - name: licensor
@@ -240,12 +239,12 @@ spec:
             'Whanganui District Council',
             'Whangārei District Council',
           ]
-      - name: licensor-list
+      - name: licensor_list
         description: '(Optional) List of imagery licensors, separated by a semicolons (;). Has no effect unless a semicolon delimited list is entered.'
         value: ''
-      - name: start-datetime
+      - name: start_datetime
         value: 'YYYY-MM-DD'
-      - name: end-datetime
+      - name: end_datetime
         value: 'YYYY-MM-DD'
       - name: location
         description: '(Optional) Additional datatset description, to be used in the title in place of the Region (e.g., "Hamilton")'
@@ -261,10 +260,10 @@ spec:
       - name: event
         description: '(Optional) Event name if dataset has been captured in association with an event (e.g., "Top of the South Floods")'
         value: ''
-      - name: historic-survey-number
+      - name: historic_survey_number
         description: '(Optional) Survey Number associated with historical datasets, (e.g., "SN8844")'
         value: ''
-      - name: copy-option
+      - name: copy_option
         value: '--no-clobber'
         enum:
           - '--no-clobber'
@@ -297,13 +296,13 @@ spec:
                 - name: source
                   value: '{{=sprig.trim(inputs.parameters.source)}}'
                 - name: source_epsg
-                  value: "{{=sprig.trim(workflow.parameters['source-epsg'])}}"
+                  value: '{{=sprig.trim(workflow.parameters.source_epsg)}}'
                 - name: validate
                   value: '{{= workflow.parameters.validate}}'
                 - name: retile
                   value: '{{= workflow.parameters.retile}}'
                 - name: version
-                  value: "{{= workflow.parameters['version-argo-tasks']}}"
+                  value: '{{= workflow.parameters.version_argo_tasks}}'
 
           - name: group
             templateRef:
@@ -317,7 +316,7 @@ spec:
                 - name: size
                   value: '{{workflow.parameters.group}}'
                 - name: version
-                  value: "{{= workflow.parameters['version-argo-tasks']}}"
+                  value: '{{= workflow.parameters.version_argo_tasks}}'
             depends: 'tile-index-validate'
 
           - name: standardise-validate
@@ -362,7 +361,7 @@ spec:
             template: get-location
 
           - name: create-overview
-            when: "'{{workflow.parameters.target-epsg}}' =~ '2193|3857' && '{{workflow.parameters.compression}}' != 'dem_lerc'"
+            when: "'{{workflow.parameters.target_epsg}}' =~ '2193|3857' && '{{workflow.parameters.compression}}' != 'dem_lerc'"
             arguments:
               parameters:
                 - name: location
@@ -371,7 +370,7 @@ spec:
             depends: 'standardise-validate'
 
           - name: create-config
-            when: "'{{workflow.parameters.target-epsg}}' =~ '2193|3857' && '{{workflow.parameters.compression}}' != 'dem_lerc'"
+            when: "'{{workflow.parameters.target_epsg}}' =~ '2193|3857' && '{{workflow.parameters.compression}}' != 'dem_lerc'"
             arguments:
               parameters:
                 - name: location
@@ -388,11 +387,11 @@ spec:
 
     - name: collection-id-setup
       script:
-        image: "019359803926.dkr.ecr.ap-southeast-2.amazonaws.com/topo-imagery:{{=sprig.trim(workflow.parameters['version-topo-imagery'])}}"
+        image: '019359803926.dkr.ecr.ap-southeast-2.amazonaws.com/topo-imagery:{{=sprig.trim(workflow.parameters.version_topo_imagery)}}'
         command: [python]
         source: |
           import ulid
-          collection_id = "{{workflow.parameters.collection-id}}"
+          collection_id = "{{workflow.parameters.collection_id}}"
           with open("/tmp/collection-id", "w") as f:
             if not collection_id:
               f.write(str(ulid.ULID()))
@@ -418,7 +417,7 @@ spec:
           - name: group_data
             path: /tmp/input/
       container:
-        image: "019359803926.dkr.ecr.ap-southeast-2.amazonaws.com/topo-imagery:{{=sprig.trim(workflow.parameters['version-topo-imagery'])}}"
+        image: '019359803926.dkr.ecr.ap-southeast-2.amazonaws.com/topo-imagery:{{=sprig.trim(workflow.parameters.version_topo_imagery)}}'
         resources:
           requests:
             memory: 7.8Gi
@@ -438,17 +437,17 @@ spec:
           - '--preset'
           - '{{workflow.parameters.compression}}'
           - '--start-datetime'
-          - "{{=sprig.trim(workflow.parameters['start-datetime'])}}"
+          - '{{=sprig.trim(workflow.parameters.start_datetime)}}'
           - '--end-datetime'
-          - "{{=sprig.trim(workflow.parameters['end-datetime'])}}"
+          - '{{=sprig.trim(workflow.parameters.end_datetime)}}'
           - '--collection-id'
           - '{{inputs.parameters.collection-id}}'
           - '--cutline'
           - '{{=sprig.trim(workflow.parameters.cutline)}}'
           - '--source-epsg'
-          - "{{=sprig.trim(workflow.parameters['source-epsg'])}}"
+          - '{{=sprig.trim(workflow.parameters.source_epsg)}}'
           - '--target-epsg'
-          - "{{=sprig.trim(workflow.parameters['target-epsg'])}}"
+          - '{{=sprig.trim(workflow.parameters.target_epsg)}}'
 
     - name: create-collection
       retryStrategy:
@@ -460,7 +459,7 @@ spec:
           - name: collection-id
           - name: location
       container:
-        image: "019359803926.dkr.ecr.ap-southeast-2.amazonaws.com/topo-imagery:{{=sprig.trim(workflow.parameters['version-topo-imagery'])}}"
+        image: '019359803926.dkr.ecr.ap-southeast-2.amazonaws.com/topo-imagery:{{=sprig.trim(workflow.parameters.version_topo_imagery)}}'
         resources:
           requests:
             memory: 7.8Gi
@@ -482,23 +481,23 @@ spec:
           - '--location'
           - '{{=sprig.trim(workflow.parameters.location)}}'
           - '--start-date'
-          - "{{=sprig.trim(workflow.parameters['start-datetime'])}}"
+          - '{{=sprig.trim(workflow.parameters.start_datetime)}}'
           - '--end-date'
-          - "{{=sprig.trim(workflow.parameters['end-datetime'])}}"
+          - '{{=sprig.trim(workflow.parameters.end_datetime)}}'
           - '--event'
           - '{{=sprig.trim(workflow.parameters.event)}}'
           - '--historic-survey-number'
-          - "{{=sprig.trim(workflow.parameters['historic-survey-number'])}}"
+          - '{{=sprig.trim(workflow.parameters.historic_survey_number)}}'
           - '--lifecycle'
           - '{{=sprig.trim(workflow.parameters.lifecycle)}}'
           - '--producer'
           - '{{workflow.parameters.producer}}'
           - '--producer-list'
-          - "{{=sprig.trim(workflow.parameters['producer-list'])}}"
+          - '{{=sprig.trim(workflow.parameters.producer_list)}}'
           - '--licensor'
           - '{{workflow.parameters.licensor}}'
           - '--licensor-list'
-          - "{{=sprig.trim(workflow.parameters['licensor-list'])}}"
+          - '{{=sprig.trim(workflow.parameters.licensor_list)}}'
           - '--concurrency'
           - '25'
 
@@ -507,7 +506,7 @@ spec:
         parameters:
           - name: location
       container:
-        image: "019359803926.dkr.ecr.ap-southeast-2.amazonaws.com/argo-tasks:{{=sprig.trim(workflow.parameters['version-argo-tasks'])}}"
+        image: '019359803926.dkr.ecr.ap-southeast-2.amazonaws.com/argo-tasks:{{=sprig.trim(workflow.parameters.version_argo_tasks)}}'
         command: [node, /app/index.js]
         env:
           - name: AWS_ROLE_CONFIG_PATH
@@ -516,7 +515,7 @@ spec:
 
     - name: get-location
       script:
-        image: "019359803926.dkr.ecr.ap-southeast-2.amazonaws.com/argo-tasks:{{=sprig.trim(workflow.parameters['version-argo-tasks'])}}"
+        image: '019359803926.dkr.ecr.ap-southeast-2.amazonaws.com/argo-tasks:{{=sprig.trim(workflow.parameters.version_argo_tasks)}}'
         command: [node]
         source: |
           const fs = require('fs');
@@ -536,7 +535,7 @@ spec:
         parameters:
           - name: location
       container:
-        image: "ghcr.io/linz/basemaps/cli:{{=sprig.trim(workflow.parameters['version-basemaps-cli'])}}"
+        image: 'ghcr.io/linz/basemaps/cli:{{=sprig.trim(workflow.parameters.version_basemaps_cli)}}'
         resources:
           requests:
             cpu: 3000m
@@ -563,7 +562,7 @@ spec:
           - name: location
             description: Location of the imagery to create config for
       container:
-        image: "ghcr.io/linz/basemaps/cli:{{=sprig.trim(workflow.parameters['version-basemaps-cli'])}}"
+        image: 'ghcr.io/linz/basemaps/cli:{{=sprig.trim(workflow.parameters.version_basemaps_cli)}}'
         command: [node, /app/node_modules/.bin/cogify]
         env:
           - name: AWS_ROLE_CONFIG_PATH

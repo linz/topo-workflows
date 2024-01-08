@@ -13,13 +13,13 @@ spec:
   entrypoint: main
   arguments:
     parameters:
-      - name: version-argo-tasks
+      - name: version_argo_tasks
         value: 'latest'
       - name: uri
         value: ''
       - name: filter
         value: '.tiff?$|.json$'
-      - name: copy-option
+      - name: copy_option
         value: '--no-clobber'
         enum:
           - '--no-clobber'
@@ -55,7 +55,7 @@ spec:
           - name: uri
           - name: filter
       container:
-        image: 019359803926.dkr.ecr.ap-southeast-2.amazonaws.com/argo-tasks:{{=sprig.trim(workflow.parameters['version-argo-tasks'])}}
+        image: 019359803926.dkr.ecr.ap-southeast-2.amazonaws.com/argo-tasks:{{=sprig.trim(workflow.parameters.version_argo_tasks)}}
         command: [node, /app/index.js]
         env:
           - name: AWS_ROLE_CONFIG_PATH
@@ -86,10 +86,10 @@ spec:
         parameters:
           - name: file
       container:
-        image: 019359803926.dkr.ecr.ap-southeast-2.amazonaws.com/argo-tasks:{{=sprig.trim(workflow.parameters['version-argo-tasks'])}}
+        image: 019359803926.dkr.ecr.ap-southeast-2.amazonaws.com/argo-tasks:{{=sprig.trim(workflow.parameters.version_argo_tasks)}}
         resources:
           requests:
             memory: 7.8Gi
             cpu: 2000m
         command: [node, /app/index.js]
-        args: ['copy', '{{workflow.parameters.copy-option}}', '{{inputs.parameters.file}}']
+        args: ['copy', '{{workflow.parameters.copy_option}}', '{{inputs.parameters.file}}']

@@ -278,8 +278,8 @@ title: 'Christchurch 0.05m Urban Aerial Photos (2021)'
 description: 'Orthophotography within the Canterbury region captured in the 2021 flying season.'
 producer: 'Aerial Surveys'
 licensor: 'Toitū Te Whenua Land Information New Zealand'
-start-datetime: '2021-11-02'
-end-datetime: '2021-12-02'
+start_datetime: '2021-11-02'
+end_datetime: '2021-12-02'
 ```
 
 > **_Resources:_** [Argo CLI documentation](https://argoproj.github.io/argo-workflows/cli/argo/) - [Kubernetes Cheat Sheet](https://kubernetes.io/docs/reference/kubectl/cheatsheet/)

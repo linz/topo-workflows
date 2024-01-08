@@ -11,7 +11,7 @@ spec:
   entrypoint: main
   arguments:
     parameters:
-      - name: version-argo-tasks
+      - name: version_argo_tasks
         value: 'latest'
       - name: uri
         value: 's3://linz-imagery-staging/test/sample/'
@@ -37,7 +37,7 @@ spec:
           - name: uri
           - name: include
       container:
-        image: 019359803926.dkr.ecr.ap-southeast-2.amazonaws.com/argo-tasks:{{workflow.parameters.version-argo-tasks}}
+        image: 019359803926.dkr.ecr.ap-southeast-2.amazonaws.com/argo-tasks:{{workflow.parameters.version_argo_tasks}}
         command: [node, /app/index.js]
         env:
           - name: AWS_ROLE_CONFIG_PATH

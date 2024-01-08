@@ -22,7 +22,7 @@ spec:
           - name: target
             description: location to publish data to
 
-          - name: version-argo-tasks
+          - name: version_argo_tasks
             description: version of argo-tasks to use
             default: 'v2'
 
@@ -43,11 +43,11 @@ spec:
               - '--force-no-clobber'
 
           - name: group
-            description: The maximum number of files for each pod to copy (will use the value of `group` or `group-size` that is reached first)
+            description: The maximum number of files for each pod to copy (will use the value of `group` or `group_size` that is reached first)
             default: '1000'
 
-          - name: group-size
-            description: The maximum group size of files for each pod to copy (will use the value of `group` or `group-size` that is reached first)
+          - name: group_size
+            description: The maximum group size of files for each pod to copy (will use the value of `group` or `group_size` that is reached first)
             default: '100Gi'
 
           - name: transform
@@ -61,7 +61,7 @@ spec:
               path: /tmp/file_list.json
 
       container:
-        image: "019359803926.dkr.ecr.ap-southeast-2.amazonaws.com/argo-tasks:{{=sprig.trim(inputs.parameters['version-argo-tasks'])}}"
+        image: '019359803926.dkr.ecr.ap-southeast-2.amazonaws.com/argo-tasks:{{=sprig.trim(inputs.parameters.version_argo_tasks)}}'
         command: [node, /app/index.js]
         env:
           - name: AWS_ROLE_CONFIG_PATH
@@ -76,8 +76,8 @@ spec:
             '{{inputs.parameters.exclude}}',
             '--group',
             '{{=sprig.trim(inputs.parameters.group)}}',
-            '--group-size',
-            "{{=sprig.trim(inputs.parameters['group-size'])}}",
+            '--group_size',
+            '{{=sprig.trim(inputs.parameters.group_size)}}',
             '--output',
             '/tmp/file_list.json',
             '--target',

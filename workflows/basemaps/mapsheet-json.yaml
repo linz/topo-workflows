@@ -13,7 +13,7 @@ spec:
   entrypoint: main
   arguments:
     parameters:
-      - name: version-argo-tasks
+      - name: version_argo_tasks
         value: 'v2'
       - name: layer
         value: '104687'
@@ -57,7 +57,7 @@ spec:
         parameters:
           - name: layer
       container:
-        image: 019359803926.dkr.ecr.ap-southeast-2.amazonaws.com/argo-tasks:{{=sprig.trim(workflow.parameters['version-argo-tasks'])}}
+        image: 019359803926.dkr.ecr.ap-southeast-2.amazonaws.com/argo-tasks:{{=sprig.trim(workflow.parameters.version_argo_tasks)}}
         command: [node, index.js]
         env:
           - name: AWS_ROLE_CONFIG_PATH
@@ -89,7 +89,7 @@ spec:
           - name: flatGeobuf
             path: /tmp/flatGeobuf.fgb
       container:
-        image: 019359803926.dkr.ecr.ap-southeast-2.amazonaws.com/argo-tasks:{{=sprig.trim(workflow.parameters['version-argo-tasks'])}}
+        image: 019359803926.dkr.ecr.ap-southeast-2.amazonaws.com/argo-tasks:{{=sprig.trim(workflow.parameters.version_argo_tasks)}}
         command: [node, index.js]
         env:
           - name: AWS_ROLE_CONFIG_PATH
