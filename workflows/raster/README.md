@@ -28,7 +28,7 @@ In addition, a Basemaps link is produced enabling visual QA.
 | compression            | enum  | webp                                  | Standardised file format                                                                                                                                |
 | cutline                | str   |                                       | (Optional) location of a cutline file to cut the imagery to `.fgb` or `.geojson` (leave blank if no cutline)                                            |
 | collection_id          | str   |                                       | (Optional) Provide a Collection ID if re-processing an existing published survery, otherwise a ULID will be generated for the collection.json ID field. |
-| category               | enum  | Urban Aerial Photos                   | Dataset type for collection metadata, also used to Build Dataset title & description                                                                    |
+| category               | enum  | urban-aerial-photos                   | Dataset type for collection metadata, also used to Build Dataset title & description                                                                    |
 | gsd                    | str   | 0.3m                                  | Dataset GSD for collection metadata, also used to build dataset title                                                                                   |
 | producer               | enum  | Unknown                               | Imagery producer                                                                                                                                        |
 | producer_list          | str   |                                       | List of imagery producers, separated by a semicolons (;). :warning: Has no effect unless a semicolon delimited list is entered.                         |
@@ -61,7 +61,7 @@ In addition, a Basemaps link is produced enabling visual QA.
 | compression            | webp                                                                              |
 | cutline                | s3://linz-imagery-staging/cutline/bay-of-plenty_2021-2022.fgb                     |
 | collection_id          | 01FP371BHWDSREECKQAH9E8XQ                                                         |
-| category               | Rural Aerial Photos                                                               |
+| category               | rural-aerial-photos                                                               |
 | gsd                    | 0.3m                                                                              |
 | producer               | Aerial Surveys                                                                    |
 | licensor               | Toitū Te Whenua Land Information New Zealand                                      |
@@ -356,7 +356,7 @@ target: 's3://linz-imagery-example/canterbury/christchurch_2021_0.05m/rgb/2193/'
 scale: '500'
 group: '29'
 cutline: 's3://linz-imagery-cutline-example/historical-imagery-cutlines/2023-01-16_84fd68f/SNC50451-combined.fgb'
-category: Urban Aerial Photos
+category: urban-aerial-photos
 gsd: 0.05m
 producer: 'Aerial Surveys'
 licensor: 'Toitū Te Whenua Land Information New Zealand'
@@ -367,7 +367,7 @@ end_datetime: '2021-12-02'
 ### Submitting from the command line using the `-p` (`--parameter`) option (standardising-publish-import):
 
 ```bash
-argo submit workflows/raster/standardising-publish-import.yaml -n argo -p ticket="AIP-55" -p region="canterbury" -p source="s3://linz-imagery-source-example/aerial-imagery/new-zealand/christchurch_urban_2021_0.05m_RGB/" -p target="s3://linz-imagery-example/canterbury/christchurch_2021_0.05m/rgb/2193/" -p scale="500" -p group="29" -p cutline="s3://linz-imagery-cutline-example/historical-imagery-cutlines/2023-01-16_84fd68f/SNC50451-combined.fgb" -p gsd="0.05m" -p producer="Aerial Surveys" -p licensor="Toitū Te Whenua Land Information New Zealand" -p start_datetime="2021-11-02" -p end_datetime="2021-12-02" -p category="Urban Aerial Photos" -p name="christchurch_2021_0.05m" -p tile-matrix="NZTM2000Quad/WebMercatorQuad" -p blend="20" -p aligned-level="6" -p create-pull-request="true"
+argo submit workflows/raster/standardising-publish-import.yaml -n argo -p ticket="AIP-55" -p region="canterbury" -p source="s3://linz-imagery-source-example/aerial-imagery/new-zealand/christchurch_urban_2021_0.05m_RGB/" -p target="s3://linz-imagery-example/canterbury/christchurch_2021_0.05m/rgb/2193/" -p scale="500" -p group="29" -p cutline="s3://linz-imagery-cutline-example/historical-imagery-cutlines/2023-01-16_84fd68f/SNC50451-combined.fgb" -p gsd="0.05m" -p producer="Aerial Surveys" -p licensor="Toitū Te Whenua Land Information New Zealand" -p start_datetime="2021-11-02" -p end_datetime="2021-12-02" -p category="urban-aerial-photos" -p name="christchurch_2021_0.05m" -p tile-matrix="NZTM2000Quad/WebMercatorQuad" -p blend="20" -p aligned-level="6" -p create-pull-request="true"
 ```
 
 ### Submitting from the command line using a parameters yaml file and the `-f` (`--parameter-file`) option (standardising-publish-import):
@@ -392,7 +392,7 @@ licensor: ''
 licensor_list: 'Waka Kotahi; Nelson City Council;Tasman District Council'
 start_datetime: '2021-11-02'
 end_datetime: '2021-12-02'
-category: 'Urban Aerial Photos'
+category: 'urban-aerial-photos'
 name: 'christchurch_2021_0.05m'
 tile-matrix: 'NZTM2000Quad/WebMercatorQuad'
 blend: '20'
