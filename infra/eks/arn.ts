@@ -31,7 +31,7 @@ export function tryGetContextArn(node: Node, context: string): string | null {
   const ctx = node.tryGetContext(context) as unknown;
   if (ctx == null) return null;
   validateRoleArn(ctx);
-  return ctx;
+  return ctx as string;
 }
 
 /**
