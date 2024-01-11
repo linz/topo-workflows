@@ -28,7 +28,7 @@ export function validateRoleArn(arn: unknown): ArnComponents {
  * @throws {Error} If arn is invalid
  */
 export function tryGetContextArn(node: Node, context: string): string | null {
-  const ctx = node.tryGetContext(context);
+  const ctx = node.tryGetContext(context) as unknown;
   if (ctx == null) return null;
   validateRoleArn(ctx);
   return ctx;
@@ -42,12 +42,12 @@ export function tryGetContextArn(node: Node, context: string): string | null {
  * @returns arns if they are valid, null otherwise
  */
 export function tryGetContextArns(node: Node, context: string): string[] | null {
-  let ctx = node.tryGetContext(context);
+  let ctx = node.tryGetContext(context) as unknown;
   if (ctx == null) return null;
   if (typeof ctx === 'string') {
     ctx = ctx.split(',');
   }
   if (!Array.isArray(ctx)) throw new Error('Failed to parse ARN, is not a string[]');
   for (const arn of ctx) validateRoleArn(arn);
-  return ctx;
+  return ctx as string[];
 }
