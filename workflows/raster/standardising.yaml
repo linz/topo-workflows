@@ -107,7 +107,7 @@ spec:
           - 'Aerial Photos'
           - 'Urban Aerial Photos'
           - 'Rural Aerial Photos'
-          - 'Scanned Aerial Imagery'
+          - 'Scanned Aerial Photos'
           - 'DEM'
           - 'DSM'
           - 'Satellite Imagery'
