@@ -6,7 +6,7 @@
 - [Copy](##argo-tasks/copy)
 - [Create Manifest](##argo-tasks/create-manifest)
 - [Push to Github](##argo-tasks/push-to-github)
-- [Lint Inputs](##argo-tasks/lint-inputs)
+- [Generate Path](##argo-tasks/generate-path)
 
 ## argo-tasks/group - `tpl-at-group`
 
@@ -169,23 +169,24 @@ See https://github.com/linz/argo-tasks#stac-github-import
   depends: 'copy-with-github'
 ```
 
-## argo-tasks/lint-inputs
+## argo-tasks/generate-path
 
-Template for linting the inputs to the publish workflows, to be run before data is moved/published to public locations.
-See https://github.com/linz/argo-tasks#lint-inputs
+Template to build ODR target paths using collection metadata.
+See https://github.com/linz/argo-tasks#generate-paths
 
-### Template usage
+## Template Usage
 
 ```yaml
-- name: lint-inputs
-  templateRef:
-    name: tpl-at-lint-inputs
-    template: main
-  arguments:
-    parameters:
-      - name: version
-        value: '{{workflow.parameters.version_argo_tasks}}'
-      - name: path
-        value: '{{workflow.parameters.target}}'
-  when: '{{workflow.parameters.lint}} == true'
+name: generate-path
+templateRef:
+  name: tlp-at-generate-path
+  template: main
+arguments:
+  parameters:
+    - name: version
+      value: '{{workflow.paraemters.version_argo_tasks}}'
+    - name: target_bucket_name
+      value: '{{inputs.parameters.target_bucket_name}}'
+    - name: source
+      value: '{{inputs.parameters.source}}'
 ```
