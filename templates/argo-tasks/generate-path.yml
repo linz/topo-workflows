@@ -33,4 +33,11 @@ spec:
           - 'generate-path'
           - '--target-bucket-name'
           - '{{inputs.parameters.target_bucket_name}}'
-          - '{{inputs.parameters.path}}'
+          - '{{inputs.parameters.source}}'
+
+      outputs:
+        parameters:
+          - name: target
+            description: Basemaps URL to view the imagery
+            valueFrom:
+              path: '/tmp/generate-path/target'
