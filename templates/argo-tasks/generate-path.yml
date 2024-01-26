@@ -38,6 +38,6 @@ spec:
       outputs:
         parameters:
           - name: target
-            description: Basemaps URL to view the imagery
+            description: ODR target path
             valueFrom:
               path: '/tmp/generate-path/target'
