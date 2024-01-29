@@ -9,7 +9,7 @@ metadata:
 spec:
   schedule: '0 06 * * 3'
   timezone: 'NZ'
-  startingDeadlineSeconds: 3600 # Alow 1 hour delay if the workflow-controller clashes during the starting time.
+  startingDeadlineSeconds: 3600 # Allow 1 hour delay if the workflow-controller clashes during the starting time.
   concurrencyPolicy: 'Allow'
   successfulJobsHistoryLimit: 3
   failedJobsHistoryLimit: 1
