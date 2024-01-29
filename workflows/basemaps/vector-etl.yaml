@@ -30,6 +30,10 @@ spec:
           - 'true'
           - 'false'
 
+      - name: retry
+        description: Number of retry on failure vector-etl task
+        value: '1'
+
   templateDefaults:
     container:
       imagePullPolicy: Always
@@ -52,6 +56,9 @@ spec:
             depends: 'vector-etl'
 
     - name: vector-etl
+      retryStrategy:
+        limit: '{{workflow.parameters.retry}}'
+        retryPolicy: 'Always'
       container:
         image: 019359803926.dkr.ecr.ap-southeast-2.amazonaws.com/eks:bm-etl-latest
         resources:
