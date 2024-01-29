@@ -184,7 +184,7 @@ templateRef:
 arguments:
   parameters:
     - name: version
-      value: '{{workflow.paraemters.version_argo_tasks}}'
+      value: '{{workflow.parameters.version_argo_tasks}}'
     - name: target_bucket_name
       value: '{{inputs.parameters.target_bucket_name}}'
     - name: source
