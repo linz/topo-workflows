@@ -179,7 +179,7 @@ See https://github.com/linz/argo-tasks#generate-paths
 ```yaml
 name: generate-path
 templateRef:
-  name: tlp-at-generate-path
+  name: tpl-at-generate-path
   template: main
 arguments:
   parameters:
