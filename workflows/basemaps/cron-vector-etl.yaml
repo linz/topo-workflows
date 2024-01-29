@@ -16,7 +16,6 @@ spec:
   workflowSpec:
     workflowTemplateRef:
       name: basemaps-vector-etl
-      retryStrategy:
     arguments:
       parameters:
         - name: 'retry'
