@@ -31,7 +31,7 @@ spec:
       - name: version_basemaps_cli
         value: 'v6'
       - name: version_topo_imagery
-        value: 'v3'
+        value: 'v4'
       - name: ticket
         description: Ticket ID e.g. 'AIP-55'
         value: ''
