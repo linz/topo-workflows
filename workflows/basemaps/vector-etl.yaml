@@ -59,6 +59,8 @@ spec:
       retryStrategy:
         limit: '{{workflow.parameters.retry}}'
         retryPolicy: 'Always'
+      nodeSelector:
+        karpenter.sh/capacity-type: 'spot'
       container:
         image: 019359803926.dkr.ecr.ap-southeast-2.amazonaws.com/eks:bm-etl-latest
         resources:
