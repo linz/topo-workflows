@@ -7,12 +7,12 @@ metadata:
     linz.govt.nz/category: basemaps
     linz.govt.nz/data-type: vector
 spec:
-  schedule: '0 06 * * 3'
+  schedule: '0 06 * * 3' # 6 AM every Wednesday
   timezone: 'NZ'
   startingDeadlineSeconds: 3600 # Allow 1 hour delay if the workflow-controller clashes during the starting time.
   concurrencyPolicy: 'Allow'
   successfulJobsHistoryLimit: 3
-  failedJobsHistoryLimit: 1
+  failedJobsHistoryLimit: 3
   suspend: false
   workflowSpec:
     workflowTemplateRef:
