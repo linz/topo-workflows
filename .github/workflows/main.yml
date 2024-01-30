@@ -142,3 +142,6 @@ jobs:
           for wf in $WORKFLOWS; do
               kubectl apply -f "$wf" --namespace argo
           done
+
+          # Deploy cron workflows
+          kubectl apply -f workflows/cron/ --namespace argo
