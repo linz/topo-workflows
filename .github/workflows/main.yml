@@ -138,10 +138,15 @@ jobs:
           # Find all workflows that have kind "WorkflowTemplate"
           WORKFLOWS=$(grep '^kind: WorkflowTemplate$' -R workflows/ -H | cut -d ':' -f1)
 
-          # For each workflow attempt to deploy it using kubectl
+          # For each workflow template attempt to deploy it using kubectl
           for wf in $WORKFLOWS; do
               kubectl apply -f "$wf" --namespace argo
           done
 
-          # Deploy cron workflows
-          kubectl apply -f workflows/cron/ --namespace argo
+          # Find all cron workflows that have kind "CronWorkflow"
+          CRON_WORKFLOWS=$(grep '^kind: CronWorkflow$' -R workflows/ -H | cut -d ':' -f1)
+
+          # For each cron workflow attempt to deploy it using kubectl
+          for cwf in $CRON_WORKFLOWS; do
+              kubectl apply -f "$cwf" --namespace argo
+          done
