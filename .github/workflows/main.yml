@@ -108,11 +108,20 @@ jobs:
 
           # Find all workflows that have kind "WorkflowTemplate"
           WORKFLOWS=$(grep -R -H '^kind: WorkflowTemplate$' test/workflows/ | cut -d ':' -f1)
-          # For each workflow attempt to deploy it using kubectl
+          # For each workflow template attempt to deploy it using kubectl
           for wf in $WORKFLOWS; do
               # Change namespace in files
               sed -i "/^\([[:space:]]*namespace: \).*/s//\1$GITHUB_SHA/" "$wf"
               kubectl apply -f "$wf" --namespace "$GITHUB_SHA"
+          done
+
+          # Find all cron workflows that have kind "CronWorkflow"
+          CRON_WORKFLOWS=$(grep '^kind: CronWorkflow$' test/workflows/ | cut -d ':' -f1)
+          # For each cron workflow attempt to deploy it using kubectl
+          for cwf in $CRON_WORKFLOWS; do
+            # Change namespace in files
+              sed -i "/^\([[:space:]]*namespace: \).*/s//\1$GITHUB_SHA/" "$cwf"
+              kubectl apply -f "$cwf" --namespace "$GITHUB_SHA"
           done
 
           # Finally lint the templates
