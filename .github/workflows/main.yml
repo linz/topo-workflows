@@ -116,7 +116,7 @@ jobs:
           done
 
           # Find all cron workflows that have kind "CronWorkflow"
-          CRON_WORKFLOWS=$(grep '^kind: CronWorkflow$' test/workflows/ | cut -d ':' -f1)
+          CRON_WORKFLOWS=$(grep -R -H '^kind: CronWorkflow$' test/workflows/ | cut -d ':' -f1)
           # For each cron workflow attempt to deploy it using kubectl
           for cwf in $CRON_WORKFLOWS; do
             # Change namespace in files
