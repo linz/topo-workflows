@@ -123,7 +123,7 @@ Two example workflow tasks requesting specific resources (memory and CPU) from t
   inputs:
     parameters:
       - name: file
-      - name: collection-id
+      - name: collection_id
   container:
     image: 019359803926.dkr.ecr.ap-southeast-2.amazonaws.com/topo-imagery:latest
     resources:

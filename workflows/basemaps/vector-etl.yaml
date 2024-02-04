@@ -23,7 +23,7 @@ spec:
           - 'linz-basemaps'
           - 'linz-basemaps-staging'
 
-      - name: create-pull-request
+      - name: create_pull_request
         description: Should a pull request be created in linz/basemaps-config
         value: 'true'
         enum:
@@ -48,7 +48,7 @@ spec:
               parameters:
                 - name: target
                   value: '{{ tasks.vector-etl.outputs.parameters.target }}'
-            when: '{{ workflow.parameters.create-pull-request }} == true'
+            when: '{{ workflow.parameters.create_pull_request }} == true'
             depends: 'vector-etl'
 
     - name: vector-etl
