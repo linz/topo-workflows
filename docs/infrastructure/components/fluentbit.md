@@ -99,8 +99,3 @@ We can see this error happening a lot. It is OK as long as the connection retry 
 However, this issue could potentially cause [a delay for the log](https://github.com/aws/aws-for-fluent-bit/blob/mainline/troubleshooting/debugging.md#log-delay) to come into CloudWatch (the time to retry).
 
 If the retry fails, that could mean logs being lost. In that case it would need investigation. [More information here](https://github.com/aws/aws-for-fluent-bit/blob/mainline/troubleshooting/debugging.md#how-do-i-tell-if-fluent-bit-is-losing-logs).
-<<<<<<< HEAD
-
-> **_NOTE:_** One of the consequences of this error is that it increases considerably the amount of the Fluent Bit application pods logs. In the past, we had to exclude these logs from being sent to CloudWatch to avoid an increase of our AWS S3 storage cost (as CloudWatch logs are shipped to AWS S3 in our system). To reintroduce this exclusion, add `annotations: { 'fluentbit.io/exclude': 'true' }` to the Fluent Bit Helm Chart configuration (`values.yaml`).
-=======
->>>>>>> master
