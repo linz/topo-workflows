@@ -102,15 +102,15 @@ spec:
         description: '(Optional) If an existing dataset add collection ID here, else a new one will be generated.'
         value: ''
       - name: category
-        value: 'Urban Aerial Photos'
+        value: 'urban-aerial-photos'
         enum:
-          - 'Aerial Photos'
-          - 'Urban Aerial Photos'
-          - 'Rural Aerial Photos'
-          - 'Scanned Aerial Photos'
-          - 'DEM'
-          - 'DSM'
-          - 'Satellite Imagery'
+          - 'aerial-photos'
+          - 'urban-aerial-photos'
+          - 'rural-aerial-photos'
+          - 'scanned-aerial-photos'
+          - 'dem'
+          - 'dsm'
+          - 'satellite-imagery'
       - name: gsd
         description: 'Dataset GSD (e.g., "0.3m")'
       - name: producer
