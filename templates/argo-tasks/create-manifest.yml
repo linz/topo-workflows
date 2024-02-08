@@ -34,7 +34,7 @@ spec:
             description: A regular expression to match object path(s) or name(s) from within the source path to exclude in the copy
             default: ''
 
-          - name: copy-option
+          - name: copy_option
             description: --no-clobber Skip overwriting existing files. --force Overwrite all files. --force-no-clobber Overwrite only changed files, skip unchanged files.
             default: '--no-clobber'
             enum:
@@ -76,7 +76,7 @@ spec:
             '{{inputs.parameters.exclude}}',
             '--group',
             '{{=sprig.trim(inputs.parameters.group)}}',
-            '--group_size',
+            '--group-size',
             '{{=sprig.trim(inputs.parameters.group_size)}}',
             '--output',
             '/tmp/file_list.json',
