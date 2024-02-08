@@ -31,7 +31,7 @@ spec:
       - name: version_basemaps_cli
         value: 'v6'
       - name: version_topo_imagery
-        value: 'v3'
+        value: 'v4'
       - name: ticket
         description: Ticket ID e.g. 'AIP-55'
         value: ''
@@ -250,7 +250,7 @@ spec:
         value: 'YYYY-MM-DD'
       - name: end_datetime
         value: 'YYYY-MM-DD'
-      - name: location
+      - name: geographic_description
         description: '(Optional) Additional datatset description, to be used in the title in place of the Region (e.g., "Hamilton")'
         value: ''
       - name: lifecycle
@@ -482,8 +482,8 @@ spec:
           - '{{=sprig.trim(workflow.parameters.region)}}'
           - '--gsd'
           - '{{=sprig.trim(workflow.parameters.gsd)}}'
-          - '--location'
-          - '{{=sprig.trim(workflow.parameters.location)}}'
+          - '--geographic-description'
+          - '{{=sprig.trim(workflow.parameters.geographic_description)}}'
           - '--start-date'
           - '{{=sprig.trim(workflow.parameters.start_datetime)}}'
           - '--end-date'
