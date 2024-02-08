@@ -39,7 +39,7 @@ In addition, a Basemaps link is produced enabling visual QA.
 | location               | str   | Hamilton                              | (Optional) Additional datatset description, to be used in dataset title / description in place of the Region.                                                                                                         |
 | lifeycle               | enum  | Completed                             | Lifecycle Status of Collection, from [linz STAC extension](https://github.com/linz/stac/tree/master/extensions/linz#collection-fields). Options: `completed`, `preview`, `ongoing`, `under development`, `deprecated` |
 | event                  | str   | Cyclone Gabrielle                     | (Optional) Event name if dataset has been captured in association with an event.                                                                                                                                      |
-| historic-survey-number | str   | SNC8844                               | (Optional) Survey Number associated with historical datasets.                                                                                                                                                         |
+| historic_survey_number | str   | SNC8844                               | (Optional) Survey Number associated with historical datasets.                                                                                                                                                         |
 | copy_option            | enum  | --no-clobber                          | `--no-clobber` Skip overwriting existing files. `--force` Overwrite all files. `--force-no-clobber` Overwrite only changed files, skip unchanged files.                                                               |
 | source_epsg            | str   | 2193                                  | The EPSG code of the source imagery                                                                                                                                                                                   |
 | target_epsg            | str   | 2193                                  | The target EPSG code - if different to source the imagery will be reprojected                                                                                                                                         |
@@ -71,7 +71,7 @@ In addition, a Basemaps link is produced enabling visual QA.
 | location               | Napier                                                                            |
 | lifecycle              | Completed                                                                         |
 | event                  | Top of the South Floods                                                           |
-| historic-survey-number | SNC3546                                                                           |
+| historic_survey_number | SNC3546                                                                           |
 | copy_option            | --no-clobber                                                                      |
 | source_epsg            | 2193                                                                              |
 | target_epsg            | 2193                                                                              |
@@ -294,7 +294,7 @@ This workflow carries out the steps in the [Standardising](#Standardising) workf
 | location               | str   | ''           | (Optional) Additional datatset description, to be used in dataset title / description in place of the Region.                                                                                                                                    |
 | lifecycle              | enum  | completed    | Lifecycle Status of Collection                                                                                                                                                                                                                   |
 | event                  | str   | ''           | (Optional) Event name if dataset has been captured in association with an event.                                                                                                                                                                 |
-| historic-survey-number | str   | ''           | (Optional) Survey Number associated with historical datasets.                                                                                                                                                                                    |
+| historic_survey_number | str   | ''           | (Optional) Survey Number associated with historical datasets.                                                                                                                                                                                    |
 
 \* This regex can be used to exclude paths as well, e.g. if there are RBG and RGBI directories, the following regex will only include TIFF files in the RGB directory: `RGB(?!I).*.tiff?$`.
 
