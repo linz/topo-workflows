@@ -122,6 +122,7 @@ spec:
             'Aerial Surveys',
             'Beca',
             'Chang Guang Satellite Technology',
+            'Christchurch Helicopters',
             'Dimap',
             'European Space Agency',
             'GeoSmart',
@@ -134,6 +135,7 @@ spec:
             'SkyCan',
             'Terralink International',
             'UAV Mapping NZ',
+            'University of Canterbury',
           ]
       - name: producer_list
         description: '(Optional) List of imagery producers, separated by a semicolons (;). Has no effect unless a semicolon delimited list is entered.'
@@ -187,10 +189,12 @@ spec:
             'Masterton District Council',
             'Matamata-Piako District Council',
             'Maxar Technologies',
+            'Ministry of Business, Innovation and Employment',
             'Ministry of Primary Industries',
             'NZ Aerial Mapping',
             'Napier City Council',
             'National Emergency Management Agency',
+            'National Institute of Water and Atmospheric Research',
             'Nelson City Council',
             'New Plymouth District Council',
             'Northland Regional Council',
