@@ -136,6 +136,7 @@ spec:
             'Terralink International',
             'UAV Mapping NZ',
             'University of Canterbury',
+            'Woolpert',
           ]
       - name: producer_list
         description: '(Optional) List of imagery producers, separated by a semicolons (;). Has no effect unless a semicolon delimited list is entered.'
