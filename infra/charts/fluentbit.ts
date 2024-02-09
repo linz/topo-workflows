@@ -79,10 +79,11 @@ HC_Period 5
           logGroupName: `/aws/eks/${props.clusterName}/logs`,
           logGroupTemplate: `/aws/eks/${props.clusterName}/workload/$kubernetes['namespace_name']`,
           logStreamPrefix: 'fb-',
-          /* Set the Fluent Bit idle timeout to 4 seconds.
-            This helps reduce the rate of network errors in the logs.
-            See: https://github.com/aws/aws-for-fluent-bit/issues/340
-          */
+          /**
+           * Set the Fluent Bit idle timeout to 4 seconds.
+           * This helps reduce the rate of network errors in the logs.
+           * See: https://github.com/aws/aws-for-fluent-bit/issues/340
+           */
           extraOutputs: `net.keepalive_idle_timeout 4s`,
         },
         firehose: { enabled: false },
