@@ -4,8 +4,8 @@ apiVersion: argoproj.io/v1alpha1
 kind: WorkflowTemplate
 metadata:
   # Template from linz/argo-tasks
-  # see https://github.com/linz/argo-tasks#lint-inputs
-  name: tpl-at-lint-inputs
+  # see https://github.com/linz/argo-tasks#generate-path
+  name: tpl-at-generate-path
 spec:
   templateDefaults:
     container:
@@ -15,9 +15,10 @@ spec:
     - name: main
       inputs:
         parameters:
-          - name: path
-            description: s3 path to lint
-
+          - name: source
+            description: s3 path of source data
+          - name: target_bucket_name
+            description: target bucket name e.g. 'nz-imagery'
           - name: version
             description: argo-task Container version to use
             default: 'v2'
@@ -29,5 +30,14 @@ spec:
           - name: AWS_ROLE_CONFIG_PATH
             value: s3://linz-bucket-config/config.json
         args:
-          - 'lint-inputs'
-          - '{{inputs.parameters.path}}'
+          - 'generate-path'
+          - '--target-bucket-name'
+          - '{{inputs.parameters.target_bucket_name}}'
+          - '{{inputs.parameters.source}}'
+
+      outputs:
+        parameters:
+          - name: target
+            description: ODR target path
+            valueFrom:
+              path: '/tmp/generate-path/target'
