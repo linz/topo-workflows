@@ -13,8 +13,12 @@ spec:
   arguments:
     parameters:
       - name: version_argo_tasks
-        description: Version of the basemaps CLI docker container to use
+        description: Version of the Argo Tasks CLI docker container to use
         value: v2
+      
+      - name: version_basemaps_etl
+        description: Version of the Basemaps ETL eks container to use
+        value: d099b18
 
       - name: target
         description: S3 Bucket to use for storing the output
@@ -62,7 +66,7 @@ spec:
       nodeSelector:
         karpenter.sh/capacity-type: 'spot'
       container:
-        image: 019359803926.dkr.ecr.ap-southeast-2.amazonaws.com/eks:bm-etl-latest
+        image: 019359803926.dkr.ecr.ap-southeast-2.amazonaws.com/eks:{{ workflow.parameters.version_basemaps_etl }}
         resources:
           requests:
             memory: 7.8Gi
