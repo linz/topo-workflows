@@ -63,11 +63,11 @@ spec:
       - name: lifecycle
         value: 'completed'
       - name: version_argo_tasks
-        value: 'v2'
+        value: 'v3'
       - name: version_basemaps_cli
         value: 'v6'
       - name: version_topo_imagery
-        value: 'v3'
+        value: 'v4'
   templateDefaults:
     container:
       imagePullPolicy: Always
@@ -104,7 +104,7 @@ spec:
         #     arguments:
         #       parameters:
         #         - name: version_argo_tasks
-        #           value: 'v2'
+        #           value: 'v3'
         #         - name: version_basemaps_cli
         #           value: 'v6'
         #         - name: source
