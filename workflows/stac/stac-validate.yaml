@@ -14,7 +14,7 @@ spec:
   arguments:
     parameters:
       - name: version_argo_tasks
-        value: 'v2'
+        value: 'v3'
       - name: uri
         description: 'Path(s) to the STAC file(s).'
         value: 's3://linz-imagery-staging/test/stac-validate/'

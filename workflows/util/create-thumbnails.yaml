@@ -17,9 +17,9 @@ spec:
   arguments:
     parameters:
       - name: version_argo_tasks
-        value: 'v2'
-      - name: version_topo_imagery
         value: 'v3'
+      - name: version_topo_imagery
+        value: 'v4'
       - name: source
         value: 's3://linz-topographic-upload/maps/topo50/'
       - name: include
