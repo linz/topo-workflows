@@ -9,9 +9,6 @@ PARAMETERS_CSV = "./data/elevation-argo-parameters.csv"
 
 COMMAND = "argo submit workflows/raster/standardising-publish-import.yaml -n argo -f ./{0}.yaml --generate-name {1}\n"
 
-#Comments,licensor,producer,start-datetime,end-datetime,vertical-datum,horizontal-datum,source,region,geographic_description
-
-
 def _index_csv(header: List[str]) -> Dict[str, int]:
     ind = {}
     ind["comments"] = header.index("Comments")
@@ -45,12 +42,12 @@ def _add_producer(row: List[str], index: Dict[str, int]) -> Dict[str, str]:
 
 
 def _get_category(source: str) -> str:
-    category = re.search(r"_D[ES]M_", source)
+    category = re.search(r"D[ES]M", source)
     if not category:
         return ""
-    if category.group(0) == "_DEM_":
+    if category.group(0) == "DEM":
         return "dem"
-    if category.group(0) == "_DSM_":
+    if category.group(0) == "DSM":
         return "dsm"
 
 
@@ -68,10 +65,10 @@ def _write_params(params: Dict[str, str], file: str) -> None:
 
 
 def _valid_params(params: Dict[str, str]) -> Tuple[bool, str]:
-    if params["category"] == "":
-        return (False, params["category"])
     if params["comments"] != "":
         return (False, params["comments"])
+    if params["category"] == "":
+        return (False, params["category"])
     for param in params:
         if "TODO" in params[param]:
             return (False, "TODO Noted")
@@ -87,10 +84,8 @@ with open(PARAMETERS_CSV, "r") as csv_file:
     not_valid = []
 
     for row in reader:
-        print(row[index["source"]])
 
         category = _get_category(row[index["source"]])
-        print(category)
         gsd = "1m"
 
         params = {
@@ -131,11 +126,11 @@ with open(PARAMETERS_CSV, "r") as csv_file:
         else:
             parameter_list.append(COMMAND.format(file_name, file_name))
 
-        del params["comments"]
-        _write_params(params, file_name)
+            del params["comments"]
+            _write_params(params, file_name)
 
-    with open("./standardise-publish.sh", "w") as script:
-        script.write("#!/bin/bash\n\n")
-        script.writelines(parameter_list)
-        script.writelines("\n\n\n")
-        script.writelines(not_valid)
+        with open("./standardise-publish.sh", "w") as script:
+            script.write("#!/bin/bash\n\n")
+            script.writelines(parameter_list)
+            script.writelines("\n\n\n")
+            script.writelines(not_valid)
