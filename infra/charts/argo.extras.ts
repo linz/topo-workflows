@@ -26,7 +26,7 @@ export class ArgoExtras extends Chart {
         standardising: '2',
         // Limit of how many bulk workflow instances can run at the same time
         bulk: '4',
-        // Limit of how many publish-copy workflow instances can run at the same time
+        // Limit of how many `copy` or `publish-odr` workflow instances can run at the same time
         bulkcopy: '8',
         // Limit of how many basemaps import workflow instances can run at the same time
         basemaps_import: '10',

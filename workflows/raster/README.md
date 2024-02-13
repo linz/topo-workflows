@@ -1,7 +1,7 @@
 # Contents:
 
 - [Standardising](#Standardising)
-- [Publish-copy](#Publish-copy)
+- [copy](#copy)
 - [publish-odr](#Publish-odr)
 - [Standardising-publish-import](#Standardising-publish-import)
 - [tests](#Tests)
@@ -180,7 +180,7 @@ Validates the collection.json and all associated items.
 
 Creates a config of the imagery files within the `flat` directory and outputs a Basemaps link for Visual QA.
 
-# Publish-copy
+# copy
 
 ## Workflow Description
 
@@ -244,7 +244,7 @@ Access permissions are controlled by the [Bucket Sharing Config](https://github.
 
 ## Workflow Description
 
-This workflow replicates `publish-copy` however it allows publishing to `s3://nz-imagery` (the registry of open data).
+This workflow replicates `copy` however it allows publishing to `s3://nz-imagery` (the registry of open data).
 **This workflow should not be run using the Argo UI, instead follow the instruction [here](https://github.com/linz/imagery/tree/master/publish-odr-parameters/README.md)**
 
 ```mermaid
@@ -278,7 +278,7 @@ graph TD;
 
 **copy_option:** `--no-clobber`
 
-See the [publish-copy template](#publish-copy) for more information.
+See the [copy template](#copy) for more information.
 
 # Standardising-publish-import
 
@@ -286,7 +286,7 @@ See the [publish-copy template](#publish-copy) for more information.
 
 This Workflow is intended for bulk imagery transfers which do not require Visual QA before publication.
 
-This workflow carries out the steps in the [Standardising](#Standardising) workflow, followed by the steps in the [Publish-copy](#Publish-copy) workflow. Then, optionally, the [Basemaps-Imagery-Import](../basemaps/README.md#imagery-import) process can be run by uncommenting the relevant sections of the Workflow file and supplying the appropriate extra parameters.
+This workflow carries out the steps in the [Standardising](#Standardising) workflow, followed by the steps in the [copy](#copy) workflow. Then, optionally, the [Basemaps-Imagery-Import](../basemaps/README.md#imagery-import) process can be run by uncommenting the relevant sections of the Workflow file and supplying the appropriate extra parameters.
 
 ## Workflow Input Parameters
 

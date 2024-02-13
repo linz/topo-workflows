@@ -85,7 +85,7 @@ spec:
                   value: '{{workflow.parameters.source}}'
         - - name: publish
             templateRef:
-              name: publish-copy
+              name: copy
               template: main
             arguments:
               parameters:
