@@ -1,7 +1,7 @@
 # Contents:
 
 - [Standardising](#Standardising)
-- [Publish-copy](#Publish-copy)
+- [copy](#copy)
 - [publish-odr](#Publish-odr)
 - [Standardising-publish-import](#Standardising-publish-import)
 - [tests](#Tests)
@@ -180,7 +180,7 @@ Validates the collection.json and all associated items.
 
 Creates a config of the imagery files within the `flat` directory and outputs a Basemaps link for Visual QA.
 
-# Publish-copy
+# copy
 
 ## Workflow Description
 
@@ -210,7 +210,7 @@ Access permissions are controlled by the [Bucket Sharing Config](https://github.
 | region      | enum  |                                               | Region of the dataset                                                                                                                                            |
 | source      | str   | s3://linz-imagery-staging/test/sample/        | The URIs (paths) to the s3 source location                                                                                                                       |
 | target      | str   | s3://linz-imagery-staging/test/sample_target/ | The URIs (paths) to the s3 target location                                                                                                                       |
-| include     | regex | .tiff?\$\|.json\$\|.tfw\$                     | A regular expression to match object path(s) or name(s) from within the source path to include in the copy.                                                      |
+| include     | regex | .tiff?\$\|.json\$\                            | A regular expression to match object path(s) or name(s) from within the source path to include in the copy.                                                      |
 | copy_option | enum  | --no-clobber                                  | `--no-clobber` Skip overwriting existing files. `--force` Overwrite all files. `--force-no-clobber` Overwrite only changed files, skip unchanged files.          |
 | group       | int   | 1000                                          | The maximum number of files for each pod to copy (will use the value of `group` or `group_size` that is reached first).                                          |
 | group_size  | str   | 100Gi                                         | The maximum group size of files for each pod to copy (will use the value of `group` or `group_size` that is reached first).                                      |
@@ -244,7 +244,7 @@ Access permissions are controlled by the [Bucket Sharing Config](https://github.
 
 ## Workflow Description
 
-This workflow replicates `publish-copy` however it allows publishing to `s3://nz-imagery` (the registry of open data).
+This workflow replicates `copy` however it allows publishing to `s3://nz-imagery` (the registry of open data).
 **This workflow should not be run using the Argo UI, instead follow the instruction [here](https://github.com/linz/imagery/tree/master/publish-odr-parameters/README.md)**
 
 ```mermaid
@@ -278,7 +278,7 @@ graph TD;
 
 **copy_option:** `--no-clobber`
 
-See the [publish-copy template](#publish-copy) for more information.
+See the [copy template](#copy) for more information.
 
 # Standardising-publish-import
 
@@ -286,7 +286,7 @@ See the [publish-copy template](#publish-copy) for more information.
 
 This Workflow is intended for bulk imagery transfers which do not require Visual QA before publication.
 
-This workflow carries out the steps in the [Standardising](#Standardising) workflow, followed by the steps in the [Publish-copy](#Publish-copy) workflow. Then, optionally, the [Basemaps-Imagery-Import](../basemaps/README.md#imagery-import) process can be run by uncommenting the relevant sections of the Workflow file and supplying the appropriate extra parameters.
+This workflow carries out the steps in the [Standardising](#Standardising) workflow, followed by the steps in the [copy](#copy) workflow. Then, optionally, the [Basemaps-Imagery-Import](../basemaps/README.md#imagery-import) process can be run by uncommenting the relevant sections of the Workflow file and supplying the appropriate extra parameters.
 
 ## Workflow Input Parameters
 
