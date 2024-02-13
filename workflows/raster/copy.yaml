@@ -60,7 +60,7 @@ spec:
       - name: target
         value: 's3://linz-imagery-staging/test/sample_target/'
       - name: include
-        value: '.tiff?$|.json$'
+        value: '.tiff?$|.json$|.tfw$'
       - name: copy_option
         value: '--no-clobber'
         enum:
