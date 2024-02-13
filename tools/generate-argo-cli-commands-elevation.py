@@ -8,7 +8,7 @@ PARAMETERS_CSV = "./data/elevation-argo-parameters.csv"
 
 COMMAND = "argo submit workflows/raster/standardising-publish-import.yaml -n argo -f ./{0}.yaml --generate-name {1}\n"
 
-TARGET = "s3://linz-workflows-scratch/elevation/"
+TARGET = "linz-workflows-scratch/"
 
 def _index_csv(header: List[str]) -> Dict[str, int]:
     ind = {}
@@ -29,17 +29,17 @@ def _index_csv(header: List[str]) -> Dict[str, int]:
 def _add_licensor(row: List[str], index: Dict[str, int]) -> Dict[str, str]:
     licensor = row[index["licensor"]]
     if ";" in licensor:
-        return {"licensor-list": licensor, "licensor": ""}
+        return {"licensor_list": licensor, "licensor": ""}
     else:
-        return {"licensor": licensor, "licensor-list": ""}
+        return {"licensor": licensor, "licensor_list": ""}
 
 
 def _add_producer(row: List[str], index: Dict[str, int]) -> Dict[str, str]:
     producer = row[index["producer"]]
     if ";" in producer:
-        return {"producer-list": producer, "producer": ""}
+        return {"producer_list": producer, "producer": ""}
     else:
-        return {"producer": producer, "producer-list": ""}
+        return {"producer": producer, "producer_list": ""}
 
 
 def _get_category(source: str) -> str:
