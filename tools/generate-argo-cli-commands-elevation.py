@@ -1,9 +1,8 @@
-#!/usr/bin/env python3
-
 import csv
 import re
 from typing import List, Dict, Tuple
 import yaml
+from unidecode import unidecode
 
 PARAMETERS_CSV = "./data/elevation-argo-parameters.csv"
 
@@ -57,6 +56,11 @@ def _get_date(start_datetime: str, end_datetime: str) -> str:
         return start_datetime[0:4]
     else:
         return f"{start_datetime[0:4]}-{end_datetime[0:4]}"
+    
+def _get_geo_desc_slug(geographic_description: str) -> str:
+    removed = geographic_description.replace("'", "")
+    removed = removed.replace("/", "")
+    return unidecode(removed.lower().replace(" ", "-"))
 
 def _write_params(params: Dict[str, str], file: str) -> None:
     with open(f"./{file}.yaml", "w", encoding="utf-8") as output:
@@ -97,7 +101,7 @@ with open(PARAMETERS_CSV, "r") as csv_file:
         target_dates = _get_date(row[index["startdate"]], row[index["enddate"]])
 
         if row[index["geographic_description"]] != "":
-            file_name = f"{row[index['geographic_description']]}-{target_dates}-{category}-{gsd}"
+            file_name = f"{_get_geo_desc_slug(row[index['geographic_description']])}-{target_dates}-{category}-{gsd}"
         else:
             file_name = f"{row[index['region']]}-{target_dates}-{category}-{gsd}"
 
