@@ -9,6 +9,8 @@ PARAMETERS_CSV = "./data/elevation-argo-parameters.csv"
 
 COMMAND = "argo submit workflows/raster/standardising-publish-import.yaml -n argo -f ./{0}.yaml --generate-name {1}\n"
 
+TARGET = "s3://linz-workflows-scratch/elevation/"
+
 def _index_csv(header: List[str]) -> Dict[str, int]:
     ind = {}
     ind["comments"] = header.index("Comments")
@@ -50,6 +52,11 @@ def _get_category(source: str) -> str:
     if category.group(0) == "DSM":
         return "dsm"
 
+def _get_date(start_datetime: str, end_datetime: str) -> str:
+    if start_datetime[0:4] == end_datetime[0:4]:
+        return start_datetime[0:4]
+    else:
+        return f"{start_datetime[0:4]}-{end_datetime[0:4]}"
 
 def _write_params(params: Dict[str, str], file: str) -> None:
     with open(f"./{file}.yaml", "w", encoding="utf-8") as output:
@@ -87,10 +94,17 @@ with open(PARAMETERS_CSV, "r") as csv_file:
 
         category = _get_category(row[index["source"]])
         gsd = "1m"
+        target_dates = _get_date(row[index["startdate"]], row[index["enddate"]])
+
+        if row[index["geographic_description"]] != "":
+            file_name = f"{row[index['geographic_description']]}-{target_dates}-{category}-{gsd}"
+        else:
+            file_name = f"{row[index['region']]}-{target_dates}-{category}-{gsd}"
 
         params = {
             "comments": row[index["comments"]],
             "source": row[index["source"]],
+            "target_bucket_name": TARGET,
             "region": row[index["region"]],
             "geographic_description": row[index["geographic_description"]],
             "event": row[index["event"]],
@@ -111,13 +125,6 @@ with open(PARAMETERS_CSV, "r") as csv_file:
 
         params = {**params, **_add_licensor(row, index)}
         params = {**params, **_add_producer(row, index)}
-
-        year = row[index["startdate"]][0:4]
-
-        if row[index["geographic_description"]] != "":
-            file_name = f"{row[index['geographic_description']]}-{year}-{category}-{gsd}"
-        else:
-            file_name = f"{row[index['region']]}-{year}-{category}-{gsd}"
 
         valid = _valid_params(params)
         
