@@ -105,7 +105,7 @@ with open(PARAMETERS_CSV, "r") as csv_file:
             "validate": "false",
             "group": "5",
             "lifecycle": "completed",
-            "ticket": "TDE-1000",
+            "ticket": "TDE-997",
             "category": category,
         }
 
