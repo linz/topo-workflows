@@ -27,7 +27,7 @@ spec:
   arguments:
     parameters:
       - name: version_argo_tasks
-        value: 'v2'
+        value: 'v3'
       - name: ticket
         description: Ticket ID e.g. 'AIP-55'
         value: ''
@@ -60,7 +60,7 @@ spec:
       - name: target_bucket_name
         value: 'nz-imagery'
       - name: include
-        value: '.tiff?$|.json$'
+        value: '.tiff?$|.json$|^capture-area.geojson$'
       - name: copy_option
         value: '--no-clobber'
         enum:

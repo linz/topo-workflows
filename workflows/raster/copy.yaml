@@ -3,7 +3,7 @@
 apiVersion: argoproj.io/v1alpha1
 kind: WorkflowTemplate
 metadata:
-  name: publish-copy
+  name: copy
   namespace: argo
   labels:
     linz.govt.nz/category: raster
@@ -27,7 +27,7 @@ spec:
   arguments:
     parameters:
       - name: version_argo_tasks
-        value: 'v2'
+        value: 'v3'
       - name: ticket
         description: Ticket ID e.g. 'AIP-55'
         value: ''
@@ -60,7 +60,7 @@ spec:
       - name: target
         value: 's3://linz-imagery-staging/test/sample_target/'
       - name: include
-        value: '.tiff?$|.json$|.tfw$'
+        value: '.tiff?$|.json$|.tfw$|^capture-area.geojson$'
       - name: copy_option
         value: '--no-clobber'
         enum:

@@ -63,11 +63,11 @@ spec:
       - name: lifecycle
         value: 'completed'
       - name: version_argo_tasks
-        value: 'v2'
+        value: 'v3'
       - name: version_basemaps_cli
         value: 'v6'
       - name: version_topo_imagery
-        value: 'v3'
+        value: 'v4'
   templateDefaults:
     container:
       imagePullPolicy: Always
@@ -85,14 +85,14 @@ spec:
                   value: '{{workflow.parameters.source}}'
         - - name: publish
             templateRef:
-              name: publish-copy
+              name: copy
               template: main
             arguments:
               parameters:
                 - name: source
                   value: '{{steps.standardise.outputs.parameters.target}}flat/'
                 - name: include
-                  value: '.tiff?$|.json$'
+                  value: '.tiff?$|.json$|^capture-area.geojson$'
                 - name: group
                   value: '1000'
                 - name: group_size
@@ -104,7 +104,7 @@ spec:
         #     arguments:
         #       parameters:
         #         - name: version_argo_tasks
-        #           value: 'v2'
+        #           value: 'v3'
         #         - name: version_basemaps_cli
         #           value: 'v6'
         #         - name: source
