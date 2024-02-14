@@ -3,13 +3,13 @@
 apiVersion: argoproj.io/v1alpha1
 kind: WorkflowTemplate
 metadata:
-  name: test-amfage-publish-copy-bulk-elevation
+  name: test-amfage-copy-bulk-elevation
   namespace: argo
   labels:
     linz.govt.nz/category: raster
     linz.govt.nz/data-type: raster
 spec:
-  parallelism: 50
+  parallelism: 20
   nodeSelector:
     karpenter.sh/capacity-type: 'spot'
   entrypoint: main
@@ -85,7 +85,7 @@ spec:
           - name: source
           - name: target_bucket_name
           - name: include
-          - name: group
+          - name: groupcopy
           - name: group_size
       dag:
         tasks:

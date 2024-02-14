@@ -9,7 +9,7 @@ metadata:
     linz.govt.nz/category: raster
     linz.govt.nz/data-type: raster
 spec:
-  parallelism: 50
+  parallelism: 20
   nodeSelector:
     karpenter.sh/capacity-type: 'spot'
   entrypoint: main
