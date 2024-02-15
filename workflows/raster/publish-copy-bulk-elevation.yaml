@@ -60,7 +60,7 @@ spec:
       - name: target_bucket_name
         value: 'linz-workflows-scratchelevation/'
       - name: include
-        value: '.tiff?$|.json$'
+        value: '.tiff?$|.json$|^capture-area.geojson$'
       - name: copy_option
         value: '--no-clobber'
         enum:
