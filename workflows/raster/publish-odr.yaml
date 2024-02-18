@@ -60,7 +60,7 @@ spec:
       - name: target_bucket_name
         value: 'nz-imagery'
       - name: include
-        value: '.tiff?$|.json$|^capture-area.geojson$'
+        value: '\.tiff?$|\.json$|^capture-area.geojson$'
       - name: copy_option
         value: '--no-clobber'
         enum:
