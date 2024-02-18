@@ -5,7 +5,7 @@ kind: WorkflowTemplate
 metadata:
   # Template for creating a manifest to be copied and their target path
   # See https://github.com/linz/argo-tasks#create-manifest
-  name: tpl-afage-create-manifest
+  name: tpl-create-manifest
 spec:
   templateDefaults:
     container:
