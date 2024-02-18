@@ -5,7 +5,7 @@ kind: WorkflowTemplate
 metadata:
   # Template for creating a manifest to be copied and their target path
   # See https://github.com/linz/argo-tasks#create-manifest
-  name: tpl-create-manifest
+  name: tpl-afage-create-manifest
 spec:
   templateDefaults:
     container:
@@ -28,7 +28,7 @@ spec:
 
           - name: include
             description: A regular expression to match object path(s) or name(s) from within the source path to include in the copy
-            default: '.tiff?$|.json$|.tfw$'
+            default: '\.tiff?$|\.json$|\.tfw$'
 
           - name: exclude
             description: A regular expression to match object path(s) or name(s) from within the source path to exclude in the copy

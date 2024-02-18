@@ -332,7 +332,7 @@ These are hardcoded due to parameter naming collisions in the downstream Workflo
 
 | Parameter | Type  | Default                                  | Description                                                                                                                                         |
 | --------- | ----- | ---------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------- |
-| include   | regex | .tiff?\$\|.json$\|^capture-area.geojson$ | Applies to the publishing workflow. A regular expression to match object path(s) or name(s) from within the source path to include in publishing\*. |
+| include   | regex | \\.tiff?\$\|\\.json$\|^capture-area.geojson$ | Applies to the publishing workflow. A regular expression to match object path(s) or name(s) from within the source path to include in publishing\*. |
 
 \* This regex can be used to exclude paths as well, e.g. if there are RBG and RGBI directories, the following regex will only include TIFF files in the RGB directory: `RGB(?!I).*.tiff?$`.
 
