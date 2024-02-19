@@ -28,7 +28,7 @@ spec:
 
           - name: include
             description: A regular expression to match object path(s) or name(s) from within the source path to include in the copy
-            default: '\.tiff?$|\.json$|\.tfw$'
+            default: '\\.tiff?$|\\.json$|\\.tfw$'
 
           - name: exclude
             description: A regular expression to match object path(s) or name(s) from within the source path to exclude in the copy

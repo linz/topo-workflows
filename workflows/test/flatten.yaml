@@ -18,7 +18,7 @@ spec:
       - name: uri
         value: ''
       - name: filter
-        value: '\.tiff?$|\.json$'
+        value: '\\.tiff?$|\\.json$'
       - name: copy_option
         value: '--no-clobber'
         enum:

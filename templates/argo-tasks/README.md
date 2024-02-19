@@ -133,7 +133,7 @@ Create a manifest file for a user specified source and target that includes `.ti
       - name: target
         value: '{{workflow.parameters.target}}'
       - name: include
-        value: '\.tiff?$|\.json$|\.tfw$'
+        value: '\\.tiff?$|\\.json$|\\.tfw$'
       - name: exclude
         value: ''
       - name: group
