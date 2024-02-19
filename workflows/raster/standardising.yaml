@@ -27,7 +27,7 @@ spec:
   arguments:
     parameters:
       - name: version_argo_tasks
-        value: 'v3'
+        value: 'v3.1.0'
       - name: version_basemaps_cli
         value: 'v6'
       - name: version_topo_imagery
