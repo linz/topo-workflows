@@ -33,7 +33,7 @@ spec:
       - name: source
         value: ''
       - name: target_bucket_name
-        value: 'linz-workflows-scratch/elevation'
+        value: 'linz-workflows-scratchelevation/'
       - name: cutline # optional standardising cutline
         value: ''
       - name: collection_id # optional
@@ -94,7 +94,7 @@ spec:
                 - name: source
                   value: '{{steps.standardise.outputs.parameters.target}}flat/'
                 - name: include
-                  value: '\.tiff?$|\.json$|^capture-area.geojson$'
+                  value: '.tiff?$|.json$'
                 - name: target_bucket_name
                   value: "{{workflow.parameters.target_bucket_name}}"
                 - name: group
