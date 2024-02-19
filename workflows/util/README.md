@@ -8,14 +8,14 @@ This workflow generates thumbnails for the topo50 and topo250 GeoTiffs and TIFF.
 The thumbnails are used on the LINZ website at the [Topo50](https://www.linz.govt.nz/products-services/maps/new-zealand-topographic-maps/topo50-map-chooser) and [Topo250](https://www.linz.govt.nz/products-services/maps/new-zealand-topographic-maps/topo250-map-chooser) Map Chooser Pages.
 
 Thumbnailing uses two gdal_translate steps.
-Upon completion all standardised TIFF and STAC files will be located within the `./thumbnails/` directory of the workflow in the artifacts bucket. From here the thumbnails can be moved to `s3://linz-topographic` using the publish-copy workflow.
+Upon completion all standardised TIFF and STAC files will be located within the `./thumbnails/` directory of the workflow in the artifacts bucket. From here the thumbnails can be moved to `s3://linz-topographic` using the copy workflow.
 
 ## Workflow Input Parameters
 
 | Parameter | Type  | Default                           | Description                                                                                     |
 | --------- | ----- | --------------------------------- | ----------------------------------------------------------------------------------------------- |
 | source    | str   | s3://linz-topgraphic/maps/topo50/ | the uri (path) to the input tiffs                                                               |
-| include   | regex | .\*.tiff?$                      | A regular expression to match object path(s) or name(s) from within the source path to include.   |
+| include   | regex | .\*.tiff?$                        | A regular expression to match object path(s) or name(s) from within the source path to include. |
 
 ## Workflow Outputs
 

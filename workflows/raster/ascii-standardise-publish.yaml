@@ -129,14 +129,14 @@ spec:
 
           - name: publish
             templateRef:
-              name: publish-copy
+              name: copy
               template: main
             arguments:
               parameters:
                 - name: source
                   value: '{{tasks.get-location.outputs.parameters.location}}flat/'
                 - name: include
-                  value: '.tiff?$|.json$'
+                  value: '\.tiff?$|\.json$'
                 - name: group
                   value: '1000'
                 - name: group_size
