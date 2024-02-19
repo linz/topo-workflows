@@ -466,7 +466,7 @@ spec:
       outputs:
         artifacts:
           - name: capture-area
-            path: 'tmp/capture-area.geojson'
+            path: '/tmp/capture-area.geojson'
             archive:
               none: {}
       container:
