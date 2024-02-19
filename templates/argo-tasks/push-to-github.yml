@@ -25,7 +25,7 @@ spec:
 
           - name: version_argo_tasks
             description: version of argo-tasks to use
-            default: 'v2'
+            default: 'v3'
 
           - name: repository
             description: Repository Name (only used when identified that push to GitHub is required)
