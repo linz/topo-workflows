@@ -21,7 +21,7 @@ spec:
             description: target bucket name e.g. 'nz-imagery'
           - name: version
             description: argo-task Container version to use
-            default: 'v2'
+            default: 'v3'
 
       container:
         image: '019359803926.dkr.ecr.ap-southeast-2.amazonaws.com/argo-tasks:{{= inputs.parameters.version }}'

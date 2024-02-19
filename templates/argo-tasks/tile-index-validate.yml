@@ -41,7 +41,7 @@ spec:
 
           - name: version
             description: container version to use
-            default: 'v2'
+            default: 'v3'
 
       outputs:
         artifacts:

@@ -23,7 +23,7 @@ spec:
 
           - name: version_argo_tasks
             description: version of argo-tasks to use
-            default: 'v2'
+            default: 'v3'
 
           - name: copy_option
             description: --no-clobber Skip overwriting existing files. --force Overwrite all files. --force-no-clobber Overwrite only changed files, skip unchanged files.
