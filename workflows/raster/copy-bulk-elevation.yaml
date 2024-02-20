@@ -3,7 +3,7 @@
 apiVersion: argoproj.io/v1alpha1
 kind: WorkflowTemplate
 metadata:
-  name: test-amfage-copy-bulk-elevation
+  name: copy-bulk-elevation
   namespace: argo
   labels:
     linz.govt.nz/category: raster
@@ -58,9 +58,9 @@ spec:
       - name: source
         value: 's3://linz-imagery-staging/test/sample/'
       - name: target_bucket_name
-        value: 'linz-workflows-scratchelevation/'
+        value: 'linz-workflows-scratch/elevation'
       - name: include
-        value: '.tiff?$|.json$|^capture-area.geojson$'
+        value: '\.tiff?$|\.json$|/capture-area\.geojson$'
       - name: copy_option
         value: '--no-clobber'
         enum:
@@ -85,7 +85,7 @@ spec:
           - name: source
           - name: target_bucket_name
           - name: include
-          - name: groupcopy
+          - name: group
           - name: group_size
       dag:
         tasks:
@@ -136,6 +136,6 @@ spec:
                 - name: version_argo_tasks
                   value: '{{workflow.parameters.version_argo_tasks}}'
                 - name: aws_role_config_path
-                  value: ''
+                  value: 's3://linz-bucket-config/config-write.elevation.json'
             depends: 'create-manifest'
             withParam: '{{tasks.create-manifest.outputs.parameters.files}}'
