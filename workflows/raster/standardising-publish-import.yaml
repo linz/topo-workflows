@@ -92,7 +92,7 @@ spec:
                 - name: source
                   value: '{{steps.standardise.outputs.parameters.target}}flat/'
                 - name: include
-                  value: '\.tiff?$|\.json$|^capture-area.geojson$'
+                  value: '\.tiff?$|\.json$|/capture-area\.geojson$'
                 - name: group
                   value: '1000'
                 - name: group_size

@@ -210,7 +210,7 @@ Access permissions are controlled by the [Bucket Sharing Config](https://github.
 | region      | enum  |                                                  | Region of the dataset                                                                                                                                            |
 | source      | str   | s3://linz-imagery-staging/test/sample/           | The URIs (paths) to the s3 source location                                                                                                                       |
 | target      | str   | s3://linz-imagery-staging/test/sample_target/    | The URIs (paths) to the s3 target location                                                                                                                       |
-| include     | regex | .tiff?\$\|.json\$\|.tfw$\|^capture-area.geojson$ | A regular expression to match object path(s) or name(s) from within the source path to include in the copy.                                                      |
+| include     | regex | \\.tiff?\$\|\\.json\$\|\\.tfw$\|/capture-area\\.geojson$ | A regular expression to match object path(s) or name(s) from within the source path to include in the copy.                                                      |
 | copy_option | enum  | --no-clobber                                  | <dl><dt>`--no-clobber` </dt><dd> Skip overwriting existing files.</dd><dt> `--force` </dt><dd> Overwrite all files. </dd><dt> `--force-no-clobber` </dt><dd> Overwrite only changed files, skip unchanged files. </dd></dl> |
 | group       | int   | 1000                                             | The maximum number of files for each pod to copy (will use the value of `group` or `group_size` that is reached first).                                          |
 | group_size  | str   | 100Gi                                            | The maximum group size of files for each pod to copy (will use the value of `group` or `group_size` that is reached first).                                      |
@@ -260,7 +260,7 @@ graph TD;
 | region             | enum  |                                           | Region of the dataset                                                                                                                                            |
 | source             | str   | s3://linz-imagery-staging/test/sample/    | The URIs (paths) to the s3 source location                                                                                                                       |
 | target_bucket_name | str   | nz-imagery                                | The bucket name of the target location location                                                                                                                  |
-| include            | regex | .tiff?\$\|.json\$\|^capture-area.geojson$ | A regular expression to match object path(s) or name(s) from within the source path to include in the copy.                                                      |
+| include            | regex | \\.tiff?\$\|\\.json\$\|/capture-area\\.geojson$ | A regular expression to match object path(s) or name(s) from within the source path to include in the copy.                                                      |
 | copy_option        | enum  | --no-clobber                           | <dl><dt>`--no-clobber` </dt><dd> Skip overwriting existing files.</dd><dt> `--force` </dt><dd> Overwrite all files. </dd><dt> `--force-no-clobber` </dt><dd> Overwrite only changed files, skip unchanged files. </dd></dl> |
 | group              | int   | 1000                                      | The maximum number of files for each pod to copy (will use the value of `group` or `group_size` that is reached first).                                          |
 | group_size         | str   | 100Gi                                     | The maximum group size of files for each pod to copy (will use the value of `group` or `group_size` that is reached first).                                      |
@@ -332,7 +332,7 @@ These are hardcoded due to parameter naming collisions in the downstream Workflo
 
 | Parameter | Type  | Default                                  | Description                                                                                                                                         |
 | --------- | ----- | ---------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------- |
-| include   | regex | \\.tiff?\$\|\\.json$\|^capture-area.geojson$ | Applies to the publishing workflow. A regular expression to match object path(s) or name(s) from within the source path to include in publishing\*. |
+| include   | regex | \\.tiff?\$\|\\.json$\|/capture-area\\.geojson$ | Applies to the publishing workflow. A regular expression to match object path(s) or name(s) from within the source path to include in publishing\*. |
 
 \* This regex can be used to exclude paths as well, e.g. if there are RBG and RGBI directories, the following regex will only include TIFF files in the RGB directory: `RGB(?!I).*.tiff?$`.
 
