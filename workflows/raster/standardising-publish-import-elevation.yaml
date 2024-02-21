@@ -3,7 +3,7 @@
 apiVersion: argoproj.io/v1alpha1
 kind: Workflow
 metadata:
-  generateName: elevation-standardising-publish-import-
+  generateName: standardising-publish-import-
   namespace: argo
   labels:
     linz.govt.nz/category: raster
@@ -30,15 +30,15 @@ spec:
         value: ''
       - name: region
         value: ''
+      - name: geographic_description
+        value: ''
       - name: source
         value: ''
       - name: target_bucket_name
-        value: 'linz-workflows-scratch/elevation'
+        value: ''
       - name: cutline # optional standardising cutline
         value: ''
       - name: collection_id # optional
-        value: ''
-      - name: location # optional
         value: ''
       - name: event # optional
         value: ''
@@ -85,9 +85,9 @@ spec:
               parameters:
                 - name: source
                   value: '{{workflow.parameters.source}}'
-        - - name: copy
+        - - name: publish
             templateRef:
-              name: copy-bulk-elevation
+              name: publish-odr
               template: main
             arguments:
               parameters:
