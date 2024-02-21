@@ -25,7 +25,7 @@ spec:
                   value: 5000
 
                 - name: source
-                  value: s3://linz-topographic-upload/SKYVUW/SN9457/
+                  value: s3://linz-topographic-upload/skyvuw/SN9457/
 
                 - name: source_epsg
                   value: 2193
