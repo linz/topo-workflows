@@ -464,6 +464,12 @@ spec:
         parameters:
           - name: collection-id
           - name: location
+      outputs:
+        artifacts:
+          - name: capture-area
+            path: '/tmp/capture-area.geojson'
+            archive:
+              none: {}
       container:
         image: '019359803926.dkr.ecr.ap-southeast-2.amazonaws.com/topo-imagery:{{=sprig.trim(workflow.parameters.version_topo_imagery)}}'
         resources:
