@@ -101,7 +101,7 @@ spec:
                 - name: source
                   value: '{{inputs.parameters.source}}'
 
-          - name: create-manifest
+          - name: create-manifest-github
             templateRef:
               name: tpl-create-manifest
               template: main
@@ -124,7 +124,7 @@ spec:
             when: "{{=sprig.regexMatch('nz-imagery|nz-elevation', workflow.parameters.target_bucket_name)}}"
             depends: 'generate-path'
 
-          - name: copy
+          - name: copy-with-github
             templateRef:
               name: tpl-copy
               template: main
