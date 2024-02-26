@@ -315,7 +315,7 @@ graph TD;
 
 **target_bucket_name:** `nz-imagery`
 
-**include:** Although only `.tiff` and `.json` files are required, there should not be any `.tfw` files in with the standardised imagery, so this option can be left at the default.
+**include:** Although only `.tiff` and `.json` files are required, there should not be any `.tfw` files in with the standardised imagery, so this option can be left as the default.
 
 **copy_option:** `--no-clobber`
 
