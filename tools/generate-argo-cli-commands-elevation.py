@@ -6,7 +6,7 @@ from unidecode import unidecode
 
 PARAMETERS_CSV = "./data/elevation-argo-parameters.csv"
 
-COMMAND = "argo submit workflows/raster/standardising-publish-import-elevation.yaml -n argo -f ./tools/{0}.yaml --generate-name el-{1}\n"
+COMMAND = "argo submit workflows/raster/standardising-publish-elevation.yaml -n argo -f ./tools/{0}.yaml --generate-name el-{1}\n"
 
 TARGET = "nz-elevation"
 

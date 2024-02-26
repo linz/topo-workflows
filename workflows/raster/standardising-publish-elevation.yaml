@@ -3,7 +3,7 @@
 apiVersion: argoproj.io/v1alpha1
 kind: Workflow
 metadata:
-  generateName: standardising-publish-import-
+  generateName: elevation-standardising-publish-import-
   namespace: argo
   labels:
     linz.govt.nz/category: raster
@@ -79,13 +79,13 @@ spec:
       steps:
         - - name: standardise
             templateRef:
-              name: imagery-standardising
+              name: test-imagery-standardising
               template: main
             arguments:
               parameters:
                 - name: source
                   value: '{{workflow.parameters.source}}'
-        - - name: publish
+        - - name: publish-odr
             templateRef:
               name: publish-odr
               template: main
@@ -101,26 +101,6 @@ spec:
                   value: '1000'
                 - name: group_size
                   value: '100Gi'
-        # - - name: import # uncomment this stanza for basemaps imagery import and amend as necessary. All other inputs should be workflow parameters
-        #     templateRef:
-        #       name: basemaps-imagery-import-cogify
-        #       template: main
-        #     arguments:
-        #       parameters:
-        #         - name: version_argo_tasks
-        #           value: 'v3'
-        #         - name: version_basemaps_cli
-        #           value: 'v6'
-        #         - name: source
-        #           value: "{{workflow.parameters.target}}"
-        #         - name: target
-        #           value: "linz-basemaps" # change to "linz-basemaps-staging" for staging environment
-        #         - name: cutline
-        #           value: "s3://linz-basemaps-source/cutline/2020-05-07-cutline-nz-coasts-rural-and-urban.geojson"
-        #         - name: create_pull_request
-        #           value: "aerial" # change as required
-        #         - name: category
-        #           value: "Rural Aerial Photos" # change as required
   volumes:
     - name: ephemeral
       emptyDir: {}
