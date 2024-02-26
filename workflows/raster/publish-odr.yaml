@@ -121,49 +121,10 @@ spec:
                   value: '{{inputs.parameters.group_size}}'
                 - name: version_argo_tasks
                   value: '{{workflow.parameters.version_argo_tasks}}'
-            when: "{{=sprig.regexMatch('nz-imagery', workflow.parameters.target_bucket_name)}}"
+            when: "{{=sprig.regexMatch('nz-imagery|nz-elevation', workflow.parameters.target_bucket_name)}}"
             depends: 'generate-path'
 
-          - name: create-manifest
-            templateRef:
-              name: tpl-create-manifest
-              template: main
-            arguments:
-              parameters:
-                - name: source
-                  value: '{{inputs.parameters.source}}'
-                - name: target
-                  value: '{{tasks.generate-path.outputs.parameters.target}}'
-                - name: include
-                  value: '{{inputs.parameters.include}}'
-                - name: exclude
-                  value: ''
-                - name: group
-                  value: '{{inputs.parameters.group}}'
-                - name: group_size
-                  value: '{{inputs.parameters.group_size}}'
-                - name: version_argo_tasks
-                  value: '{{workflow.parameters.version_argo_tasks}}'
-            depends: 'create-manifest-github.Skipped && generate-path'
-
           - name: copy-with-github
-            templateRef:
-              name: tpl-copy
-              template: main
-            arguments:
-              parameters:
-                - name: copy_option
-                  value: '{{workflow.parameters.copy_option}}'
-                - name: file
-                  value: '{{item}}'
-                - name: version_argo_tasks
-                  value: '{{workflow.parameters.version_argo_tasks}}'
-                - name: aws_role_config_path
-                  value: 's3://linz-bucket-config/config-write.open-data-registry.json,s3://linz-bucket-config/config.json'
-            depends: 'create-manifest-github.Succeeded'
-            withParam: '{{tasks.create-manifest-github.outputs.parameters.files}}'
-
-          - name: copy
             templateRef:
               name: tpl-copy
               template: main
@@ -193,5 +154,5 @@ spec:
                 - name: version_argo_tasks
                   value: '{{workflow.parameters.version_argo_tasks}}'
                 - name: repository
-                  value: 'imagery'
+                  value: "{{=sprig.trimPrefix('nz-', workflow.parameters.target_bucket_name)}}"
             depends: 'copy-with-github'

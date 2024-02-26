@@ -1,0 +1,45 @@
+# yaml-language-server: $schema=https://raw.githubusercontent.com/argoproj/argo-workflows/v3.4.13/api/jsonschema/schema.json
+
+apiVersion: argoproj.io/v1alpha1
+kind: WorkflowTemplate
+metadata:
+  name: test-generate-target
+  namespace: argo
+  labels:
+    linz.govt.nz/category: test
+spec:
+  nodeSelector:
+    karpenter.sh/capacity-type: 'spot'
+  entrypoint: main
+  arguments:
+    parameters:
+      - name: version_argo_tasks
+        value: 'v3'
+      - name: source
+        value: 's3://linz-imagery-staging/test/sample/'
+      - name: target_bucket_name
+        value: 'nz-imagery'
+  templateDefaults:
+    container:
+      imagePullPolicy: Always
+      image: ''
+  templates:
+    - name: main
+      inputs:
+        parameters:
+          - name: source
+          - name: target_bucket_name
+      dag:
+        tasks:
+          - name: generate-path
+            templateRef:
+              name: tpl-at-generate-path
+              template: main
+            arguments:
+              parameters:
+                - name: version
+                  value: '{{workflow.parameters.version_argo_tasks}}'
+                - name: target_bucket_name
+                  value: '{{inputs.parameters.target_bucket_name}}'
+                - name: source
+                  value: '{{inputs.parameters.source}}'
