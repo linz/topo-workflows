@@ -8,7 +8,7 @@ PARAMETERS_CSV = "./data/elevation-argo-parameters.csv"
 
 COMMAND = "argo submit workflows/raster/standardising-publish-import-elevation.yaml -n argo -f ./tools/{0}.yaml --generate-name el-{1}\n"
 
-TARGET = "linz-workflows-scratch/elevation"
+TARGET = "nz-elevation"
 
 def _index_csv(header: List[str]) -> Dict[str, int]:
     ind = {}
