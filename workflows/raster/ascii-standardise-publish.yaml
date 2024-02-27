@@ -87,11 +87,11 @@ spec:
       - name: lifecycle
         value: 'completed'
       - name: version_argo_tasks
-        value: 'v2'
+        value: 'v3'
       - name: version_basemaps_cli
         value: 'v6'
       - name: version_topo_imagery
-        value: 'v3'
+        value: 'v4'
   templateDefaults:
     container:
       imagePullPolicy: Always
@@ -127,16 +127,18 @@ spec:
                   value: '{{tasks.get-location.outputs.parameters.location}}translated-asc-files/'
             depends: 'convert-asc-files'
 
-          - name: publish
+          - name: publish-odr
             templateRef:
-              name: copy
+              name: publish-odr
               template: main
             arguments:
               parameters:
                 - name: source
-                  value: '{{tasks.get-location.outputs.parameters.location}}flat/'
+                  value: '{{tasks.standardise.outputs.parameters.target}}flat/'
                 - name: include
-                  value: '\.tiff?$|\.json$'
+                  value: '\.tiff?$|\.json$|/capture-area\.geojson$'
+                - name: target_bucket_name
+                  value: '{{workflow.parameters.target_bucket_name}}'
                 - name: group
                   value: '1000'
                 - name: group_size
