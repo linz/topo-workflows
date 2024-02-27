@@ -138,8 +138,8 @@ spec:
                   value: '{{workflow.parameters.version_argo_tasks}}'
                 - name: aws_role_config_path
                   value: 's3://linz-bucket-config/config-write.open-data-registry.json'
-            depends: 'create-manifest'
-            withParam: '{{tasks.create-manifest.outputs.parameters.files}}'
+            depends: 'create-manifest-github'
+            withParam: '{{tasks.create-manifest-github.outputs.parameters.files}}'
 
           - name: push-to-github
             templateRef:
