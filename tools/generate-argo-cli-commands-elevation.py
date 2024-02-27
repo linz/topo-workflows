@@ -7,8 +7,10 @@ from unidecode import unidecode
 PARAMETERS_CSV = "./data/elevation-argo-parameters.csv"
 
 COMMAND = "argo submit workflows/raster/standardising-publish-elevation.yaml -n argo -f ./tools/{0}.yaml --generate-name es-{1}\n"
+ASCII_COMMAND = "argo submit workflows/raster/ascii-standardise-publish.yaml -n argo -f ./tools/{0}.yaml --generate-name aes-{1}\n"
 
 TARGET = "nz-elevation"
+
 
 def _index_csv(header: List[str]) -> Dict[str, int]:
     ind = {}
@@ -51,16 +53,19 @@ def _get_category(source: str) -> str:
     if category.group(0) == "DSM":
         return "dsm"
 
+
 def _get_date(start_datetime: str, end_datetime: str) -> str:
     if start_datetime[0:4] == end_datetime[0:4]:
         return start_datetime[0:4]
     else:
         return f"{start_datetime[0:4]}-{end_datetime[0:4]}"
-    
+
+
 def _get_geo_desc_slug(geographic_description: str) -> str:
     removed = geographic_description.replace("'", "")
     removed = removed.replace("/", "")
     return unidecode(removed.lower().replace(" ", "-"))
+
 
 def _write_params(params: Dict[str, str], file: str) -> None:
     with open(f"./{file}.yaml", "w", encoding="utf-8") as output:
@@ -131,14 +136,24 @@ with open(PARAMETERS_CSV, "r") as csv_file:
         params = {**params, **_add_producer(row, index)}
 
         valid = _valid_params(params)
-        
-        if not valid[0]:
-            not_valid.append(f"# {file_name}.yaml not written to bash as further action required: {valid[1]}\n")
-        else:
-            parameter_list.append(COMMAND.format(file_name, file_name))
 
-            del params["comments"]
-            _write_params(params, file_name)
+        if not valid[0]:
+
+            if "ASC FILES" == valid[1]:
+                parameter_list.append(ASCII_COMMAND.format(file_name, file_name))
+
+                del params["comments"]
+                _write_params(params, file_name)
+            else:
+                not_valid.append(
+                    f"# {file_name}.yaml not written to bash as further action required: {valid[1]}\n"
+                )
+
+        # else:
+        #     parameter_list.append(COMMAND.format(file_name, file_name))
+
+        #     del params["comments"]
+        #     _write_params(params, file_name)
 
         with open("./standardise-publish.sh", "w") as script:
             script.write("#!/bin/bash\n\n")
