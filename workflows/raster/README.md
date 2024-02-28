@@ -4,7 +4,6 @@
 - [copy](#copy)
 - [publish-odr](#Publish-odr)
 - [Standardising-publish-import](#Standardising-publish-import)
-- [ascii-standardise-publish](#ascii-standardise-publish)
 - [tests](#Tests)
 
 # Standardising
@@ -425,88 +424,7 @@ aligned-level: '6'
 create-pull-request: 'true'
 ```
 
-# ascii-standardise-publish
-
-**For command line use only**
-
-This is a specific Workflow intended for bulk elevation transfers which are currently stored in linz-elevation-staging as .asc files and do not require Visual QA before publication.
-
-This workflow first translates all the ascii files to tiffs and then carries out the steps in the [Standardising](#Standardising) workflow, followed by the steps in the [publish-odr](#publish-odr) workflow.
-
-## Workflow Input Parameters
-
-### ascii-standardise-publish Mandatory Parameters - must be specified on the command line
-
-| Parameter      | Type | Default | Description                                                                                                                                                     |
-| -------------- | ---- | ------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| ticket         | str  |         | Ticket ID e.g. 'AIP-55'                                                                                                                                         |
-| region         | enum |         | Region of the dataset :warning: The name has to be exactly one in the region enum in `standardising`.                                                           |
-| source         | str  |         | the uri (path) to the input tiffs e.g. s3://linz-imagery-upload/test/sample                                                                                     |
-| target         | str  |         | the uri (path) to the published tiffs in the format s3://linz-imagery-target-example/region/city-or-sub-region_year_resolution/product/crs/                     |
-| category       | enum |         | Dataset type for collection metadata, also used to Build Dataset title & description                                                                            |
-| gsd            | str  |         | dataset GSD required for dataset title                                                                                                                          |
-| producer       | str  |         | Imagery producer name :warning: The name has to be exactly one in the producer enum in `standardising.yaml`                                                     |
-| licensor       | str  |         | Imagery licensor name :warning: The name has to be exactly one in the licensor enum in `standardising.yaml`. Use `licensor_list` instead if multiple licensors. |
-| licensor_list  | str  |         | List of imagery licensor name :warning: The names have to be exactly some of the licensor enum in `standardising.yaml` and separated by a semicolon.            |
-| start_datetime | str  |         | Imagery start date (flown from), must be in the format YYYY-MM-DD formatting                                                                                    |
-| end_datetime   | str  |         | Imagery end date (flown to), must be in the format YYYY-MM-DD                                                                                                   |
-| scale          | str  |         | The scale of the TIFFs, e.g. 500                                                                                                                                |
-
-### ascii-standardise-publish Optional Parameters - can be specified on the command line to override default value
-
-| Parameter              | Type  | Default      | Description                                                                                                                                                                                                                                                                                                          |
-| ---------------------- | ----- | ------------ | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| cutline                | str   |              | (Optional) location of a cutline file to cut the imagery to `.fgb` or `.geojson` (do not include if no cutline)                                                                                                                                                                                                      |
-| collection_id          | str   |              | (Optional) Provide a Collection ID if re-processing an existing published survery, otherwise a ULID will be generated for the collection.json ID field.                                                                                                                                                              |
-| compression            | str   | webp         | Standardised file format. Must be `webp` or `lzw`                                                                                                                                                                                                                                                                    |
-| group                  | int   | 50           | Applies to the standardising workflow. The number of files to group into the pods (testing has recommended using 50 for large datasets).                                                                                                                                                                             |
-| include                | regex | .tiff?$      | Applies to the standardising workflow. A regular expression to match object path(s) or name(s) from within the source path to include in standardising\*.                                                                                                                                                            |
-| copy_option            | str   | --no-clobber | Applies to the standardising and publishing workflows and should not need to be changed. <dl><dt>`--no-clobber` </dt><dd> Skip overwriting existing files.</dd><dt> `--force` </dt><dd> Overwrite all files. </dd><dt> `--force-no-clobber` </dt><dd> Overwrite only changed files, skip unchanged files. </dd></dl> |
-| source_epsg            | str   | 2193         | The EPSG code of the source imagery.                                                                                                                                                                                                                                                                                 |
-| target_epsg            | str   | 2193         | The Target EPSG code, if different to source-epsg the imagery will be reprojected.                                                                                                                                                                                                                                   |
-| geographic_description | str   | ''           | (Optional) Additional dataset description, to be used in dataset title / description in place of the Region.                                                                                                                                                                                                         |
-| lifecycle              | enum  | completed    | Lifecycle Status of Collection                                                                                                                                                                                                                                                                                       |
-| event                  | str   | ''           | (Optional) Event name if dataset has been captured in association with an event.                                                                                                                                                                                                                                     |
-| historic_survey_number | str   | ''           | (Optional) Survey Number associated with historical datasets.                                                                                                                                                                                                                                                        |
-
-### ascii-standardise-publish Fixed Parameters - can only be changed by editing the workflow file
-
-These are hardcoded due to parameter naming collisions in the downstream WorkflowTemplates and will likely not need to be changed.
-
-| Parameter | Type  | Default                                        | Description                                                                                                                                         |
-| --------- | ----- | ---------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------- |
-| include   | regex | \\.tiff?\$\|\\.json$\|/capture-area\\.geojson$ | Applies to the publishing workflow. A regular expression to match object path(s) or name(s) from within the source path to include in publishing\*. |
-
-## Examples
-
-### Submitting from the command line using the `-p` (`--parameter`) option:
-
-```bash
-argo submit workflows/raster/ascii-standardise-publish.yaml -n argo -p ticket="EP-55" -p region="canterbury" -p source="s3://linz-elevation-source-example/elevation/new-zealand/kaikoura_2012/" -p target_bucket_name=nz-elevation -p scale="1000" -p group="29" -p category="dem" -p gsd="1m" -p producer="Aerial Surveys" -p licensor="Toitū Te Whenua Land Information New Zealand" -p start_datetime="2012-11-02" -p end_datetime="2012-12-02"
-```
-
-### Submitting from the command line using a parameters yaml file and the `-f` (`--parameter-file`) option:
-
-```bash
-argo submit workflows/raster/ascii-standardise-publish.yaml -n argo -f params.yaml
-```
-
-_params.yaml_:
-
-```yaml
-ticket: 'AIP-55'
-region: 'canterbury'
-source: 's3://linz-elevation-source-example/elevation/new-zealand/kaikoura_2012/'
-target_bucket_name: 'nz-elevation'
-scale: '1000'
-group: '29'
-category: dem
-gsd: 1m
-producer: 'Aerial Surveys'
-licensor: 'Toitū Te Whenua Land Information New Zealand'
-start_datetime: '2012-11-02'
-end_datetime: '2012-12-02'
-```
+# Tests
 
 ## How To Use the Test Workflow
 
