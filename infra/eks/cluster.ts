@@ -289,5 +289,7 @@ export class LinzEksCluster extends Stack {
     this.tempBucket.grantReadWrite(argoRunnerSa.role);
     // give permission to the sa to assume a role
     argoRunnerSa.role.addToPrincipalPolicy(new PolicyStatement({ actions: ['sts:AssumeRole'], resources: ['*'] }));
+    // give read on ODR public bucket
+    Bucket.fromBucketName(this, 'OdrNzImagery', 'nz-imagery').grantRead(argoRunnerSa.role);
   }
 }
