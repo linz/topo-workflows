@@ -475,7 +475,7 @@ spec:
         resources:
           requests:
             memory: 7.8Gi
-            cpu: 2000m
+            cpu: 15000m
         command:
           - python
           - '/app/scripts/collection_from_items.py'
