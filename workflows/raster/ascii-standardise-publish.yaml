@@ -56,6 +56,8 @@ spec:
           - 'west-coast'
       - name: source
         value: 's3://path/'
+      - name: target_bucket_name
+        value: ''
       - name: cutline # optional standardising cutline
         value: ''
       - name: collection_id # optional
