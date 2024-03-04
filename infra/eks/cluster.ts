@@ -289,7 +289,12 @@ export class LinzEksCluster extends Stack {
     this.tempBucket.grantReadWrite(argoRunnerSa.role);
     // give permission to the sa to assume a role
     argoRunnerSa.role.addToPrincipalPolicy(new PolicyStatement({ actions: ['sts:AssumeRole'], resources: ['*'] }));
-    // give read on ODR public bucket
+
+    /* Gives read access on ODR public buckets.
+     * While those are public buckets, we still need to give permission to Argo
+     * as the `--no-sign-request` is not handled in the code.
+     */
     Bucket.fromBucketName(this, 'OdrNzImagery', 'nz-imagery').grantRead(argoRunnerSa.role);
+    Bucket.fromBucketName(this, 'OdrNzElevation', 'nz-elevation').grantRead(argoRunnerSa.role);
   }
 }
