@@ -3,7 +3,7 @@
 apiVersion: argoproj.io/v1alpha1
 kind: WorkflowTemplate
 metadata:
-  name: imagery-standardising
+  name: test-capture-area
   namespace: argo
   labels:
     linz.govt.nz/category: raster
@@ -393,7 +393,7 @@ spec:
 
     - name: collection-id-setup
       script:
-        image: '019359803926.dkr.ecr.ap-southeast-2.amazonaws.com/topo-imagery:{{=sprig.trim(workflow.parameters.version_topo_imagery)}}'
+        image: 'ghcr.io/paulfouquet/topo-imagery-test:latest'
         command: [python]
         source: |
           import ulid
@@ -423,7 +423,7 @@ spec:
           - name: group_data
             path: /tmp/input/
       container:
-        image: '019359803926.dkr.ecr.ap-southeast-2.amazonaws.com/topo-imagery:{{=sprig.trim(workflow.parameters.version_topo_imagery)}}'
+        image: 'ghcr.io/paulfouquet/topo-imagery-test:latest'
         resources:
           requests:
             memory: 7.8Gi
@@ -454,6 +454,8 @@ spec:
           - '{{=sprig.trim(workflow.parameters.source_epsg)}}'
           - '--target-epsg'
           - '{{=sprig.trim(workflow.parameters.target_epsg)}}'
+          - '--gsd'
+          - '{{=sprig.trim(workflow.parameters.gsd)}}'
 
     - name: create-collection
       retryStrategy:
@@ -471,7 +473,7 @@ spec:
             archive:
               none: {}
       container:
-        image: '019359803926.dkr.ecr.ap-southeast-2.amazonaws.com/topo-imagery:{{=sprig.trim(workflow.parameters.version_topo_imagery)}}'
+        image: 'ghcr.io/paulfouquet/topo-imagery-test:latest'
         resources:
           requests:
             memory: 7.8Gi
