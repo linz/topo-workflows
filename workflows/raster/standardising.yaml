@@ -454,6 +454,8 @@ spec:
           - '{{=sprig.trim(workflow.parameters.source_epsg)}}'
           - '--target-epsg'
           - '{{=sprig.trim(workflow.parameters.target_epsg)}}'
+          - '--gsd'
+          - '{{=sprig.trim(workflow.parameters.gsd)}}'
 
     - name: create-collection
       retryStrategy:
