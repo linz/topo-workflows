@@ -1,9 +1,9 @@
 # yaml-language-server: $schema=https://raw.githubusercontent.com/argoproj/argo-workflows/v3.4.13/api/jsonschema/schema.json
 
 apiVersion: argoproj.io/v1alpha1
-kind: WorkflowTemplate
+kind: Workflow
 metadata:
-  name: basemaps-imagery-import-cogify
+  generateName: bic-banks-peninsula-2023-dem-1m-
   namespace: argo
   labels:
     linz.govt.nz/category: basemaps
@@ -30,7 +30,7 @@ spec:
     parameters:
       - name: version_basemaps_cli
         description: Version of the basemaps CLI docker container to use
-        value: v6
+        value: latest
 
       - name: version_argo_tasks
         description: Version of the basemaps CLI docker container to use
@@ -67,18 +67,18 @@ spec:
 
       - name: source
         description: Source imagery location "s3://linz-imagery"
-        value: 's3://linz-imagery-staging/test/sample/'
+        value: 's3://nz-elevation/canterbury/banks-peninsula_2023/dem_1m/2193/'
 
       - name: create_pull_request
         description: 'Create pull request after importing imagery.'
-        value: 'aerial'
+        value: 'none'
         enum:
           - 'aerial'
           - 'individual'
           - 'none'
 
       - name: category
-        value: 'Rural Aerial Photos'
+        value: 'Event'
         enum:
           - 'Rural Aerial Photos'
           - 'Urban Aerial Photos'
@@ -88,14 +88,15 @@ spec:
 
       - name: target
         description: Target location for output COGs
-        value: 's3://linz-basemaps/'
+        value: 's3://linz-workflows-scratch/2024-03/elevation/'
         enum:
           - 's3://linz-basemaps/'
           - 's3://linz-basemaps-staging/'
+          - 's3://linz-workflows-scratch/2024-03/elevation/'
 
       - name: tile_matrix
         description: Output tile matrix, ";" separated list
-        value: 'NZTM2000Quad;WebMercatorQuad'
+        value: 'WebMercatorQuad'
         enum:
           - 'NZTM2000Quad'
           - 'WebMercatorQuad'
@@ -103,7 +104,7 @@ spec:
 
       - name: cutline
         description: Path to cutline to apply
-        value: 's3://linz-basemaps-source/cutline/2020-05-07-cutline-nz-coasts-rural-and-urban.geojson'
+        value: ''
 
       - name: cutline_blend
         description: Blending to use for cutline see gdal_translate#cblend
@@ -211,18 +212,18 @@ spec:
                   from: '{{ tasks.group.outputs.artifacts.output }}'
 
           # once all COGs are created generate a more overviews to increase tile rendering performance
-          - name: create-overview
-            template: create-overview
-            depends: create-cog
-            arguments:
-              parameters:
-                - name: path
-                  value: '{{ tasks.create-covering.outputs.parameters.target }}'
+          # - name: create-overview
+          #   template: create-overview
+          #   depends: create-cog
+          #   arguments:
+          #     parameters:
+          #       - name: path
+          #         value: '{{ tasks.create-covering.outputs.parameters.target }}'
 
           # Create a basemaps config to view the imagery directly
           - name: create-config
             template: create-config
-            depends: create-overview
+            depends: create-cog
             arguments:
               parameters:
                 - name: path
@@ -266,6 +267,7 @@ spec:
           - '--cutline-blend={{ inputs.parameters.cutline_blend }}'
           - '--target={{= sprig.trim(inputs.parameters.target) }}'
           - '{{= sprig.trim(inputs.parameters.source) }}'
+          - '--preset=lerc_10mm'
       outputs:
         parameters:
           - name: target
@@ -327,6 +329,8 @@ spec:
         args:
           - 'config'
           - '{{ inputs.parameters.path }}'
+          - '--host=https://dev.basemaps.linz.govt.nz' # TODO remove this when elevation is deployed to prod
+
       outputs:
         parameters:
           - name: url

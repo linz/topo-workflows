@@ -1,9 +1,9 @@
 # yaml-language-server: $schema=https://raw.githubusercontent.com/argoproj/argo-workflows/v3.4.13/api/jsonschema/schema.json
 
 apiVersion: argoproj.io/v1alpha1
-kind: WorkflowTemplate
+kind: Workflow
 metadata:
-  name: basemaps-config-create
+  name: basemaps-config-create-5hb23s
   namespace: argo
   labels:
     linz.govt.nz/category: basemaps
@@ -12,9 +12,9 @@ spec:
   arguments:
     parameters:
       - name: version_basemaps_cli
-        value: 'v6'
+        value: 'latest'
       - name: location
-        value: 's3://bucket/path/to'
+        value: 's3://linz-workflows-scratch/2024-02/29-es-wellington-2013-2014-dem-1mvbrl2/flat/'
   templateDefaults:
     container:
       imagePullPolicy: Always
@@ -45,6 +45,7 @@ spec:
         args:
           - 'config'
           - '{{ inputs.parameters.location }}'
+          - '--host=https://dev.basemaps.linz.govt.nz'
       outputs:
         parameters:
           - name: url
