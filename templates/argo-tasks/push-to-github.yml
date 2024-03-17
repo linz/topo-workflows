@@ -29,7 +29,7 @@ spec:
 
           - name: repository
             description: Repository Name (only used when identified that push to GitHub is required)
-            default: 'elevation'
+            default: 'imagery'
             enum:
               - 'elevation'
               - 'imagery'
@@ -58,13 +58,13 @@ spec:
             'stac',
             'github-import',
             '--source',
-            '{{=sprig.trim(inputs.parameters.source)}}',
+            '{{inputs.parameters.source}}',
             '--target',
-            '{{=sprig.trim(inputs.parameters.target)}}',
+            '{{inputs.parameters.target}}',
             '--repo-name',
             'linz/{{=sprig.regexFind(inputs.parameters.repository, inputs.parameters.target)}}',
             '--ticket',
-            '{{=sprig.trim(inputs.parameters.target)}}',
+            '{{inputs.parameters.ticket}}',
             '--copy-option',
-            '{{=sprig.trim(inputs.parameters.copy_option)}}',
+            '{{inputs.parameters.copy_option}}',
           ]
