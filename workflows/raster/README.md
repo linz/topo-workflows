@@ -240,8 +240,8 @@ Access permissions are controlled by the [Bucket Sharing Config](https://github.
 
 ## Workflow Description
 
-This workflow replicates `copy` however it allows publishing to `s3://nz-imagery` and `s3://nz-elevation` (the two registry of open data public S3 buckets).
-**This workflow should not be run using the Argo UI, instead follow the instruction [here](https://github.com/linz/imagery/tree/master/publish-odr-parameters/README.md)**
+This workflow creates a Pull Request to be reviewed for publishing to `s3://nz-imagery` and `s3://nz-elevation` (the two registry of open data public S3 buckets). When the Pull Request is approved and merged, the files will be copied.
+
 
 ```mermaid
 graph TD;
