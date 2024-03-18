@@ -161,12 +161,16 @@ See https://github.com/linz/argo-tasks#stac-github-import
       - name: source
         value: '{{inputs.parameters.source}}'
       - name: target
-        value: '{{workflow.parameters.target}}'
+        value: '{{tasks.generate-path.outputs.parameters.target}}'
       - name: version_argo_tasks
         value: '{{workflow.parameters.version_argo_tasks}}'
       - name: repository
-        value: 'elevation'
-  depends: 'copy-with-github'
+        value: "{{=sprig.trimPrefix('nz-', workflow.parameters.target_bucket_name)}}"
+      - name: ticket
+        value: '{{=sprig.trim(workflow.parameters.ticket)}}'
+      - name: copy_option
+        value: '{{workflow.parameters.copy_option}}'
+  depends: 'generate-path'
 ```
 
 ## argo-tasks/generate-path

@@ -28,7 +28,7 @@ spec:
             default: 'v3'
 
           - name: repository
-            description: Repository Name (only used when identified that push to GitHub is required)
+            description: Repository Name
             default: 'imagery'
             enum:
               - 'elevation'
@@ -58,7 +58,7 @@ spec:
             'stac',
             'github-import',
             '--source',
-            '{{inputs.parameters.source}}',
+            '{{=sprig.trim(inputs.parameters.source)}}',
             '--target',
             '{{inputs.parameters.target}}',
             '--repo-name',
