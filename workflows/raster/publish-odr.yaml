@@ -78,9 +78,6 @@ spec:
         parameters:
           - name: source
           - name: target_bucket_name
-          - name: include
-          - name: group
-          - name: group_size
       dag:
         tasks:
           - name: generate-path
@@ -103,7 +100,7 @@ spec:
             arguments:
               parameters:
                 - name: source
-                  value: '{{=sprig.trim(inputs.parameters.source)}}'
+                  value: '{{inputs.parameters.source}}'
                 - name: target
                   value: '{{tasks.generate-path.outputs.parameters.target}}'
                 - name: version_argo_tasks
