@@ -36,6 +36,7 @@ export class CoreDns extends Chart {
         // FIXME: is there a better way of handling config files inside of cdk8s
         Corefile: `
 cluster.local:53 {
+    log
     errors
     health
     kubernetes cluster.local in-addr.arpa ip6.arpa {
@@ -51,6 +52,7 @@ cluster.local:53 {
 }
 
 .:53 {
+    log
     errors
     health
     template ANY AAAA {
