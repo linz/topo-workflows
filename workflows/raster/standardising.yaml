@@ -398,7 +398,7 @@ spec:
             templateRef:
               name: publish-odr
               template: main
-            when: "'{{workflow.parameters.publish_to_odr}}' == 'True'"
+            when: "'{{workflow.parameters.publish_to_odr}}' == 'true'"
             arguments:
               parameters:
                 - name: source
