@@ -381,6 +381,10 @@ spec:
               parameters:
                 - name: location
                   value: '{{tasks.get-location.outputs.parameters.location}}'
+                - name: bucket
+                  value: '{{tasks.get-location.outputs.parameters.bucket}}'
+                - name: key
+                  value: '{{tasks.get-location.outputs.parameters.key}}'
             template: create-config
             depends: 'create-overview'
 
@@ -536,11 +540,19 @@ spec:
           const loc = JSON.parse(process.env['ARGO_TEMPLATE']).archiveLocation.s3;
           const key = loc.key.replace('{{pod.name}}','');
           fs.writeFileSync('/tmp/location', `s3://${loc.bucket}/${key}`);
+          fs.writeFileSync('/tmp/bucket', `${loc.bucket}`);
+          fs.writeFileSync('/tmp/key', `${key}`);
       outputs:
         parameters:
           - name: location
             valueFrom:
               path: '/tmp/location'
+          - name: bucket
+            valueFrom:
+              path: '/tmp/bucket'
+          - name: key
+            valueFrom:
+              path: '/tmp/key'
 
     - name: create-overview
       retryStrategy:
@@ -575,6 +587,8 @@ spec:
         parameters:
           - name: location
             description: Location of the imagery to create config for
+          - name: bucket
+          - name: key
       container:
         image: 'ghcr.io/linz/basemaps/cli:{{=sprig.trim(workflow.parameters.version_basemaps_cli)}}'
         command: [node, /app/node_modules/.bin/cogify]
@@ -594,6 +608,14 @@ spec:
             description: Location of the config file
             valueFrom:
               path: '/tmp/cogify/config-path'
+        artifacts:
+          - name: url
+            path: '/tmp/cogify/config-url'
+            s3:
+              bucket: '{{inputs.parameters.bucket}}'
+              key: '{{inputs.parameters.key}}flat/config-url'
+            archive:
+              none: {}
 
   volumes:
     - name: ephemeral
