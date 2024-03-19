@@ -29,9 +29,6 @@ spec:
 
           - name: repository
             description: Repository Name
-            enum:
-              - 'elevation'
-              - 'imagery'
 
           - name: ticket
             description: Ticket ID e.g. 'AIP-55'
