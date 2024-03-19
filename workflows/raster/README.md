@@ -258,7 +258,6 @@ graph TD;
 | target_bucket_name | enum   | nz-imagery                                | The bucket name of the target location                                                                                                                  |                                                  |
 | copy_option        | enum  | --no-clobber                           | <dl><dt>`--no-clobber` </dt><dd> Skip overwriting existing files.</dd><dt> `--force` </dt><dd> Overwrite all files. </dd><dt> `--force-no-clobber` </dt><dd> Overwrite only changed files, skip unchanged files. </dd></dl> |
 
-
 ## Examples
 
 ### Publish:
