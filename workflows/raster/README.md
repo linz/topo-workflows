@@ -240,7 +240,7 @@ Access permissions are controlled by the [Bucket Sharing Config](https://github.
 
 ## Workflow Description
 
-This workflow creates a GitHub Pull Request to be reviewed for publishing to `s3://nz-imagery` and `s3://nz-elevation` (the two registry of open data public S3 buckets). When the Pull Request is approved and merged, the files will be copied.
+This workflow creates a GitHub pull request to be reviewed for publishing to `s3://nz-imagery` and `s3://nz-elevation` (the two AWS Registry of Open Data public S3 buckets). When the pull request is approved and merged, the files will be copied.
 
 
 ```mermaid
