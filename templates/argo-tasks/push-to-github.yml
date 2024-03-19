@@ -38,7 +38,6 @@ spec:
 
           - name: copy_option
             description: --no-clobber Skip overwriting existing files. --force Overwrite all files. --force-no-clobber Overwrite only changed files, skip unchanged files.
-            default: '--no-clobber'
 
       container:
         image: '019359803926.dkr.ecr.ap-southeast-2.amazonaws.com/argo-tasks:{{=sprig.trim(inputs.parameters.version_argo_tasks)}}'
