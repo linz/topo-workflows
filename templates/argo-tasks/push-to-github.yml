@@ -29,14 +29,12 @@ spec:
 
           - name: repository
             description: Repository Name
-            default: ''
             enum:
               - 'elevation'
               - 'imagery'
 
           - name: ticket
             description: Ticket ID e.g. 'AIP-55'
-            default: ''
 
           - name: copy_option
             description: --no-clobber Skip overwriting existing files. --force Overwrite all files. --force-no-clobber Overwrite only changed files, skip unchanged files.
