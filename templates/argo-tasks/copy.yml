@@ -34,7 +34,7 @@ spec:
               - '--force-no-clobber'
 
           - name: aws_role_config_path
-            description: The path(s) to the aws configs that enable writing to buckets
+            description: s3 URL or comma-separated list of s3 URLs allowing the workflow to write to a target(s)
             default: 's3://linz-bucket-config/config-write.imagery.json,s3://linz-bucket-config/config-write.elevation.json,s3://linz-bucket-config/config-write.topographic.json'
 
       container:
