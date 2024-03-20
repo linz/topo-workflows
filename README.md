@@ -17,7 +17,7 @@ You will need
 
 - [kubectl](https://kubernetes.io/docs/tasks/tools/)
 - [argo](https://github.com/argoproj/argo-workflows/releases/) - Just the `argo` cli
-- AWS CLI
+- [AWS CLI](https://github.com/aws/aws-cli/tree/v2?tab=readme-ov-file#installation)
 
 Ensure you have `kubectl` aliased to `k`
 
