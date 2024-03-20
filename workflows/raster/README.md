@@ -256,7 +256,7 @@ graph TD;
 | ticket             | str   |                                           | Ticket ID e.g. 'AIP-55'                                                                                                                                          |
 | region             | enum  |                                           | Region of the dataset                                                                                                                                            |
 | source             | str   | s3://linz-imagery-staging/test/sample/    | The URIs (paths) to the s3 source location                                                                                                                       |
-| target_bucket_name | enum   | nz-imagery                                | The bucket name of the target location                                                                                                                  |                                                  |
+| target_bucket_name | enum   |                                           | The bucket name of the target location                                                                                                                  |                                                  |
 | copy_option        | enum  | --no-clobber                           | <dl><dt>`--no-clobber` </dt><dd> Skip overwriting existing files.</dd><dt> `--force` </dt><dd> Overwrite all files. </dd><dt> `--force-no-clobber` </dt><dd> Overwrite only changed files, skip unchanged files. </dd></dl> |
 
 ## Examples
