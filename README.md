@@ -17,6 +17,7 @@ You will need
 
 - [kubectl](https://kubernetes.io/docs/tasks/tools/)
 - [argo](https://github.com/argoproj/argo-workflows/releases/) - Just the `argo` cli
+- AWS CLI
 
 Ensure you have `kubectl` aliased to `k`
 
@@ -30,7 +31,6 @@ To connect to the EKS cluster you need to be logged into AWS
 
 Then to setup the cluster, only the first time using the cluster you need to run this
 
-You will need a AWS CLI > 2.7.x
 
 ```bash
 aws eks update-kubeconfig --name Workflows --region ap-southeast-2
