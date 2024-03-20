@@ -269,6 +269,16 @@ spec:
       - name: historic_survey_number
         description: '(Optional) Survey Number associated with historical datasets, (e.g., "SN8844")'
         value: ''
+      - name: publish_to_odr
+        value: 'false'
+        enum:
+          - 'false'
+          - 'true'
+      - name: target_bucket_name
+        value: ''
+        enum:
+          - 'nz-imagery'
+          - 'nz-elevation'
       - name: copy_option
         value: '--no-clobber'
         enum:
@@ -387,6 +397,23 @@ spec:
                   value: '{{tasks.get-location.outputs.parameters.key}}'
             template: create-config
             depends: 'create-overview'
+
+          - name: publish-odr
+            templateRef:
+              name: publish-odr
+              template: main
+            when: "'{{workflow.parameters.publish_to_odr}}' == 'true'"
+            arguments:
+              parameters:
+                - name: source
+                  value: '{{tasks.get-location.outputs.parameters.location}}flat/'
+                - name: target_bucket_name
+                  value: '{{workflow.parameters.target_bucket_name}}'
+                - name: copy_option
+                  value: '{{workflow.parameters.copy_option}}'
+                - name: ticket
+                  value: '{{=sprig.trim(workflow.parameters.ticket)}}'
+            depends: 'create-config'
 
       outputs:
         parameters:
