@@ -17,6 +17,7 @@ You will need
 
 - [kubectl](https://kubernetes.io/docs/tasks/tools/)
 - [argo](https://github.com/argoproj/argo-workflows/releases/) - Just the `argo` cli
+- [AWS CLI](https://github.com/aws/aws-cli/tree/v2?tab=readme-ov-file#installation)
 
 Ensure you have `kubectl` aliased to `k`
 
@@ -24,16 +25,15 @@ Ensure you have `kubectl` aliased to `k`
 alias k=kubectl
 ```
 
-To connect to the EKS cluster you need to be logged into AWS
+To connect to the EKS cluster you need to be [logged into AWS](https://toitutewhenua.atlassian.net/wiki/spaces/GEOD/pages/86418747/Login+to+AWS+Service+Accounts+via+Azure+in+Command+Line)
 
-`aws-azure-login :account-name`
+`aws-azure-login`
 
 Then to setup the cluster, only the first time using the cluster you need to run this
 
-You will need a AWS CLI > 2.7.x
 
 ```bash
-aws eks update-kubeconfig --name Workflows --region ap-southeast-2
+aws --region=ap-southeast-2 eks update-kubeconfig --name=Workflows
 ```
 
 to validate the cluster is connected,
@@ -154,8 +154,8 @@ Note: This bucket has a 90 day expiration lifecycle.
 List pods:
 
 ```bash
-k get pods -n argo
-# note: if the default namespace is set to argo, `-n argo` is not required.
+k get pods --namespace=argo
+# note: if the default namespace is set to argo, `--namespace=argo` is not required.
 ```
 
 In the output next to the `NAME` of the pod, the `READY` column indicates how many Docker containers are running inside the pod. For example, `1/1` indicates there is one Docker container.
@@ -163,13 +163,13 @@ In the output next to the `NAME` of the pod, the `READY` column indicates how ma
 The output of the follow command includes a `Containers` section. The first line in this section is the container name, for example, `argo-server`.
 
 ```bash
-k describe pods *pod_name* -n argo
+k describe pods *pod_name* --namespace=argo
 ```
 
 To access a container in a pod run:
 
 ```bash
-k exec -it -n argo *pod_name* -- /bash/bash
+k exec --namespace=argo --stdin=true --tty=true *pod_name* -- bash
 ```
 
 Once inside the container you can run a number of commands.
@@ -184,7 +184,7 @@ mtr sts.ap-southeast-2.amazonaws.com
 ```
 
 ```bash
-watch -e nslookup linz-workflow-artifacts.s3.ap-southeast-2.amazonaws.com
+watch --errexit nslookup linz-workflow-artifacts.s3.ap-southeast-2.amazonaws.com
 ```
 
 ## Concurrency
