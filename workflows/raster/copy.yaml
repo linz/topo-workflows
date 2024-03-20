@@ -73,6 +73,8 @@ spec:
         value: '100Gi'
       - name: transform
         value: 'f'
+      - name: aws_role_config_path
+        value: 's3://linz-bucket-config/config-write.elevation.json,s3://linz-bucket-config/config-write.imagery.json,s3://linz-bucket-config/config-write.topographic.json'
   templateDefaults:
     container:
       imagePullPolicy: Always
@@ -122,6 +124,6 @@ spec:
                 - name: version_argo_tasks
                   value: '{{workflow.parameters.version_argo_tasks}}'
                 - name: aws_role_config_path
-                  value: 's3://linz-bucket-config/config-write.elevation.json,s3://linz-bucket-config/config-write.imagery.json,s3://linz-bucket-config/config-write.topographic.json'
+                  value: '{{workflow.parameters.aws_role_config_path}}'
             depends: 'create-manifest'
             withParam: '{{tasks.create-manifest.outputs.parameters.files}}'
