@@ -169,7 +169,7 @@ k describe pods *pod_name* --namespace=argo
 To access a container in a pod run:
 
 ```bash
-k exec --namespace=argo --stdin=true --tty=true *pod_name* -- /bash/bash
+k exec --namespace=argo --stdin=true --tty=true *pod_name* -- bash
 ```
 
 Once inside the container you can run a number of commands.
