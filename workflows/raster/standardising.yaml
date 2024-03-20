@@ -413,7 +413,7 @@ spec:
                   value: '{{workflow.parameters.copy_option}}'
                 - name: ticket
                   value: '{{=sprig.trim(workflow.parameters.ticket)}}'
-            depends: 'create-config'
+            depends: 'stac-validate && create-config'
 
       outputs:
         parameters:
