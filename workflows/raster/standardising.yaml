@@ -275,7 +275,7 @@ spec:
           - 'false'
           - 'true'
       - name: target_bucket_name
-        value: 'nz-imagery'
+        value: ''
         enum:
           - 'nz-imagery'
           - 'nz-elevation'
