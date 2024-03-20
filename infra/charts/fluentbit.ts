@@ -54,6 +54,7 @@ export class FluentBit extends Chart {
      *
      */
     const extraService = `
+Dns.prefer_ipv4 on
 HTTP_Server  Off
 HTTP_Listen  [::]
 HTTP_PORT    2020
