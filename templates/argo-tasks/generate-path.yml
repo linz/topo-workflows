@@ -32,8 +32,8 @@ spec:
         args:
           - 'generate-path'
           - '--target-bucket-name'
-          - '{{inputs.parameters.target_bucket_name}}'
-          - '{{inputs.parameters.source}}'
+          - '{{=sprig.trim(inputs.parameters.target_bucket_name)}}'
+          - '{{=sprig.trim(inputs.parameters.source)}}'
 
       outputs:
         parameters:
