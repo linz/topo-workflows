@@ -28,11 +28,13 @@ spec:
             default: 'v3'
 
           - name: repository
-            description: Repository Name (only used when identified that push to GitHub is required)
-            default: 'elevation'
-            enum:
-              - 'elevation'
-              - 'imagery'
+            description: Repository Name
+
+          - name: ticket
+            description: Ticket ID e.g. 'AIP-55'
+
+          - name: copy_option
+            description: --no-clobber Skip overwriting existing files. --force Overwrite all files. --force-no-clobber Overwrite only changed files, skip unchanged files.
 
       container:
         image: '019359803926.dkr.ecr.ap-southeast-2.amazonaws.com/argo-tasks:{{=sprig.trim(inputs.parameters.version_argo_tasks)}}'
@@ -52,7 +54,11 @@ spec:
             '--source',
             '{{=sprig.trim(inputs.parameters.source)}}',
             '--target',
-            '{{=sprig.trim(inputs.parameters.target)}}',
+            '{{inputs.parameters.target}}',
             '--repo-name',
             'linz/{{=sprig.regexFind(inputs.parameters.repository, inputs.parameters.target)}}',
+            '--ticket',
+            '{{inputs.parameters.ticket}}',
+            '--copy-option',
+            '{{inputs.parameters.copy_option}}',
           ]
