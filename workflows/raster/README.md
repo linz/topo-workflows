@@ -7,10 +7,11 @@
 
 # Standardising
 
-This workflow processes supplied Aerial Imagery TIFF files into consistent Cloud Optimised GeoTIFFs with STAC metadata.
+This workflow processes supplied Aerial Imagery and Elevation TIFF files into consistent Cloud Optimised GeoTIFFs with STAC metadata.
 Standardisation using gdal_translate, non-visual QA, STAC creation, and STAC validation are all steps included within this workflow.
-Upon completion all standardised TIFF and STAC files will be located with the ./flat/ directory of the workflow in the artifacts bucket.
+Upon completion all standardised TIFF and STAC files will be located with the ./flat/ directory of the workflow in the artifacts scratch bucket.
 In addition, a Basemaps link is produced enabling visual QA.
+Publishing to the AWS Registry of Open Data is an optional step that can be run automatically after standardisation.
 
 ## Workflow Input Parameters
 
@@ -39,9 +40,12 @@ In addition, a Basemaps link is produced enabling visual QA.
 | lifeycle               | enum  | Completed                             | Lifecycle Status of Collection, from [linz STAC extension](https://github.com/linz/stac/tree/master/extensions/linz#collection-fields). Options: `completed`, `preview`, `ongoing`, `under development`, `deprecated`       |
 | event                  | str   | Cyclone Gabrielle                     | (Optional) Event name if dataset has been captured in association with an event.                                                                                                                                            |
 | historic_survey_number | str   | SNC8844                               | (Optional) Survey Number associated with historical datasets.                                                                                                                                                               |
-| copy_option            | enum  | --no-clobber                          | <dl><dt>`--no-clobber` </dt><dd> Skip overwriting existing files.</dd><dt> `--force` </dt><dd> Overwrite all files. </dd><dt> `--force-no-clobber` </dt><dd> Overwrite only changed files, skip unchanged files. </dd></dl> |
 | source_epsg            | str   | 2193                                  | The EPSG code of the source imagery                                                                                                                                                                                         |
 | target_epsg            | str   | 2193                                  | The target EPSG code - if different to source the imagery will be reprojected                                                                                                                                               |
+| Publish to ODR Specific Parameters | Type  | Default                               | Description                                                                                                                                                                                                                 |
+| publish_to_odr            | str   | false                                  | Run [publish-odr](#Publish-odr) after standardising has completed successfully                                                                                                                                                                                         |
+| target_bucket_name | enum   |                                           | The bucket name of the target location                                                                                                                  |                                                  |
+| copy_option            | enum  | --no-clobber                          | <dl><dt>`--no-clobber` </dt><dd> Skip overwriting existing files.</dd><dt> `--force` </dt><dd> Overwrite all files. </dd><dt> `--force-no-clobber` </dt><dd> Overwrite only changed files, skip unchanged files. </dd></dl> |
 
 \* This regex can be used to exclude paths as well, e.g. if there are RBG and RGBI directories, the following regex will only include TIFF files in the RGB directory: `RGB(?!I).*.tiff?$`. For more complicated exclusions, there is an `--exclude` parameter, which would need to be added to the Argo WorkflowTemplate.
 
