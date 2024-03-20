@@ -25,9 +25,9 @@ Ensure you have `kubectl` aliased to `k`
 alias k=kubectl
 ```
 
-To connect to the EKS cluster you need to be logged into AWS
+To connect to the EKS cluster you need to be [logged into AWS](https://toitutewhenua.atlassian.net/wiki/spaces/GEOD/pages/86418747/Login+to+AWS+Service+Accounts+via+Azure+in+Command+Line)
 
-`aws-azure-login :account-name`
+`aws-azure-login`
 
 Then to setup the cluster, only the first time using the cluster you need to run this
 
