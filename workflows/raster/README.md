@@ -7,10 +7,10 @@
 
 # Standardising
 
-This workflow processes supplied Aerial Imagery and Elevation TIFF files into consistent Cloud Optimised GeoTIFFs with STAC metadata.
-Standardisation using gdal_translate, non-visual QA, STAC creation, and STAC validation are all steps included within this workflow.
-Upon completion all standardised TIFF and STAC files will be located with the ./flat/ directory of the workflow in the artifacts scratch bucket.
-In addition, a Basemaps link is produced enabling visual QA.
+This workflow processes supplied Aerial Imagery and Elevation TIFF files into consistent Cloud Optimised GeoTIFFs with STAC metadata. Standardisation using gdal_translate, non-visual QA, STAC creation, and STAC validation are all steps included within this workflow.
+
+Upon completion all standardised TIFF and STAC files will be located with the ./flat/ directory of the workflow in the artifacts scratch bucket. In addition, a Basemaps link is produced enabling visual QA.
+
 Publishing to the AWS Registry of Open Data is an optional step [publish-odr](#Publish-odr) that can be run automatically after standardisation.
 
 ## Workflow Input Parameters
@@ -121,9 +121,9 @@ graph TD;
     get-location-->standardise-validate;
     tileindex-validate-->standardise-validate;
     standardise-validate-->create-collection;
-    standardise-validate-.->create-overview;
-    create-collection-->stac-validate-.->publish-odr;
-    create-overview-.->create-config-.->publish-odr;
+    standardise-validate-.->|compression != dem_lerc|create-overview;
+    create-collection-->stac-validate-.->|publish_to_odr == true|publish-odr;
+    create-overview-.->create-config-.->|publish_to_odr == true|publish-odr;
 ```
 
 ### [collection-id-setup](./standardising.yaml)
