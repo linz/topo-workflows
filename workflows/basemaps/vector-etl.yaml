@@ -3,7 +3,7 @@
 apiVersion: argoproj.io/v1alpha1
 kind: WorkflowTemplate
 metadata:
-  name: basemaps-vector-etl
+  name: test-basemaps-vector-etl
   namespace: argo
   labels:
     linz.govt.nz/category: basemaps
@@ -18,7 +18,7 @@ spec:
       
       - name: version_basemaps_etl
         description: Version of the Basemaps ETL eks container to use
-        value: 'v1.0.0'
+        value: 'latest'
 
       - name: target
         description: S3 Bucket to use for storing the output
@@ -26,6 +26,10 @@ spec:
         enum:
           - 'linz-basemaps'
           - 'linz-basemaps-staging'
+
+      - name: filename
+        description: output filename in s3
+        value: 'topographic'
 
       - name: create_pull_request
         description: Should a pull request be created in linz/basemaps-config
@@ -76,8 +80,9 @@ spec:
           - name: AWS_ROLE_CONFIG_PATH
             value: s3://linz-bucket-config/config.basemaps.json
         args:
-          - '--all'
+          - "{{= workflow.parameters.filename == 'topographic'? '--all' : '--layer=' + workflow.parameters.filename }}"
           - '--target={{ workflow.parameters.target }}'
+          - '--filename={{ workflow.parameters.filename }}'
           - '--output=/tmp/'
           - '--commit'
       outputs:
