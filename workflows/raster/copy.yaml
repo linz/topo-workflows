@@ -88,6 +88,7 @@ spec:
       inputs:
         parameters:
           - name: source
+          - name: target
           - name: include
           - name: exclude
           - name: group
@@ -103,7 +104,7 @@ spec:
                 - name: source
                   value: '{{inputs.parameters.source}}'
                 - name: target
-                  value: '{{workflow.parameters.target}}'
+                  value: '{{inputs.parameters.target}}'
                 - name: include
                   value: '{{inputs.parameters.include}}'
                 - name: exclude
