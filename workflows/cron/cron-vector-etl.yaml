@@ -2,7 +2,7 @@
 apiVersion: argoproj.io/v1alpha1
 kind: CronWorkflow
 metadata:
-  name: cron-vector-etl
+  name: cron-vector-etl-topographic
   namespace: argo
   labels:
     linz.govt.nz/category: basemaps
@@ -20,5 +20,7 @@ spec:
       name: basemaps-vector-etl
     arguments:
       parameters:
+        - filename:
+          value: 'topographic'
         - name: 'retry'
           value: '2'
