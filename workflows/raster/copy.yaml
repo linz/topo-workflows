@@ -61,6 +61,8 @@ spec:
         value: 's3://linz-imagery-staging/test/sample_target/'
       - name: include
         value: '\.tiff?$|\.json$|\.tfw$|/capture-area\.geojson$'
+      - name: exclude
+        value: ''
       - name: copy_option
         value: '--no-clobber'
         enum:
@@ -87,6 +89,7 @@ spec:
         parameters:
           - name: source
           - name: include
+          - name: exclude
           - name: group
           - name: group_size
       dag:
@@ -104,7 +107,7 @@ spec:
                 - name: include
                   value: '{{inputs.parameters.include}}'
                 - name: exclude
-                  value: ''
+                  value: '{{inputs.parameters.exclude}}'
                 - name: group
                   value: '{{inputs.parameters.group}}'
                 - name: group_size
