@@ -43,14 +43,14 @@ export interface ArgoWorkflowsProps {
  *
  * (Do not mix up with Argo Workflows application version)
  */
-const chartVersion = '0.34.0';
+const chartVersion = '0.41.0';
 
 /**
  * This is the version of Argo Workflows for the `chartVersion` we're using
  * https://github.com/argoproj/argo-helm/blob/2730dc24c7ad69b98d3206705a5ebf5cb34dd96b/charts/argo-workflows/Chart.yaml#L2
  *
  */
-const appVersion = 'v3.4.11';
+const appVersion = 'v3.5.5';
 
 export class ArgoWorkflows extends Chart {
   constructor(scope: Construct, id: string, props: ArgoWorkflowsProps & ChartProps) {
@@ -129,6 +129,8 @@ export class ArgoWorkflows extends Chart {
           nodeSelector: { ...DefaultNodeSelector },
           workflowNamespaces: ['argo'],
           extraArgs: [],
+          // FIXME: workaround for https://github.com/argoproj/argo-workflows/issues/11657
+          extraEnv: [{ name: 'WATCH_CONFIGMAPS', value: 'false' }],
           persistence,
           replicas: 2,
           workflowDefaults: {
