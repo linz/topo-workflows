@@ -44,6 +44,7 @@ cluster.local:53 {
         fallthrough in-addr.arpa ip6.arpa
     }
     prometheus :9153
+    ready :8181
     forward . /etc/resolv.conf
     cache 30
     loop
@@ -59,6 +60,7 @@ cluster.local:53 {
       rcode NOERROR
     }
     prometheus :9153
+    ready :8181
     forward . /etc/resolv.conf
     cache 30
     loop
