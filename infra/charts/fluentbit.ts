@@ -74,6 +74,8 @@ HC_Period 5
         cloudWatchLogs: {
           enabled: true,
           region: 'ap-southeast-2',
+          /** Specify Cloudwatch endpoint to add a trailing `.` to force FQDN DNS request */
+          endpoint: 'logs.ap-southeast-2.amazonaws.com.',
           autoCreateGroup: true,
           logRetentionDays: 30,
           logGroupName: `/aws/eks/${props.clusterName}/logs`,
