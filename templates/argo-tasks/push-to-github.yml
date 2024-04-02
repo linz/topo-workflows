@@ -13,8 +13,6 @@ spec:
   entrypoint: main
   templates:
     - name: main
-      retryStrategy:
-        limit: '2'
       inputs:
         parameters:
           - name: source

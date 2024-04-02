@@ -441,8 +441,6 @@ spec:
               path: '/tmp/collection-id'
 
     - name: standardise-validate
-      retryStrategy:
-        limit: '2'
       nodeSelector:
         karpenter.sh/capacity-type: 'spot'
       inputs:
@@ -489,8 +487,6 @@ spec:
           - '{{=sprig.trim(workflow.parameters.gsd)}}'
 
     - name: create-collection
-      retryStrategy:
-        limit: '2'
       nodeSelector:
         karpenter.sh/capacity-type: 'spot'
       inputs:
@@ -582,8 +578,6 @@ spec:
               path: '/tmp/key'
 
     - name: create-overview
-      retryStrategy:
-        limit: '2'
       inputs:
         parameters:
           - name: location
@@ -608,8 +602,6 @@ spec:
           ]
 
     - name: create-config
-      retryStrategy:
-        limit: '2'
       inputs:
         parameters:
           - name: location
