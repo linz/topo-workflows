@@ -1,5 +1,5 @@
 /* Cluster name */
-export const ClusterName = 'Workflows';
+export const ClusterName = 'WorkflowsNP';
 /* LINZ conventional name for Argo Workflows artifact bucket */
 export const ScratchBucketName = `linz-${ClusterName.toLowerCase()}-scratch`;
 /* Argo Database Instance name */
@@ -8,6 +8,13 @@ export const ArgoDbInstanceName = 'ArgoDb';
 export const ArgoDbName = 'argo';
 /* Argo Database user */
 export const ArgoDbUser = 'argo_user';
+
+/**
+ * Should NodeLocal DNS be enabled for the cluster
+ *
+ * @see ./charts/kube-system.coredns.ts
+ */
+export const UseNodeLocalDns = false;
 
 /* CloudFormation Output to access from CDK8s */
 export const CfnOutputKeys = {

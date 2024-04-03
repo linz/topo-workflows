@@ -7,32 +7,44 @@ import { EventExporter } from './charts/event.exporter.js';
 import { FluentBit } from './charts/fluentbit.js';
 import { Karpenter, KarpenterProvisioner } from './charts/karpenter.js';
 import { CoreDns } from './charts/kube-system.coredns.js';
-import { CfnOutputKeys, ClusterName, ScratchBucketName, validateKeys } from './constants.js';
-import { getCfnOutputs } from './util/cloud.formation.js';
+import { NodeLocalDns } from './charts/kube-system.node.local.dns.js';
+import { CfnOutputKeys, ClusterName, ScratchBucketName, UseNodeLocalDns, validateKeys } from './constants.js';
+import { describeCluster, getCfnOutputs } from './util/cloud.formation.js';
 import { fetchSsmParameters } from './util/ssm.js';
 
 const app = new App();
 
 async function main(): Promise<void> {
   // Get cloudformation outputs
-  const cfnOutputs = await getCfnOutputs(ClusterName);
+  const [cfnOutputs, ssmConfig, clusterConfig] = await Promise.all([
+    getCfnOutputs(ClusterName),
+    fetchSsmParameters({
+      // Config for Cloudflared to access argo-server
+      tunnelId: '/eks/cloudflared/argo/tunnelId',
+      tunnelSecret: '/eks/cloudflared/argo/tunnelSecret',
+      tunnelName: '/eks/cloudflared/argo/tunnelName',
+      accountId: '/eks/cloudflared/argo/accountId',
+
+      // Personal access token to gain access to linz-li-bot github user
+      githubPat: '/eks/github/linz-li-bot/pat',
+
+      // Argo Database connection password
+      argoDbPassword: '/eks/argo/postgres/password',
+    }),
+    describeCluster(ClusterName),
+  ]);
   validateKeys(cfnOutputs);
 
-  const ssmConfig = await fetchSsmParameters({
-    // Config for Cloudflared to access argo-server
-    tunnelId: '/eks/cloudflared/argo/tunnelId',
-    tunnelSecret: '/eks/cloudflared/argo/tunnelSecret',
-    tunnelName: '/eks/cloudflared/argo/tunnelName',
-    accountId: '/eks/cloudflared/argo/accountId',
-
-    // Personal access token to gain access to linz-li-bot github user
-    githubPat: '/eks/github/linz-li-bot/pat',
-
-    // Argo Database connection password
-    argoDbPassword: '/eks/argo/postgres/password',
-  });
-
   const coredns = new CoreDns(app, 'dns', {});
+
+  // Node localDNS is very expermential in this cluster, it can and will break DNS resolution
+  // If there are any issues with DNS, NodeLocalDNS should be disabled first.
+  if (UseNodeLocalDns) {
+    const ipv6Cidr = clusterConfig.kubernetesNetworkConfig?.serviceIpv6Cidr;
+    if (ipv6Cidr == null) throw new Error('Unable to use node-local-dns without ipv6Cidr');
+    new NodeLocalDns(app, 'node-local-dns', { serviceIpv6Cidr: ipv6Cidr });
+  }
+
   const fluentbit = new FluentBit(app, 'fluentbit', {
     saName: cfnOutputs[CfnOutputKeys.FluentBitServiceAccountName],
     clusterName: ClusterName,
