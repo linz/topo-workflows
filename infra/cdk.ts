@@ -1,6 +1,6 @@
 import { App } from 'aws-cdk-lib';
 
-import { ClusterName } from './constants.js';
+import { ClusterName, DefaultRegion } from './constants.js';
 import { tryGetContextArns } from './eks/arn.js';
 import { LinzEksCluster } from './eks/cluster.js';
 import { fetchSsmParameters } from './util/ssm.js';
@@ -22,7 +22,7 @@ async function main(): Promise<void> {
   }
 
   new LinzEksCluster(app, ClusterName, {
-    env: { region: 'ap-southeast-2', account: accountId },
+    env: { region: DefaultRegion, account: accountId },
     maintainerRoleArns,
     slackChannelConfigurationName: slackSsmConfig.slackChannelConfigurationName,
     slackWorkspaceId: slackSsmConfig.slackWorkspaceId,

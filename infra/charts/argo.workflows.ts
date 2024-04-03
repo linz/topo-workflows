@@ -2,7 +2,7 @@ import { Chart, ChartProps, Duration, Helm } from 'cdk8s';
 import { Secret } from 'cdk8s-plus-27';
 import { Construct } from 'constructs';
 
-import { ArgoDbName, ArgoDbUser } from '../constants.js';
+import { ArgoDbName, ArgoDbUser, DefaultRegion } from '../constants.js';
 import { applyDefaultLabels } from '../util/labels.js';
 
 export interface ArgoWorkflowsProps {
@@ -65,7 +65,7 @@ export class ArgoWorkflows extends Chart {
         bucket: props.tempBucketName,
         keyFormat:
           '{{workflow.creationTimestamp.Y}}-{{workflow.creationTimestamp.m}}/{{workflow.creationTimestamp.d}}-{{workflow.name}}/{{pod.name}}',
-        region: 'ap-southeast-2',
+        region: DefaultRegion,
         endpoint: 's3.amazonaws.com',
         useSDKCreds: true,
         insecure: false,

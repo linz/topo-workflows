@@ -1,15 +1,17 @@
-/* Cluster name */
+/** Cluster name */
 export const ClusterName = 'Workflows';
-/* LINZ conventional name for Argo Workflows artifact bucket */
+/** LINZ conventional name for Argo Workflows artifact bucket */
 export const ScratchBucketName = `linz-${ClusterName.toLowerCase()}-scratch`;
-/* Argo Database Instance name */
+/** Argo Database Instance name */
 export const ArgoDbInstanceName = 'ArgoDb';
-/* Argo Database name */
+/** Argo Database name */
 export const ArgoDbName = 'argo';
-/* Argo Database user */
+/** Argo Database user */
 export const ArgoDbUser = 'argo_user';
+/** AWS default region for our stack */
+export const DefaultRegion = 'ap-southeast-2';
 
-/* CloudFormation Output to access from CDK8s */
+/** CloudFormation Output to access from CDK8s */
 export const CfnOutputKeys = {
   ClusterEndpoint: 'ClusterEndpoint',
 
