@@ -9,6 +9,11 @@ export interface NodeLocalDnsProps extends ChartProps {
   /** cluster networking configuration */
   serviceIpv6Cidr: string;
 
+  /**
+   *  bind the node-local-dns to a top level suffix on the {@link serviceIpv6Cidr}
+   *
+   * @defaultValue "ffaa"
+   */
   bindAddressSuffix?: string;
 }
 
@@ -23,20 +28,11 @@ export class NodeLocalDns extends Chart {
 
     const serviceBaseAddress = props.serviceIpv6Cidr.slice(0, props.serviceIpv6Cidr.lastIndexOf('/'));
 
-    const bindAddress = serviceBaseAddress + '::' + bindAddressSuffix;
-    const upstreamDns = serviceBaseAddress + '::a'; // TODO is this always `::a` ?
-
-    const serviceAccount = new kplus.ServiceAccount(this, 'node-local-dns-sa', {
-      metadata: {
-        name: 'node-local-dns',
-        namespace: 'kube-system',
-        labels: { 'kubernetes.io/cluster-service': 'true' },
-      },
-    });
+    const bindAddress = serviceBaseAddress + bindAddressSuffix;
+    const upstreamDns = serviceBaseAddress + 'a'; // TODO is this always `::a` ?
 
     const dnsUpstream = new kplus.Service(this, 'kube-dns-upstream', {
       metadata: {
-        namespace: 'kube-system',
         name: 'kube-dns-upstream',
         labels: {
           'kubernetes.io/cluster-service': 'true',
@@ -51,28 +47,29 @@ export class NodeLocalDns extends Chart {
       selector: kplus.Pods.select(this, 'kube-dns-upstream-pods', { labels: { 'k8s-app': 'kube-dns' } }),
     });
 
-    const cm = new kplus.ConfigMap(this, 'node-local-dns-config', {
-      metadata: { name: 'node-local-dns', namespace: 'kube-system' },
+    const configMap = new kplus.ConfigMap(this, 'node-local-dns-config', {
+      metadata: { name: 'node-local-dns' },
       data: {
         Corefile: generateCorefile({ bindAddress: bindAddress, upstreamAddress: upstreamDns }),
       },
     });
 
-    const kubeDnsConfig = kplus.ConfigMap.fromConfigMapName(this, 'kube-dns-config-map', 'kube-dns');
-
     const ds = new kplus.DaemonSet(this, 'node-local-dns-daemon', {
       metadata: {
         name: 'node-local-dns',
-        namespace: 'kube-system',
         labels: { 'kubernetes.io/cluster-service': 'true' },
       },
 
-      serviceAccount,
+      serviceAccount: new kplus.ServiceAccount(this, 'node-local-dns-sa', {
+        metadata: {
+          name: 'node-local-dns',
+          labels: { 'kubernetes.io/cluster-service': 'true' },
+        },
+      }),
       securityContext: { ensureNonRoot: false },
       dns: { policy: kplus.DnsPolicy.DEFAULT },
       hostNetwork: true,
       podMetadata: {},
-
       containers: [
         {
           name: 'node-cache',
@@ -97,20 +94,13 @@ export class NodeLocalDns extends Chart {
             // { name: 'dns-tcp', protocol: kplus.Protocol.TCP, number: 53 }, // TODO this is broken, see JSONPatch
             { name: 'metrics', protocol: kplus.Protocol.TCP, number: 9253 },
           ],
-          liveness: kplus.Probe.fromHttpGet('/health', { port: 8080 /* TODO:  host: bindAddress */ }),
+          liveness: kplus.Probe.fromHttpGet('/health', { port: 8080 /* TODO:  host: bindAddress, see JSONPatch*/ }),
           volumeMounts: [
             {
               path: '/etc/coredns',
-              volume: kplus.Volume.fromConfigMap(this, 'config-volume', cm, {
+              volume: kplus.Volume.fromConfigMap(this, 'config-volume', configMap, {
                 name: 'node-local-dns',
                 items: { Corefile: { path: 'Corefile.base' } },
-              }),
-            },
-            {
-              path: '/etc/kube-dns',
-              volume: kplus.Volume.fromConfigMap(this, 'kube-dns-config', kubeDnsConfig, {
-                optional: true,
-                name: 'kube-dns',
               }),
             },
             {
@@ -141,6 +131,13 @@ export class NodeLocalDns extends Chart {
       }),
       // Unable to set the security context
       JsonPatch.replace('/spec/template/spec/containers/0/securityContext', { capabilities: { add: ['NET_ADMIN'] } }),
+
+      // Force the tolerations on to the pod
+      JsonPatch.add('/spec/template/spec/tolerations', [
+        { key: 'CriticalAddonsOnly', operator: 'Exists' },
+        { effect: 'NoExecute', operator: 'Exists' },
+        { effect: 'NoSchedule', operator: 'Exists' },
+      ]),
     );
   }
 }

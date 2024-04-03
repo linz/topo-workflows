@@ -42,7 +42,8 @@ async function main(): Promise<void> {
   if (UseNodeLocalDns) {
     const ipv6Cidr = clusterConfig.kubernetesNetworkConfig?.serviceIpv6Cidr;
     if (ipv6Cidr == null) throw new Error('Unable to use node-local-dns without ipv6Cidr');
-    new NodeLocalDns(app, 'node-local-dns', { serviceIpv6Cidr: ipv6Cidr });
+    const nodeLocal = new NodeLocalDns(app, 'node-local-dns', { serviceIpv6Cidr: ipv6Cidr });
+    nodeLocal.addDependency(coredns);
   }
 
   const fluentbit = new FluentBit(app, 'fluentbit', {

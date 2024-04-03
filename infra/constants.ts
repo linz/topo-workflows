@@ -14,7 +14,7 @@ export const ArgoDbUser = 'argo_user';
  *
  * @see ./charts/kube-system.coredns.ts
  */
-export const UseNodeLocalDns = false;
+export const UseNodeLocalDns = true;
 
 /* CloudFormation Output to access from CDK8s */
 export const CfnOutputKeys = {
