@@ -40,6 +40,14 @@ spec:
         description: Ticket ID e.g. 'AIP-55'
         value: ''
 
+      - name: preset
+        description: Import preset configuration, WebP for 4 band RGBA LERC for 1 band DEM/DSM
+        value: 'lerc_10mm'
+        enum:
+          - 'webp'
+          - 'lerc_10mm'
+          - 'lerc_1m'
+
       - name: region
         description: Region of the dataset
         value: 'new-zealand'
@@ -67,7 +75,7 @@ spec:
 
       - name: source
         description: Source imagery location "s3://linz-imagery"
-        value: 's3://linz-imagery-staging/test/sample/'
+        value: 's3://nz-elevation/canterbury/banks-peninsula_2023/dsm_1m/2193/'
 
       - name: create_pull_request
         description: 'Create pull request after importing imagery.'
@@ -78,20 +86,22 @@ spec:
           - 'none'
 
       - name: category
-        value: 'Rural Aerial Photos'
+        value: 'Elevation'
         enum:
           - 'Rural Aerial Photos'
           - 'Urban Aerial Photos'
           - 'Scanned Aerial Imagery'
           - 'Satellite Imagery'
           - 'Event'
+          - 'Elevation'
 
       - name: target
         description: Target location for output COGs
-        value: 's3://linz-basemaps/'
+        value: 's3://linz-workflowsnp-scratch/2024-04/elevation/'
         enum:
           - 's3://linz-basemaps/'
           - 's3://linz-basemaps-staging/'
+          - 's3://linz-workflowsnp-scratch/2024-04/elevation/'
 
       - name: tile_matrix
         description: Output tile matrix, ";" separated list
@@ -120,6 +130,7 @@ spec:
         parameters:
           - name: source
           - name: target
+          - name: preset
           - name: tile_matrix
           - name: cutline
           - name: cutline_blend
@@ -136,6 +147,8 @@ spec:
                   value: '{{ inputs.parameters.source }}'
                 - name: target
                   value: '{{ inputs.parameters.target }}'
+                - name: preset
+                  value: '{{ inputs.parameters.preset }}'
                 - name: tile_matrix
                   value: '{{ item }}'
                 - name: cutline
@@ -163,6 +176,7 @@ spec:
           - name: cutline
           - name: cutline_blend
           - name: group_size
+          - name: preset
       dag:
         tasks:
           # generate a tile covering from the source imagery
@@ -174,6 +188,8 @@ spec:
                   value: '{{ inputs.parameters.source }}'
                 - name: target
                   value: '{{ inputs.parameters.target }}'
+                - name: preset
+                  value: '{{ inputs.parameters.preset }}'
                 - name: tile_matrix
                   value: '{{ inputs.parameters.tile_matrix }}'
                 - name: cutline
@@ -210,6 +226,7 @@ spec:
                 - name: covering_grouped
                   from: '{{ tasks.group.outputs.artifacts.output }}'
 
+          # TODO: overviews are only supported in RGBA pipelines
           # once all COGs are created generate a more overviews to increase tile rendering performance
           - name: create-overview
             template: create-overview
@@ -250,6 +267,7 @@ spec:
           - name: tile_matrix
           - name: cutline
           - name: cutline_blend
+          - name: preset
       container:
         image: ghcr.io/linz/basemaps/cli:{{ workflow.parameters.version_basemaps_cli }}
         resources:
@@ -261,6 +279,7 @@ spec:
             value: s3://linz-bucket-config/config.basemaps.json
         args:
           - 'cover'
+          - '--preset={{ inputs.parameters.preset }}'
           - '--tile-matrix={{ inputs.parameters.tile_matrix }}'
           - "{{= sprig.empty(inputs.parameters.cutline) ? '' : '--cutline=' + inputs.parameters.cutline }}"
           - '--cutline-blend={{ inputs.parameters.cutline_blend }}'
@@ -380,10 +399,8 @@ spec:
                 name: github-linz-li-bot-pat
                 key: pat
         args:
-          [
-            'bmc',
-            'create-pr',
-            '--target={{inputs.parameters.target}}',
-            "--individual={{= workflow.parameters.create_pull_request == 'individual'? 'true' : 'false' }}",
-            '--category={{workflow.parameters.category}}',
-          ]
+          -  'bmc'
+          -  'create-pr'
+          -  '--target={{inputs.parameters.target}}'
+          -  "--individual={{= workflow.parameters.create_pull_request == 'individual'? 'true' : 'false' }}"
+          -  '--category={{workflow.parameters.category}}'
