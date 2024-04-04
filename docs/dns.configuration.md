@@ -69,7 +69,7 @@ Depending on the container you may have access to scripting languages.
 
 #### NodeJS
 
-create a new file  `index.mjs`
+create a new file `index.mjs`
 
 ```javascript
 fetch('https://google.com').then((c) => console.log(c));
@@ -80,7 +80,7 @@ console.log(await dns.resolve('google.com', 'A'));
 console.log(await dns.resolve('google.com', 'AAAA'));
 ```
 
-Run the file 
+Run the file
 
 ```bash
 node --version

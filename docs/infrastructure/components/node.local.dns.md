@@ -12,7 +12,7 @@ If DNS problems occur while node local dns is running, it is recommended to turn
 
 ## Watching DNS requests
 
-By default the DNS cache will log any external DNS requests it is resolving (anything that is not ending with `.cluster.local`) since there can be a large number of dns cache pods  the following command will tail the logs from 
+By default the DNS cache will log any external DNS requests it is resolving (anything that is not ending with `.cluster.local`) since there can be a large number of dns cache pods the following command will tail the logs from
 
 ```
 kubectl logs -n kube-system --all-containers=true -f daemonset/node-local-dns --since=1m --timestamps=true --prefix=true
@@ -20,23 +20,23 @@ kubectl logs -n kube-system --all-containers=true -f daemonset/node-local-dns --
 
 ### Structured logs
 
-coredns does not by provide a simple way of constructing a structured log from the DNS request, it does provide a template system which can be used to craft a JSON log line, if the log line is in structured format like JSON it can be more easily processed into something like elasticsearch for additional debugging 
+coredns does not by provide a simple way of constructing a structured log from the DNS request, it does provide a template system which can be used to craft a JSON log line, if the log line is in structured format like JSON it can be more easily processed into something like elasticsearch for additional debugging
 
 For the current log format see `CoreFileJsonLogFormat` and below is a example log request
 
 ```json
 {
-    "remoteIp": "[2406:da1c:afb:bc0b:d0e3::6]",
-    "remotePort": 43621,
-    "protocol": "udp",
-    "queryId": "14962",
-    "queryType": "A",
-    "queryClass": "IN",
-    "queryName": "logs.ap-southeast-2.amazonaws.com.",
-    "querySize": 51,
-    "dnsSecOk": "false",
-    "responseCode": "NOERROR",
-    "responseFlags": "qr,rd,ra",
-    "responseSize": 443
+  "remoteIp": "[2406:da1c:afb:bc0b:d0e3::6]",
+  "remotePort": 43621,
+  "protocol": "udp",
+  "queryId": "14962",
+  "queryType": "A",
+  "queryClass": "IN",
+  "queryName": "logs.ap-southeast-2.amazonaws.com.",
+  "querySize": 51,
+  "dnsSecOk": "false",
+  "responseCode": "NOERROR",
+  "responseFlags": "qr,rd,ra",
+  "responseSize": 443
 }
 ```
