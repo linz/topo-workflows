@@ -15,7 +15,7 @@ k exec -n :namespace -it :podName -- /bin/bash
 Install basic dns utils `dig` `ping` `wget` and `curl`
 
 ```bash
-apt install dnsutils iptools-ping wget curl
+apt update && apt install dnsutils wget curl -y
 ```
 
 ### Name resolution
@@ -69,18 +69,24 @@ Depending on the container you may have access to scripting languages.
 
 #### NodeJS
 
-file: index.mjs
+create a new file  `index.mjs`
 
 ```javascript
 fetch('https://google.com').then((c) => console.log(c));
 
 import * as dns from 'dns/promises';
 
-await dns.resolve('google.com', 'A');
-await dns.resolve('google.com', 'AAAA');
+console.log(await dns.resolve('google.com', 'A'));
+console.log(await dns.resolve('google.com', 'AAAA'));
 ```
+
+Run the file 
 
 ```bash
 node --version
 node index.mjs
 ```
+
+## Node Local DNS
+
+A local DNS cache is running on every node, [node-local-dns](./infrastructure/components/node.local.dns.md) if any DNS issues occur it is recommended to turn the DNS cache off as a first step for debugging
