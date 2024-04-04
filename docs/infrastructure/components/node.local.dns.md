@@ -20,7 +20,7 @@ kubectl logs -n kube-system --all-containers=true -f daemonset/node-local-dns --
 
 ### Structured logs
 
-coredns does not by provide a simple way of constructing a structured log from the DNS request, it does provide a template system which can be used to craft a JSON log line, if the log line is in structured format like JSON it can be more easily processed into something like elasticsearch for additional debugging
+`coredns` does not provide a simple way of constructing a structured log from the DNS request, it does provide a template system which can be used to craft a JSON log line, if the log line is in structured format like JSON it can be more easily processed into something like elasticsearch for additional debugging.
 
 For the current log format see `CoreFileJsonLogFormat` and below is a example log request
 
