@@ -142,6 +142,13 @@ export class NodeLocalDns extends Chart {
   }
 }
 
+/**
+ * Generate a node-local-dns cache Corefile
+ *
+ * Taken from https://github.com/kubernetes/kubernetes/blob/master/cluster/addons/dns/nodelocaldns/nodelocaldns.yaml#L56
+ * @param ctx addresses to replace
+ * @returns coredns's CoreFile configuration for node local dns
+ */
 function generateCorefile(ctx: { bindAddress: string; upstreamAddress: string }): string {
   // __PILLAR___ keys are replaced automatically by the node local dns pod
   return `cluster.local:53 {
@@ -158,7 +165,7 @@ function generateCorefile(ctx: { bindAddress: string; upstreamAddress: string })
       }
       prometheus :9253
       health [${ctx.bindAddress}]:8080
-      }
+  }
     
   in-addr.arpa:53 {
       errors
@@ -170,7 +177,7 @@ function generateCorefile(ctx: { bindAddress: string; upstreamAddress: string })
               force_tcp
       }
       prometheus :9253
-      }
+  }
       
   ip6.arpa:53 {
       errors
@@ -182,7 +189,7 @@ function generateCorefile(ctx: { bindAddress: string; upstreamAddress: string })
               force_tcp
       }
       prometheus :9253
-      }
+  }
     
   .:53 {
       log . ${CoreFileJsonLogFormat}
