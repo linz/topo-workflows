@@ -9,6 +9,13 @@ export const ArgoDbName = 'argo';
 /* Argo Database user */
 export const ArgoDbUser = 'argo_user';
 
+/**
+ * Should NodeLocal DNS be enabled for the cluster
+ *
+ * @see ./charts/kube-system.coredns.ts
+ */
+export const UseNodeLocalDns = true;
+
 /* CloudFormation Output to access from CDK8s */
 export const CfnOutputKeys = {
   ClusterEndpoint: 'ClusterEndpoint',

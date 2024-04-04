@@ -4,6 +4,9 @@ import { Construct } from 'constructs';
 
 import { applyDefaultLabels } from '../util/labels.js';
 
+/** Configure CoreDNS to output a JSON object for its log files */
+export const CoreFileJsonLogFormat = `{"remoteIp":"{remote}","remotePort":{port},"protocol":"{proto}","queryId":"{>id}","queryType":"{type}","queryClass":"{class}","queryName":"{name}","querySize":{size},"dnsSecOk":"{>do}","responseCode":"{rcode}","responseFlags":"{>rflags}","responseSize":{rsize}}`;
+
 /**
  * This cluster is setup as dual ipv4/ipv6 where ipv4 is used for external traffic
  * and ipv6 for internal traffic.
@@ -36,7 +39,7 @@ export class CoreDns extends Chart {
         // FIXME: is there a better way of handling config files inside of cdk8s
         Corefile: `
 cluster.local:53 {
-    log
+    log . ${CoreFileJsonLogFormat}
     errors
     health
     kubernetes cluster.local in-addr.arpa ip6.arpa {
@@ -53,7 +56,7 @@ cluster.local:53 {
 }
 
 .:53 {
-    log
+    log . ${CoreFileJsonLogFormat}
     errors
     health
     template ANY AAAA {
