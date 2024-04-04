@@ -12,10 +12,16 @@ Start a shell on the container
 k exec -n :namespace -it :podName -- /bin/bash
 ```
 
-Install basic dns utils `dig` `ping` `wget` and `curl`
+Install basic networking utils `dig`, `ping`, `ping6`, `wget`, `nslookup`, and `curl`
 
 ```bash
-apt update && apt install dnsutils wget curl -y
+apt update && apt install -y dnsutils iputils-ping wget curl
+```
+
+Other useful tools may include `tracepath`, `traceroute` and `mtr`
+
+```bash
+apt update && apt install -y iputils-tracepath mtr traceroute
 ```
 
 ### Name resolution
