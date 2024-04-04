@@ -22,7 +22,7 @@ spec:
       - name: include
         value: ''
       - name: exclude
-        value: 'nz-satellite'
+        value: 'new-zealand'
   templateDefaults:
     container:
       imagePullPolicy: Always
