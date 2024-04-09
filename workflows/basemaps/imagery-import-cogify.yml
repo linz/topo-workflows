@@ -30,7 +30,7 @@ spec:
     parameters:
       - name: version_basemaps_cli
         description: Version of the basemaps CLI docker container to use
-        value: V7
+        value: v7
 
       - name: version_argo_tasks
         description: Version of the basemaps CLI docker container to use
