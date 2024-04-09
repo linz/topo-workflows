@@ -72,7 +72,7 @@ export class NodeLocalDns extends Chart {
       podMetadata: {},
       containers: [
         {
-          name: 'node-cache',
+          name: 'node-local-dns',
           securityContext: {
             ensureNonRoot: false,
             allowPrivilegeEscalation: true,
