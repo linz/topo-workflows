@@ -20,7 +20,7 @@ spec:
       name: basemaps-vector-etl
     arguments:
       parameters:
-        - filename:
+        - name: 'filename'
           value: 'topographic'
         - name: 'retry'
           value: '2'
