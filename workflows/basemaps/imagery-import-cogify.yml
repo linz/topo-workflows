@@ -30,11 +30,11 @@ spec:
     parameters:
       - name: version_basemaps_cli
         description: Version of the basemaps CLI docker container to use
-        value: v6
+        value: v7
 
       - name: version_argo_tasks
         description: Version of the basemaps CLI docker container to use
-        value: v2
+        value: v3
 
       - name: ticket
         description: Ticket ID e.g. 'AIP-55'
