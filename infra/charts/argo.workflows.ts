@@ -147,6 +147,8 @@ export class ArgoWorkflows extends Chart {
                 },
               ],
               parallelism: 3,
+              // FIXME: `nodeAntiAffinity` - to retry on different node - is not working yet (https://github.com/argoproj/argo-workflows/pull/12701)
+              retryStrategy: { limit: 2, affinity: { nodeAntiAffinity: {} } },
             },
           },
         },

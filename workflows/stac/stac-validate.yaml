@@ -68,8 +68,6 @@ spec:
             valueFrom:
               path: /tmp/file_list.json
     - name: stac-validate-collections
-      retryStrategy:
-        limit: '2'
       inputs:
         parameters:
           - name: file
