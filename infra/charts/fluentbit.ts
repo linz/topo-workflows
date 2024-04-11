@@ -82,6 +82,12 @@ HC_Period 5
           logGroupName: `/aws/eks/${props.clusterName}/logs`,
           logGroupTemplate: `/aws/eks/${props.clusterName}/workload/$kubernetes['namespace_name']`,
           logStreamPrefix: 'fb-',
+          /**
+           * Set the Fluent Bit idle timeout to 4 seconds.
+           * This helps reduce the rate of network errors in the logs.
+           * See: https://github.com/aws/aws-for-fluent-bit/issues/340
+           */
+          extraOutputs: `net.keepalive_idle_timeout 4s`,
         },
         firehose: { enabled: false },
         kinesis: { enabled: false },
@@ -94,11 +100,6 @@ HC_Period 5
           { key: 'karpenter.sh/capacity-type', operator: 'Equal', value: 'spot', effect: 'NoSchedule' },
           { key: 'kubernetes.io/arch', operator: 'Equal', value: 'arm64', effect: 'NoSchedule' },
         ],
-        /* To reduce the log volume being sent to CloudWatch (shipped to AWS s3 => storage cost),
-         tells Fluent Bit to not send the logs from the Fluent Bit application pods.
-         The Fluent Bit application pods have some (a lot!) network errors that are being logged.
-        */
-        annotations: { 'fluentbit.io/exclude': 'true' },
       },
     });
   }

@@ -130,7 +130,7 @@ export class ArgoWorkflows extends Chart {
           workflowNamespaces: ['argo'],
           extraArgs: [],
           // FIXME: workaround for https://github.com/argoproj/argo-workflows/issues/11657
-          extraEnv: [{ name: 'WATCH_CONFIGMAPS', value: 'false' }],
+          extraEnv: [{ name: 'WATCH_CONTROLLER_SEMAPHORE_CONFIGMAPS', value: 'false' }],
           persistence,
           replicas: 2,
           workflowDefaults: {
@@ -147,6 +147,8 @@ export class ArgoWorkflows extends Chart {
                 },
               ],
               parallelism: 3,
+              // FIXME: `nodeAntiAffinity` - to retry on different node - is not working yet (https://github.com/argoproj/argo-workflows/pull/12701)
+              retryStrategy: { limit: 2, affinity: { nodeAntiAffinity: {} } },
             },
           },
         },

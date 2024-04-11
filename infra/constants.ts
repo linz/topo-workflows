@@ -11,6 +11,13 @@ export const ArgoDbUser = 'argo_user';
 /** AWS default region for our stack */
 export const DefaultRegion = 'ap-southeast-2';
 
+/**
+ * Should NodeLocal DNS be enabled for the cluster
+ *
+ * @see ./charts/kube-system.coredns.ts
+ */
+export const UseNodeLocalDns = true;
+
 /** CloudFormation Output to access from CDK8s */
 export const CfnOutputKeys = {
   ClusterEndpoint: 'ClusterEndpoint',

@@ -14,7 +14,7 @@ spec:
   arguments:
     parameters:
       - name: version_argo_tasks
-        value: 'v2'
+        value: 'v3'
       - name: layer
         value: '104687'
       - name: config
@@ -22,7 +22,7 @@ spec:
       - name: include
         value: ''
       - name: exclude
-        value: 'nz-satellite'
+        value: 'new-zealand'
   templateDefaults:
     container:
       imagePullPolicy: Always

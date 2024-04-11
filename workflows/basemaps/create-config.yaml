@@ -30,8 +30,6 @@ spec:
                 - name: location
                   value: '{{workflow.parameters.location}}'
     - name: create-config
-      retryStrategy:
-        limit: '2'
       inputs:
         parameters:
           - name: location

@@ -51,8 +51,6 @@ spec:
               path: '/tmp/imagery.json'
 
     - name: create-overview
-      retryStrategy:
-        limit: '2'
       inputs:
         parameters:
           - name: source

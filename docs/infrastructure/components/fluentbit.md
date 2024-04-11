@@ -46,7 +46,11 @@ The Fluent Bit application version is stored in `appVersion` but this is only he
 
 ## Troubleshooting
 
-[Guide to Debugging Fluent Bit issues](https://github.com/aws/aws-for-fluent-bit/blob/mainline/troubleshooting/debugging.md)
+### Resources
+
+- [Guide to Debugging Fluent Bit issues](https://github.com/aws/aws-for-fluent-bit/blob/mainline/troubleshooting/debugging.md)
+- [2023 High Impact Issues Notice/Catalogue Ticket](https://github.com/aws/aws-for-fluent-bit/issues/542)
+- [Recommended Cloudwatch_Logs Configuration](https://github.com/aws/aws-for-fluent-bit/issues/340)
 
 ### Basic checks
 
