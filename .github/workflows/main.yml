@@ -79,8 +79,7 @@ jobs:
           done
 
           # Finally lint the templates
-          ./argo-linux-amd64 lint templates/ -n "$GITHUB_SHA"
-          ./argo-linux-amd64 lint test/workflows/ -n "$GITHUB_SHA"
+          ./argo-linux-amd64 -n "$GITHUB_SHA" lint templates/ test/workflows/
 
       - name: Delete Test namespace
         if: always()
