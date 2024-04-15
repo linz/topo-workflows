@@ -275,9 +275,11 @@ spec:
           - 'false'
           - 'true'
       - name: target_bucket_name
+        value: ''
         enum:
           - 'nz-imagery'
           - 'nz-elevation'
+          - '' # FIXME workaround as `value` is required and has to be part of `enum`
       - name: copy_option
         value: '--no-clobber'
         enum:
