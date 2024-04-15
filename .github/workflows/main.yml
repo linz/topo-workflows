@@ -41,7 +41,7 @@ jobs:
 
       - name: Install Argo
         run: |
-          curl -sLO https://github.com/argoproj/argo-workflows/releases/download/v3.4.0-rc2/argo-linux-amd64.gz
+          curl -sLO https://github.com/argoproj/argo-workflows/releases/download/v3.5.5/argo-darwin-amd64.gz
           gunzip argo-linux-amd64.gz
           chmod +x argo-linux-amd64
           ./argo-linux-amd64 version
@@ -156,13 +156,6 @@ jobs:
         if: steps.get-infra-changes.outputs.run_infra == 'true'
         run: |
           kubectl apply -f dist/
-
-      - name: Install Argo
-        run: |
-          curl -sLO https://github.com/argoproj/argo-workflows/releases/download/v3.4.0-rc2/argo-linux-amd64.gz
-          gunzip argo-linux-amd64.gz
-          chmod +x argo-linux-amd64
-          ./argo-linux-amd64 version
 
       - name: Deploy workflows
         if: github.ref == 'refs/heads/master'
