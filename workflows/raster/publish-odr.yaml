@@ -58,7 +58,6 @@ spec:
       - name: source
         value: 's3://linz-imagery-staging/test/sample/'
       - name: target_bucket_name
-        value: ''
         enum:
           - 'nz-elevation'
           - 'nz-imagery'
