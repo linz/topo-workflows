@@ -1,4 +1,6 @@
 on: [push]
+env:
+  CLUSTER_NAME: Workflows
 
 jobs:
   main:
@@ -13,6 +15,80 @@ jobs:
       - name: Run actionlint to check workflow files
         run: docker run --volume="${PWD}:/repo" --workdir=/repo actionlint -color
 
+        # Configure access to AWS / EKS
+      - name: Setup kubectl
+        uses: azure/setup-kubectl@901a10e89ea615cf61f57ac05cecdf23e7de06d8 # v3
+        with:
+          version: 'latest'
+
+      - name: AWS Configure
+        uses: aws-actions/configure-aws-credentials@010d0da01d0b5a38af31e9c3470dbfdabdecca3a # v4
+        with:
+          aws-region: ap-southeast-2
+          mask-aws-account-id: true
+          role-to-assume: ${{ secrets.AWS_CI_ROLE }}
+
+      - name: Login to EKS
+        run: |
+          aws eks update-kubeconfig --name ${{ env.CLUSTER_NAME }} --region ap-southeast-2
+
+      - name: Check EKS connection
+        run: |
+          kubectl get nodes
+
+      - name: Install Argo
+        run: |
+          curl -sLO https://github.com/argoproj/argo-workflows/releases/download/v3.4.0-rc2/argo-linux-amd64.gz
+          gunzip argo-linux-amd64.gz
+          chmod +x argo-linux-amd64
+          ./argo-linux-amd64 version
+
+      - name: Lint workflows
+        if: github.ref != 'refs/heads/master'
+        run: |
+          # Create test namespace
+          kubectl create namespace "$GITHUB_SHA"
+
+          # Create copy of Workflows files to change their namespaces
+          mkdir test
+          cp -r workflows/ test/workflows/ 
+
+          # Deploy templates in the test namespace
+          # Note: the templates have no default namespace so no need to modify them
+          kubectl apply -f templates/argo-tasks/ --namespace "$GITHUB_SHA"
+
+          # Find all workflows that have kind "WorkflowTemplate"
+          WORKFLOWS=$(grep -R -H '^kind: WorkflowTemplate$' test/workflows/ | cut -d ':' -f1)
+          # For each workflow template attempt to deploy it using kubectl
+          for wf in $WORKFLOWS; do
+              # Change namespace in files
+              sed -i "/^\([[:space:]]*namespace: \).*/s//\1$GITHUB_SHA/" "$wf"
+              kubectl apply -f "$wf" --namespace "$GITHUB_SHA"
+          done
+
+          # Find all cron workflows that have kind "CronWorkflow"
+          CRON_WORKFLOWS=$(grep -R -H '^kind: CronWorkflow$' test/workflows/ | cut -d ':' -f1)
+          # For each cron workflow attempt to deploy it using kubectl
+          for cwf in $CRON_WORKFLOWS; do
+            # Change namespace in files
+              sed -i "/^\([[:space:]]*namespace: \).*/s//\1$GITHUB_SHA/" "$cwf"
+              kubectl apply -f "$cwf" --namespace "$GITHUB_SHA"
+          done
+
+          # Finally lint the templates
+          ./argo-linux-amd64 lint templates/ -n "$GITHUB_SHA"
+          ./argo-linux-amd64 lint test/workflows/ -n "$GITHUB_SHA"
+
+      - name: Delete Test namespace
+        if: always()
+        run: |
+          # Delete the test namespace
+          stderr_tmp="$(mktemp --directory)/stderr"
+          if ! kubectl delete namespaces "$GITHUB_SHA" 2> >(tee "$stderr_tmp" >&2)
+          then 
+              grep -q 'Error from server (NotFound): namespaces ".*" not found' "$stderr_tmp"
+          fi
+
   deploy-prod:
     runs-on: ubuntu-latest
     concurrency: deploy-prod-${{ github.ref }}
@@ -25,9 +101,6 @@ jobs:
     permissions:
       id-token: write
       contents: read
-
-    env:
-      CLUSTER_NAME: Workflows
 
     steps:
       - uses: linz/action-typescript@9bf69b0f313b3525d3ba3116f26b1aff7eb7a6c0 # v3.1.0
@@ -91,52 +164,6 @@ jobs:
           gunzip argo-linux-amd64.gz
           chmod +x argo-linux-amd64
           ./argo-linux-amd64 version
-
-      - name: Lint workflows
-        if: github.ref != 'refs/heads/master'
-        run: |
-          # Create test namespace
-          kubectl create namespace "$GITHUB_SHA"
-
-          # Create copy of Workflows files to change their namespaces
-          mkdir test
-          cp -r workflows/ test/workflows/ 
-
-          # Deploy templates in the test namespace
-          # Note: the templates have no default namespace so no need to modify them
-          kubectl apply -f templates/argo-tasks/ --namespace "$GITHUB_SHA"
-
-          # Find all workflows that have kind "WorkflowTemplate"
-          WORKFLOWS=$(grep -R -H '^kind: WorkflowTemplate$' test/workflows/ | cut -d ':' -f1)
-          # For each workflow template attempt to deploy it using kubectl
-          for wf in $WORKFLOWS; do
-              # Change namespace in files
-              sed -i "/^\([[:space:]]*namespace: \).*/s//\1$GITHUB_SHA/" "$wf"
-              kubectl apply -f "$wf" --namespace "$GITHUB_SHA"
-          done
-
-          # Find all cron workflows that have kind "CronWorkflow"
-          CRON_WORKFLOWS=$(grep -R -H '^kind: CronWorkflow$' test/workflows/ | cut -d ':' -f1)
-          # For each cron workflow attempt to deploy it using kubectl
-          for cwf in $CRON_WORKFLOWS; do
-            # Change namespace in files
-              sed -i "/^\([[:space:]]*namespace: \).*/s//\1$GITHUB_SHA/" "$cwf"
-              kubectl apply -f "$cwf" --namespace "$GITHUB_SHA"
-          done
-
-          # Finally lint the templates
-          ./argo-linux-amd64 lint templates/ -n "$GITHUB_SHA"
-          ./argo-linux-amd64 lint test/workflows/ -n "$GITHUB_SHA"
-
-      - name: Delete Test namespace
-        if: always()
-        run: |
-          # Delete the test namespace
-          stderr_tmp="$(mktemp --directory)/stderr"
-          if ! kubectl delete namespaces "$GITHUB_SHA" 2> >(tee "$stderr_tmp" >&2)
-          then 
-              grep -q 'Error from server (NotFound): namespaces ".*" not found' "$stderr_tmp"
-          fi
 
       - name: Deploy workflows
         if: github.ref == 'refs/heads/master'
