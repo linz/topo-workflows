@@ -84,6 +84,9 @@ jobs:
         if: steps.get-infra-changes.outputs.run_infra == 'true'
         run: |
           kubectl apply -f dist/
+          # FIXME since `WATCH_CONTROLLER_SEMAPHORE_CONFIGMAPS=false` we need to restart argo-workflow-controller
+          # to make sure ConfigMap changes are taken into account
+          kubectl rollout restart deployment argo-workflows-workflow-controller -n argo
 
       - name: Install Argo
         run: |
