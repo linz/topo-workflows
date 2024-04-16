@@ -18,7 +18,7 @@
   },
   "scripts": {
     "build": "tsc",
-    "lint": "npx eslint . --ignore-path .gitignore",
+    "lint": "npx eslint . --ignore-path .gitignore | argo lint --offline templates/ workflows/",
     "format": "npx prettier . -w",
     "test": "node --import tsx --test infra/**/*.test.ts"
   },
