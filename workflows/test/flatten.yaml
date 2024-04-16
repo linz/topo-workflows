@@ -4,7 +4,6 @@ apiVersion: argoproj.io/v1alpha1
 kind: WorkflowTemplate
 metadata:
   name: test-flatten
-  namespace: argo
   labels:
     linz.govt.nz/category: test
 spec:
