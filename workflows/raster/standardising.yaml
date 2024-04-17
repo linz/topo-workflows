@@ -278,6 +278,7 @@ spec:
         enum:
           - 'nz-imagery'
           - 'nz-elevation'
+          - ''
       - name: copy_option
         value: '--no-clobber'
         enum:
