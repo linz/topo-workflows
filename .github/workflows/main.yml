@@ -28,7 +28,7 @@ jobs:
       - name: Lint workflows
         if: github.ref != 'refs/heads/master'
         run: |
-          argo lint --offline templates/ workflows/
+          ./argo-linux-amd64 lint --offline templates/ workflows/
 
   deploy-prod:
     runs-on: ubuntu-latest
