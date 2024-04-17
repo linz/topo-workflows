@@ -4,7 +4,6 @@ apiVersion: argoproj.io/v1alpha1
 kind: WorkflowTemplate
 metadata:
   name: stac-validate
-  namespace: argo
   labels:
     linz.govt.nz/category: stac
 spec:
