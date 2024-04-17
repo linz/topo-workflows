@@ -123,7 +123,7 @@ graph TD;
     standardise-validate-->create-collection;
     standardise-validate-->create-overview;
     create-collection-->stac-validate-.->|publish_to_odr == true|publish-odr;
-    create-overview-->create-config-.->|publish_to_odr == true|publish-odr;
+    create-overview-.->|compression != dem_lerc|create-config-.->|publish_to_odr == true|publish-odr;
 ```
 
 ### [collection-id-setup](./standardising.yaml)

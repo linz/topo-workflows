@@ -377,7 +377,7 @@ spec:
             template: get-location
 
           - name: create-overview
-            when: "'{{workflow.parameters.target_epsg}}' =~ '2193|3857'"
+            when: "'{{workflow.parameters.target_epsg}}' =~ '2193|3857' && '{{workflow.parameters.compression}}' != 'dem_lerc'"
             arguments:
               parameters:
                 - name: location
