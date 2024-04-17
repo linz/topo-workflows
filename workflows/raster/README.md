@@ -121,9 +121,9 @@ graph TD;
     get-location-->standardise-validate;
     tileindex-validate-->standardise-validate;
     standardise-validate-->create-collection;
-    standardise-validate-.->|compression != dem_lerc|create-overview;
+    standardise-validate-->create-overview;
     create-collection-->stac-validate-.->|publish_to_odr == true|publish-odr;
-    create-overview-.->create-config-.->|publish_to_odr == true|publish-odr;
+    create-overview-->create-config-.->|publish_to_odr == true|publish-odr;
 ```
 
 ### [collection-id-setup](./standardising.yaml)
