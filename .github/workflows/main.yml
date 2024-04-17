@@ -1,9 +1,4 @@
 on: [push]
-env:
-  CLUSTER_NAME: Workflows
-permissions:
-  id-token: write
-  contents: read
 
 jobs:
   main:
@@ -26,7 +21,6 @@ jobs:
           ./argo-linux-amd64 version
 
       - name: Lint workflows
-        if: github.ref != 'refs/heads/master'
         run: |
           ./argo-linux-amd64 lint --offline templates/ workflows/
 
@@ -38,6 +32,13 @@ jobs:
 
     environment:
       name: prod
+
+    permissions:
+      id-token: write
+      contents: read
+
+    env:
+      CLUSTER_NAME: Workflows
 
     steps:
       - uses: linz/action-typescript@9bf69b0f313b3525d3ba3116f26b1aff7eb7a6c0 # v3.1.0
