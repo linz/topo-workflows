@@ -5,7 +5,7 @@ kind: WorkflowTemplate
 metadata:
   # Template from linz/argo-tasks
   # see https://github.com/linz/argo-tasks#group
-  name: tpl-at-group
+  name: tpl-at-groupabc
 spec:
   templateDefaults:
     container:
