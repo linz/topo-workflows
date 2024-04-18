@@ -82,7 +82,7 @@ spec:
           - '--scale={{= inputs.parameters.scale }}'
           - '--validate={{= inputs.parameters.validate }}'
           - '--retile={{= inputs.parameters.retile }}'
-          - '--preset={{= inputs.parameters.compression }}'
+          - '--preset={{= inputs.parameters.preset }}'
           - "{{= sprig.empty(inputs.parameters.source_epsg) ? '' : '--source-epsg=' + inputs.parameters.source_epsg }}"
           - "{{= sprig.empty(inputs.parameters.include) ? '' : '--include=' + inputs.parameters.include }}"
           - '{{= sprig.trim(inputs.parameters.source) }}'
