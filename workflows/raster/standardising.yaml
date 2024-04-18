@@ -575,7 +575,8 @@ spec:
         parameters:
           - name: location
       container:
-        image: 'ghcr.io/linz/basemaps/cli:{{=sprig.trim(workflow.parameters.version_basemaps_cli)}}'
+        # Basemaps v7+ has removed overview creation
+        image: 'ghcr.io/linz/basemaps/cli:v6'
         resources:
           requests:
             cpu: 3000m
