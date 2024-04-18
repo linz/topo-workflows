@@ -386,7 +386,7 @@ spec:
             depends: 'standardise-validate'
 
           - name: create-config
-            when: "'{{workflow.parameters.target_epsg}}' =~ '2193|3857' && '{{workflow.parameters.compression}}' != 'dem_lerc'"
+            when: "'{{workflow.parameters.target_epsg}}' =~ '2193|3857'"
             arguments:
               parameters:
                 - name: location
