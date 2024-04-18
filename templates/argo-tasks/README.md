@@ -178,7 +178,7 @@ See https://github.com/linz/argo-tasks#stac-github-import
 Template to build ODR target paths using collection metadata.
 See https://github.com/linz/argo-tasks#generate-paths
 
-## Template Usage
+### Template Usage
 
 ```yaml
 name: generate-path
@@ -193,4 +193,28 @@ arguments:
       value: '{{inputs.parameters.target_bucket_name}}'
     - name: source
       value: '{{inputs.parameters.source}}'
+```
+
+## argo-tasks/stac-validate
+
+Template to validate STAC Collections and Items against [STAC](https://stacspec.org/) schemas and STAC Extension schemas.
+See (https://github.com/linz/argo-tasks#stac-validate)
+
+### Template Usage
+
+```yaml
+- name: stac-validate
+  templateRef:
+    name: tpl-at-stac-validate
+    template: main
+  arguments:
+    parameters:
+      - name: uri
+        value: 's3://my-bucket/path/collection.json'
+      - name: checksum
+        value: '{{workflow.parameters.checksum}}'
+      - name: recursive
+        value: '{{workflow.parameters.recursive}}'
+      - name: concurrency
+        value: '20'
 ```
