@@ -1,10 +1,9 @@
-# yaml-language-server: $schema=https://raw.githubusercontent.com/argoproj/argo-workflows/v3.4.13/api/jsonschema/schema.json
+# yaml-language-server: $schema=https://raw.githubusercontent.com/argoproj/argo-workflows/v3.5.5/api/jsonschema/schema.json
 
 apiVersion: argoproj.io/v1alpha1
 kind: WorkflowTemplate
 metadata:
-  name: test-stac-validate-imagery-standardising
-  namespace: argo
+  name: imagery-standardising
   labels:
     linz.govt.nz/category: raster
     linz.govt.nz/data-type: raster
@@ -280,6 +279,7 @@ spec:
           - ''
           - 'nz-imagery'
           - 'nz-elevation'
+          - ''
       - name: copy_option
         value: '--no-clobber'
         enum:
@@ -389,7 +389,7 @@ spec:
             depends: 'standardise-validate'
 
           - name: create-config
-            when: "'{{workflow.parameters.target_epsg}}' =~ '2193|3857' && '{{workflow.parameters.compression}}' != 'dem_lerc'"
+            when: "'{{workflow.parameters.target_epsg}}' =~ '2193|3857'"
             arguments:
               parameters:
                 - name: location

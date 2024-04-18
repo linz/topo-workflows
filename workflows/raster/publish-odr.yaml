@@ -1,10 +1,9 @@
-# yaml-language-server: $schema=https://raw.githubusercontent.com/argoproj/argo-workflows/v3.4.13/api/jsonschema/schema.json
+# yaml-language-server: $schema=https://raw.githubusercontent.com/argoproj/argo-workflows/v3.5.5/api/jsonschema/schema.json
 
 apiVersion: argoproj.io/v1alpha1
 kind: WorkflowTemplate
 metadata:
-  name: test-publish-odr
-  namespace: argo
+  name: publish-odr
   labels:
     linz.govt.nz/category: raster
     linz.govt.nz/data-type: raster
@@ -62,6 +61,7 @@ spec:
         enum:
           - 'nz-elevation'
           - 'nz-imagery'
+          - ''
       - name: copy_option
         value: '--no-clobber'
         enum:
