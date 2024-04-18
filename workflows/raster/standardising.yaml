@@ -318,6 +318,8 @@ spec:
                   value: '{{= workflow.parameters.validate}}'
                 - name: retile
                   value: '{{= workflow.parameters.retile}}'
+                - name: preset
+                  value: '{{= workflow.parameters.compression}}'
                 - name: version
                   value: '{{= workflow.parameters.version_argo_tasks}}'
 

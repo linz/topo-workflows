@@ -39,6 +39,10 @@ spec:
             description: Output tile configuration for retiling
             default: 'false'
 
+          - name: preset
+            description: Compression type of dataset e.g. webp, lzw, dem_lerc
+            default: 'webp'
+
           - name: version
             description: container version to use
             default: 'v3'
@@ -78,6 +82,7 @@ spec:
           - '--scale={{= inputs.parameters.scale }}'
           - '--validate={{= inputs.parameters.validate }}'
           - '--retile={{= inputs.parameters.retile }}'
+          - '--preset={{= inputs.parameters.compression }}'
           - "{{= sprig.empty(inputs.parameters.source_epsg) ? '' : '--source-epsg=' + inputs.parameters.source_epsg }}"
           - "{{= sprig.empty(inputs.parameters.include) ? '' : '--include=' + inputs.parameters.include }}"
           - '{{= sprig.trim(inputs.parameters.source) }}'

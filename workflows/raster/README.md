@@ -133,7 +133,7 @@ If no input collection ID is provided a ULID is generated and used as the collec
 
 ### [tileindex-validate](https://github.com/linz/argo-tasks/blob/master/src/commands/tileindex-validate/)
 
-Lists tiffs from source input, validates they match a LINZ Mapsheet tile index and asserts that there will be no duplicates.
+Lists tiffs from source input, validates they match a LINZ Mapsheet tile index and asserts that there will be no duplicates. Checks `webp` files are 8-bit.
 
 ### [standardise-validate](https://github.com/linz/topo-imagery/blob/master/scripts/standardise_validate.py)
 
