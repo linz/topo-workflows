@@ -30,6 +30,10 @@ spec:
         description: output filename in s3
         value: 'topographic'
 
+      - name: title
+        description: title for the output data, which will populate in stac file
+        value: 'Topographic'
+
       - name: create_pull_request
         description: Should a pull request be created in linz/basemaps-config
         value: 'true'
@@ -82,6 +86,7 @@ spec:
           - "{{= workflow.parameters.filename == 'topographic'? '--all' : '--layer=' + workflow.parameters.filename }}"
           - '--target={{ workflow.parameters.target }}'
           - '--filename={{ workflow.parameters.filename }}'
+          - '--title={{ workflow.parameters.title }}'
           - '--output=/tmp/'
           - '--commit'
       outputs:

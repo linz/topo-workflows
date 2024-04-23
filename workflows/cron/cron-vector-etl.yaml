@@ -21,5 +21,7 @@ spec:
       parameters:
         - name: 'filename'
           value: 'topographic'
+        - name: 'title'
+          value: 'Topographic'
         - name: 'retry'
           value: '2'
