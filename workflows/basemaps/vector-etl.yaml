@@ -17,7 +17,7 @@ spec:
       
       - name: version_basemaps_etl
         description: Version of the Basemaps ETL eks container to use
-        value: 'v1.2'
+        value: 'v1'
 
       - name: target
         description: S3 Bucket to use for storing the output
