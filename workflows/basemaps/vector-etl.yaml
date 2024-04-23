@@ -86,6 +86,7 @@ spec:
           - "{{= workflow.parameters.filename == 'topographic'? '--all' : '--layer=' + workflow.parameters.filename }}"
           - '--target={{ workflow.parameters.target }}'
           - '--filename={{ workflow.parameters.filename }}'
+          - '--title={{ workflow.parameters.title }}'
           - '--output=/tmp/'
           - '--commit'
       outputs:
