@@ -371,10 +371,9 @@ spec:
                 name: github-linz-li-bot-pat
                 key: pat
         args:
-          [
-            'bmc',
-            'create-pr',
-            '--target={{inputs.parameters.target}}',
-            "--individual={{= workflow.parameters.create_pull_request == 'individual'? 'true' : 'false' }}",
-            '--category={{workflow.parameters.category}}',
-          ]
+          - 'bmc'
+          - 'create-pr'
+          - '--target={{inputs.parameters.target}}'
+          - '--ticket={{workflow.parameters.ticket}}'
+          - "--individual={{= workflow.parameters.create_pull_request == 'individual'? 'true' : 'false' }}"
+          - '--category={{workflow.parameters.category}}'
