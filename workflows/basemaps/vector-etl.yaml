@@ -17,7 +17,7 @@ spec:
       
       - name: version_basemaps_etl
         description: Version of the Basemaps ETL eks container to use
-        value: 'v1'
+        value: 'v1.2'
 
       - name: target
         description: S3 Bucket to use for storing the output
@@ -29,6 +29,10 @@ spec:
       - name: filename
         description: output filename in s3
         value: 'topographic'
+
+      - name: title
+        description: title for the output data, which will populate in stac file
+        value: 'Topographic'
 
       - name: create_pull_request
         description: Should a pull request be created in linz/basemaps-config
