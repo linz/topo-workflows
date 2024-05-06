@@ -62,6 +62,7 @@ Publishing to the AWS Registry of Open Data is an optional step [publish-odr](#P
 | retile                 | false                                                                             |
 | group                  | 50                                                                                |
 | compression            | webp                                                                              |
+| create_capture_area    | true                                                                              |
 | cutline                | s3://linz-imagery-staging/cutline/bay-of-plenty_2021-2022.fgb                     |
 | collection_id          | 01FP371BHWDSREECKQAH9E8XQ                                                         |
 | category               | rural-aerial-photos                                                               |
