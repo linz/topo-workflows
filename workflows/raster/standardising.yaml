@@ -509,6 +509,7 @@ spec:
         artifacts:
           - name: capture-area
             path: '/tmp/capture-area.geojson'
+            optional: true
             archive:
               none: {}
       container:
