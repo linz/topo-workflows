@@ -94,6 +94,11 @@ spec:
           - 'webp'
           - 'lzw'
           - 'dem_lerc'
+      - name: create_capture_area
+        value: 'true'
+        enum:
+          - 'false'
+          - 'true'
       - name: cutline
         description: '(Optional) location of a cutline file to cut the imagery to .fgb or .geojson'
         value: ''
@@ -482,6 +487,8 @@ spec:
           - '{{=sprig.trim(workflow.parameters.end_datetime)}}'
           - '--collection-id'
           - '{{inputs.parameters.collection-id}}'
+          - '--create-footprints'
+          - '{{workflow.parameters.create_capture_area}}'
           - '--cutline'
           - '{{=sprig.trim(workflow.parameters.cutline)}}'
           - '--source-epsg'
@@ -502,6 +509,7 @@ spec:
         artifacts:
           - name: capture-area
             path: '/tmp/capture-area.geojson'
+            optional: true
             archive:
               none: {}
       container:
