@@ -98,4 +98,4 @@ async function main(): Promise<void> {
   app.synth();
 }
 
-main();
+void main();
