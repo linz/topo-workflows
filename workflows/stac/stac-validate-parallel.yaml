@@ -20,9 +20,15 @@ spec:
         value: 's3://linz-imagery-staging/test/stac-validate/'
       - name: include
         value: 'collection.json$'
-      - name: checksum
-        description: 'Validate asset checksums.'
+      - name: checksum_assets
+        description: 'Validate the file:checksum of each asset if it exists'
         value: 'false'
+        enum:
+          - 'true'
+          - 'false'
+      - name: checksum_links
+        description: 'Validate the file:checksum of each link if it exists'
+        value: 'true'
         enum:
           - 'false'
           - 'true'

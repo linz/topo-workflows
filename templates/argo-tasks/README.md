@@ -211,8 +211,10 @@ See (https://github.com/linz/argo-tasks#stac-validate)
     parameters:
       - name: uri
         value: 's3://my-bucket/path/collection.json'
-      - name: checksum
-        value: '{{workflow.parameters.checksum}}'
+      - name: checksum_assets
+        value: '{{workflow.parameters.checksum_assets}}'
+      - name: checksum_links
+        value: '{{workflow.parameters.checksum_links}}'
       - name: recursive
         value: '{{workflow.parameters.recursive}}'
       - name: concurrency
