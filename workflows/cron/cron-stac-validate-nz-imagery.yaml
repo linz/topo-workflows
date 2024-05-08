@@ -1,0 +1,26 @@
+# yaml-language-server: $schema=https://raw.githubusercontent.com/argoproj/argo-workflows/v3.5.5/api/jsonschema/schema.json
+apiVersion: argoproj.io/v1alpha1
+kind: CronWorkflow
+metadata:
+  name: cron-stac-validate-nz-imagery
+  labels:
+    linz.govt.nz/category: stac
+spec:
+  schedule: '* * * * *'
+  timezone: 'NZ'
+  startingDeadlineSeconds: 3600 # Allow 1 hour delay if the workflow-controller clashes during the starting time.
+  concurrencyPolicy: 'Allow'
+  successfulJobsHistoryLimit: 3
+  failedJobsHistoryLimit: 3
+  suspend: false
+  workflowSpec:
+    workflowTemplateRef:
+      name: stac-validate-parallel
+    arguments:
+      parameters:
+        - name: 'uri'
+          value: 's3://nz-imagery/'
+        - name: 'checksum'
+          value: 'false'
+        - name: 'checksum_links'
+          value: 'true'
