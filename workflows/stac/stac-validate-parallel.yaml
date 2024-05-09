@@ -50,8 +50,10 @@ spec:
               parameters:
                 - name: uri
                   value: '{{item}}'
-                - name: checksum
-                  value: '{{workflow.parameters.checksum}}'
+                - name: checksum_assets
+                  value: '{{workflow.parameters.checksum_assets}}'
+                - name: checksum_links
+                  value: '{{workflow.parameters.checksum_links}}'
             depends: aws-list-collections
             withParam: '{{tasks.aws-list-collections.outputs.parameters.files}}'
     - name: aws-list-collections
