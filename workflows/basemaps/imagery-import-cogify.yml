@@ -388,6 +388,6 @@ spec:
           - 'create-pr'
           - '--target={{inputs.parameters.target}}'
           - '--ticket={{workflow.parameters.ticket}}'
-          - '--config-type={{workflow.parameters.config_type}}''
-          - '--individual={{workflow.parameters.individual}}''
+          - '--config-type={{workflow.parameters.config_type}}'
+          - '--individual={{workflow.parameters.individual}}'
           - '--category={{workflow.parameters.category}}'
