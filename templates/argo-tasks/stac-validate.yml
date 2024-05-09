@@ -28,13 +28,17 @@ spec:
             description: Number of requests to run concurrently
             default: '50'
 
-          - name: checksum
-            description: Validate the file:checksum if it exists
+          - name: checksum_assets
+            description: Validate the file:checksum of each asset if it exists
+            default: 'false'
+
+          - name: checksum_links
+            description: Validate the file:checksum of each link if it exists
             default: 'false'
 
           - name: version
             description: container version to use
-            default: 'v3'
+            default: 'v4'
 
       container:
         image: '019359803926.dkr.ecr.ap-southeast-2.amazonaws.com/argo-tasks:{{=sprig.trim(inputs.parameters.version)}}'
@@ -51,5 +55,6 @@ spec:
             - 'validate'
             - '--concurrency={{inputs.parameters.concurrency}}'
             - '--recursive={{inputs.parameters.recursive}}'
-            - '--checksum={{inputs.parameters.checksum}}'
+            - '--checksum-assets={{inputs.parameters.checksum_assets}}'
+            - '--checksum-links={{inputs.parameters.checksum_links}}'
             - '{{inputs.parameters.uri}}'
