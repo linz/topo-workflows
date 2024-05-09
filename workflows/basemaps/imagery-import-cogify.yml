@@ -70,11 +70,24 @@ spec:
 
       - name: create_pull_request
         description: 'Create pull request after importing imagery.'
-        value: 'aerial'
+        value: 'true'
         enum:
-          - 'aerial'
-          - 'individual'
-          - 'none'
+          - 'true'
+          - 'false'
+
+      - name: config_type
+        description: 'Type of Basemaps Config file to create in pull requests'
+        value: 'raster'
+        enum:
+          - 'raster'
+          - 'elevation'
+
+      - name: individual
+        description: 'Individual Config or Combined Config'
+        value: 'false'
+        enum:
+          - 'true'
+          - 'false'
 
       - name: category
         value: 'Rural Aerial Photos'
@@ -149,7 +162,7 @@ spec:
               parameters:
                 - name: target
                   value: '{{ tasks.cogify.outputs.parameters.target }}'
-            when: '{{workflow.parameters.create_pull_request}} != none'
+            when: '{{workflow.parameters.create_pull_request}} == true'
             depends: 'cogify'
 
     # Generate COGs for a specific tile matrix from a given collection of source imagery
@@ -375,5 +388,6 @@ spec:
           - 'create-pr'
           - '--target={{inputs.parameters.target}}'
           - '--ticket={{workflow.parameters.ticket}}'
-          - "--individual={{= workflow.parameters.create_pull_request == 'individual'? 'true' : 'false' }}"
+          - '--config-type={{workflow.parameters.config_type}}''
+          - '--individual={{workflow.parameters.individual}}''
           - '--category={{workflow.parameters.category}}'
