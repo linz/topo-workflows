@@ -13,7 +13,7 @@ spec:
     parameters:
       - name: version_argo_tasks
         description: Version of the Argo Tasks CLI docker container to use
-        value: 'v3'
+        value: 'v4'
       
       - name: version_basemaps_etl
         description: Version of the Basemaps ETL eks container to use
