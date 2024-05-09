@@ -26,7 +26,7 @@ spec:
   arguments:
     parameters:
       - name: version_argo_tasks
-        value: 'v3'
+        value: 'v4'
       - name: ticket
         description: Ticket ID e.g. 'AIP-55'
         value: ''
