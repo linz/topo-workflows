@@ -2,11 +2,11 @@
 apiVersion: argoproj.io/v1alpha1
 kind: CronWorkflow
 metadata:
-  name: cron-stac-validate
+  name: test-cron-stac-validate
   labels:
     linz.govt.nz/category: stac
 spec:
-  schedule: '0 07 * * *' # 7 AM every day
+  schedule: 56 13 * * * # 7 AM every day
   timezone: 'NZ'
   startingDeadlineSeconds: 3600 # Allow 1 hour delay if the workflow-controller clashes during the starting time.
   concurrencyPolicy: 'Allow'
@@ -17,20 +17,36 @@ spec:
     entrypoint: main
     arguments:
       parameters:
-        - name: uri
-          value: ''
+        - name: checksum_assets
+          value: 'false'
+        - name: 'checksum_links'
+          value: 'true'
     templates:
       - name: main
+        retryStrategy:
+          limit: '0'
         steps:
-          - - name: stac-validate
+          - - name: stac-validate-imagery
               templateRef:
-                name: tpl-at-stac-validatetoto
+                name: tpl-at-stac-validate
                 template: main
               arguments:
                 parameters:
                   - name: 'uri'
-                    value: '{{workflow.parameters.uri}}'
+                    value: 's3://nz-imageryfails/catalog.json'
                   - name: 'checksum_assets'
-                    value: 'false'
+                    value: '{{workflow.parameters.checksum_assets}}'
                   - name: 'checksum_links'
-                    value: 'true'
+                    value: '{{workflow.parameters.checksum_assets}}'
+            - name: stac-validate-elevation
+              templateRef:
+                name: tpl-at-stac-validate
+                template: main
+              arguments:
+                parameters:
+                  - name: 'uri'
+                    value: 's3://nz-elevationfails/catalog.json'
+                  - name: 'checksum_assets'
+                    value: '{{workflow.parameters.checksum_assets}}'
+                  - name: 'checksum_links'
+                    value: '{{workflow.parameters.checksum_assets}}'
