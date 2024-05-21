@@ -3,7 +3,7 @@
 apiVersion: argoproj.io/v1alpha1
 kind: WorkflowTemplate
 metadata:
-  name: test-stac-validate-parallel
+  name: stac-validate-parallel
   labels:
     linz.govt.nz/category: stac
 spec:
@@ -21,7 +21,7 @@ spec:
       - name: include
         value: 'collection.json$'
       - name: checksum_assets
-        description: 'Validate asset checksums.'
+        description: 'Validate the file:checksum of each asset if it exists'
         value: 'false'
         enum:
           - 'true'
@@ -29,12 +29,6 @@ spec:
       - name: checksum_links
         description: 'Validate the file:checksum of each link if it exists'
         value: 'true'
-        enum:
-          - 'false'
-          - 'true'
-      - name: checksum_links
-        description: 'Validate links checksums.'
-        value: 'false'
         enum:
           - 'false'
           - 'true'
