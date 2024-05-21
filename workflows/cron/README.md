@@ -5,6 +5,10 @@
 
 # STAC validation
 
+The goal of the following [Cron Workflows](https://argo-workflows.readthedocs.io/en/stable/cron-workflows/) is to check the validity of the STAC metadata published in the AWS Open Data Registries [NZ Elevation](https://registry.opendata.aws/nz-elevation/) and [NZ Imagery](https://registry.opendata.aws/nz-imagery/).
+
+> **_NOTE:_** To simplify the overall workflow deployment process, these `CronWorkflow` have one main task per registry. It looks like a duplication that could be avoid but as we are not using [`argo` CLI](https://argo-workflows.readthedocs.io/en/stable/walk-through/argo-cli/) to deploy the workflows - which allows parameter passing - we could not deploy one `CronWorkflow` per `uri` (or registry).
+
 ## cron-stac-validate
 
 Workflow that validates the STAC metadata by calling the [`stac-validate` argo-tasks command](https://github.com/linz/topo-workflows/blob/master/templates/argo-tasks/README.md#argo-tasksstac-validate) using the [`tpl-at-stac-validate`](https://github.com/linz/topo-workflows/blob/master/templates/argo-tasks/README.md#argo-tasksstac-validate). It does verify that the [STAC links](https://github.com/radiantearth/stac-spec/blob/master/collection-spec/collection-spec.md#link-object) are valid.
