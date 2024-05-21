@@ -44,6 +44,8 @@ spec:
       image: ''
   templates:
     - name: main
+      retryStrategy:
+        limit: '0' # avoid retrying any of the following task as `tpl-at-stac-validate` already retries its own tasks.
       dag:
         tasks:
           - name: aws-list-collections
@@ -63,6 +65,8 @@ spec:
             depends: aws-list-collections
             withParam: '{{tasks.aws-list-collections.outputs.parameters.files}}'
     - name: aws-list-collections
+      retryStrategy:
+        limit: '2' # force retrying this specific task
       container:
         image: '019359803926.dkr.ecr.ap-southeast-2.amazonaws.com/argo-tasks:{{=sprig.trim(workflow.parameters.version_argo_tasks)}}'
         command: [node, /app/index.js]
