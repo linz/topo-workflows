@@ -2,11 +2,11 @@
 apiVersion: argoproj.io/v1alpha1
 kind: CronWorkflow
 metadata:
-  name: cron-stac-validate-checksums
+  name: cron-stac-validate-all-data
   labels:
     linz.govt.nz/category: stac
 spec:
-  schedule: '0 07 1 * *' # 7 AM every 1st of the month 
+  schedule: '0 05 1 * *' # 5 AM every 1st of the month 
   timezone: 'NZ'
   startingDeadlineSeconds: 3600 # Allow 1 hour delay if the workflow-controller clashes during the starting time.
   concurrencyPolicy: 'Allow'
