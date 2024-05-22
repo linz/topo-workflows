@@ -22,4 +22,4 @@ It also validate that the [STAC assets](https://github.com/radiantearth/stac-spe
 
 > **_NOTE:_** Due to the parallelism design, this workflow does not validate the root parent `catalog.json` in order to validate each `collection.json` separately. This is not an issue as the `catalog.json` does not contain any `asset` and is already validated by the [cron-stac-validata](#cron-stac-validate) job.
 
-- schedule: **TBD**
+- schedule: **every 1st of the month**
