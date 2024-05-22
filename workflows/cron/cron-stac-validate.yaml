@@ -33,7 +33,7 @@ spec:
               arguments:
                 parameters:
                   - name: 'uri'
-                    value: 's3://nz-imageryfails/catalog.json'
+                    value: 's3://nz-imagery/catalog.json'
                   - name: 'checksum_assets'
                     value: '{{workflow.parameters.checksum_assets}}'
                   - name: 'checksum_links'
@@ -45,7 +45,7 @@ spec:
               arguments:
                 parameters:
                   - name: 'uri'
-                    value: 's3://nz-elevationfails/catalog.json'
+                    value: 's3://nz-elevation/catalog.json'
                   - name: 'checksum_assets'
                     value: '{{workflow.parameters.checksum_assets}}'
                   - name: 'checksum_links'
