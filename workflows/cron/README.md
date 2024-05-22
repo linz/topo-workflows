@@ -1,6 +1,6 @@
 # Contents:
 
-- [cron-stac-validata](#cron-stac-validate)
+- [cron-stac-validate](#cron-stac-validate)
 - [cron-stac-validate-all-data](#cron-stac-validate-all-data)
 
 # STAC validation
