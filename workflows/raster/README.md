@@ -3,6 +3,7 @@
 - [Standardising](#Standardising)
 - [copy](#copy)
 - [publish-odr](#Publish-odr)
+- [publish-odr-historic-imagery](#Publish-odr-historic-imagery)
 - [tests](#Tests)
 
 # Standardising
@@ -278,6 +279,44 @@ graph TD;
 
 See the [copy template](#copy) for more information.
 
+# Publish-odr-historic-imagery
+
+## Workflow Description
+
+This is a copy of the publish-odr workflow with the addition of a `target` parameter. This workflow allows data managers to bypass the `generate-path` step as it has not yet been implemented for historic imagery.
+
+> [!IMPORTANT]
+> This workflow should only be used when the target path automation is not implemented, for all other instances us `publish-odr`.
+
+```mermaid
+graph TD;
+  push-to-github;
+```
+
+## Workflow Input Parameters
+
+| Parameter          | Type | Default                                | Description                                                                                                                                                                                                                 |
+| ------------------ | ---- | -------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | --- |
+| ticket             | str  |                                        | Ticket ID e.g. 'AIP-55'                                                                                                                                                                                                     |
+| region             | enum |                                        | Region of the dataset                                                                                                                                                                                                       |
+| source             | str  | s3://linz-imagery-staging/test/sample/ | The URIs (paths) to the s3 source location                                                                                                                                                                                  |
+| target             | str  | s3://target/path/                      | the target path where the data will be stored in the ODR                                                                                                                                                                    |
+| target_bucket_name | enum |                                        | The bucket name of the target location                                                                                                                                                                                      |     |
+| copy_option        | enum | --no-clobber                           | <dl><dt>`--no-clobber` </dt><dd> Skip overwriting existing files.</dd><dt> `--force` </dt><dd> Overwrite all files. </dd><dt> `--force-no-clobber` </dt><dd> Overwrite only changed files, skip unchanged files. </dd></dl> |
+
+## Examples
+
+### Publish:
+
+**source:** `s3://linz-workflow-artifacts/2022-11/15-imagery-standardising-v0.2.0-56-x7699/flat/`
+
+**target:** `s3://nz-imagery/auckland/auckland_sn1100_1994-1995_0.5m/rgb/2193/`
+
+**target_bucket_name:** `nz-imagery`
+
+**copy_option:** `--no-clobber`
+
+See the [copy template](#copy) for more information.
 
 # Tests
 
