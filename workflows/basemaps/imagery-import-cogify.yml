@@ -41,7 +41,7 @@ spec:
 
       - name: preset
         description: Import preset configuration, WebP for 4 band RGBA LERC for 1 band DEM/DSM
-        value: 'lerc_10mm'
+        value: 'webp'
         enum:
           - 'webp'
           - 'lerc_10mm'
@@ -75,7 +75,7 @@ spec:
 
       - name: source
         description: Source imagery location "s3://linz-imagery"
-        value: 's3://nz-elevation/canterbury/banks-peninsula_2023/dsm_1m/2193/'
+        value: 's3://linz-imagery-staging/test/sample/'
 
       - name: create_pull_request
         description: 'Create pull request after importing imagery.'
@@ -86,7 +86,7 @@ spec:
           - 'none'
 
       - name: category
-        value: 'Elevation'
+        value: 'Rural Aerial Photos'
         enum:
           - 'Rural Aerial Photos'
           - 'Urban Aerial Photos'
@@ -97,11 +97,11 @@ spec:
 
       - name: target
         description: Target location for output COGs
-        value: 's3://linz-workflowsnp-scratch/2024-04/elevation/'
+        value: 's3://linz-basemaps/'
         enum:
           - 's3://linz-basemaps/'
           - 's3://linz-basemaps-staging/'
-          - 's3://linz-workflowsnp-scratch/2024-04/elevation/'
+          - 's3://linz-workflowsnp-scratch/'
 
       - name: tile_matrix
         description: Output tile matrix, ";" separated list
@@ -122,6 +122,13 @@ spec:
       - name: group_size
         description: How many items to pass to each create-cog job
         value: '20'
+
+      - name: create_overview
+        description: 'Create overview after importing imagery.'
+        value: 'true'
+        enum:
+          - 'true'
+          - 'false'
 
   templates:
     # Main entrypoint into the workflow
@@ -230,6 +237,7 @@ spec:
           # once all COGs are created generate a more overviews to increase tile rendering performance
           - name: create-overview
             template: create-overview
+            when: '{{workflow.parameters.create_overview}} == true'
             depends: create-cog
             arguments:
               parameters:
