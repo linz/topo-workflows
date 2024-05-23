@@ -283,7 +283,7 @@ See the [copy template](#copy) for more information.
 
 ## Workflow Description
 
-This is a copy of the publish-odr workflow with the addition of a `target` parameter. This workflow allows data managers to bypass the `generate-path` step as it has not yet been implemented for historic imagery.
+_publish-odr-historic-imagery_ is a copy of the publish-odr workflow with the addition of a `target` parameter. This workflow allows data managers to bypass the `generate-path` step as it has not yet been implemented for historic imagery.
 
 > [!IMPORTANT]
 > This workflow should only be used when the target path automation is not implemented, for all other instances use `publish-odr`.
