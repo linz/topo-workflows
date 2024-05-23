@@ -290,14 +290,14 @@ This is a copy of the publish-odr workflow with the addition of a `target` param
 
 ## Workflow Input Parameters
 
-| Parameter          | Type | Default                                | Description                                                                                                                                                                                                                 |
-| ------------------ | ---- | -------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | --- |
-| ticket             | str  |                                        | Ticket ID e.g. 'AIP-55'                                                                                                                                                                                                     |
-| region             | enum |                                        | Region of the dataset                                                                                                                                                                                                       |
-| source             | str  | s3://linz-imagery-staging/test/sample/ | The URIs (paths) to the s3 source location                                                                                                                                                                                  |
+| Parameter          | Type  | Default                                   | Description                                                                                                                                                      |
+| ------------------ | ----- | ----------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| ticket             | str   |                                           | Ticket ID e.g. 'AIP-55'                                                                                                                                          |
+| region             | enum  |                                           | Region of the dataset                                                                                                                                            |
+| source             | str   | s3://linz-imagery-staging/test/sample/    | The URIs (paths) to the s3 source location                                                                                                                       |
+| target_bucket_name | enum   |                                           | The bucket name of the target location                                                                                                                  |                                                  |
+| copy_option        | enum  | --no-clobber                           | <dl><dt>`--no-clobber` </dt><dd> Skip overwriting existing files.</dd><dt> `--force` </dt><dd> Overwrite all files. </dd><dt> `--force-no-clobber` </dt><dd> Overwrite only changed files, skip unchanged files. </dd></dl> |
 | target             | str  | s3://target/path/                      | the target path where the data will be stored in the ODR                                                                                                                                                                    |
-| target_bucket_name | enum |                                        | The bucket name of the target location                                                                                                                                                                                      |     |
-| copy_option        | enum | --no-clobber                           | <dl><dt>`--no-clobber` </dt><dd> Skip overwriting existing files.</dd><dt> `--force` </dt><dd> Overwrite all files. </dd><dt> `--force-no-clobber` </dt><dd> Overwrite only changed files, skip unchanged files. </dd></dl> |
 
 ## Examples
 
