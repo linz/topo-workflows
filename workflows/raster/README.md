@@ -3,7 +3,7 @@
 - [Standardising](#Standardising)
 - [copy](#copy)
 - [publish-odr](#Publish-odr)
-- [publish-odr-historic-imagery](#Publish-odr-historic-imagery)
+- [Publish ODR Historic Imagery](#Publish-odr-historic-imagery)
 - [tests](#Tests)
 
 # Standardising
@@ -279,7 +279,7 @@ graph TD;
 
 See the [copy template](#copy) for more information.
 
-# Publish-odr-historic-imagery
+# Publish ODR Historic Imagery
 
 ## Workflow Description
 
