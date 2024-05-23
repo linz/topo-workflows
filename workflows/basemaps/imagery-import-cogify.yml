@@ -46,6 +46,7 @@ spec:
         enum:
           - 'webp'
           - 'lerc_10mm'
+          - 'lerc_1mm'
           - 'lerc_1m'
 
       - name: region
