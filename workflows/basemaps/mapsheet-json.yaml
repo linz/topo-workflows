@@ -1,10 +1,9 @@
-# yaml-language-server: $schema=https://raw.githubusercontent.com/argoproj/argo-workflows/v3.4.13/api/jsonschema/schema.json
+# yaml-language-server: $schema=https://raw.githubusercontent.com/argoproj/argo-workflows/v3.5.5/api/jsonschema/schema.json
 
 apiVersion: argoproj.io/v1alpha1
 kind: WorkflowTemplate
 metadata:
   name: basemaps-create-mapsheet-json
-  namespace: argo
   labels:
     linz.govt.nz/category: basemaps
     linz.govt.nz/data-type: raster
@@ -14,7 +13,7 @@ spec:
   arguments:
     parameters:
       - name: version_argo_tasks
-        value: 'v2'
+        value: 'v4'
       - name: layer
         value: '104687'
       - name: config
@@ -22,7 +21,7 @@ spec:
       - name: include
         value: ''
       - name: exclude
-        value: 'nz-satellite'
+        value: 'new-zealand'
   templateDefaults:
     container:
       imagePullPolicy: Always

@@ -2,7 +2,7 @@ import { Chart, ChartProps, Duration, Helm } from 'cdk8s';
 import { Secret } from 'cdk8s-plus-27';
 import { Construct } from 'constructs';
 
-import { ArgoDbName, ArgoDbUser } from '../constants.js';
+import { ArgoDbName, ArgoDbUser, DefaultRegion } from '../constants.js';
 import { applyDefaultLabels } from '../util/labels.js';
 
 export interface ArgoWorkflowsProps {
@@ -65,7 +65,7 @@ export class ArgoWorkflows extends Chart {
         bucket: props.tempBucketName,
         keyFormat:
           '{{workflow.creationTimestamp.Y}}-{{workflow.creationTimestamp.m}}/{{workflow.creationTimestamp.d}}-{{workflow.name}}/{{pod.name}}',
-        region: 'ap-southeast-2',
+        region: DefaultRegion,
         endpoint: 's3.amazonaws.com',
         useSDKCreds: true,
         insecure: false,
@@ -130,7 +130,7 @@ export class ArgoWorkflows extends Chart {
           workflowNamespaces: ['argo'],
           extraArgs: [],
           // FIXME: workaround for https://github.com/argoproj/argo-workflows/issues/11657
-          extraEnv: [{ name: 'WATCH_CONFIGMAPS', value: 'false' }],
+          extraEnv: [{ name: 'WATCH_CONTROLLER_SEMAPHORE_CONFIGMAPS', value: 'false' }],
           persistence,
           replicas: 2,
           workflowDefaults: {
@@ -147,6 +147,10 @@ export class ArgoWorkflows extends Chart {
                 },
               ],
               parallelism: 3,
+              /** TODO: `nodeAntiAffinity` - to retry on different node - is not working yet (https://github.com/argoproj/argo-workflows/pull/12701)
+               * `affinity: { nodeAntiAffinity: {} }` seems to break `karpenter`, need more investigation
+               */
+              retryStrategy: { limit: 2 },
             },
           },
         },

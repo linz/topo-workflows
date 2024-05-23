@@ -1,10 +1,9 @@
-# yaml-language-server: $schema=https://raw.githubusercontent.com/argoproj/argo-workflows/v3.4.13/api/jsonschema/schema.json
+# yaml-language-server: $schema=https://raw.githubusercontent.com/argoproj/argo-workflows/v3.5.5/api/jsonschema/schema.json
 
 apiVersion: argoproj.io/v1alpha1
 kind: WorkflowTemplate
 metadata:
   name: basemaps-imagery-import-cogify
-  namespace: argo
   labels:
     linz.govt.nz/category: basemaps
     linz.govt.nz/data-type: raster
@@ -30,11 +29,11 @@ spec:
     parameters:
       - name: version_basemaps_cli
         description: Version of the basemaps CLI docker container to use
-        value: v6
+        value: v7
 
       - name: version_argo_tasks
         description: Version of the basemaps CLI docker container to use
-        value: v2
+        value: v4
 
       - name: ticket
         description: Ticket ID e.g. 'AIP-55'
@@ -257,8 +256,6 @@ spec:
 
     # Generate a tile covering for input imagery
     - name: create-covering
-      retryStrategy:
-        limit: '2'
       nodeSelector:
         karpenter.sh/capacity-type: 'spot'
       inputs:
@@ -304,8 +301,6 @@ spec:
 
     # Actually create COGs using gdal_translate on a large spot instances
     - name: create-cog
-      retryStrategy:
-        limit: '2'
       nodeSelector:
         karpenter.sh/capacity-type: 'spot'
       inputs:
@@ -332,8 +327,6 @@ spec:
 
     # Create a basemaps configuration file to view the imagery
     - name: create-config
-      retryStrategy:
-        limit: '2'
       inputs:
         parameters:
           - name: path
@@ -360,8 +353,6 @@ spec:
 
     # create additional overviews for any COGs found in the path
     - name: create-overview
-      retryStrategy:
-        limit: '2'
       nodeSelector:
         karpenter.sh/capacity-type: 'spot'
       inputs:
@@ -400,8 +391,9 @@ spec:
                 name: github-linz-li-bot-pat
                 key: pat
         args:
-          -  'bmc'
-          -  'create-pr'
-          -  '--target={{inputs.parameters.target}}'
-          -  "--individual={{= workflow.parameters.create_pull_request == 'individual'? 'true' : 'false' }}"
-          -  '--category={{workflow.parameters.category}}'
+          - 'bmc'
+          - 'create-pr'
+          - '--target={{inputs.parameters.target}}'
+          - '--ticket={{workflow.parameters.ticket}}'
+          - "--individual={{= workflow.parameters.create_pull_request == 'individual'? 'true' : 'false' }}"
+          - '--category={{workflow.parameters.category}}'

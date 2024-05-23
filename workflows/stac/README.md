@@ -1,25 +1,6 @@
-# Contents
+# stac-validate-parallel
 
-- [stac-validate](#stac-validate)
-
-# stac-validate
-
-Validate STAC Collections and Items against [STAC](https://stacspec.org/) schemas and STAC Extension schemas.
-Uses the [argo-tasks](https://github.com/linz/argo-tasks#stac-validate) container `stac-validate` command.
-
-## Workflow Input Parameters
-
-| Parameter | Type  | Default                                       | Description                                                                                                      |
-| --------- | ----- | --------------------------------------------- | ---------------------------------------------------------------------------------------------------------------- |
-| uri       | str   | s3://linz-imagery-staging/test/stac-validate/ | The full AWS S3 URI (path) to the STAC file(s)                                                                   |
-| include   | regex | `collection.json$`                            | Regular expression to match object path(s) or name(s) from within the source path to include in STAC validation. |
-| checksum  | enum  | false                                         | Set to "true" to validate the checksums of linked asset files.                                                   |
-
-The `--recursive` flag is specified inside the STAC Validate WorkflowTemplate. Linked STAC items linked to from a STAC collection will also be validated.
-
-The STAC Validate Workflow will validate each collection (and linked items/assets) in a separate pod so that multiple collections can be processed in parallel.
-
-Access permissions are controlled by the [Bucket Sharing Config](https://github.com/linz/topo-aws-infrastructure/blob/master/src/stacks/bucket.sharing.ts) which gives Argo Workflows access to the S3 buckets we use.
+This Workflow will validate each collection (and linked items/assets) in a separate pod so that multiple collections can be processed in parallel, using the `tpl-at-stac-validate` template.
 
 ## Workflow Outputs
 

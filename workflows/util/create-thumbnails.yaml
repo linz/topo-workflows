@@ -1,10 +1,9 @@
-# yaml-language-server: $schema=https://raw.githubusercontent.com/argoproj/argo-workflows/v3.4.13/api/jsonschema/schema.json
+# yaml-language-server: $schema=https://raw.githubusercontent.com/argoproj/argo-workflows/v3.5.5/api/jsonschema/schema.json
 
 apiVersion: argoproj.io/v1alpha1
 kind: WorkflowTemplate
 metadata:
   name: create-thumbnails
-  namespace: argo
   labels:
     linz.govt.nz/category: util
     linz.govt.nz/data-type: raster
@@ -17,7 +16,7 @@ spec:
   arguments:
     parameters:
       - name: version_argo_tasks
-        value: 'v3'
+        value: 'v4'
       - name: version_topo_imagery
         value: 'v4'
       - name: source
@@ -75,8 +74,6 @@ spec:
             path: /tmp/file_list.json
 
     - name: thumbnails
-      retryStrategy:
-        limit: '2'
       nodeSelector:
         karpenter.sh/capacity-type: 'spot'
       inputs:

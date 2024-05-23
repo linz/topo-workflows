@@ -1,10 +1,9 @@
-# yaml-language-server: $schema=https://raw.githubusercontent.com/argoproj/argo-workflows/v3.4.13/api/jsonschema/schema.json
+# yaml-language-server: $schema=https://raw.githubusercontent.com/argoproj/argo-workflows/v3.5.5/api/jsonschema/schema.json
 
 apiVersion: argoproj.io/v1alpha1
 kind: WorkflowTemplate
 metadata:
   name: test-generate-target
-  namespace: argo
   labels:
     linz.govt.nz/category: test
 spec:
@@ -14,7 +13,7 @@ spec:
   arguments:
     parameters:
       - name: version_argo_tasks
-        value: 'v3'
+        value: 'v4'
       - name: source
         value: 's3://linz-imagery-staging/test/sample/'
       - name: target_bucket_name

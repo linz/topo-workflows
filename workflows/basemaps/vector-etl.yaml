@@ -1,10 +1,9 @@
-# yaml-language-server: $schema=https://raw.githubusercontent.com/argoproj/argo-workflows/v3.4.13/api/jsonschema/schema.json
+# yaml-language-server: $schema=https://raw.githubusercontent.com/argoproj/argo-workflows/v3.5.5/api/jsonschema/schema.json
 
 apiVersion: argoproj.io/v1alpha1
 kind: WorkflowTemplate
 metadata:
   name: basemaps-vector-etl
-  namespace: argo
   labels:
     linz.govt.nz/category: basemaps
     linz.govt.nz/data-type: vector
@@ -14,7 +13,7 @@ spec:
     parameters:
       - name: version_argo_tasks
         description: Version of the Argo Tasks CLI docker container to use
-        value: 'v2'
+        value: 'v4'
       
       - name: version_basemaps_etl
         description: Version of the Basemaps ETL eks container to use
@@ -30,6 +29,10 @@ spec:
       - name: filename
         description: output filename in s3
         value: 'topographic'
+
+      - name: title
+        description: title for the output data, which will populate in stac file
+        value: 'Topographic'
 
       - name: create_pull_request
         description: Should a pull request be created in linz/basemaps-config
@@ -83,6 +86,7 @@ spec:
           - "{{= workflow.parameters.filename == 'topographic'? '--all' : '--layer=' + workflow.parameters.filename }}"
           - '--target={{ workflow.parameters.target }}'
           - '--filename={{ workflow.parameters.filename }}'
+          - '--title={{ workflow.parameters.title }}'
           - '--output=/tmp/'
           - '--commit'
       outputs:

@@ -1,10 +1,9 @@
-# yaml-language-server: $schema=https://raw.githubusercontent.com/argoproj/argo-workflows/v3.4.13/api/jsonschema/schema.json
+# yaml-language-server: $schema=https://raw.githubusercontent.com/argoproj/argo-workflows/v3.5.5/api/jsonschema/schema.json
 
 apiVersion: argoproj.io/v1alpha1
 kind: WorkflowTemplate
 metadata:
   name: basemaps-config-create
-  namespace: argo
   labels:
     linz.govt.nz/category: basemaps
 spec:
@@ -12,7 +11,7 @@ spec:
   arguments:
     parameters:
       - name: version_basemaps_cli
-        value: 'v6'
+        value: 'v7'
       - name: location
         value: 's3://bucket/path/to'
   templateDefaults:
@@ -30,8 +29,6 @@ spec:
                 - name: location
                   value: '{{workflow.parameters.location}}'
     - name: create-config
-      retryStrategy:
-        limit: '2'
       inputs:
         parameters:
           - name: location

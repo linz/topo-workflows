@@ -1,4 +1,4 @@
-# yaml-language-server: $schema=https://raw.githubusercontent.com/argoproj/argo-workflows/v3.4.13/api/jsonschema/schema.json
+# yaml-language-server: $schema=https://raw.githubusercontent.com/argoproj/argo-workflows/v3.5.5/api/jsonschema/schema.json
 
 apiVersion: argoproj.io/v1alpha1
 kind: Workflow
@@ -51,8 +51,6 @@ spec:
               path: '/tmp/imagery.json'
 
     - name: create-overview
-      retryStrategy:
-        limit: '2'
       inputs:
         parameters:
           - name: source

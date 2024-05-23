@@ -1,6 +1,7 @@
 import { Chart, ChartProps, Helm } from 'cdk8s';
 import { Construct } from 'constructs';
 
+import { DefaultRegion } from '../constants.js';
 import { applyDefaultLabels } from '../util/labels.js';
 
 /**
@@ -73,9 +74,9 @@ HC_Period 5
         serviceAccount: { name: props.saName, create: false },
         cloudWatchLogs: {
           enabled: true,
-          region: 'ap-southeast-2',
+          region: DefaultRegion,
           /** Specify Cloudwatch endpoint to add a trailing `.` to force FQDN DNS request */
-          endpoint: 'logs.ap-southeast-2.amazonaws.com.',
+          endpoint: `logs.${DefaultRegion}.amazonaws.com.`,
           autoCreateGroup: true,
           logRetentionDays: 30,
           logGroupName: `/aws/eks/${props.clusterName}/logs`,

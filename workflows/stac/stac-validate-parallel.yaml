@@ -1,9 +1,9 @@
----
+# yaml-language-server: $schema=https://raw.githubusercontent.com/argoproj/argo-workflows/v3.5.5/api/jsonschema/schema.json
+
 apiVersion: argoproj.io/v1alpha1
 kind: WorkflowTemplate
 metadata:
-  name: stac-validate
-  namespace: argo
+  name: stac-validate-parallel
   labels:
     linz.govt.nz/category: stac
 spec:
@@ -14,36 +14,53 @@ spec:
   arguments:
     parameters:
       - name: version_argo_tasks
-        value: 'v3'
+        value: 'v4'
       - name: uri
         description: 'Path(s) to the STAC file(s).'
         value: 's3://linz-imagery-staging/test/stac-validate/'
       - name: include
         value: 'collection.json$'
-      - name: checksum
-        description: 'Validate asset checksums.'
+      - name: checksum_assets
+        description: 'Validate the file:checksum of each asset if it exists'
         value: 'false'
+        enum:
+          - 'true'
+          - 'false'
+      - name: checksum_links
+        description: 'Validate the file:checksum of each link if it exists'
+        value: 'true'
         enum:
           - 'false'
           - 'true'
   templateDefaults:
     container:
       imagePullPolicy: Always
+      image: ''
   templates:
     - name: main
+      retryStrategy:
+        limit: '0' # avoid retrying any of the following task as `tpl-at-stac-validate` already retries its own tasks.
       dag:
         tasks:
           - name: aws-list-collections
             template: aws-list-collections
           - name: stac-validate-collections
-            template: stac-validate-collections
+            templateRef:
+              name: tpl-at-stac-validate
+              template: main
             arguments:
               parameters:
-                - name: file
+                - name: uri
                   value: '{{item}}'
+                - name: checksum_assets
+                  value: '{{workflow.parameters.checksum_assets}}'
+                - name: checksum_links
+                  value: '{{workflow.parameters.checksum_links}}'
             depends: aws-list-collections
             withParam: '{{tasks.aws-list-collections.outputs.parameters.files}}'
     - name: aws-list-collections
+      retryStrategy:
+        limit: '2' # force retrying this specific task
       container:
         image: '019359803926.dkr.ecr.ap-southeast-2.amazonaws.com/argo-tasks:{{=sprig.trim(workflow.parameters.version_argo_tasks)}}'
         command: [node, /app/index.js]
@@ -67,29 +84,3 @@ spec:
           - name: files
             valueFrom:
               path: /tmp/file_list.json
-    - name: stac-validate-collections
-      retryStrategy:
-        limit: '2'
-      inputs:
-        parameters:
-          - name: file
-      container:
-        image: '019359803926.dkr.ecr.ap-southeast-2.amazonaws.com/argo-tasks:{{=sprig.trim(workflow.parameters.version_argo_tasks)}}'
-        resources:
-          requests:
-            cpu: 15000m
-            memory: 7.8Gi
-        command: [node, /app/index.js]
-        env:
-          - name: AWS_ROLE_CONFIG_PATH
-            value: s3://linz-bucket-config/config.json
-        args:
-          [
-            'stac',
-            'validate',
-            '--concurrency',
-            '50',
-            '--recursive',
-            '--checksum={{workflow.parameters.checksum}}',
-            '{{inputs.parameters.file}}',
-          ]

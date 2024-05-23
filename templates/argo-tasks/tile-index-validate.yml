@@ -1,4 +1,4 @@
-# yaml-language-server: $schema=https://raw.githubusercontent.com/argoproj/argo-workflows/v3.4.13/api/jsonschema/schema.json
+# yaml-language-server: $schema=https://raw.githubusercontent.com/argoproj/argo-workflows/v3.5.5/api/jsonschema/schema.json
 
 apiVersion: argoproj.io/v1alpha1
 kind: WorkflowTemplate
@@ -39,9 +39,13 @@ spec:
             description: Output tile configuration for retiling
             default: 'false'
 
+          - name: preset
+            description: Compression type of dataset e.g. webp, lzw, dem_lerc
+            default: 'webp'
+
           - name: version
             description: container version to use
-            default: 'v3'
+            default: 'v4'
 
       outputs:
         artifacts:
@@ -78,6 +82,7 @@ spec:
           - '--scale={{= inputs.parameters.scale }}'
           - '--validate={{= inputs.parameters.validate }}'
           - '--retile={{= inputs.parameters.retile }}'
+          - '--preset={{= inputs.parameters.preset }}'
           - "{{= sprig.empty(inputs.parameters.source_epsg) ? '' : '--source-epsg=' + inputs.parameters.source_epsg }}"
           - "{{= sprig.empty(inputs.parameters.include) ? '' : '--include=' + inputs.parameters.include }}"
           - '{{= sprig.trim(inputs.parameters.source) }}'
