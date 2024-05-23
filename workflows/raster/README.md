@@ -288,11 +288,6 @@ This is a copy of the publish-odr workflow with the addition of a `target` param
 > [!IMPORTANT]
 > This workflow should only be used when the target path automation is not implemented, for all other instances use `publish-odr`.
 
-```mermaid
-graph TD;
-  push-to-github;
-```
-
 ## Workflow Input Parameters
 
 | Parameter          | Type | Default                                | Description                                                                                                                                                                                                                 |
