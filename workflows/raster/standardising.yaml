@@ -436,7 +436,7 @@ spec:
     - name: collection-id-setup
       script:
         image: '019359803926.dkr.ecr.ap-southeast-2.amazonaws.com/topo-imagery:{{=sprig.trim(workflow.parameters.version_topo_imagery)}}'
-        command: [python]
+        args: [python]
         source: |
           import ulid
           collection_id = "{{workflow.parameters.collection_id}}"
@@ -472,10 +472,9 @@ spec:
         volumeMounts:
           - name: ephemeral
             mountPath: '/tmp'
-        command:
+        args:
           - python
           - '/app/scripts/standardise_validate.py'
-        args:
           - '--from-file'
           - '/tmp/input/{{inputs.parameters.group_id}}.json'
           - '--target'
@@ -519,10 +518,9 @@ spec:
           requests:
             memory: 7.8Gi
             cpu: 15000m
-        command:
+        args:
           - python
           - '/app/scripts/collection_from_items.py'
-        args:
           - '--uri'
           - '{{inputs.parameters.location}}flat/'
           - '--collection-id'
