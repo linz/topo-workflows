@@ -1,9 +1,7 @@
 name: Pull Request lint
-
 on:
   pull_request:
     types: ['opened', 'edited', 'reopened', 'synchronize']
-
 jobs:
   lint:
     runs-on: ubuntu-latest
@@ -11,6 +9,5 @@ jobs:
       - uses: linz/action-pull-request-lint@290a98eb0ac22b16476c147ce402eff61171e042 # v1
         with:
           conventional: 'error' # require conventional pull request title (default: "error" options: "error", "warn", "off")
-
           jira: 'warn' # Require JIRA ticket references (default: "warn", options: "error", "warn", "off")
           jira-projects: 'BM,TDE' # optional list of jira projects
