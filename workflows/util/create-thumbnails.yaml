@@ -92,10 +92,9 @@ spec:
         volumeMounts:
           - name: ephemeral
             mountPath: '/tmp'
-        command:
+        args:
           - python
           - '/app/scripts/thumbnails.py'
-        args:
           - '--from-file'
           - '/tmp/file_list.json'
           - '--target'
