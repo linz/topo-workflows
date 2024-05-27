@@ -1,7 +1,7 @@
 # Contents:
 
 - [cron-stac-validate](#cron-stac-validate)
-- [cron-stac-validate-all-data](#cron-stac-validate-all-data)
+- [cron-stac-validate-checksums](#cron-stac-validate-checksums)
 
 # STAC validation
 
@@ -17,7 +17,7 @@ It does verify that the [STAC links](https://github.com/radiantearth/stac-spec/b
 
 - schedule: **every day at 5am**
 
-## cron-stac-validate-all-data
+## cron-stac-validate-checksums
 
 Workflow that validates the STAC metadata by calling the [`stac-validate` argo-tasks command](https://github.com/linz/argo-tasks/blob/master/README.md#stac-validate) using the [`stac-validate-parallel`](https://github.com/linz/topo-workflows/blob/master/workflows/stac/README.md#stac-validate-parallel).
 
