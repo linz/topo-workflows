@@ -14,7 +14,7 @@
   },
   "private": true,
   "engines": {
-    "node": ">=16.0.0"
+    "node": "^20.13.1"
   },
   "scripts": {
     "build": "tsc",
