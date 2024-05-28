@@ -2,11 +2,11 @@
 apiVersion: argoproj.io/v1alpha1
 kind: CronWorkflow
 metadata:
-  name: cron-stac-validate-checksums
+  name: cron-stac-validate-fast
   labels:
     linz.govt.nz/category: stac
 spec:
-  schedule: '0 05 1 * *' # 5 AM every 1st of the month
+  schedule: '0 05 * * *' # 5 AM every day
   timezone: 'NZ'
   startingDeadlineSeconds: 3600 # Allow 1 hour delay if the workflow-controller clashes during the starting time.
   concurrencyPolicy: 'Allow'
@@ -17,12 +17,8 @@ spec:
     entrypoint: main
     arguments:
       parameters:
-        - name: version_argo_tasks
-          value: 'v4'
-        - name: 'include'
-          value: 'collection.json$'
         - name: checksum_assets
-          value: 'true'
+          value: 'false'
         - name: 'checksum_links'
           value: 'true'
     templates:
@@ -32,32 +28,24 @@ spec:
         steps:
           - - name: stac-validate-imagery
               templateRef:
-                name: stac-validate-parallel
+                name: tpl-at-stac-validate
                 template: main
               arguments:
                 parameters:
-                  - name: version_argo_tasks
-                    value: '{{workflow.parameters.version_argo_tasks}}'
                   - name: 'uri'
-                    value: 's3://nz-imagery/'
-                  - name: include
-                    value: '{{workflow.parameters.include}}'
+                    value: 's3://nz-imagery/catalog.json'
                   - name: 'checksum_assets'
                     value: '{{workflow.parameters.checksum_assets}}'
                   - name: 'checksum_links'
                     value: '{{workflow.parameters.checksum_assets}}'
             - name: stac-validate-elevation
               templateRef:
-                name: stac-validate-parallel
+                name: tpl-at-stac-validate
                 template: main
               arguments:
                 parameters:
-                  - name: version_argo_tasks
-                    value: '{{workflow.parameters.version_argo_tasks}}'
                   - name: 'uri'
-                    value: 's3://nz-elevation/'
-                  - name: include
-                    value: '{{workflow.parameters.include}}'
+                    value: 's3://nz-elevation/catalog.json'
                   - name: 'checksum_assets'
                     value: '{{workflow.parameters.checksum_assets}}'
                   - name: 'checksum_links'
