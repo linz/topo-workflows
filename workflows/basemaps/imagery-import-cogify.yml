@@ -46,7 +46,6 @@ spec:
           - 'webp'
           - 'lerc_10mm'
           - 'lerc_1mm'
-          - 'lerc_1m'
 
       - name: region
         description: Region of the dataset
