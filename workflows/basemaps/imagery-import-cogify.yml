@@ -39,6 +39,14 @@ spec:
         description: Ticket ID e.g. 'AIP-55'
         value: ''
 
+      - name: preset
+        description: Import preset configuration, WebP for 4 band RGBA LERC for 1 band DEM/DSM
+        value: 'webp'
+        enum:
+          - 'webp'
+          - 'lerc_10mm'
+          - 'lerc_1mm'
+
       - name: region
         description: Region of the dataset
         value: 'new-zealand'
@@ -84,6 +92,7 @@ spec:
           - 'Scanned Aerial Imagery'
           - 'Satellite Imagery'
           - 'Event'
+          - 'Elevation'
 
       - name: target
         description: Target location for output COGs
@@ -91,6 +100,7 @@ spec:
         enum:
           - 's3://linz-basemaps/'
           - 's3://linz-basemaps-staging/'
+          - 's3://linz-workflowsnp-scratch/'
 
       - name: tile_matrix
         description: Output tile matrix, ";" separated list
@@ -112,6 +122,13 @@ spec:
         description: How many items to pass to each create-cog job
         value: '20'
 
+      - name: create_overview
+        description: 'Create overview after importing imagery.'
+        value: 'true'
+        enum:
+          - 'true'
+          - 'false'
+
   templates:
     # Main entrypoint into the workflow
     - name: main
@@ -119,6 +136,7 @@ spec:
         parameters:
           - name: source
           - name: target
+          - name: preset
           - name: tile_matrix
           - name: cutline
           - name: cutline_blend
@@ -135,6 +153,8 @@ spec:
                   value: '{{ inputs.parameters.source }}'
                 - name: target
                   value: '{{ inputs.parameters.target }}'
+                - name: preset
+                  value: '{{ inputs.parameters.preset }}'
                 - name: tile_matrix
                   value: '{{ item }}'
                 - name: cutline
@@ -162,6 +182,7 @@ spec:
           - name: cutline
           - name: cutline_blend
           - name: group_size
+          - name: preset
       dag:
         tasks:
           # generate a tile covering from the source imagery
@@ -173,6 +194,8 @@ spec:
                   value: '{{ inputs.parameters.source }}'
                 - name: target
                   value: '{{ inputs.parameters.target }}'
+                - name: preset
+                  value: '{{ inputs.parameters.preset }}'
                 - name: tile_matrix
                   value: '{{ inputs.parameters.tile_matrix }}'
                 - name: cutline
@@ -209,9 +232,11 @@ spec:
                 - name: covering_grouped
                   from: '{{ tasks.group.outputs.artifacts.output }}'
 
+          # TODO: overviews are only supported in RGBA pipelines
           # once all COGs are created generate a more overviews to increase tile rendering performance
           - name: create-overview
             template: create-overview
+            when: '{{workflow.parameters.create_overview}} == true'
             depends: create-cog
             arguments:
               parameters:
@@ -247,6 +272,7 @@ spec:
           - name: tile_matrix
           - name: cutline
           - name: cutline_blend
+          - name: preset
       container:
         image: ghcr.io/linz/basemaps/cli:{{ workflow.parameters.version_basemaps_cli }}
         resources:
@@ -258,6 +284,7 @@ spec:
             value: s3://linz-bucket-config/config.basemaps.json
         args:
           - 'cover'
+          - '--preset={{ inputs.parameters.preset }}'
           - '--tile-matrix={{ inputs.parameters.tile_matrix }}'
           - "{{= sprig.empty(inputs.parameters.cutline) ? '' : '--cutline=' + inputs.parameters.cutline }}"
           - '--cutline-blend={{ inputs.parameters.cutline_blend }}'
