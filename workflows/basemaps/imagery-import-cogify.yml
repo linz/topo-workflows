@@ -99,6 +99,7 @@ spec:
         value: 's3://linz-basemaps/'
         enum:
           - 's3://linz-basemaps/'
+          - 's3://linz-basemaps/elevation/'
           - 's3://linz-basemaps-staging/'
           - 's3://linz-workflowsnp-scratch/'
 
