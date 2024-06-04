@@ -48,4 +48,4 @@ Log group name: `/aws/eks/Workflows/workload/event-exporter`
 
 #### From Elasticsearch
 
-Filter: `kubernetes.labels.app.kubernetes.io/name.keyword: "event-exporter"`
+Filter: `kubernetes.container_name: "event-exporter"`
