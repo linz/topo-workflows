@@ -129,7 +129,7 @@ export class KarpenterProvisioner extends Chart {
         // to prevent long running pods (eg kube-dns) being moved.
         taints: [{ key: 'karpenter.sh/capacity-type', value: 'spot', effect: 'NoSchedule' }],
         requirements: [
-          { key: 'karpenter.sh/capacity-type', operator: 'In', values: ['spot'] },
+          { key: 'karpenter.sh/capacity-type', operator: 'In', values: ['spot', 'on-demand'] },
           { key: 'kubernetes.io/arch', operator: 'In', values: ['amd64'] },
           { key: 'karpenter.k8s.aws/instance-family', operator: 'In', values: ['c5', 'c6i', 'c6a'] },
         ],
@@ -151,7 +151,7 @@ export class KarpenterProvisioner extends Chart {
           { key: 'karpenter.sh/capacity-type', value: 'spot', effect: 'NoSchedule' },
         ],
         requirements: [
-          { key: 'karpenter.sh/capacity-type', operator: 'In', values: ['spot'] },
+          { key: 'karpenter.sh/capacity-type', operator: 'In', values: ['spot', 'on-demand'] },
           { key: 'kubernetes.io/arch', operator: 'In', values: ['arm64'] },
           { key: 'karpenter.k8s.aws/instance-family', operator: 'In', values: ['c7g', 'c6g'] },
         ],
