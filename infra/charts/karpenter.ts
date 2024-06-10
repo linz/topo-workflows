@@ -122,14 +122,28 @@ export class KarpenterProvisioner extends Chart {
       },
     });
 
-    const provisionAmd64 = new Provisioner(this, 'ClusterAmd64WorkerNodes', {
+    const provisionAmd64Spot = new Provisioner(this, 'ClusterAmd64WorkerNodesSpot', {
       metadata: { name: `karpenter-amd64-spot`, namespace: 'karpenter' },
       spec: {
         // Ensure only pods that tolerate spot run on spot instance types
         // to prevent long running pods (eg kube-dns) being moved.
         taints: [{ key: 'karpenter.sh/capacity-type', value: 'spot', effect: 'NoSchedule' }],
         requirements: [
-          { key: 'karpenter.sh/capacity-type', operator: 'In', values: ['spot', 'on-demand'] },
+          { key: 'karpenter.sh/capacity-type', operator: 'In', values: ['spot'] },
+          { key: 'kubernetes.io/arch', operator: 'In', values: ['amd64'] },
+          { key: 'karpenter.k8s.aws/instance-family', operator: 'In', values: ['c5', 'c6i', 'c6a'] },
+        ],
+        limits: { resources: { cpu: ProvisionerSpecLimitsResources.fromNumber(2000) } },
+        providerRef: { ...AwsNodeTemplate.GVK, name: templateName },
+        ttlSecondsAfterEmpty: Duration.minutes(1).toSeconds(), // optional, but never scales down if not set
+      },
+    });
+
+    const provisionAmd64OnDemand = new Provisioner(this, 'ClusterAmd64WorkerNodesOnDemand', {
+      metadata: { name: `karpenter-amd64-on-demand`, namespace: 'karpenter' },
+      spec: {
+        requirements: [
+          { key: 'karpenter.sh/capacity-type', operator: 'In', values: ['on-demand'] },
           { key: 'kubernetes.io/arch', operator: 'In', values: ['amd64'] },
           { key: 'karpenter.k8s.aws/instance-family', operator: 'In', values: ['c5', 'c6i', 'c6a'] },
         ],
@@ -151,7 +165,7 @@ export class KarpenterProvisioner extends Chart {
           { key: 'karpenter.sh/capacity-type', value: 'spot', effect: 'NoSchedule' },
         ],
         requirements: [
-          { key: 'karpenter.sh/capacity-type', operator: 'In', values: ['spot', 'on-demand'] },
+          { key: 'karpenter.sh/capacity-type', operator: 'In', values: ['spot'] },
           { key: 'kubernetes.io/arch', operator: 'In', values: ['arm64'] },
           { key: 'karpenter.k8s.aws/instance-family', operator: 'In', values: ['c7g', 'c6g'] },
         ],
@@ -161,7 +175,8 @@ export class KarpenterProvisioner extends Chart {
       },
     });
 
-    provisionAmd64.node.addDependency(template);
+    provisionAmd64Spot.node.addDependency(template);
+    provisionAmd64OnDemand.node.addDependency(template);
     provisionArm64.node.addDependency(template);
   }
 }
