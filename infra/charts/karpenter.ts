@@ -142,6 +142,11 @@ export class KarpenterProvisioner extends Chart {
     const provisionAmd64OnDemand = new Provisioner(this, 'ClusterAmd64WorkerNodesOnDemand', {
       metadata: { name: `karpenter-amd64-on-demand`, namespace: 'karpenter' },
       spec: {
+        taints: [
+          // Ensure only pods that tolerate karpenter's capacity run on this node
+          // to prevent long running pods (eg kube-dns) being moved.
+          { key: 'karpenter.sh/capacity-type', value: 'on-demand', effect: 'NoSchedule' },
+        ],
         requirements: [
           { key: 'karpenter.sh/capacity-type', operator: 'In', values: ['on-demand'] },
           { key: 'kubernetes.io/arch', operator: 'In', values: ['amd64'] },
