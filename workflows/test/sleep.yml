@@ -11,7 +11,12 @@ spec:
   templates:
     - name: sleep
       nodeSelector:
-        karpenter.sh/capacity-type: 'spot'
+        karpenter.sh/capacity-type: 'on-demand'
+      tolerations:
+        - key: 'karpenter.sh/capacity-type'
+          operator: 'Equal'
+          value: 'on-demand'
+          effect: 'NoSchedule'
       container:
         resources:
           requests:
