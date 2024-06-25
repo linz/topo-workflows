@@ -122,4 +122,4 @@ spec:
           - 'create-pr'
           - '--target={{ inputs.parameters.target }}'
           - '--config-type=vector'
-          - "--individual={{= workflow.parameters.filename == 'individual'? 'true' : 'false' }}"
+          - "--individual={{= workflow.parameters.individual == 'individual'? 'true' : 'false' }}"

@@ -389,5 +389,5 @@ spec:
           - '--target={{inputs.parameters.target}}'
           - '--ticket={{workflow.parameters.ticket}}'
           - '--config-type={{workflow.parameters.config_type}}'
-          - "--individual={{= workflow.parameters.filename == 'individual'? 'true' : 'false' }}"
+          - "--individual={{= workflow.parameters.individual == 'individual'? 'true' : 'false' }}"
           - '--category={{workflow.parameters.category}}'
