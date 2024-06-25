@@ -24,9 +24,9 @@
   },
   "devDependencies": {
     "@aws-cdk/lambda-layer-kubectl-v28": "^2.1.0",
-    "@aws-sdk/client-cloudformation": "3.451.0",
-    "@aws-sdk/client-eks": "3.451.0",
-    "@aws-sdk/client-ssm": "3.451.0",
+    "@aws-sdk/client-cloudformation": "3.600.0",
+    "@aws-sdk/client-eks": "3.600.0",
+    "@aws-sdk/client-ssm": "3.603.0",
     "@linzjs/style": "^5.2.0",
     "aws-cdk": "2.108.x",
     "aws-cdk-lib": "2.108.x",
