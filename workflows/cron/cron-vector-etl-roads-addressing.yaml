@@ -24,6 +24,6 @@ spec:
         - name: 'title'
           value: 'NZ Roads (Addressing)'
         - name: 'individual'
-          value: 'true'
+          value: 'individual'
         - name: 'retry'
           value: '2'
