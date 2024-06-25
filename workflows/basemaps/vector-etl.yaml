@@ -43,10 +43,10 @@ spec:
 
       - name: individual
         description: 'Individual Config or Combined Config'
-        value: 'false'
+        value: 'combined'
         enum:
-          - 'true'
-          - 'false'
+          - 'individual'
+          - 'combined'
 
       - name: retry
         description: Number of retry on failure vector-etl task
@@ -122,4 +122,4 @@ spec:
           - 'create-pr'
           - '--target={{ inputs.parameters.target }}'
           - '--config-type=vector'
-          - '--individual={{workflow.parameters.individual}}'
+          - "--individual={{= workflow.parameters.filename == 'individual'? 'true' : 'false' }}"

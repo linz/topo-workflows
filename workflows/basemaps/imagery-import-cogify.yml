@@ -84,10 +84,10 @@ spec:
 
       - name: individual
         description: 'Individual Config or Combined Config'
-        value: 'false'
+        value: 'combined'
         enum:
-          - 'true'
-          - 'false'
+          - 'individual'
+          - 'combined'
 
       - name: category
         value: 'Rural Aerial Photos'
@@ -389,5 +389,5 @@ spec:
           - '--target={{inputs.parameters.target}}'
           - '--ticket={{workflow.parameters.ticket}}'
           - '--config-type={{workflow.parameters.config_type}}'
-          - '--individual={{workflow.parameters.individual}}'
+          - "--individual={{= workflow.parameters.filename == 'individual'? 'true' : 'false' }}"
           - '--category={{workflow.parameters.category}}'
