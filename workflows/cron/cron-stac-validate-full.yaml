@@ -45,7 +45,7 @@ spec:
                   - name: 'checksum_assets'
                     value: '{{workflow.parameters.checksum_assets}}'
                   - name: 'checksum_links'
-                    value: '{{workflow.parameters.checksum_assets}}'
+                    value: '{{workflow.parameters.checksum_links}}'
             - name: stac-validate-elevation
               templateRef:
                 name: stac-validate-parallel
@@ -61,4 +61,4 @@ spec:
                   - name: 'checksum_assets'
                     value: '{{workflow.parameters.checksum_assets}}'
                   - name: 'checksum_links'
-                    value: '{{workflow.parameters.checksum_assets}}'
+                    value: '{{workflow.parameters.checksum_links}}'
