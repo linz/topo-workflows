@@ -14,7 +14,7 @@ spec:
       - name: version_argo_tasks
         description: Version of the Argo Tasks CLI docker container to use
         value: 'v4'
-      
+
       - name: version_basemaps_etl
         description: Version of the Basemaps ETL eks container to use
         value: 'v1'
@@ -40,6 +40,13 @@ spec:
         enum:
           - 'true'
           - 'false'
+
+      - name: individual
+        description: 'Individual Config or Combined Config'
+        value: 'combined'
+        enum:
+          - 'individual'
+          - 'combined'
 
       - name: retry
         description: Number of retry on failure vector-etl task
@@ -114,4 +121,5 @@ spec:
           - 'bmc'
           - 'create-pr'
           - '--target={{ inputs.parameters.target }}'
-          - '--vector'
+          - '--config-type=vector'
+          - "--individual={{= workflow.parameters.individual == 'individual'? 'true' : 'false' }}"
