@@ -298,6 +298,8 @@ spec:
       image: ''
   templates:
     - name: main
+      retryStrategy:
+        expression: 'false'
       inputs:
         parameters:
           - name: source
