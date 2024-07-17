@@ -161,6 +161,7 @@ spec:
           - name: cutline
           - name: cutline_blend
           - name: group_size
+          - name: require_stac_collection
       dag:
         tasks:
           # For each tile matrix specified run the "cogify" template
