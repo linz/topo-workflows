@@ -26,12 +26,13 @@ spec:
   arguments:
     parameters:
       - name: version_argo_tasks
+        description: 'Change this to specify the version of the argo-tasks image e.g. "latest"'
         value: 'v4'
       - name: ticket
-        description: Ticket ID e.g. 'AIP-55'
+        description: 'Ticket ID e.g. "LI-1570"'
         value: ''
       - name: region
-        description: Region of the dataset
+        description: 'Region of the dataset'
         value: 'new-zealand'
         enum:
           - 'antarctica'
@@ -55,14 +56,17 @@ spec:
           - 'wellington'
           - 'west-coast'
       - name: source
+        description: 'S3 location of the source dataset'
         value: 's3://linz-imagery-staging/test/sample/'
       - name: target_bucket_name
+        description: 'The ODR bucket name to publish to e.g. "nz-imagery" or "nz-elevation"'
         value: ''
         enum:
           - 'nz-elevation'
           - 'nz-imagery'
           - ''
       - name: copy_option
+        description: 'Do not overwrite existing files ("no-clobber"), or "force" overwriting files in the target location'
         value: '--no-clobber'
         enum:
           - '--no-clobber'
