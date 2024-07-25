@@ -32,7 +32,7 @@ spec:
         description: 'Specify a version of the basemaps-cli image to use, e.g. "v7.1" or "latest"'
         value: 'v7'
       - name: version_topo_imagery
-        description: 'Specify a version of the topo-imagery image to use, e.g. "4.8" or "latest"'
+        description: 'Specify a version of the topo-imagery image to use, e.g. "v4.8" or "latest"'
         value: 'v4'
       - name: ticket
         description: 'Ticket ID, e.g. "LI-1570"'
