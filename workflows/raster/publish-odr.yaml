@@ -3,7 +3,7 @@
 apiVersion: argoproj.io/v1alpha1
 kind: WorkflowTemplate
 metadata:
-  name: publish-odr
+  name: test-afage-desc-publish-odr
   labels:
     linz.govt.nz/category: raster
     linz.govt.nz/data-type: raster
@@ -26,13 +26,13 @@ spec:
   arguments:
     parameters:
       - name: version_argo_tasks
-        description: 'Change this to specify the version of the argo-tasks image e.g. "latest"'
+        description: 'Specify a version of the argo-tasks image to use, e.g. "4.1" or "latest"'
         value: 'v4'
       - name: ticket
-        description: 'Ticket ID e.g. "LI-1570"'
+        description: 'Ticket ID, e.g. "LI-1570"'
         value: ''
       - name: region
-        description: 'Region of the dataset'
+        description: 'Region of the dataset from the list below'
         value: 'new-zealand'
         enum:
           - 'antarctica'
@@ -59,14 +59,14 @@ spec:
         description: 'S3 location of the source dataset'
         value: 's3://linz-imagery-staging/test/sample/'
       - name: target_bucket_name
-        description: 'The ODR bucket name to publish to e.g. "nz-imagery" or "nz-elevation"'
+        description: 'The ODR bucket name to publish to, e.g. "nz-imagery" or "nz-elevation"'
         value: ''
         enum:
           - 'nz-elevation'
           - 'nz-imagery'
           - ''
       - name: copy_option
-        description: 'Do not overwrite existing files ("no-clobber"), or "force" overwriting files in the target location'
+        description: 'Do not overwrite existing files with "no-clobber", or "force" overwriting files in the target location'
         value: '--no-clobber'
         enum:
           - '--no-clobber'
