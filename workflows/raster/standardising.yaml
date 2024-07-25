@@ -68,7 +68,7 @@ spec:
         description: 'Regular expression pattern match for paths/files to include e.g ".tiff?$"'
         value: '.tiff?$'
       - name: scale
-        description: 'Scale of the standardised output imagery, e.g. "10000"'
+        description: 'Scale of the standardised output imagery'
         value: '500'
         enum:
           - '500'
@@ -300,7 +300,7 @@ spec:
           - 'false'
           - 'true'
       - name: target_bucket_name
-        description: 'The ODR bucket name to publish to, e.g. "nz-imagery" or "nz-elevation"'
+        description: 'The ODR bucket name to publish to'
         value: ''
         enum:
           - ''

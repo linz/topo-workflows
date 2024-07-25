@@ -59,7 +59,7 @@ spec:
         description: 'S3 location of the source dataset'
         value: 's3://linz-imagery-staging/test/sample/'
       - name: target_bucket_name
-        description: 'The ODR bucket name to publish to, e.g. "nz-imagery" or "nz-elevation"'
+        description: 'The ODR bucket name to publish to'
         value: ''
         enum:
           - 'nz-elevation'
