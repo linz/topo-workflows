@@ -26,16 +26,19 @@ spec:
   arguments:
     parameters:
       - name: version_argo_tasks
+        description: 'Specify a version of the argo-tasks image to use, e.g. "v4.1" or "latest"'
         value: 'v4'
       - name: version_basemaps_cli
+        description: 'Specify a version of the basemaps-cli image to use, e.g. "v7.1" or "latest"'
         value: 'v7'
       - name: version_topo_imagery
+        description: 'Specify a version of the topo-imagery image to use, e.g. "v4.8" or "latest"'
         value: 'v4'
       - name: ticket
-        description: Ticket ID e.g. 'AIP-55'
+        description: 'Ticket ID, e.g. "LI-1570"'
         value: ''
       - name: region
-        description: Region of the dataset
+        description: 'Region of the dataset from the list below'
         value: 'new-zealand'
         enum:
           - 'antarctica'
@@ -59,10 +62,13 @@ spec:
           - 'wellington'
           - 'west-coast'
       - name: source
+        description: 'S3 location of the source dataset(s). Separate multiple sources with a semicolon (;) for merging. Target imagery will be layered (bottom to top) in order specified (left to right)'
         value: 's3://linz-imagery-staging/test/sample/'
       - name: include
+        description: 'Regular expression pattern match for paths/files to include e.g ".tiff?$"'
         value: '.tiff?$'
       - name: scale
+        description: 'Scale of the standardised output imagery'
         value: '500'
         enum:
           - '500'
@@ -73,28 +79,35 @@ spec:
           - '50000'
           - 'None'
       - name: validate
+        description: 'Validate the tiles match LINZ map sheet tile index and there are no duplicate tiles'
         value: 'true'
         enum:
           - 'false'
           - 'true'
       - name: retile
+        description: 'Retile the dataset to the output scale specified in the "scale" parameter'
         value: 'false'
         enum:
           - 'true'
           - 'false'
       - name: source_epsg
+        description: 'EPSG of the source files'
         value: '2193'
       - name: target_epsg
+        description: 'EPSG of the standardised output files'
         value: '2193'
       - name: group
+        description: 'How many output tiles to process in each standardising task "pod". Change if you have resource or performance issues when standardising a dataset.'
         value: '50'
       - name: compression
+        description: 'Compression type to use when standardising TIFFs, e.g. "webp" for imagery or "dem_lerc" for elevation data'
         value: 'webp'
         enum:
           - 'webp'
           - 'lzw'
           - 'dem_lerc'
       - name: create_capture_area
+        description: 'Create a capture area GeoJSON file for the standardised dataset'
         value: 'true'
         enum:
           - 'false'
@@ -106,6 +119,7 @@ spec:
         description: '(Optional) If an existing dataset add collection ID here, else a new one will be generated.'
         value: ''
       - name: category
+        description: 'Geospatial category of the dataset'
         value: 'urban-aerial-photos'
         enum:
           - 'aerial-photos'
@@ -116,8 +130,9 @@ spec:
           - 'dsm'
           - 'satellite-imagery'
       - name: gsd
-        description: 'Dataset GSD (e.g., "0.3m")'
+        description: 'Dataset GSD, e.g., "0.3m" (the "m" must be included)'
       - name: producer
+        description: 'The producer of the source dataset, e.g. aerial or bathymetric survey company'
         value: 'Unknown'
         enum:
           [
@@ -144,9 +159,10 @@ spec:
             'Woolpert',
           ]
       - name: producer_list
-        description: '(Optional) List of imagery producers, separated by a semicolons (;). Has no effect unless a semicolon delimited list is entered.'
+        description: '(Optional) List of imagery producers, separated by semicolon (;). Has no effect unless a semicolon delimited list is entered.'
         value: ''
       - name: licensor
+        description: 'The licensor of the dataset, e.g. local or regional council, government agency, satellite provider'
         value: 'Unknown'
         enum:
           [
@@ -251,16 +267,19 @@ spec:
             'Whangārei District Council',
           ]
       - name: licensor_list
-        description: '(Optional) List of imagery licensors, separated by a semicolons (;). Has no effect unless a semicolon delimited list is entered.'
+        description: '(Optional) List of imagery licensors, separated by semicolon (;). Has no effect unless a semicolon delimited list is entered.'
         value: ''
       - name: start_datetime
+        description: 'Dataset capture start date in numeric format YYYY-MM-DD, e.g. "2024-01-14"'
         value: 'YYYY-MM-DD'
       - name: end_datetime
+        description: 'Dataset capture end date in numeric format YYYY-MM-DD, e.g. "2024-02-23"'
         value: 'YYYY-MM-DD'
       - name: geographic_description
-        description: '(Optional) Additional datatset description, to be used in the title in place of the Region (e.g., "Hamilton")'
+        description: '(Optional) Additional datatset description, to be used in the title in place of the Region, e.g. "Hamilton"'
         value: ''
       - name: lifecycle
+        description: 'The release lifecycle status of the dataset, e.g. "completed or "ongoing"'
         value: 'completed'
         enum:
           - 'under development'
@@ -269,17 +288,19 @@ spec:
           - 'completed'
           - 'deprecated'
       - name: event
-        description: '(Optional) Event name if dataset has been captured in association with an event (e.g., "Top of the South Floods")'
+        description: '(Optional) Event name if dataset has been captured in association with an event, e.g. "Top of the South Floods"'
         value: ''
       - name: historic_survey_number
-        description: '(Optional) Survey Number associated with historical datasets, (e.g., "SN8844")'
+        description: '(Optional) Survey Number associated with historical datasets, e.g. "SN8844"'
         value: ''
       - name: publish_to_odr
+        description: 'Create a Pull Request for publishing to imagery or elevation ODR bucket'
         value: 'false'
         enum:
           - 'false'
           - 'true'
       - name: target_bucket_name
+        description: 'The ODR bucket name to publish to'
         value: ''
         enum:
           - ''
@@ -287,6 +308,7 @@ spec:
           - 'nz-elevation'
           - ''
       - name: copy_option
+        description: 'Do not overwrite existing files with "no-clobber", or "force" overwriting files in the target location'
         value: '--no-clobber'
         enum:
           - '--no-clobber'
@@ -608,7 +630,7 @@ spec:
       inputs:
         parameters:
           - name: location
-            description: Location of the imagery to create config for
+            description: 'Location of the imagery to create config for'
           - name: bucket
           - name: key
       container:
@@ -623,11 +645,11 @@ spec:
       outputs:
         parameters:
           - name: url
-            description: Basemaps URL to view the imagery
+            description: 'Basemaps URL to view the imagery'
             valueFrom:
               path: '/tmp/cogify/config-url'
           - name: config
-            description: Location of the config file
+            description: 'Location of the config file'
             valueFrom:
               path: '/tmp/cogify/config-path'
         artifacts:
