@@ -116,7 +116,7 @@ spec:
         description: '(Optional) location of a cutline file to cut the imagery to .fgb or .geojson'
         value: ''
       - name: collection_id
-        description: '(Optional) if an existing dataset add collection ID here, else a new one will be generated.'
+        description: '(Optional) If an existing dataset add collection ID here, else a new one will be generated.'
         value: ''
       - name: category
         description: 'Geospatial category of the dataset'
