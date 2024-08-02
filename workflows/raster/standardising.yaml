@@ -12,6 +12,7 @@ spec:
   nodeSelector:
     karpenter.sh/capacity-type: 'spot'
   entrypoint: main
+  onExit: exit-handler
   synchronization:
     semaphore:
       configMapKeyRef:
@@ -660,6 +661,19 @@ spec:
               key: '{{inputs.parameters.key}}flat/config-url'
             archive:
               none: {}
+
+    - name: exit-handler
+      steps:
+        - - name: exit
+            templateRef:
+              name: tpl-exit-handler
+              template: main
+            arguments:
+              parameters:
+                - name: workflow_status
+                  value: '{{workflow.status}}'
+                - name: workflow_parameters
+                  value: '{{workflow.parameters}}'
 
   volumes:
     - name: ephemeral
