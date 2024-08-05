@@ -35,6 +35,6 @@ spec:
               level: 20,
               pid: 1,
               msg: 'Workflow:{{inputs.parameters.workflow_status}}',
-              ...parameters,
+              parameters: parameters,
             }),
           );
