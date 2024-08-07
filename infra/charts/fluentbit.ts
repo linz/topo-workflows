@@ -93,6 +93,14 @@ HC_Period 5
         kinesis: { enabled: false },
         elasticsearch: { enabled: false },
         service: { extraParsers, extraService },
+        filter: {
+          /**
+           * Increase the Buffer_Size (default "32k")
+           * as we experienced logs not coming through
+           * See: https://github.com/argoproj/argo-workflows/issues/13314
+           */
+          bufferSize: '128k',
+        },
         // FIXME: `livenessProbe` and `readinessProbe` deactivated https://github.com/aws/eks-charts/issues/995
         livenessProbe: false,
         readinessProbe: false,
