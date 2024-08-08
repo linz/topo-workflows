@@ -4,7 +4,7 @@ apiVersion: argoproj.io/v1alpha1
 kind: WorkflowTemplate
 metadata:
   # Template to log the workflow status and its parameters.
-  name: tpl-exit-handler
+  name: test-tpl-exit-handler
 spec:
   templateDefaults:
     container:
@@ -28,7 +28,7 @@ spec:
         source: |
           let parameters = {};
           {{= inputs.parameters.workflow_parameters }}.forEach((pair) => (parameters[pair.name] = pair.value));
-          const success = {{inputs.parameters.workflow_status}} === 'Succeeded' ? true : false;
+          const success = '{{inputs.parameters.workflow_status}}' === 'Succeeded' ? true : false;
 
           console.log(
             JSON.stringify({
