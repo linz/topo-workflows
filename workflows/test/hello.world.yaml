@@ -1,0 +1,26 @@
+# yaml-language-server: $schema=https://raw.githubusercontent.com/argoproj/argo-workflows/v3.5.5/api/jsonschema/schema.json
+
+apiVersion: argoproj.io/v1alpha1
+kind: Workflow
+metadata:
+  # Template to log the workflow status and its parameters.
+  generateName: test-hello-world-script-
+spec:
+  templateDefaults:
+    container:
+      imagePullPolicy: Always
+      image: ''
+  entrypoint: main
+  templates:
+
+    - name: main
+      steps:
+      - - name: print-log
+          template: print-log
+    
+
+    - name: print-log
+      container:
+        image: '019359803926.dkr.ecr.ap-southeast-2.amazonaws.com/topo-imagery:latest'
+        command: [sh, -c]
+        args: ['echo "DoesEchoStillWork?"']

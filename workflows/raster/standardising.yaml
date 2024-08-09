@@ -456,6 +456,7 @@ spec:
           - name: target
             valueFrom:
               parameter: '{{tasks.get-location.outputs.parameters.location}}'
+            
       # END TEMPLATE `main`
 
     - name: collection-id-setup
@@ -649,6 +650,7 @@ spec:
             description: 'Basemaps URL to view the imagery'
             valueFrom:
               path: '/tmp/cogify/config-url'
+            globalName: basemapsUrl
           - name: config
             description: 'Location of the config file'
             valueFrom:
@@ -663,17 +665,24 @@ spec:
               none: {}
 
     - name: exit-handler
+      inputs:
+        parameters:
+          - name: basemaps-url
+            value: '{{workflow.outputs.parameters.basemapsUrl}}'
       retryStrategy:
         limit: '0' # `tpl-exit-handler` retries itself
       steps:
         - - name: exit
             templateRef:
-              name: tpl-exit-handler
+              name: test-tpl-exit-handler
               template: main
             arguments:
               parameters:
                 - name: workflow_status
                   value: '{{workflow.status}}'
+                - name: workflow_extras
+                  value: |
+                    {"basemapsUrl": "{{inputs.parameters.basemaps-url}}"}
                 - name: workflow_parameters
                   value: '{{workflow.parameters}}'
 
