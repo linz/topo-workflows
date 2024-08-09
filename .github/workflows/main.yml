@@ -6,7 +6,7 @@ jobs:
     steps:
       - uses: linz/action-typescript@9bf69b0f313b3525d3ba3116f26b1aff7eb7a6c0 # v3.1.0
         with:
-          node-version: 20.x
+          node-version: 22.x
       - name: Download actionlint
         run: docker build --tag actionlint - < .github/workflows/actionlint.dockerfile
       - name: Run actionlint to check workflow files
@@ -35,7 +35,7 @@ jobs:
     steps:
       - uses: linz/action-typescript@9bf69b0f313b3525d3ba3116f26b1aff7eb7a6c0 # v3.1.0
         with:
-          node-version: 20.x
+          node-version: 22.x
       # Configure access to AWS / EKS
       - name: Setup kubectl
         uses: azure/setup-kubectl@901a10e89ea615cf61f57ac05cecdf23e7de06d8 # v3
