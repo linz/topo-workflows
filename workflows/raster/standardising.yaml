@@ -663,6 +663,8 @@ spec:
               none: {}
 
     - name: exit-handler
+      retryStrategy:
+        limit: '0' # `tpl-exit-handler` retries itself
       steps:
         - - name: exit
             templateRef:
