@@ -34,7 +34,8 @@ spec:
               time: Date.now(),
               level: 20,
               pid: 1,
-              msg: 'Workflow:{{inputs.parameters.workflow_status}}',
+              msg: 'Workflow:Done',
+              workflowStatus: '{{inputs.parameters.workflow_status}}', 
               parameters,
             }),
           );
