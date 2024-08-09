@@ -28,7 +28,6 @@ spec:
         source: |
           let parameters = {};
           {{= inputs.parameters.workflow_parameters }}.forEach((pair) => (parameters[pair.name] = pair.value));
-          const success = '{{inputs.parameters.workflow_status}}' === 'Succeeded' ? true : false;
 
           console.log(
             JSON.stringify({
@@ -36,7 +35,7 @@ spec:
               level: 20,
               pid: 1,
               msg: 'Workflow:Done',
-              success, 
+              workflowStatus: '{{inputs.parameters.workflow_status}}', 
               parameters,
             }),
           );
