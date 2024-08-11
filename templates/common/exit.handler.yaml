@@ -19,6 +19,7 @@ spec:
             description: Status of the workflow
           - name: workflow_extras
             description: Custom key/value pairs (JSON String) to be logged
+            default: '{}'
           - name: workflow_parameters
             description: Parameters of the workflow
           - name: version_argo_tasks

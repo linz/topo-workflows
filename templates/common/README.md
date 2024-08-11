@@ -88,4 +88,7 @@ spec:
                   value: '{{workflow.status}}'
                 - name: workflow_parameters
                   value: '{{workflow.parameters}}'
+                - name: workflow_extras
+                  value: |
+                    '{"extraKey1": "extra_value1", "extraKey1": "extra_value1"}'
 ```
