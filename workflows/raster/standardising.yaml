@@ -674,7 +674,7 @@ spec:
       steps:
         - - name: exit
             templateRef:
-              name: test-tpl-exit-handler
+              name: tpl-exit-handler
               template: main
             arguments:
               parameters:
