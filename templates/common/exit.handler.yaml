@@ -29,12 +29,27 @@ spec:
           let parameters = {};
           {{= inputs.parameters.workflow_parameters }}.forEach((pair) => (parameters[pair.name] = pair.value));
 
+          function guessWorkflowGroup() {
+            if (parameters['source'] === undefined) {
+              return 'unknown';
+            }
+            if (parameters['source'].startsWith('s3://linz-topographic-upload')) {
+              return 'land';
+            }
+            if (parameters['source'].startsWith('s3://linz-hydrographic-upload')) {
+              return 'sea';
+            }
+            return 'unknown';
+          }
+
           console.log(
             JSON.stringify({
               time: Date.now(),
               level: 20,
               pid: 1,
               msg: 'Workflow:{{inputs.parameters.workflow_status}}',
+              workflowGroup: guessWorkflowGroup(),
               parameters,
             }),
           );
+
