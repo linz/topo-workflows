@@ -30,13 +30,14 @@ spec:
           {{= inputs.parameters.workflow_parameters }}.forEach((pair) => (parameters[pair.name] = pair.value));
 
           function guessWorkflowGroup() {
-            if (parameters['source'] === undefined) {
+            const source = parameters['source'];
+            if (!source) {
               return 'unknown';
             }
-            if (parameters['source'].startsWith('s3://linz-topographic-upload')) {
+            if (source.startsWith('s3://linz-topographic-upload')) {
               return 'land';
             }
-            if (parameters['source'].startsWith('s3://linz-hydrographic-upload')) {
+            if (source.startsWith('s3://linz-hydrographic-upload')) {
               return 'sea';
             }
             return 'unknown';
