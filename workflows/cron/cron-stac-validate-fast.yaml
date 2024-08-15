@@ -24,7 +24,7 @@ spec:
     templates:
       - name: main
         retryStrategy:
-          limit: '0'
+          expression: 'false'
         steps:
           - - name: stac-validate-imagery
               templateRef:

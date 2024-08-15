@@ -24,6 +24,8 @@ spec:
       image: ''
   templates:
     - name: main
+      retryStrategy:
+        expression: 'false'
       dag:
         tasks:
           - name: create-overview
