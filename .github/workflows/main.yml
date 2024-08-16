@@ -85,7 +85,7 @@ jobs:
         if: github.ref == 'refs/heads/master'
         run: |
           # Deploy templates first
-          kubectl apply -f templates/argo-tasks/ --namespace argo
+          kubectl apply -f 'templates/**/*.yml' --namespace argo
 
           # Find all workflows that have kind "WorkflowTemplate"
           WORKFLOWS=$(grep '^kind: WorkflowTemplate$' -R workflows/ -H | cut -d ':' -f1)
