@@ -25,19 +25,20 @@ function runScript(ctx) {
   return createTestFunction(ctx)();
 }
 
-describe('exit handler script template2', () => {
+describe('exit handler script template', () => {
   it('should log workflow status and parameters', (t) => {
     const spy = t.mock.method(console, 'log');
 
     runScript({
-      workflowParameters: `[
-          { name: 'source', value: 's3://linz-topographic-upload/abc/', description: 'Source bucket' },
-          { name: 'ticket', value: 'GDE-123', description: 'JIRA Ticket' },
-        ]`,
+      workflowParameters: JSON.stringify([
+        { name: 'source', value: 's3://linz-topographic-upload/abc/', description: 'Source bucket' },
+        { name: 'ticket', value: 'GDE-123', description: 'JIRA Ticket' },
+      ]),
       workflowStatus: `Succeeded`,
     });
 
     assert.equal(spy.mock.callCount(), 1);
+
     const logOutputDict = JSON.parse(spy.mock.calls[0].arguments[0]);
     // override time
     logOutputDict.time = 1724037007216;
@@ -52,52 +53,44 @@ describe('exit handler script template2', () => {
     });
   });
 
-  it('should log workflowGroup as land', () => {
-    const originalLog = console.log;
-    let logOutput = [];
-    console.log = (...args) => logOutput.push(args.join(' '));
+  it('should log workflowGroup as land', (t) => {
+    const spy = t.mock.method(console, 'log');
 
     runScript({
-      workflowParameters: `[
-          { name: 'source', value: 's3://linz-topographic-upload/abc/'},
-        ]`,
+      workflowParameters: JSON.stringify([{ name: 'source', value: 's3://linz-topographic-upload/abc/' }]),
     });
-    console.log = originalLog;
-    const logOutputDict = JSON.parse(logOutput);
+
+    assert.equal(spy.mock.callCount(), 1);
+
+    const logOutputDict = JSON.parse(spy.mock.calls[0].arguments[0]);
 
     assert.equal(logOutputDict.workflowGroup, 'land');
   });
 
-  it('should log workflowGroup as sea', () => {
-    const originalLog = console.log;
-    let logOutput = [];
-    console.log = (...args) => logOutput.push(args.join(' '));
+  it('should log workflowGroup as sea', (t) => {
+    const spy = t.mock.method(console, 'log');
 
     runScript({
-      workflowParameters: `[
-          { name: 'source', value: 's3://linz-hydrographic-upload/abc/'},
-        ]`,
+      workflowParameters: JSON.stringify([{ name: 'source', value: 's3://linz-hydrographic-upload/abc/' }]),
     });
 
-    console.log = originalLog;
-    const logOutputDict = JSON.parse(logOutput);
+    assert.equal(spy.mock.callCount(), 1);
+
+    const logOutputDict = JSON.parse(spy.mock.calls[0].arguments[0]);
 
     assert.equal(logOutputDict.workflowGroup, 'sea');
   });
 
-  it('should log workflowGroup as unknown', () => {
-    const originalLog = console.log;
-    let logOutput = [];
-    console.log = (...args) => logOutput.push(args.join(' '));
+  it('should log workflowGroup as unknown', (t) => {
+    const spy = t.mock.method(console, 'log');
 
     runScript({
-      workflowParameters: `[
-          { name: 'source', value: 's3://linz-bucket/abc/'},
-        ]`,
+      workflowParameters: JSON.stringify([{ name: 'source', value: 's3://linz-bucket/abc/' }]),
     });
 
-    console.log = originalLog;
-    const logOutputDict = JSON.parse(logOutput);
+    assert.equal(spy.mock.callCount(), 1);
+
+    const logOutputDict = JSON.parse(spy.mock.calls[0].arguments[0]);
 
     assert.equal(logOutputDict.workflowGroup, 'unknown');
   });
