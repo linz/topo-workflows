@@ -38,6 +38,8 @@ spec:
       image: ''
   templates:
     - name: main
+      retryStrategy:
+        expression: 'false'
       inputs:
         parameters:
           - name: version_argo_tasks
@@ -50,8 +52,6 @@ spec:
             value: '{{workflow.parameters.checksum_assets}}'
           - name: checksum_links
             value: '{{workflow.parameters.checksum_links}}'
-      retryStrategy:
-        limit: '0' # avoid retrying any of the following task as `tpl-at-stac-validate` already retries its own tasks.
       dag:
         tasks:
           - name: aws-list-collections
