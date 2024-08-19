@@ -18,24 +18,16 @@ function createTestFunction(ctx) {
     .replace('{{inputs.parameters.workflow_status}}', `${ctx.workflowStatus ?? 'Failed'}`)
     .split('\n')
     .join('\n');
-  //console.log(newFunc);
   return new Function('context', newFunc);
 }
 
 function runScript(ctx) {
-  const action = createTestFunction(ctx);
-
-  const output = {};
-  action();
-
-  return output;
+  return createTestFunction(ctx)();
 }
 
-describe('exit handler script template', () => {
-  it('should log workflow status and parameters', () => {
-    const originalLog = console.log;
-    let logOutput = [];
-    console.log = (...args) => logOutput.push(args.join(' '));
+describe('exit handler script template2', () => {
+  it('should log workflow status and parameters', (t) => {
+    const spy = t.mock.method(console, 'log');
 
     runScript({
       workflowParameters: `[
@@ -45,8 +37,8 @@ describe('exit handler script template', () => {
       workflowStatus: `Succeeded`,
     });
 
-    console.log = originalLog;
-    let logOutputDict = JSON.parse(logOutput);
+    assert.equal(spy.mock.callCount(), 1);
+    const logOutputDict = JSON.parse(spy.mock.calls[0].arguments[0]);
     // override time
     logOutputDict.time = 1724037007216;
 
