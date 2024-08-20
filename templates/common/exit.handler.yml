@@ -31,7 +31,7 @@ spec:
 
           function guessWorkflowGroup() {
             const source = parameters['source'];
-            if (!source) {
+            if (typeof(source) !== 'string') {
               return 'unknown';
             }
             if (source.startsWith('s3://linz-topographic-upload')) {
