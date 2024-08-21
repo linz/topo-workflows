@@ -68,6 +68,12 @@ spec:
           - '--no-clobber'
           - '--force'
           - '--force-no-clobber'
+      - name: flatten
+        description: Flatten the files in the target location
+        default: 'false'
+        enum:
+          - 'true'
+          - 'false'
       - name: group
         value: '1000'
       - name: group_size
@@ -92,6 +98,7 @@ spec:
           - name: target
           - name: include
           - name: exclude
+          - name: flatten
           - name: group
           - name: group_size
       dag:
@@ -110,6 +117,8 @@ spec:
                   value: '{{inputs.parameters.include}}'
                 - name: exclude
                   value: '{{inputs.parameters.exclude}}'
+                - name: flatten
+                  value: '{{inputs.parameters.flatten}}'
                 - name: group
                   value: '{{inputs.parameters.group}}'
                 - name: group_size
