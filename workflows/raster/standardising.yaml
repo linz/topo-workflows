@@ -456,7 +456,7 @@ spec:
           - name: target
             valueFrom:
               parameter: '{{tasks.get-location.outputs.parameters.location}}'
-            
+
       # END TEMPLATE `main`
 
     - name: collection-id-setup

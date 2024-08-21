@@ -32,14 +32,21 @@ spec:
           let parameters = {};
           {{= inputs.parameters.workflow_parameters }}.forEach((pair) => (parameters[pair.name] = pair.value));
 
+          let workflowExtras = {{= inputs.parameters.workflow_extras }};
+
+          if (workflowExtras.hasOwnProperty('basemapsUrl')) {
+            const url = new URL(workflowExtras['basemapsUrl']);
+            workflowExtras['tileMatrix'] = url.searchParams.get('tileMatrix');
+          }
+
           console.log(
             JSON.stringify({
               time: Date.now(),
               level: 20,
               pid: 1,
               msg: 'Workflow:Done',
-              workflowStatus: '{{inputs.parameters.workflow_status}}', 
-              workflowExtras: {{inputs.parameters.workflow_extras}},
+              workflowStatus: 'Succeeded',
+              workflowExtras: workflowExtras,
               parameters,
             }),
           );
