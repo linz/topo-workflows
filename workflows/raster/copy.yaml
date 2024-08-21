@@ -69,7 +69,7 @@ spec:
           - '--force'
           - '--force-no-clobber'
       - name: flatten
-        description: Flatten the files in the target location (useful for multiple source locations)
+        description: Flatten the files in the target location
         default: 'false'
         enum:
           - 'true'

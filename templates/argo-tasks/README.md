@@ -136,6 +136,8 @@ Create a manifest file for a user specified source and target that includes `.ti
         value: '\.tiff?$|\.json$|\.tfw$'
       - name: exclude
         value: ''
+      - name: flatten
+        value: 'false'
       - name: group
         value: '1000'
       - name: group_size
