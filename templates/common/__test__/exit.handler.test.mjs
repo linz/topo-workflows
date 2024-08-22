@@ -47,7 +47,8 @@ describe('exit handler script template', () => {
       time: 1724037007216,
       level: 20,
       pid: 1,
-      msg: 'Workflow:Succeeded',
+      msg: 'Workflow:Done',
+      workflowStatus: 'Succeeded',
       workflowGroup: 'land',
       parameters: { source: 's3://linz-topographic-upload/abc/', ticket: 'GDE-123' },
     });
