@@ -42,6 +42,13 @@ spec:
               - '--force'
               - '--force-no-clobber'
 
+          - name: flatten
+            description: Flatten the files in the target location
+            default: 'false'
+            enum:
+              - 'true'
+              - 'false'
+
           - name: group
             description: The maximum number of files for each pod to copy (will use the value of `group` or `group_size` that is reached first)
             default: '1000'
@@ -74,6 +81,7 @@ spec:
             '{{=sprig.trim(inputs.parameters.include)}}',
             '--exclude',
             '{{inputs.parameters.exclude}}',
+            '--flatten={{=sprig.trim(inputs.parameters.flatten)}}',
             '--group',
             '{{=sprig.trim(inputs.parameters.group)}}',
             '--group-size',
