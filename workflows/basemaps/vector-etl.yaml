@@ -52,6 +52,10 @@ spec:
         description: Number of retry on failure vector-etl task
         value: '1'
 
+      - name: config
+        description: 'Config file that etl importing to compare'
+        value: 's3://linz-basemaps/config/config-latest.json.gz'
+
   templateDefaults:
     container:
       imagePullPolicy: Always
@@ -63,8 +67,13 @@ spec:
         expression: 'false'
       dag:
         tasks:
+          - name: check-updates
+            template: check-updates
+
           - name: vector-etl
             template: vector-etl
+            depends: 'check-updates'
+            when: '{{tasks.check-updates.outputs.parameters.updatesRequired}} == true'
 
           - name: create-pull-request
             template: create-pull-request
@@ -74,6 +83,27 @@ spec:
                   value: '{{ tasks.vector-etl.outputs.parameters.target }}'
             when: '{{ workflow.parameters.create_pull_request }} == true'
             depends: 'vector-etl'
+
+    - name: check-updates
+      container:
+        image: 019359803926.dkr.ecr.ap-southeast-2.amazonaws.com/eks:bm-etl-{{ workflow.parameters.version_basemaps_etl }}
+        command: [node, /app/index.js]
+        env:
+          - name: AWS_ROLE_CONFIG_PATH
+            value: s3://linz-bucket-config/config.json
+        args:
+          - 'check-updates'
+          - '--filename={{ workflow.parameters.filename }}'
+          - '--config={{ workflow.parameters.config }}'
+          - '--output=/tmp/'
+      outputs:
+        parameters:
+          - name: updates
+            valueFrom:
+              path: '/tmp/updates.json'
+          - name: updatesRequired
+            valueFrom:
+              path: '/tmp/updatesRequired'
 
     - name: vector-etl
       retryStrategy:
@@ -90,8 +120,9 @@ spec:
         command: [node, /app/index.js]
         env:
           - name: AWS_ROLE_CONFIG_PATH
-            value: s3://linz-bucket-config/config.basemaps.json
+            value: s3://linz-bucket-config/config.json
         args:
+          - 'etl'
           - "{{= workflow.parameters.filename == 'topographic'? '--all' : '--layer=' + workflow.parameters.filename }}"
           - '--target={{ workflow.parameters.target }}'
           - '--filename={{ workflow.parameters.filename }}'
