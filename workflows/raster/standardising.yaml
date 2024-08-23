@@ -20,6 +20,8 @@ spec:
         key: standardising
   workflowMetadata:
     labelsFrom:
+      linz.govt.nz/user-group:
+        expression: workflow.parameters.user_group
       linz.govt.nz/ticket:
         expression: workflow.parameters.ticket
       linz.govt.nz/region:
@@ -35,6 +37,13 @@ spec:
       - name: version_topo_imagery
         description: 'Specify a version of the topo-imagery image to use, e.g. "v4.8" or "latest"'
         value: 'v4'
+      - name: user_group
+        description: Group of users running the workflow
+        value: ''
+        enum:
+          - 'land'
+          - 'sea'
+          - ''
       - name: ticket
         description: 'Ticket ID, e.g. "LI-1570"'
         value: ''

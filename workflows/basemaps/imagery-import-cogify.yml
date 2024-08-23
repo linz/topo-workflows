@@ -21,6 +21,8 @@ spec:
       image: ''
   workflowMetadata:
     labelsFrom:
+      linz.govt.nz/user-group:
+        expression: workflow.parameters.user_group
       linz.govt.nz/ticket:
         expression: workflow.parameters.ticket
       linz.govt.nz/region:
@@ -34,6 +36,14 @@ spec:
       - name: version_argo_tasks
         description: Version of the basemaps CLI docker container to use
         value: v4
+
+      - name: user_group
+        description: Group of users running the workflow
+        value: ''
+        enum:
+          - 'land'
+          - 'sea'
+          - ''
 
       - name: ticket
         description: Ticket ID e.g. 'AIP-55'
@@ -75,7 +85,7 @@ spec:
       - name: source
         description: Source imagery location "s3://linz-imagery"
         value: 's3://linz-imagery-staging/test/sample/'
-      
+
       - name: require_stac_collection
         description: Validate that a STAC collection.json exists with the source
         value: 'true'
