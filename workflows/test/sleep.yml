@@ -8,6 +8,9 @@ metadata:
     linz.govt.nz/category: test
 spec:
   entrypoint: sleep
+  podMetadata:
+    labels:
+      linz.govt.nz/category: test
   templates:
     - name: sleep
       nodeSelector:
