@@ -81,7 +81,7 @@ spec:
               parameters:
                 - name: target
                   value: '{{ tasks.vector-etl.outputs.parameters.target }}'
-            when: '{{ workflow.parameters.create_pull_request }} == true'
+            when: '{{ workflow.parameters.create_pull_request }} == true && {{tasks.check-updates.outputs.parameters.updatesRequired}} == true'
             depends: 'vector-etl'
 
     - name: check-updates
