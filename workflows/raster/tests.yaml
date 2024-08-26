@@ -12,6 +12,10 @@ spec:
   podGC:
     strategy: OnPodCompletion # Delete pod once its finished
   entrypoint: test-script
+  podMetadata:
+    labels:
+      linz.govt.nz/category: test
+      linz.govt.nz/data-type: raster
   arguments:
     parameters:
       - name: version_topo_imagery

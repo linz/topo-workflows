@@ -24,6 +24,12 @@ spec:
         expression: workflow.parameters.ticket
       linz.govt.nz/region:
         expression: workflow.parameters.region
+  podMetadata:
+    labels:
+      linz.govt.nz/category: raster
+      linz.govt.nz/data-type: raster
+      linz.govt.nz/ticket: '{{workflow.parameters.ticket}}'
+      linz.govt.nz/region: '{{workflow.parameters.region}}'
   arguments:
     parameters:
       - name: version_argo_tasks
