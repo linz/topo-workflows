@@ -9,6 +9,9 @@ metadata:
     linz.govt.nz/category: test
 spec:
   entrypoint: main
+  podMetadata:
+    labels:
+      linz.govt.nz/category: test
   arguments:
     parameters:
       - name: version_argo_tasks

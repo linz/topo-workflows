@@ -29,6 +29,10 @@ spec:
   podMetadata:
     labels:
       linz.govt.nz/user-group: '{{workflow.parameters.user_group}}'
+      linz.govt.nz/category: raster
+      linz.govt.nz/data-type: raster
+      linz.govt.nz/ticket: '{{workflow.parameters.ticket}}'
+      linz.govt.nz/region: '{{workflow.parameters.region}}'
   arguments:
     parameters:
       - name: version_argo_tasks
