@@ -8,6 +8,9 @@ metadata:
     linz.govt.nz/category: basemaps
 spec:
   entrypoint: main
+  podMetadata:
+    labels:
+      linz.govt.nz/category: basemaps
   arguments:
     parameters:
       - name: version_basemaps_cli

@@ -15,6 +15,9 @@ spec:
   suspend: false
   workflowSpec:
     entrypoint: main
+    podMetadata:
+      labels:
+        linz.govt.nz/category: stac
     arguments:
       parameters:
         - name: version_argo_tasks
