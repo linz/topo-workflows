@@ -27,6 +27,9 @@ spec:
         expression: workflow.parameters.ticket
       linz.govt.nz/region:
         expression: workflow.parameters.region
+  podMetadata:
+    labels:
+      linz.govt.nz/user-group: '{{workflow.parameters.user_group}}'
   arguments:
     parameters:
       - name: version_basemaps_cli
