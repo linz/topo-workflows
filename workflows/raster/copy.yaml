@@ -34,11 +34,11 @@ spec:
         value: 'v4'
       - name: user_group
         description: Group of users running the workflow
-        value: ''
+        value: 'none'
         enum:
           - 'land'
           - 'sea'
-          - ''
+          - 'none'
       - name: ticket
         description: Ticket ID e.g. 'AIP-55'
         value: ''
