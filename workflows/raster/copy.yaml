@@ -19,12 +19,15 @@ spec:
         key: bulkcopy
   workflowMetadata:
     labelsFrom:
+      linz.govt.nz/user-group:
+        expression: workflow.parameters.user_group
       linz.govt.nz/ticket:
         expression: workflow.parameters.ticket
       linz.govt.nz/region:
         expression: workflow.parameters.region
   podMetadata:
     labels:
+      linz.govt.nz/user-group: '{{workflow.parameters.user_group}}'
       linz.govt.nz/category: raster
       linz.govt.nz/data-type: raster
       linz.govt.nz/ticket: '{{workflow.parameters.ticket}}'
@@ -33,6 +36,13 @@ spec:
     parameters:
       - name: version_argo_tasks
         value: 'v4'
+      - name: user_group
+        description: Group of users running the workflow
+        value: 'none'
+        enum:
+          - 'land'
+          - 'sea'
+          - 'none'
       - name: ticket
         description: Ticket ID e.g. 'AIP-55'
         value: ''
