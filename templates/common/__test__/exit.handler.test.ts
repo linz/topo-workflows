@@ -2,16 +2,13 @@ import assert from 'node:assert';
 import fs from 'node:fs';
 import { describe, it } from 'node:test';
 
-type scriptContext = { workflowParameters: string; workflowStatus: string };
-
 /**
  * Read the workflow YAML file and create a function from the script inside.
  * replacing {{ inputs.* }} with ctx
  *
- * @param {*} ctx
- * @returns Function that requires a `context`
+ * @param ctx
  */
-function runTestFunction(ctx: scriptContext): void {
+function runTestFunction(ctx: { workflowParameters: string; workflowStatus: string }): void {
   const func = fs.readFileSync('./templates/common/exit.handler.yml', 'utf-8').split('source: |')[1];
   if (!func) {
     throw new Error('No script found in the workflow');
