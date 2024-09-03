@@ -79,8 +79,11 @@ spec:
           - 'wellington'
           - 'west-coast'
       - name: source
-        description: 'S3 location of the source dataset(s). Separate multiple sources with a semicolon (;) for merging. Target imagery will be layered (bottom to top) in order specified (left to right)'
-        value: 's3://linz-imagery-staging/test/sample/'
+        description: 'Location of the configuration file listing the source datasets to merge.'
+        value: 'https://raw.githubusercontent.com/linz/basemaps-config/master/config/tileset/elevation.json'
+      - name: compare
+        description: 'Existing collection.json to compare with the new merging.'
+        value: ''
       - name: include
         description: 'Regular expression pattern match for paths/files to include e.g ".tiff?$"'
         value: '.tiff?$'
@@ -353,6 +356,8 @@ spec:
               parameters:
                 - name: source
                   value: '{{workflow.parameters.source}}'
+                - name: compare
+                  value: '{{workflow.parameters.compare}}'
 
           - name: group
             templateRef:
@@ -480,6 +485,7 @@ spec:
       inputs:
         parameters:
           - name: source
+          - name: compare
       container:
         image: 'ghcr.io/linz/argo-tasks:pr-1048'
         resources:
@@ -498,6 +504,8 @@ spec:
             '{{inputs.parameters.source}}',
             '--epsg-code',
             '{{workflow.parameters.source_epsg}}',
+            '--compare',
+            '{{inputs.parameters.compare}}',
           ]
       outputs:
         artifacts:
