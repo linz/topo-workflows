@@ -528,7 +528,7 @@ spec:
           - name: group_data
             path: /tmp/input/
       container:
-        image: '019359803926.dkr.ecr.ap-southeast-2.amazonaws.com/topo-imagery:{{=sprig.trim(workflow.parameters.version_topo_imagery)}}'
+        image: 'ghcr.io/linz/topo-imagery:pr-1043'
         resources:
           requests:
             memory: 7.8Gi
