@@ -349,6 +349,7 @@ spec:
         tasks:
           - name: collection-id-setup
             template: collection-id-setup
+            depends: 'group.Succeeded'
 
           - name: create-mapsheet
             template: create-mapsheet
@@ -358,7 +359,7 @@ spec:
                   value: '{{workflow.parameters.source}}'
                 - name: compare
                   value: '{{workflow.parameters.compare}}'
-
+            
           - name: group
             templateRef:
               name: tpl-at-group
@@ -373,6 +374,7 @@ spec:
                 - name: version
                   value: '{{= workflow.parameters.version_argo_tasks}}'
             depends: 'create-mapsheet'
+            when: "{{tasks.create-mapsheet.outputs.parameters.file_list}} != []"
 
           - name: standardise-validate
             template: standardise-validate
@@ -387,7 +389,7 @@ spec:
               artifacts:
                 - name: group_data
                   from: '{{ tasks.group.outputs.artifacts.output }}'
-            depends: 'group && collection-id-setup && get-location'
+            depends: 'collection-id-setup.Succeeded && get-location.Succeeded'
             withParam: '{{ tasks.group.outputs.parameters.output }}'
 
           - name: create-collection
@@ -398,7 +400,7 @@ spec:
                   value: '{{tasks.collection-id-setup.outputs.parameters.collection-id}}'
                 - name: location
                   value: '{{tasks.get-location.outputs.parameters.location}}'
-            depends: 'standardise-validate'
+            depends: 'standardise-validate.Succeeded'
 
           - name: stac-validate
             templateRef:
@@ -412,10 +414,11 @@ spec:
                 - name: stac-result
                   raw:
                     data: '{{tasks.stac-validate.outputs.result}}'
-            depends: 'create-collection'
+            depends: 'create-collection.Succeeded'
 
           - name: get-location
             template: get-location
+            depends: 'group.Succeeded'
 
           - name: create-overview
             when: "'{{workflow.parameters.target_epsg}}' =~ '2193|3857' && '{{workflow.parameters.compression}}' != 'dem_lerc'"
@@ -424,7 +427,7 @@ spec:
                 - name: location
                   value: '{{tasks.get-location.outputs.parameters.location}}'
             template: create-overview
-            depends: 'standardise-validate'
+            depends: 'standardise-validate.Succeeded'
 
           - name: create-config
             when: "'{{workflow.parameters.target_epsg}}' =~ '2193|3857'"
@@ -437,7 +440,7 @@ spec:
                 - name: key
                   value: '{{tasks.get-location.outputs.parameters.key}}'
             template: create-config
-            depends: 'create-overview'
+            depends: 'create-overview.Succeeded'
 
           - name: publish-odr
             templateRef:
@@ -454,13 +457,14 @@ spec:
                   value: '{{workflow.parameters.copy_option}}'
                 - name: ticket
                   value: '{{=sprig.trim(workflow.parameters.ticket)}}'
-            depends: 'stac-validate && create-config'
+            depends: 'stac-validate.Succeeded && create-config.Succeeded'
 
       outputs:
         parameters:
           - name: target
             valueFrom:
               parameter: '{{tasks.get-location.outputs.parameters.location}}'
+              default: ''
       # END TEMPLATE `main`
 
     - name: collection-id-setup
@@ -508,6 +512,10 @@ spec:
             '{{inputs.parameters.compare}}',
           ]
       outputs:
+        parameters:
+          - name: file_list
+            valueFrom:
+              path: /tmp/mapsheet-coverage/file-list.json
         artifacts:
           # List of tiff files that need to be processed
           - name: files
