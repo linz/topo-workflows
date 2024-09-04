@@ -5,7 +5,7 @@ kind: WorkflowTemplate
 metadata:
   name: test-national-dem-es
   labels:
-    linz.govt.nz/category: raster
+    linz.govt.nz/category: test
     linz.govt.nz/data-type: raster
 spec:
   parallelism: 50
@@ -358,7 +358,8 @@ spec:
                 - name: source
                   value: '{{workflow.parameters.source}}'
                 - name: compare
-                  value: '{{workflow.parameters.compare}}'
+                  # Workaround --compare with empty value will fail so we add the flag inside the input parameter
+                  value: '{{= workflow.parameters.compare != "" ? "--compare=workflow.parameters.compare" : ""}}'
 
           - name: group
             templateRef:
@@ -490,6 +491,7 @@ spec:
         parameters:
           - name: source
           - name: compare
+
       container:
         image: 'ghcr.io/linz/argo-tasks:pr-1048'
         resources:
@@ -508,7 +510,6 @@ spec:
             '{{inputs.parameters.source}}',
             '--epsg-code',
             '{{workflow.parameters.source_epsg}}',
-            '--compare',
             '{{inputs.parameters.compare}}',
           ]
       outputs:
