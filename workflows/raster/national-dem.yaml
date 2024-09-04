@@ -359,7 +359,7 @@ spec:
                   value: '{{workflow.parameters.source}}'
                 - name: compare
                   value: '{{workflow.parameters.compare}}'
-            
+
           - name: group
             templateRef:
               name: tpl-at-group
@@ -374,7 +374,7 @@ spec:
                 - name: version
                   value: '{{= workflow.parameters.version_argo_tasks}}'
             depends: 'create-mapsheet'
-            when: "{{tasks.create-mapsheet.outputs.parameters.file_list}} != []"
+            when: '{{tasks.create-mapsheet.outputs.parameters.file_list}} != []'
 
           - name: standardise-validate
             template: standardise-validate
@@ -520,6 +520,21 @@ spec:
           # List of tiff files that need to be processed
           - name: files
             path: /tmp/mapsheet-coverage/file-list.json
+            optional: true
+            archive:
+              none: {}
+          - name: layers_source
+            path: /tmp/mapsheet-coverage/layers-source.geojson.gz
+            optional: true
+            archive:
+              none: {}
+          - name: layers-combined
+            path: /tmp/mapsheet-coverage/layers-combined.geojson.gz
+            optional: true
+            archive:
+              none: {}
+          - name: layers-required
+            path: /tmp/mapsheet-coverage/layers-required.geojson.gz
             optional: true
             archive:
               none: {}
