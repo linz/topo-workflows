@@ -3,9 +3,9 @@
 apiVersion: argoproj.io/v1alpha1
 kind: WorkflowTemplate
 metadata:
-  name: test-artifacts
+  name: test-national-dem
   labels:
-    linz.govt.nz/category: test
+    linz.govt.nz/category: raster
     linz.govt.nz/data-type: raster
 spec:
   parallelism: 50
@@ -375,7 +375,7 @@ spec:
                 - name: version
                   value: '{{= workflow.parameters.version_argo_tasks}}'
             depends: 'create-mapsheet'
-            when: "{{=tasks['create-mapsheet'].outputs.parameters.file_list != '[]'}}"
+            when: "{{= len(sprig.fromJson(tasks['create-mapsheet'].outputs.parameters.file_list)) > 0 }}"
 
           - name: standardise-validate
             template: standardise-validate
