@@ -20,18 +20,12 @@ spec:
         key: standardising
   workflowMetadata:
     labelsFrom:
-      linz.govt.nz/user-group:
-        expression: workflow.parameters.user_group
-      linz.govt.nz/ticket:
-        expression: workflow.parameters.ticket
       linz.govt.nz/region:
         expression: workflow.parameters.region
   podMetadata:
     labels:
-      linz.govt.nz/user-group: '{{workflow.parameters.user_group}}'
       linz.govt.nz/category: raster
       linz.govt.nz/data-type: raster
-      linz.govt.nz/ticket: '{{workflow.parameters.ticket}}'
       linz.govt.nz/region: '{{workflow.parameters.region}}'
   arguments:
     parameters:
@@ -44,16 +38,6 @@ spec:
       - name: version_topo_imagery
         description: 'Specify a version of the topo-imagery image to use, e.g. "v4.8" or "latest"'
         value: 'v4'
-      - name: user_group
-        description: Group of users running the workflow
-        value: 'none'
-        enum:
-          - 'land'
-          - 'sea'
-          - 'none'
-      - name: ticket
-        description: 'Ticket ID, e.g. "LI-1570"'
-        value: ''
       - name: region
         description: 'Region of the dataset from the list below'
         value: 'new-zealand'
@@ -78,18 +62,15 @@ spec:
           - 'waikato'
           - 'wellington'
           - 'west-coast'
-      - name: source
+      - name: config-file
         description: 'Location of the configuration file listing the source datasets to merge.'
         value: 'https://raw.githubusercontent.com/linz/basemaps-config/master/config/tileset/elevation.json'
       - name: compare
         description: 'Existing collection.json to compare with the new merging.'
         value: ''
-      - name: include
-        description: 'Regular expression pattern match for paths/files to include e.g ".tiff?$"'
-        value: '.tiff?$'
       - name: scale
         description: 'Scale of the standardised output imagery'
-        value: '500'
+        value: '50000'
         enum:
           - '500'
           - '1000'
@@ -98,18 +79,6 @@ spec:
           - '10000'
           - '50000'
           - 'None'
-      - name: validate
-        description: 'Validate the tiles match LINZ map sheet tile index and there are no duplicate tiles'
-        value: 'true'
-        enum:
-          - 'false'
-          - 'true'
-      - name: retile
-        description: 'Retile the dataset to the output scale specified in the "scale" parameter'
-        value: 'false'
-        enum:
-          - 'true'
-          - 'false'
       - name: source_epsg
         description: 'EPSG of the source files'
         value: '2193'
@@ -121,7 +90,7 @@ spec:
         value: '50'
       - name: compression
         description: 'Compression type to use when standardising TIFFs, e.g. "webp" for imagery or "dem_lerc" for elevation data'
-        value: 'webp'
+        value: 'dem_lerc'
         enum:
           - 'webp'
           - 'lzw'
@@ -132,15 +101,12 @@ spec:
         enum:
           - 'false'
           - 'true'
-      - name: cutline
-        description: '(Optional) location of a cutline file to cut the imagery to .fgb or .geojson'
-        value: ''
       - name: collection_id
         description: '(Optional) If an existing dataset add collection ID here, else a new one will be generated.'
         value: ''
       - name: category
         description: 'Geospatial category of the dataset'
-        value: 'urban-aerial-photos'
+        value: 'dem'
         enum:
           - 'aerial-photos'
           - 'urban-aerial-photos'
@@ -151,153 +117,13 @@ spec:
           - 'satellite-imagery'
       - name: gsd
         description: 'Dataset GSD, e.g., "0.3m" (the "m" must be included)'
-      - name: producer
-        description: 'The producer of the source dataset, e.g. aerial or bathymetric survey company'
-        value: 'Unknown'
-        enum:
-          [
-            'Unknown',
-            'AAM NZ',
-            'Aerial Surveys',
-            'Beca',
-            'Chang Guang Satellite Technology',
-            'Christchurch Helicopters',
-            'Dimap',
-            'European Space Agency',
-            'GeoSmart',
-            'Landpro',
-            'Maxar',
-            'NZ Aerial Mapping',
-            'Ocean Infinity',
-            'Recon',
-            'RPS',
-            'SKYCAN',
-            'SKYVUW',
-            'Terralink International',
-            'UAV Mapping NZ',
-            'University of Canterbury',
-            'Woolpert',
-          ]
-      - name: producer_list
-        description: '(Optional) List of imagery producers, separated by semicolon (;). Has no effect unless a semicolon delimited list is entered.'
-        value: ''
-      - name: licensor
-        description: 'The licensor of the dataset, e.g. local or regional council, government agency, satellite provider'
-        value: 'Unknown'
-        enum:
-          [
-            'Unknown',
-            'Ashburton District Council',
-            'Auckland Council',
-            'BOPLASS',
-            'Bay of Plenty Regional Council',
-            'Buller District Council',
-            'Canterbury Aerial Imagery Consortium (CAI)',
-            'Carterton District Council',
-            "Central Hawke's Bay District Council",
-            'Central Otago District Council',
-            'Chang Guang Satellite Technology',
-            'Chatham Islands Council',
-            'Christchurch City Council',
-            'Clutha District Council',
-            'CoLAB',
-            'Department of Conservation',
-            'Dunedin City Council',
-            'Environment Canterbury',
-            'Environment Southland',
-            'Far North District Council',
-            'Gisborne District Council',
-            'Gore District Council',
-            'Greater Wellington Regional Council',
-            'Grey District Council',
-            'Hamilton City Council',
-            'Hastings District Council',
-            'Hauraki District Council',
-            "Hawke's Bay Local Authority Shared Services (HB LASS)",
-            "Hawke's Bay Regional Council",
-            'Horizons Regional Council',
-            'Horowhenua District Council',
-            'Hurunui District Council',
-            'Hutt City Council',
-            'Invercargill City Council',
-            'Kaikōura District Council',
-            'Kaipara District Council',
-            'Kawerau District Council',
-            'Kāpiti Coast District Council',
-            'Mackenzie District Council',
-            'Manawatū District Council',
-            'Manawatū-Whanganui LASS',
-            'Marlborough District Council',
-            'Masterton District Council',
-            'Matamata-Piako District Council',
-            'Maxar Technologies',
-            'Ministry of Business, Innovation and Employment',
-            'Ministry of Primary Industries',
-            'NZ Aerial Mapping',
-            'Napier City Council',
-            'National Emergency Management Agency',
-            'National Institute of Water and Atmospheric Research',
-            'Nelson City Council',
-            'New Plymouth District Council',
-            'Northland Regional Council',
-            'Ōpōtiki District Council',
-            'Ōtorohanga District Council',
-            'Otago Regional Council',
-            'Palmerston North City Council',
-            'Planet',
-            'Porirua City Council',
-            'Queenstown-Lakes District Council',
-            'Rangitīkei District Council',
-            'Regional Software Holdings Limited',
-            'Rotorua District Council',
-            'Ruapehu District Council',
-            'Selwyn District Council',
-            'Sinergise',
-            'South Taranaki District Council',
-            'South Waikato District Council',
-            'South Wairarapa District Council',
-            'Southland District Council',
-            'Stratford District Council',
-            'Taranaki Regional Council',
-            'Tararua District Council',
-            'Tasman District Council',
-            'Taupō District Council',
-            'Tauranga City Council',
-            'Terralink International',
-            'Thames-Coromandel District Council',
-            'Timaru District Council',
-            'Toitū Te Whenua Land Information New Zealand',
-            'Upper Hutt City Council',
-            'Waikato District Council',
-            'Waikato Regional Aerial Photography Service (WRAPS)',
-            'Waikato Regional Council',
-            'Waimakariri District Council',
-            'Waimate District Council',
-            'Waipā District Council',
-            'Wairoa District Council',
-            'Waitaki District Council',
-            'Waitomo District Council',
-            'Waka Kotahi',
-            'Wellington City Council',
-            'West Coast Regional Council',
-            'Western Bay of Plenty District Council',
-            'Westland District Council',
-            'Whakatāne District Council',
-            'Whanganui District Council',
-            'Whangārei District Council',
-          ]
-      - name: licensor_list
-        description: '(Optional) List of imagery licensors, separated by semicolon (;). Has no effect unless a semicolon delimited list is entered.'
-        value: ''
+        value: '1m'
       - name: start_datetime
         description: 'Dataset capture start date in numeric format YYYY-MM-DD, e.g. "2024-01-14"'
         value: 'YYYY-MM-DD'
       - name: end_datetime
         description: 'Dataset capture end date in numeric format YYYY-MM-DD, e.g. "2024-02-23"'
         value: 'YYYY-MM-DD'
-      - name: geographic_description
-        description: '(Optional) Additional datatset description, to be used in the title in place of the Region, e.g. "Hamilton"'
-        value: ''
       - name: lifecycle
         description: 'The release lifecycle status of the dataset, e.g. "completed or "ongoing"'
         value: 'completed'
@@ -307,12 +133,6 @@ spec:
           - 'ongoing'
           - 'completed'
           - 'deprecated'
-      - name: event
-        description: '(Optional) Event name if dataset has been captured in association with an event, e.g. "Top of the South Floods"'
-        value: ''
-      - name: historic_survey_number
-        description: '(Optional) Survey Number associated with historical datasets, e.g. "SN8844"'
-        value: ''
       - name: publish_to_odr
         description: 'Create a Pull Request for publishing to imagery or elevation ODR bucket'
         value: 'false'
@@ -344,7 +164,7 @@ spec:
         expression: 'false'
       inputs:
         parameters:
-          - name: source
+          - name: config-file
       dag:
         tasks:
           - name: collection-id-setup
@@ -355,8 +175,8 @@ spec:
             template: create-mapsheet
             arguments:
               parameters:
-                - name: source
-                  value: '{{workflow.parameters.source}}'
+                - name: config-file
+                  value: '{{workflow.parameters.config-file}}'
                 - name: compare
                   # Workaround --compare with empty value will fail so we add the flag inside the input parameter
                   value: '{{= workflow.parameters.compare == "" ? "" : "--compare=" + workflow.parameters.compare}}'
@@ -489,7 +309,7 @@ spec:
     - name: create-mapsheet
       inputs:
         parameters:
-          - name: source
+          - name: config-file
           - name: compare
 
       container:
@@ -507,7 +327,7 @@ spec:
             'mapsheet-coverage',
             '--verbose',
             '--location',
-            '{{inputs.parameters.source}}',
+            '{{inputs.parameters.config-file}}',
             '--epsg-code',
             '{{workflow.parameters.source_epsg}}',
             '{{inputs.parameters.compare}}',
@@ -578,8 +398,6 @@ spec:
           - '{{inputs.parameters.collection-id}}'
           - '--create-footprints'
           - '{{workflow.parameters.create_capture_area}}'
-          - '--cutline'
-          - '{{=sprig.trim(workflow.parameters.cutline)}}'
           - '--source-epsg'
           - '{{=sprig.trim(workflow.parameters.source_epsg)}}'
           - '--target-epsg'
@@ -620,26 +438,20 @@ spec:
           - '{{=sprig.trim(workflow.parameters.region)}}'
           - '--gsd'
           - '{{=sprig.trim(workflow.parameters.gsd)}}'
-          - '--geographic-description'
-          - '{{=sprig.trim(workflow.parameters.geographic_description)}}'
           - '--start-date'
           - '{{=sprig.trim(workflow.parameters.start_datetime)}}'
           - '--end-date'
           - '{{=sprig.trim(workflow.parameters.end_datetime)}}'
-          - '--event'
-          - '{{=sprig.trim(workflow.parameters.event)}}'
-          - '--historic-survey-number'
-          - '{{=sprig.trim(workflow.parameters.historic_survey_number)}}'
           - '--lifecycle'
           - '{{=sprig.trim(workflow.parameters.lifecycle)}}'
           - '--producer'
-          - '{{workflow.parameters.producer}}'
+          - 'PLACEHOLDER'
           - '--producer-list'
-          - '{{=sprig.trim(workflow.parameters.producer_list)}}'
+          - ''
           - '--licensor'
-          - '{{workflow.parameters.licensor}}'
+          - 'PLACEHOLDER'
           - '--licensor-list'
-          - '{{=sprig.trim(workflow.parameters.licensor_list)}}'
+          - ''
           - '--concurrency'
           - '25'
 
