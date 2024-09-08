@@ -27,7 +27,7 @@
     "@aws-sdk/client-cloudformation": "3.451.0",
     "@aws-sdk/client-eks": "3.451.0",
     "@aws-sdk/client-ssm": "3.451.0",
-    "@linzjs/style": "^5.2.0",
+    "@linzjs/style": "^5.4.0",
     "@types/node": "^22.5.2",
     "aws-cdk": "2.108.x",
     "aws-cdk-lib": "2.108.x",
