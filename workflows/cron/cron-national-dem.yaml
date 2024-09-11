@@ -1,0 +1,26 @@
+# yaml-language-server: $schema=https://raw.githubusercontent.com/argoproj/argo-workflows/v3.5.5/api/jsonschema/schema.json
+apiVersion: argoproj.io/v1alpha1
+kind: CronWorkflow
+metadata:
+  name: test-cron-national-dem
+  labels:
+    linz.govt.nz/category: raster
+    linz.govt.nz/data-type: raster
+spec:
+  schedule: '0 06 * * 1' # 6 AM every Wednesday
+  timezone: 'NZ'
+  concurrencyPolicy: 'Allow'
+  successfulJobsHistoryLimit: 3
+  failedJobsHistoryLimit: 3
+  suspend: false
+  workflowSpec:
+    podMetadata:
+      labels:
+        linz.govt.nz/category: raster
+        linz.govt.nz/data-type: raster
+    workflowTemplateRef:
+      name: test-national-dem
+    arguments:
+      parameters:
+        - name: 'compare'
+          value: 's3://linz-workflows-scratch/test-national-dems/collection.json'
