@@ -162,9 +162,8 @@ spec:
           - name: config-file
       dag:
         tasks:
-          - name: collection-id-setup
-            template: collection-id-setup
-            depends: 'group.Succeeded'
+          - name: get-location
+            template: get-location
 
           - name: create-mapsheet
             template: create-mapsheet
@@ -175,7 +174,12 @@ spec:
                 - name: compare
                   # Workaround --compare with empty value will fail so we add the flag inside the input parameter
                   value: '{{= workflow.parameters.compare == "" ? "" : "--compare=" + workflow.parameters.compare}}'
-
+                - name: bucket
+                  value: '{{tasks.get-location.outputs.parameters.bucket}}'
+                - name: key
+                  value: '{{tasks.get-location.outputs.parameters.key}}'
+            depends: 'get-location.Succeeded'
+          
           - name: group
             templateRef:
               name: tpl-at-group
@@ -191,6 +195,10 @@ spec:
                   value: '{{= workflow.parameters.version_argo_tasks}}'
             depends: 'create-mapsheet'
             when: "{{= len(sprig.fromJson(tasks['create-mapsheet'].outputs.parameters.file_list)) > 0 }}"
+
+          - name: collection-id-setup
+            template: collection-id-setup
+            depends: 'group.Succeeded'
 
           - name: standardise-validate
             template: standardise-validate
@@ -231,10 +239,6 @@ spec:
                   raw:
                     data: '{{tasks.stac-validate.outputs.result}}'
             depends: 'create-collection.Succeeded'
-
-          - name: get-location
-            template: get-location
-            depends: 'group.Succeeded'
 
           - name: create-overview
             when: "'{{workflow.parameters.target_epsg}}' =~ '2193|3857' && '{{workflow.parameters.compression}}' != 'dem_lerc'"
@@ -306,7 +310,8 @@ spec:
         parameters:
           - name: config-file
           - name: compare
-
+          - name: bucket
+          - name: key
       container:
         image: 'ghcr.io/linz/argo-tasks:pr-1048'
         resources:
@@ -352,6 +357,14 @@ spec:
           - name: layers-required
             path: /tmp/mapsheet-coverage/layers-required.geojson.gz
             optional: true
+            archive:
+              none: {}
+          # Provenance information for the collection
+          - name: capture-dates
+            path: '/tmp/create-mapsheet/layers-required.geojson.gz'
+            s3:
+              bucket: '{{inputs.parameters.bucket}}'
+              key: '{{inputs.parameters.key}}flat/capture-dates.geojson.gz'
             archive:
               none: {}
 
