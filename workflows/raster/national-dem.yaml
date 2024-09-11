@@ -13,11 +13,6 @@ spec:
     karpenter.sh/capacity-type: 'spot'
   entrypoint: main
   onExit: exit-handler
-  synchronization:
-    semaphore:
-      configMapKeyRef:
-        name: semaphores
-        key: standardising
   workflowMetadata:
     labelsFrom:
       linz.govt.nz/region:
