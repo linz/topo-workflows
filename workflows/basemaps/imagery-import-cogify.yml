@@ -166,6 +166,10 @@ spec:
           - 'true'
           - 'false'
 
+      - name: base_zoom_offset
+        description: 'Offset the base zoom level used for the cogify creation, -1 for larger output tiffs, +1 for smaller'
+        value: '0'
+
   templates:
     # Main entrypoint into the workflow
     - name: main
@@ -181,6 +185,7 @@ spec:
           - name: cutline_blend
           - name: group_size
           - name: require_stac_collection
+          - name: base_zoom_offset
       dag:
         tasks:
           # For each tile matrix specified run the "cogify" template
@@ -205,6 +210,9 @@ spec:
                   value: '{{ inputs.parameters.group_size }}'
                 - name: require_stac_collection
                   value: '{{ inputs.parameters.require_stac_collection }}'
+                - name: base_zoom_offset
+                  value: '{{ inputs.parameters.base_zoom_offset }}'
+
           - name: create-pull-request
             template: create-pull-request
             arguments:
@@ -226,6 +234,7 @@ spec:
           - name: group_size
           - name: preset
           - name: require_stac_collection
+          - name: base_zoom_offset
       dag:
         tasks:
           # generate a tile covering from the source imagery
@@ -247,6 +256,8 @@ spec:
                   value: '{{ inputs.parameters.cutline_blend }}'
                 - name: require_stac_collection
                   value: '{{ inputs.parameters.require_stac_collection }}'
+                - name: base_zoom_offset
+                  value: '{{ inputs.parameters.base_zoom_offset }}'
 
           # Group covering output into chunks to pass to create-cog
           - name: group
@@ -319,6 +330,7 @@ spec:
           - name: cutline_blend
           - name: preset
           - name: require_stac_collection
+          - name: base_zoom_offset
       container:
         image: ghcr.io/linz/basemaps/cli:{{ workflow.parameters.version_basemaps_cli }}
         resources:
@@ -336,6 +348,7 @@ spec:
           - "{{= sprig.empty(inputs.parameters.cutline) ? '' : '--cutline=' + inputs.parameters.cutline }}"
           - '--cutline-blend={{ inputs.parameters.cutline_blend }}'
           - '--target={{= sprig.trim(inputs.parameters.target) }}'
+          - '--base-zoom-offset={{=  sprig.trim(inputs.parameters.base_zoom_offset) }}'
           - '{{= sprig.trim(inputs.parameters.source) }}'
       outputs:
         parameters:
