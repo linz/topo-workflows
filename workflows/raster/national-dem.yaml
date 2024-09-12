@@ -3,7 +3,7 @@
 apiVersion: argoproj.io/v1alpha1
 kind: WorkflowTemplate
 metadata:
-  name: test-national-dem
+  name: test-national-dem-for-cron
   labels:
     linz.govt.nz/category: raster
     linz.govt.nz/data-type: raster
@@ -113,12 +113,6 @@ spec:
       - name: gsd
         description: 'Dataset GSD, e.g., "0.3m" (the "m" must be included)'
         value: '1m'
-      - name: start_datetime
-        description: 'Dataset capture start date in numeric format YYYY-MM-DD, e.g. "2024-01-14"'
-        value: 'YYYY-MM-DD'
-      - name: end_datetime
-        description: 'Dataset capture end date in numeric format YYYY-MM-DD, e.g. "2024-02-23"'
-        value: 'YYYY-MM-DD'
       - name: lifecycle
         description: 'The release lifecycle status of the dataset, e.g. "completed or "ongoing"'
         value: 'completed'
@@ -128,27 +122,6 @@ spec:
           - 'ongoing'
           - 'completed'
           - 'deprecated'
-      - name: publish_to_odr
-        description: 'Create a Pull Request for publishing to imagery or elevation ODR bucket'
-        value: 'false'
-        enum:
-          - 'false'
-          - 'true'
-      - name: target_bucket_name
-        description: 'The ODR bucket name to publish to'
-        value: ''
-        enum:
-          - ''
-          - 'nz-imagery'
-          - 'nz-elevation'
-          - ''
-      - name: copy_option
-        description: 'Do not overwrite existing files with "no-clobber", or "force" overwriting files in the target location'
-        value: '--no-clobber'
-        enum:
-          - '--no-clobber'
-          - '--force'
-          - '--force-no-clobber'
   templateDefaults:
     container:
       imagePullPolicy: Always
@@ -258,23 +231,6 @@ spec:
             template: create-config
             depends: 'create-overview.Succeeded'
 
-          - name: publish-odr
-            templateRef:
-              name: publish-odr
-              template: main
-            when: "'{{workflow.parameters.publish_to_odr}}' == 'true'"
-            arguments:
-              parameters:
-                - name: source
-                  value: '{{tasks.get-location.outputs.parameters.location}}flat/'
-                - name: target_bucket_name
-                  value: '{{workflow.parameters.target_bucket_name}}'
-                - name: copy_option
-                  value: '{{workflow.parameters.copy_option}}'
-                - name: ticket
-                  value: '{{=sprig.trim(workflow.parameters.ticket)}}'
-            depends: 'stac-validate.Succeeded && create-config.Succeeded'
-
       outputs:
         parameters:
           - name: target
@@ -367,7 +323,7 @@ spec:
           - name: group_data
             path: /tmp/input/
       container:
-        image: 'ghcr.io/linz/topo-imagery:pr-1043'
+        image: 'ghcr.io/linz/topo-imagery:latest'
         resources:
           requests:
             memory: 7.8Gi
@@ -385,10 +341,6 @@ spec:
           - '{{inputs.parameters.target}}'
           - '--preset'
           - '{{workflow.parameters.compression}}'
-          - '--start-datetime'
-          - '{{=sprig.trim(workflow.parameters.start_datetime)}}'
-          - '--end-datetime'
-          - '{{=sprig.trim(workflow.parameters.end_datetime)}}'
           - '--collection-id'
           - '{{inputs.parameters.collection-id}}'
           - '--create-footprints'
@@ -415,7 +367,7 @@ spec:
             archive:
               none: {}
       container:
-        image: '019359803926.dkr.ecr.ap-southeast-2.amazonaws.com/topo-imagery:{{=sprig.trim(workflow.parameters.version_topo_imagery)}}'
+        image: 'ghcr.io/linz/topo-imagery:latest'
         resources:
           requests:
             memory: 7.8Gi
@@ -434,9 +386,9 @@ spec:
           - '--gsd'
           - '{{=sprig.trim(workflow.parameters.gsd)}}'
           - '--start-date'
-          - '{{=sprig.trim(workflow.parameters.start_datetime)}}'
+          - '2024-01-01' # TODO: Placeholder
           - '--end-date'
-          - '{{=sprig.trim(workflow.parameters.end_datetime)}}'
+          - '2024-01-01' # TODO: Placeholder
           - '--lifecycle'
           - '{{=sprig.trim(workflow.parameters.lifecycle)}}'
           - '--producer'

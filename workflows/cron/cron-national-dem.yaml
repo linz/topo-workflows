@@ -7,7 +7,7 @@ metadata:
     linz.govt.nz/category: raster
     linz.govt.nz/data-type: raster
 spec:
-  schedule: '0 06 * * 1' # 6 AM every Wednesday
+  schedule: '0 6 * * *' # 6 AM every day
   timezone: 'NZ'
   concurrencyPolicy: 'Allow'
   successfulJobsHistoryLimit: 3
@@ -19,7 +19,7 @@ spec:
         linz.govt.nz/category: raster
         linz.govt.nz/data-type: raster
     workflowTemplateRef:
-      name: test-national-dem
+      name: test-national-dem-for-cron
     arguments:
       parameters:
         - name: 'compare'
