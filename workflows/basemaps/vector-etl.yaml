@@ -9,6 +9,7 @@ metadata:
     linz.govt.nz/data-type: vector
 spec:
   entrypoint: main
+  onExit: exit-handler
   podMetadata:
     labels:
       linz.govt.nz/category: basemaps
@@ -160,3 +161,18 @@ spec:
           - '--target={{ inputs.parameters.target }}'
           - '--config-type=vector'
           - "--individual={{= workflow.parameters.individual == 'individual'? 'true' : 'false' }}"
+
+    - name: exit-handler
+      retryStrategy:
+        limit: '0' # `tpl-exit-handler` retries itself
+      steps:
+        - - name: exit
+            templateRef:
+              name: tpl-exit-handler
+              template: main
+            arguments:
+              parameters:
+                - name: workflow_status
+                  value: '{{workflow.status}}'
+                - name: workflow_parameters
+                  value: '{{workflow.parameters}}'
