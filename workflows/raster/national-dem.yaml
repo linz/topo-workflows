@@ -349,19 +349,14 @@ spec:
             optional: true
             archive:
               none: {}
-          - name: layers-combined
+          - name: layers_combined
             path: /tmp/mapsheet-coverage/layers-combined.geojson.gz
             optional: true
             archive:
               none: {}
-          - name: layers-required
-            path: /tmp/mapsheet-coverage/layers-required.geojson.gz
-            optional: true
-            archive:
-              none: {}
           # Provenance information for the collection
-          - name: capture-dates
-            path: '/tmp/create-mapsheet/layers-required.geojson.gz'
+          - name: capture_dates
+            path: '/tmp/create-mapsheet/capture-dates.geojson.gz'
             s3:
               bucket: '{{inputs.parameters.bucket}}'
               key: '{{inputs.parameters.key}}flat/capture-dates.geojson.gz'
