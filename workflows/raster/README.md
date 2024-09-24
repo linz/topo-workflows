@@ -67,7 +67,7 @@ Publishing to the AWS Registry of Open Data is an optional step [publish-odr](#P
 | cutline                | s3://linz-imagery-staging/cutline/bay-of-plenty_2021-2022.fgb                     |
 | collection_id          | 01FP371BHWDSREECKQAH9E8XQ                                                         |
 | category               | rural-aerial-photos                                                               |
-| gsd                    | 0.3m                                                                              |
+| gsd                    | 0.3                                                                               |
 | producer               | Aerial Surveys                                                                    |
 | licensor               | Toitū Te Whenua Land Information New Zealand                                      |
 | licensor_list          | Waka Kotahi; Nelson City Council;Tasman District Council                          |
