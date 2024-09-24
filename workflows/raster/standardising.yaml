@@ -509,7 +509,7 @@ spec:
           requests:
             memory: 7.8Gi
             cpu: 15000m
-            ephemeral-storage: 3Gi
+            ephemeral-storage: 29.5Gi
         volumeMounts:
           - name: ephemeral
             mountPath: '/tmp'
