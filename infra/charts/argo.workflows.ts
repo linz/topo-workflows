@@ -1,5 +1,5 @@
 import { Chart, ChartProps, Duration, Helm } from 'cdk8s';
-import { Secret } from 'cdk8s-plus-28';
+import { Secret } from 'cdk8s-plus-29';
 import { Construct } from 'constructs';
 
 import { ArgoDbName, ArgoDbUser, DefaultRegion } from '../constants.js';

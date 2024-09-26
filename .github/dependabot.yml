@@ -24,7 +24,7 @@ updates:
         - "aws-cdk-lib"
         - "cdk8s"
         - "cdk8s-cli"
-        - "cdk8s-plus-28"
+        - "cdk8s-plus-29"
         - "constructs"
   ignore:
     - dependency-name: "@aws-sdk/*"
