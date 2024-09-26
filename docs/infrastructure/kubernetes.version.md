@@ -14,15 +14,14 @@ If there is a version matching to the Kubernetes version to upgrade to, upgrade 
 
 1. Install the new version
 
-```bash
-npm install --save-dev cdk8s-plus-27
-```
-
+   ```bash
+   npm install --save-dev cdk8s-plus-27
+   ```
 2. Remove the previous version
 
-```bash
-npm rm cdk8s-plus-26
-```
+   ```bash
+   npm rm cdk8s-plus-26
+   ```
 
 If there is no version matching, keep the version installed and proceed to upgrade Kubernetes steps.
 
@@ -32,60 +31,59 @@ Below is an example of upgrading from v1.27 to v1.28
 
 1. Update lambda-layer version to the matching version number
 
-```bash
-npm install --save-dev @aws-cdk/lambda-layer-kubectl-v28
-```
-
-While also removing the old lambda-layer version
-
-```bash
-npm rm @aws-cdk/lambda-layer-kubectl-v27
-```
-
+   ```bash
+   npm install --save-dev @aws-cdk/lambda-layer-kubectl-v28
+   ```
+   
+   While also removing the old lambda-layer version
+   
+   ```bash
+   npm rm @aws-cdk/lambda-layer-kubectl-v27
+   ```
 2. Set the new Kubernetes version in `LinzEksCluster`
 
-```typescript
-version = KubernetesVersion.of('1.28');
-```
+   ```typescript
+   version = KubernetesVersion.of('1.28');
+   ```
 
 3. Modify layer version
 
-```typescript
-import { KubectlV28Layer } from '@aws-cdk/lambda-layer-kubectl-v28';
-
-// ...
-
-      kubectlLayer: new KubectlV28Layer(this, 'KubeCtlLayer'),
-```
+   ```typescript
+   import { KubectlV28Layer } from '@aws-cdk/lambda-layer-kubectl-v28';
+   
+   // ...
+   
+         kubectlLayer: new KubectlV28Layer(this, 'KubeCtlLayer'),
+   ```
 
 4. Diff the stack to make sure that only versions are updated
 
-```bash
-npx cdk diff Workflows -c ci-role-arn=...
-```
-
-The only changes should be Kubernetes version related.
-
-```
-Resources
-[~] AWS::Lambda::LayerVersion KubeCtlLayer KubeCtlLayer replace
- ├─ [~] Content (requires replacement)
- │   └─ [~] .S3Key:
- │       ├─ [-] 8e18eb5caccd2617fb76e648fa6a35dc0ece98c4681942bc6861f41afdff6a1b.zip
- │       └─ [+] b4d47e4f1c5e8fc2df2cd474ede548de153300d332ba8d582b7c1193e61cbe1e.zip
- ├─ [~] Description (requires replacement)
- │   ├─ [-] /opt/kubectl/kubectl 1.27; /opt/helm/helm 3.12
- │   └─ [+] /opt/kubectl/kubectl 1.28; /opt/helm/helm 3.13
- └─ [~] Metadata
-     └─ [~] .aws:asset:path:
-         ├─ [-] asset.8e18eb5caccd2617fb76e648fa6a35dc0ece98c4681942bc6861f41afdff6a1b.zip
-         └─ [+] asset.b4d47e4f1c5e8fc2df2cd474ede548de153300d332ba8d582b7c1193e61cbe1e.zip
-[~] Custom::AWSCDK-EKS-Cluster EksWorkflows/Resource/Resource EksWorkflows
- └─ [~] Config
-     └─ [~] .version:
-         ├─ [-] 1.27
-         └─ [+] 1.28
-```
+   ```bash
+   npx cdk diff Workflows -c ci-role-arn=...
+   ```
+   
+   The only changes should be Kubernetes version related.
+   
+   ```
+   Resources
+   [~] AWS::Lambda::LayerVersion KubeCtlLayer KubeCtlLayer replace
+    ├─ [~] Content (requires replacement)
+    │   └─ [~] .S3Key:
+    │       ├─ [-] 8e18eb5caccd2617fb76e648fa6a35dc0ece98c4681942bc6861f41afdff6a1b.zip
+    │       └─ [+] b4d47e4f1c5e8fc2df2cd474ede548de153300d332ba8d582b7c1193e61cbe1e.zip
+    ├─ [~] Description (requires replacement)
+    │   ├─ [-] /opt/kubectl/kubectl 1.27; /opt/helm/helm 3.12
+    │   └─ [+] /opt/kubectl/kubectl 1.28; /opt/helm/helm 3.13
+    └─ [~] Metadata
+        └─ [~] .aws:asset:path:
+            ├─ [-] asset.8e18eb5caccd2617fb76e648fa6a35dc0ece98c4681942bc6861f41afdff6a1b.zip
+            └─ [+] asset.b4d47e4f1c5e8fc2df2cd474ede548de153300d332ba8d582b7c1193e61cbe1e.zip
+   [~] Custom::AWSCDK-EKS-Cluster EksWorkflows/Resource/Resource EksWorkflows
+    └─ [~] Config
+        └─ [~] .version:
+            ├─ [-] 1.27
+            └─ [+] 1.28
+   ```
 
 5. Create a pull request and wait for CI/CD to deploy the changes
 
@@ -101,26 +99,25 @@ This process is necessary to avoid being blocked for a future Kubernetes version
 
 1. Find the nodegroup name for the cluster
 
-```bash
-aws eks list-nodegroups --cluster-name Workflows
-```
-
+   ```bash
+   aws eks list-nodegroups --cluster-name Workflows
+   ```
 2. Describe the nodegroup to validate the versions
 
-By describing the node group you can check the current version, or you can use `k get nodes` to see what version is currently running
-
-```bash
-aws eks describe-nodegroup --cluster-name Workflows --nodegroup-name EksWorkflowsNodegroupCluste
-```
+   By describing the node group you can check the current version, or you can use `k get nodes` to see what version is currently running
+   
+   ```bash
+   aws eks describe-nodegroup --cluster-name Workflows --nodegroup-name EksWorkflowsNodegroupCluste
+   ```
 
 3. Update the version to match
 
-```bash
-aws eks update-nodegroup-version --cluster-name Workflows --nodegroup-name EksWorkflowsNodegroupCluste-OWsXxRuVz2B7
-```
-
-This step takes some time to run. You can wait for it to finish with this command:
-
-```bash
-aws eks wait nodegroup-active --cluster-name=Workflows --nodegroup-name=EksWorkflowsNodegroupCluste-OWsXxRuVz2B7
-```
+   ```bash
+   aws eks update-nodegroup-version --cluster-name Workflows --nodegroup-name EksWorkflowsNodegroupCluste-OWsXxRuVz2B7
+   ```
+   
+   This step takes some time to run. You can wait for it to finish with this command:
+   
+   ```bash
+   aws eks wait nodegroup-active --cluster-name=Workflows --nodegroup-name=EksWorkflowsNodegroupCluste-OWsXxRuVz2B7
+   ```
