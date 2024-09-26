@@ -1,5 +1,5 @@
 import { ApiObject, Chart, ChartProps, JsonPatch, Size } from 'cdk8s';
-import * as kplus from 'cdk8s-plus-27';
+import * as kplus from 'cdk8s-plus-28';
 import { Construct } from 'constructs';
 
 import { applyDefaultLabels } from '../util/labels.js';
