@@ -59,7 +59,7 @@ Below is an example of upgrading from v1.27 to v1.28
 4. Diff the stack to make sure that only versions are updated (change to `Workflows` stack for production)
 
    ```bash
-   npx cdk diff WorkflowsNP -c ci-role-arn=...
+   npx cdk diff --context=maintainer-arns=$(aws iam list-roles | jq --raw-output '.Roles[] | select(.RoleName | contains("CiTopo")) | select(.RoleName | contains("-CiRole")).Arn'),$(aws iam list-roles | jq --raw-output '.Roles[] | select(.RoleName == "AccountAdminRole").Arn') WorkflowsNP
    ```
    
    The only changes should be Kubernetes version related.
