@@ -56,10 +56,10 @@ Below is an example of upgrading from v1.27 to v1.28
          kubectlLayer: new KubectlV28Layer(this, 'KubeCtlLayer'),
    ```
 
-4. Diff the stack to make sure that only versions are updated
+4. Diff the stack to make sure that only versions are updated (change to `Workflows` stack for production)
 
    ```bash
-   npx cdk diff Workflows -c ci-role-arn=...
+   npx cdk diff WorkflowsNP -c ci-role-arn=...
    ```
    
    The only changes should be Kubernetes version related.
@@ -97,23 +97,23 @@ No. A managed node group creates Amazon EC2 instances in your account. These ins
 
 This process is necessary to avoid being blocked for a future Kubernetes version upgrade. For example, if Kubernetes get upgraded from `1.27` to `1.28` and the nodes remain in `1.27`, the next time Kubernetes will be upgraded to `1.29`, the upgrade will fail.
 
-1. Find the nodegroup name for the cluster
+1. Find the nodegroup name for the cluster (change to `Workflows` cluster here and below for production)
 
    ```bash
-   aws eks list-nodegroups --cluster-name Workflows
+   aws eks list-nodegroups --cluster-name=WorkflowsNP
    ```
 2. Describe the nodegroup to validate the versions
 
    By describing the node group you can check the current version, or you can use `k get nodes` to see what version is currently running
    
    ```bash
-   aws eks describe-nodegroup --cluster-name Workflows --nodegroup-name EksWorkflowsNodegroupCluste
+   aws eks describe-nodegroup --cluster-name=WorkflowsNP --nodegroup-name=EksWorkflowsNodegroupCluste
    ```
 
 3. Update the version to match
 
    ```bash
-   aws eks update-nodegroup-version --cluster-name Workflows --nodegroup-name EksWorkflowsNodegroupCluste-OWsXxRuVz2B7
+   aws eks update-nodegroup-version --cluster-name=WorkflowsNP --nodegroup-name=EksWorkflowsNodegroupCluste-OWsXxRuVz2B7
    ```
    
    This step takes some time to run. You can wait for it to finish with this command:
