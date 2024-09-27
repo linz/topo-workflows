@@ -59,7 +59,9 @@ Below is an example of upgrading from v1.27 to v1.28
 4. Diff the stack to make sure that only versions are updated (change to `Workflows` stack for production)
 
    ```bash
-   npx cdk diff --context=maintainer-arns=$(aws iam list-roles | jq --raw-output '.Roles[] | select(.RoleName | contains("CiTopo")) | select(.RoleName | contains("-CiRole")).Arn'),$(aws iam list-roles | jq --raw-output '.Roles[] | select(.RoleName == "AccountAdminRole").Arn') WorkflowsNP
+   ci_role="$(aws iam list-roles | jq --raw-output '.Roles[] | select(.RoleName | contains("CiTopo")) | select(.RoleName | contains("-CiRole")).Arn')"
+   admin_role="$(aws iam list-roles | jq --raw-output '.Roles[] | select(.RoleName == "AccountAdminRole").Arn')"
+   npx cdk diff --context=maintainer-arns=${ci_role},${admin_role} WorkflowsNP
    ```
    
    The only changes should be Kubernetes version related.
@@ -93,7 +95,7 @@ Below is an example of upgrading from v1.27 to v1.28
 
 <https://docs.aws.amazon.com/eks/latest/userguide/kubernetes-versions.html#version-deprecation>
 > **Are Amazon EKS managed node groups automatically updated along with the cluster control plane version?**
-No. A managed node group creates Amazon EC2 instances in your account. These instances aren't automatically upgraded when you or Amazon EKS update your control plane. For more information, see Updating a managed node group. We recommend maintaining the same Kubernetes version on your control plane and nodes.
+> No. A managed node group creates Amazon EC2 instances in your account. These instances aren't automatically upgraded when you or Amazon EKS update your control plane. For more information, see Updating a managed node group. We recommend maintaining the same Kubernetes version on your control plane and nodes.
 
 This process is necessary to avoid being blocked for a future Kubernetes version upgrade. For example, if Kubernetes get upgraded from `1.27` to `1.28` and the nodes remain in `1.27`, the next time Kubernetes will be upgraded to `1.29`, the upgrade will fail.
 
