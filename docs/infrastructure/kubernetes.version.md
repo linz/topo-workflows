@@ -61,7 +61,8 @@ Below is an example of upgrading from v1.27 to v1.28
    ```bash
    ci_role="$(aws iam list-roles | jq --raw-output '.Roles[] | select(.RoleName | contains("CiTopo")) | select(.RoleName | contains("-CiRole")).Arn')"
    admin_role="arn:aws:iam::$(aws sts get-caller-identity --query Account --output text):role/AccountAdminRole"
-   npx cdk diff --context=maintainer-arns=${ci_role},${admin_role} WorkflowsNP
+   workflow_maintainer_role="$(aws cloudformation describe-stacks --stack-name=TopographicSharedResourcesProd | jq .Stacks[0].Outputs[0])"
+   npx cdk diff --context=maintainer-arns="${ci_role},${admin_role}${workflow_maintainer_role:+,${workflow_maintainer_role}}" WorkflowsNP
    ```
    
    The only changes should be Kubernetes version related.
