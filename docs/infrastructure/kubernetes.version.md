@@ -100,24 +100,24 @@ This process is necessary to avoid being blocked for a future Kubernetes version
 1. Find the nodegroup name for the cluster
 
    ```bash
-   aws eks list-nodegroups --cluster-name Workflows
+   node_group_name="$(aws eks list-nodegroups --cluster-name=Workflows | jq --raw-output '.nodegroups[]')"
    ```
 2. Describe the nodegroup to validate the versions
 
    By describing the node group you can check the current version, or you can use `k get nodes` to see what version is currently running
    
    ```bash
-   aws eks describe-nodegroup --cluster-name Workflows --nodegroup-name EksWorkflowsNodegroupCluste
+   aws eks describe-nodegroup --cluster-name=Workflows --nodegroup-name="$node_group_name"
    ```
 
 3. Update the version to match
 
    ```bash
-   aws eks update-nodegroup-version --cluster-name Workflows --nodegroup-name EksWorkflowsNodegroupCluste-OWsXxRuVz2B7
+   aws eks update-nodegroup-version --cluster-name=Workflows --nodegroup-name="$node_group_name"
    ```
    
    This step takes some time to run. You can wait for it to finish with this command:
    
    ```bash
-   aws eks wait nodegroup-active --cluster-name=Workflows --nodegroup-name=EksWorkflowsNodegroupCluste-OWsXxRuVz2B7
+   aws eks wait nodegroup-active --cluster-name=Workflows --nodegroup-name="$node_group_name"
    ```
