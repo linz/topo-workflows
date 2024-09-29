@@ -107,7 +107,7 @@ This process is necessary to avoid being blocked for a future Kubernetes version
    By describing the node group you can check the current version, or you can use `k get nodes` to see what version is currently running
    
    ```bash
-   aws eks describe-nodegroup --cluster-name=Workflows --nodegroup-name="$node_group_name"
+   aws eks describe-nodegroup --cluster-name=Workflows --nodegroup-name="$node_group_name" | jq --raw-output .nodegroup.version
    ```
 
 3. Update the version to match
