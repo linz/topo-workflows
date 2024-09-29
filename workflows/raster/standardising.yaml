@@ -147,7 +147,7 @@ spec:
           - 'dsm'
           - 'satellite-imagery'
       - name: gsd
-        description: 'Dataset GSD, e.g., "0.3m" (the "m" must be included)'
+        description: 'Dataset GSD in metres, e.g., "0.3" for 30 centimetres'
       - name: producer
         description: 'The producer of the source dataset, e.g. aerial or bathymetric survey company'
         value: 'Unknown'
