@@ -43,7 +43,7 @@ spec:
         value: 'v7'
       - name: version_topo_imagery
         description: 'Specify a version of the topo-imagery image to use, e.g. "v4.8" or "latest"'
-        value: 'v4'
+        value: 'v5'
       - name: user_group
         description: Group of users running the workflow
         value: 'none'
@@ -574,10 +574,6 @@ spec:
           - '{{=sprig.trim(workflow.parameters.gsd)}}'
           - '--geographic-description'
           - '{{=sprig.trim(workflow.parameters.geographic_description)}}'
-          - '--start-date'
-          - '{{=sprig.trim(workflow.parameters.start_datetime)}}'
-          - '--end-date'
-          - '{{=sprig.trim(workflow.parameters.end_datetime)}}'
           - '--event'
           - '{{=sprig.trim(workflow.parameters.event)}}'
           - '--historic-survey-number'
