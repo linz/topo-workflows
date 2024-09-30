@@ -38,7 +38,7 @@ jobs:
           node-version: 20.x
       # Configure access to AWS / EKS
       - name: Setup kubectl
-        uses: azure/setup-kubectl@901a10e89ea615cf61f57ac05cecdf23e7de06d8 # v3
+        uses: azure/setup-kubectl@3e0aec4d80787158d308d7b364cb1b702e7feb7f # v3
         with:
           version: 'latest'
       - name: AWS Configure

@@ -12,6 +12,7 @@ spec:
   nodeSelector:
     karpenter.sh/capacity-type: 'spot'
   entrypoint: main
+  onExit: exit-handler
   synchronization:
     semaphore:
       configMapKeyRef:
@@ -126,3 +127,18 @@ spec:
                 - name: copy_option
                   value: '{{inputs.parameters.copy_option}}'
             depends: 'generate-path'
+
+    - name: exit-handler
+      retryStrategy:
+        limit: '0' # `tpl-exit-handler` retries itself
+      steps:
+        - - name: exit
+            templateRef:
+              name: tpl-exit-handler
+              template: main
+            arguments:
+              parameters:
+                - name: workflow_status
+                  value: '{{workflow.status}}'
+                - name: workflow_parameters
+                  value: '{{workflow.parameters}}'
