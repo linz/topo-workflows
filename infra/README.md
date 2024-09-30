@@ -39,12 +39,12 @@ To deploy with AWS CDK a few configuration variables need to be set
 
 Due to VPC lookups a AWS account ID needs to be provided
 
-This can be done with either a `export CDK_DEFAULT_ACCOUNT=1234567890` or passed in at run time with `-c aws-account-id=1234567890`
+This can be done with either a `export CDK_DEFAULT_ACCOUNT=1234567890` or passed in at run time with `--context=aws-account-id=1234567890`
 
 Then a deployment can be made with `cdk`
 
 ```shell
-npx cdk diff -c aws-account-id=1234567890 -c ci-role-arn=arn::...
+npx cdk diff --context=aws-account-id=1234567890 --context=ci-role-arn=arn::...
 ```
 
 #### CDK Context
@@ -63,7 +63,7 @@ npx cdk8s synth
 Apply the generated yaml files
 
 ```shell
-kubectl apply -f dist/
+kubectl apply --filename=dist/
 ```
 
 ### Testing
