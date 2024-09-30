@@ -43,13 +43,13 @@ This can be done with either a `export CDK_DEFAULT_ACCOUNT=1234567890` or passed
 Then a deployment can be made with `cdk`
 
 ```shell
-npx cdk diff --context=aws-account-id=1234567890 --context=ci-role-arn=arn::...
+npx cdk diff --context=aws-account-id=1234567890 --context=maintainer-arns=arn::...
 ```
 
 #### CDK Context
 
 - `aws-account-id`: Account ID to deploy into
-- `ci-role-arn`: AWS Role ARN for the CI user
+- `maintainer-arns`: AWS Role ARN for the CI user
 
 ### Deploy CDK8s
 
