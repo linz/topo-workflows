@@ -3,7 +3,7 @@
 apiVersion: argoproj.io/v1alpha1
 kind: WorkflowTemplate
 metadata:
-  name: test-national-dem
+  name: national-dem
   labels:
     linz.govt.nz/category: raster
     linz.govt.nz/data-type: raster
@@ -16,12 +16,12 @@ spec:
   workflowMetadata:
     labelsFrom:
       linz.govt.nz/region:
-        expression: workflow.parameters.region
+        expression: 'new-zealand'
   podMetadata:
     labels:
       linz.govt.nz/category: raster
       linz.govt.nz/data-type: raster
-      linz.govt.nz/region: '{{workflow.parameters.region}}'
+      linz.govt.nz/region: 'new-zealand'
   arguments:
     parameters:
       - name: version_argo_tasks
@@ -32,48 +32,13 @@ spec:
         value: 'v7'
       - name: version_topo_imagery
         description: 'Specify a version of the topo-imagery image to use, e.g. "v4.8" or "latest"'
-        value: 'v4'
-      - name: region
-        description: 'Region of the dataset from the list below'
-        value: 'new-zealand'
-        enum:
-          - 'antarctica'
-          - 'auckland'
-          - 'bay-of-plenty'
-          - 'canterbury'
-          - 'gisborne'
-          - 'global'
-          - 'hawkes-bay'
-          - 'manawatu-whanganui'
-          - 'marlborough'
-          - 'nelson'
-          - 'new-zealand'
-          - 'northland'
-          - 'otago'
-          - 'pacific-islands'
-          - 'southland'
-          - 'taranaki'
-          - 'tasman'
-          - 'waikato'
-          - 'wellington'
-          - 'west-coast'
+        value: 'v5'
       - name: config-file
         description: 'Location of the configuration file listing the source datasets to merge.'
         value: 'https://raw.githubusercontent.com/linz/basemaps-config/master/config/tileset/elevation.json'
       - name: compare
         description: 'Existing collection.json to compare with the new merging.'
         value: ''
-      - name: scale
-        description: 'Scale of the standardised output imagery'
-        value: '50000'
-        enum:
-          - '500'
-          - '1000'
-          - '2000'
-          - '5000'
-          - '10000'
-          - '50000'
-          - 'None'
       - name: source_epsg
         description: 'EPSG of the source files'
         value: '2193'
@@ -82,46 +47,13 @@ spec:
         value: '2193'
       - name: group
         description: 'How many output tiles to process in each standardising task "pod". Change if you have resource or performance issues when standardising a dataset.'
-        value: '50'
-      - name: compression
-        description: 'Compression type to use when standardising TIFFs, e.g. "webp" for imagery or "dem_lerc" for elevation data'
-        value: 'dem_lerc'
-        enum:
-          - 'webp'
-          - 'lzw'
-          - 'dem_lerc'
-      - name: create_capture_area
-        description: 'Create a capture area GeoJSON file for the standardised dataset'
-        value: 'true'
-        enum:
-          - 'false'
-          - 'true'
+        value: '4'
       - name: collection_id
         description: '(Optional) If an existing dataset add collection ID here, else a new one will be generated.'
         value: ''
-      - name: category
-        description: 'Geospatial category of the dataset'
-        value: 'dem'
-        enum:
-          - 'aerial-photos'
-          - 'urban-aerial-photos'
-          - 'rural-aerial-photos'
-          - 'scanned-aerial-photos'
-          - 'dem'
-          - 'dsm'
-          - 'satellite-imagery'
-      - name: gsd
-        description: 'Dataset GSD, e.g., "0.3m" (the "m" must be included)'
-        value: '1m'
-      - name: start_datetime
-        description: 'Dataset capture start date in numeric format YYYY-MM-DD, e.g. "2024-01-14"'
-        value: 'YYYY-MM-DD'
-      - name: end_datetime
-        description: 'Dataset capture end date in numeric format YYYY-MM-DD, e.g. "2024-02-23"'
-        value: 'YYYY-MM-DD'
       - name: lifecycle
         description: 'The release lifecycle status of the dataset, e.g. "completed or "ongoing"'
-        value: 'completed'
+        value: 'ongoing'
         enum:
           - 'under development'
           - 'preview'
@@ -134,14 +66,6 @@ spec:
         enum:
           - 'false'
           - 'true'
-      - name: target_bucket_name
-        description: 'The ODR bucket name to publish to'
-        value: ''
-        enum:
-          - ''
-          - 'nz-imagery'
-          - 'nz-elevation'
-          - ''
       - name: copy_option
         description: 'Do not overwrite existing files with "no-clobber", or "force" overwriting files in the target location'
         value: '--no-clobber'
@@ -179,7 +103,7 @@ spec:
                 - name: key
                   value: '{{tasks.get-location.outputs.parameters.key}}'
             depends: 'get-location.Succeeded'
-          
+
           - name: group
             templateRef:
               name: tpl-at-group
@@ -240,15 +164,6 @@ spec:
                     data: '{{tasks.stac-validate.outputs.result}}'
             depends: 'create-collection.Succeeded'
 
-          - name: create-overview
-            when: "'{{workflow.parameters.target_epsg}}' =~ '2193|3857' && '{{workflow.parameters.compression}}' != 'dem_lerc'"
-            arguments:
-              parameters:
-                - name: location
-                  value: '{{tasks.get-location.outputs.parameters.location}}'
-            template: create-overview
-            depends: 'standardise-validate.Succeeded'
-
           - name: create-config
             when: "'{{workflow.parameters.target_epsg}}' =~ '2193|3857'"
             arguments:
@@ -260,7 +175,7 @@ spec:
                 - name: key
                   value: '{{tasks.get-location.outputs.parameters.key}}'
             template: create-config
-            depends: 'create-overview.Succeeded'
+            depends: 'standardise-validate'
 
           - name: publish-odr
             templateRef:
@@ -272,7 +187,7 @@ spec:
                 - name: source
                   value: '{{tasks.get-location.outputs.parameters.location}}flat/'
                 - name: target_bucket_name
-                  value: '{{workflow.parameters.target_bucket_name}}'
+                  value: 'nz-elevation'
                 - name: copy_option
                   value: '{{workflow.parameters.copy_option}}'
                 - name: ticket
@@ -375,7 +290,7 @@ spec:
           - name: group_data
             path: /tmp/input/
       container:
-        image: 'ghcr.io/linz/topo-imagery:pr-1043'
+        image: '019359803926.dkr.ecr.ap-southeast-2.amazonaws.com/topo-imagery:{{=sprig.trim(workflow.parameters.version_topo_imagery)}}'
         resources:
           requests:
             memory: 7.8Gi
@@ -392,21 +307,17 @@ spec:
           - '--target'
           - '{{inputs.parameters.target}}'
           - '--preset'
-          - '{{workflow.parameters.compression}}'
-          - '--start-datetime'
-          - '{{=sprig.trim(workflow.parameters.start_datetime)}}'
-          - '--end-datetime'
-          - '{{=sprig.trim(workflow.parameters.end_datetime)}}'
+          - 'dem_lerc'
           - '--collection-id'
           - '{{inputs.parameters.collection-id}}'
           - '--create-footprints'
-          - '{{workflow.parameters.create_capture_area}}'
+          - 'true'
           - '--source-epsg'
           - '{{=sprig.trim(workflow.parameters.source_epsg)}}'
           - '--target-epsg'
           - '{{=sprig.trim(workflow.parameters.target_epsg)}}'
           - '--gsd'
-          - '{{=sprig.trim(workflow.parameters.gsd)}}'
+          - '1'
 
     - name: create-collection
       nodeSelector:
@@ -436,11 +347,11 @@ spec:
           - '--collection-id'
           - '{{inputs.parameters.collection-id}}'
           - '--category'
-          - '{{=sprig.trim(workflow.parameters.category)}}'
+          - 'dem'
           - '--region'
-          - '{{=sprig.trim(workflow.parameters.region)}}'
+          - 'new-zealand'
           - '--gsd'
-          - '{{=sprig.trim(workflow.parameters.gsd)}}'
+          - '1'
           - '--start-date'
           - '{{=sprig.trim(workflow.parameters.start_datetime)}}'
           - '--end-date'
@@ -480,31 +391,6 @@ spec:
           - name: key
             valueFrom:
               path: '/tmp/key'
-
-    - name: create-overview
-      inputs:
-        parameters:
-          - name: location
-      container:
-        # Basemaps v7+ has removed overview creation
-        image: 'ghcr.io/linz/basemaps/cli:v6'
-        resources:
-          requests:
-            cpu: 3000m
-            memory: 7.8Gi
-        command: [node, index.cjs]
-        env:
-          - name: AWS_ROLE_CONFIG_PATH
-            value: s3://linz-bucket-config/config.json
-        args:
-          [
-            '-V',
-            'create-overview',
-            '--source',
-            '{{inputs.parameters.location}}flat/',
-            '--output',
-            '{{inputs.parameters.location}}flat/',
-          ]
 
     - name: create-config
       inputs:
