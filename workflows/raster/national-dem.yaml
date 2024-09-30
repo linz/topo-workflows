@@ -14,9 +14,8 @@ spec:
   entrypoint: main
   onExit: exit-handler
   workflowMetadata:
-    labelsFrom:
-      linz.govt.nz/region:
-        expression: 'new-zealand'
+    labels:
+      linz.govt.nz/region: 'new-zealand'
   podMetadata:
     labels:
       linz.govt.nz/category: raster
