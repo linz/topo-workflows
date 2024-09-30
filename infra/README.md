@@ -68,7 +68,7 @@ kubectl apply --filename=dist/
 
 ### Testing
 
-To debug use the following as `cdk8s syth` swallows the errors
+To debug use the following as `cdk8s synth` swallows the errors
 
 ```shell
 npx tsx infra/cdk8s.ts
