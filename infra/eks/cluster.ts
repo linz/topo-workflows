@@ -81,7 +81,7 @@ export class LinzEksCluster extends Stack {
     // TODO: setup up a database CNAME for changing Argo DB without updating Argo config
     // TODO: run a Disaster Recovery test to recover database data
     this.argoDb = new DatabaseInstance(this, ArgoDbInstanceName, {
-      engine: DatabaseInstanceEngine.postgres({ version: PostgresEngineVersion.VER_15_3 }),
+      engine: DatabaseInstanceEngine.postgres({ version: PostgresEngineVersion.VER_15_7 }),
       instanceType: InstanceType.of(InstanceClass.T3, InstanceSize.SMALL),
       vpc: this.vpc,
       databaseName: ArgoDbName,
