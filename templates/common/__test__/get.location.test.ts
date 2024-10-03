@@ -10,10 +10,6 @@ describe('get-location script template', () => {
       './templates/common/get.location.yml',
       [
         {
-          toReplace: '/tmp/',
-          replaceWith: 'memory://tmp/',
-        },
-        {
           toReplace: `JSON.parse(process.env['ARGO_TEMPLATE'])`,
           replaceWith: JSON.stringify({
             archiveLocation: {
