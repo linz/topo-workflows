@@ -33,7 +33,7 @@ type FunctionData = { toReplace: string; replaceWith: string };
 export function runTestFunction(workflowPath: string, data: FunctionData[], stopDelimiter?: string): void {
   let func = getFunctionFromScript(workflowPath, stopDelimiter);
   data.forEach((d) => {
-    func = func.replace(d.toReplace, d.replaceWith);
+    func = func.replaceAll(d.toReplace, d.replaceWith);
   });
   // eslint-disable-next-line @typescript-eslint/no-implied-eval
   new Function(func)();
