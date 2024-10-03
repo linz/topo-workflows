@@ -1,37 +1,22 @@
 import assert from 'node:assert';
-import fs from 'node:fs';
 import { describe, it } from 'node:test';
 
-/**
- * Read the workflow YAML file and create a function from the script inside.
- * replacing {{ inputs.* }} with ctx
- *
- * @param ctx
- */
-function runTestFunction(ctx: { workflowParameters: string; workflowStatus: string }): void {
-  const func = fs.readFileSync('./templates/common/exit.handler.yml', 'utf-8').split('source: |')[1];
-  if (!func) {
-    throw new Error('No script found in the workflow');
-  }
-  const newFunc = func
-    // Replace inputs
-    .replace('{{= inputs.parameters.workflow_parameters }}', `${ctx.workflowParameters ?? '[]'}`)
-    .replace('{{inputs.parameters.workflow_status}}', `${ctx.workflowStatus ?? 'Failed'}`);
-  // eslint-disable-next-line @typescript-eslint/no-implied-eval
-  new Function(newFunc)();
-}
+import { runTestFunction } from './function.helper.js';
 
 describe('exit handler script template', () => {
   it('should log workflow status and parameters', (t) => {
     const spy = t.mock.method(console, 'log');
 
-    runTestFunction({
-      workflowParameters: JSON.stringify([
-        { name: 'source', value: 's3://linz-topographic-upload/abc/', description: 'Source bucket' },
-        { name: 'ticket', value: 'GDE-123', description: 'JIRA Ticket' },
-      ]),
-      workflowStatus: `Succeeded`,
-    });
+    runTestFunction('./templates/common/exit.handler.yml', [
+      {
+        toReplace: '{{= inputs.parameters.workflow_parameters }}',
+        replaceWith: JSON.stringify([
+          { name: 'source', value: 's3://linz-topographic-upload/abc/', description: 'Source bucket' },
+          { name: 'ticket', value: 'GDE-123', description: 'JIRA Ticket' },
+        ]),
+      },
+      { toReplace: '{{inputs.parameters.workflow_status}}', replaceWith: 'Succeeded' },
+    ]);
 
     assert.equal(spy.mock.callCount(), 1);
 

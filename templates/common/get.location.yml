@@ -1,0 +1,47 @@
+# yaml-language-server: $schema=https://raw.githubusercontent.com/argoproj/argo-workflows/v3.5.5/api/jsonschema/schema.json
+
+apiVersion: argoproj.io/v1alpha1
+kind: WorkflowTemplate
+metadata:
+  # Template to output the locaton of the workflow S3 artifact root directory.
+  name: tpl-get-location
+spec:
+  templateDefaults:
+    container:
+      imagePullPolicy: Always
+      image: ''
+  entrypoint: main
+  templates:
+    - name: main
+      inputs:
+        parameters:
+          - name: version_argo_tasks
+            description: Version of argo-tasks to use
+            default: 'v4'
+      outputs:
+        parameters:
+          - name: location
+            valueFrom:
+              path: '/tmp/location'
+          - name: bucket
+            valueFrom:
+              path: '/tmp/bucket'
+          - name: key
+            valueFrom:
+              path: '/tmp/key'
+      script:
+        image: '019359803926.dkr.ecr.ap-southeast-2.amazonaws.com/argo-tasks:{{=sprig.trim(inputs.parameters.version_argo_tasks)}}'
+        command: [node]
+        source: |
+          const argoTemplate = JSON.parse(process.env['ARGO_TEMPLATE']);
+          const podArchiveLoc = argoTemplate.archiveLocation.s3;
+          const workflowArchiveKey = podArchiveLoc.key.substr(0, podArchiveLoc.key.lastIndexOf('/'));
+          const location = `s3://${podArchiveLoc.bucket}/${workflowArchiveKey}/`
+          console.log(`Location: ${location}`);
+          console.log(`Bucket: ${podArchiveLoc.bucket}`);
+          console.log(`Key: ${workflowArchiveKey}`);
+          // Write outputs
+          const fs = require('fs');
+          fs.writeFileSync('/tmp/location', location);
+          fs.writeFileSync('/tmp/bucket', `${podArchiveLoc.bucket}`);
+          fs.writeFileSync('/tmp/key', `${workflowArchiveKey}`);
