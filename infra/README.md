@@ -36,7 +36,7 @@ Main entry point: [app](./cdk8s.ts)
 
 To deploy with AWS CDK a few context values need to be set:
 
-- `aws-account-id`: Account ID to deploy into. This can be set with either a `export CDK_DEFAULT_ACCOUNT=1234567890` or passed in at run time with `--context=aws-account-id=1234567890`.
+- `aws-account-id`: Account ID to deploy into. This can be set with `export CDK_DEFAULT_ACCOUNT="$(aws sts get-caller-identity --query Account --output text)"`.
 - `maintainer-arns`: AWS Role ARN for the CI user.
 
 Then a deployment can be made with `cdk`:
