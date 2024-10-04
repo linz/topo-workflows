@@ -1,7 +1,7 @@
 import assert from 'node:assert';
 import { describe, it } from 'node:test';
 
-import { runTestFunction } from './function.helper.js';
+import { runTestFunction, shimRequired } from './function.helper.js';
 
 describe('get-location script template', () => {
   it('should output workflow artifact location', (t) => {
@@ -21,7 +21,7 @@ describe('get-location script template', () => {
           }),
         },
       ],
-      '// Write outputs',
+      'node:fs',
     );
     assert.equal(spy.mock.callCount(), 3);
 
@@ -33,5 +33,7 @@ describe('get-location script template', () => {
 
     const key = String(spy.mock.calls[2]?.arguments[0]);
     assert.equal(key, 'Key: 2024-10/02-test-get-location-29l4x');
+
+    assert.deepEqual(shimRequired, ['node:fs']);
   });
 });

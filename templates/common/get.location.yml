@@ -33,6 +33,8 @@ spec:
         image: '019359803926.dkr.ecr.ap-southeast-2.amazonaws.com/argo-tasks:{{=sprig.trim(inputs.parameters.version_argo_tasks)}}'
         command: [node]
         source: |
+          const fs = require('node:fs');
+
           const argoTemplate = JSON.parse(process.env['ARGO_TEMPLATE']);
           const podArchiveLoc = argoTemplate.archiveLocation.s3;
           const workflowArchiveKey = podArchiveLoc.key.substr(0, podArchiveLoc.key.lastIndexOf('/'));
@@ -40,8 +42,6 @@ spec:
           console.log(`Location: ${location}`);
           console.log(`Bucket: ${podArchiveLoc.bucket}`);
           console.log(`Key: ${workflowArchiveKey}`);
-          // Write outputs
-          const fs = require('fs');
           fs.writeFileSync('/tmp/location', location);
           fs.writeFileSync('/tmp/bucket', `${podArchiveLoc.bucket}`);
           fs.writeFileSync('/tmp/key', `${workflowArchiveKey}`);
