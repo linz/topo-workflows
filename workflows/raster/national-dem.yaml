@@ -1,0 +1,437 @@
+# yaml-language-server: $schema=https://raw.githubusercontent.com/argoproj/argo-workflows/v3.5.5/api/jsonschema/schema.json
+
+apiVersion: argoproj.io/v1alpha1
+kind: WorkflowTemplate
+metadata:
+  name: national-dem
+  labels:
+    linz.govt.nz/category: raster
+    linz.govt.nz/data-type: raster
+spec:
+  parallelism: 50
+  nodeSelector:
+    karpenter.sh/capacity-type: 'spot'
+  entrypoint: main
+  onExit: exit-handler
+  workflowMetadata:
+    labels:
+      linz.govt.nz/region: 'new-zealand'
+  podMetadata:
+    labels:
+      linz.govt.nz/category: raster
+      linz.govt.nz/data-type: raster
+      linz.govt.nz/region: 'new-zealand'
+  arguments:
+    parameters:
+      - name: version_argo_tasks
+        description: 'Specify a version of the argo-tasks image to use, e.g. "v4.1" or "latest"'
+        value: 'v4'
+      - name: version_basemaps_cli
+        description: 'Specify a version of the basemaps-cli image to use, e.g. "v7.1" or "latest"'
+        value: 'v7'
+      - name: version_topo_imagery
+        description: 'Specify a version of the topo-imagery image to use, e.g. "v4.8" or "latest"'
+        value: 'v5'
+      - name: config-file
+        description: 'Location of the configuration file listing the source datasets to merge.'
+        value: 'https://raw.githubusercontent.com/linz/basemaps-config/master/config/tileset/elevation.json'
+      - name: compare
+        description: 'Existing collection.json to compare with the new merging.'
+        value: ''
+      - name: source_epsg
+        description: 'EPSG of the source files'
+        value: '2193'
+      - name: target_epsg
+        description: 'EPSG of the standardised output files'
+        value: '2193'
+      - name: group
+        description: 'How many output tiles to process in each standardising task "pod". Change if you have resource or performance issues when standardising a dataset.'
+        value: '4'
+      - name: collection_id
+        description: 'Collection ID of the existing National DEM Collection.'
+        value: ''
+      - name: publish_to_odr
+        description: 'Create a Pull Request for publishing to imagery or elevation ODR bucket'
+        value: 'false'
+        enum:
+          - 'false'
+          - 'true'
+      - name: copy_option
+        description: 'Do not overwrite existing files with "no-clobber", or "force" overwriting files in the target location'
+        value: '--no-clobber'
+        enum:
+          - '--no-clobber'
+          - '--force'
+          - '--force-no-clobber'
+  templateDefaults:
+    container:
+      imagePullPolicy: Always
+      image: ''
+  templates:
+    - name: main
+      retryStrategy:
+        expression: 'false'
+      inputs:
+        parameters:
+          - name: config-file
+      dag:
+        tasks:
+          - name: get-location
+            template: get-location
+
+          - name: create-mapsheet
+            template: create-mapsheet
+            arguments:
+              parameters:
+                - name: config-file
+                  value: '{{workflow.parameters.config-file}}'
+                - name: compare
+                  # Workaround --compare with empty value will fail so we add the flag inside the input parameter
+                  value: '{{= workflow.parameters.compare == "" ? "" : "--compare=" + workflow.parameters.compare}}'
+                - name: bucket
+                  value: '{{tasks.get-location.outputs.parameters.bucket}}'
+                - name: key
+                  value: '{{tasks.get-location.outputs.parameters.key}}'
+            depends: 'get-location.Succeeded'
+
+          - name: group
+            templateRef:
+              name: tpl-at-group
+              template: main
+            arguments:
+              artifacts:
+                - name: input
+                  from: '{{ tasks.create-mapsheet.outputs.artifacts.files }}'
+              parameters:
+                - name: size
+                  value: '{{workflow.parameters.group}}'
+                - name: version
+                  value: '{{= workflow.parameters.version_argo_tasks}}'
+            depends: 'create-mapsheet'
+            when: "{{= len(sprig.fromJson(tasks['create-mapsheet'].outputs.parameters.file_list)) > 0 }}"
+
+          - name: collection-id-setup
+            template: collection-id-setup
+            depends: 'group.Succeeded'
+
+          - name: standardise-validate
+            template: standardise-validate
+            arguments:
+              parameters:
+                - name: group_id
+                  value: '{{item}}'
+                - name: collection-id
+                  value: '{{tasks.collection-id-setup.outputs.parameters.collection-id}}'
+                - name: target
+                  value: '{{tasks.get-location.outputs.parameters.location}}flat/'
+              artifacts:
+                - name: group_data
+                  from: '{{ tasks.group.outputs.artifacts.output }}'
+            depends: 'collection-id-setup.Succeeded && get-location.Succeeded'
+            withParam: '{{ tasks.group.outputs.parameters.output }}'
+
+          - name: create-collection
+            template: create-collection
+            arguments:
+              parameters:
+                - name: collection-id
+                  value: '{{tasks.collection-id-setup.outputs.parameters.collection-id}}'
+                - name: location
+                  value: '{{tasks.get-location.outputs.parameters.location}}'
+            depends: 'standardise-validate.Succeeded'
+
+          - name: stac-validate
+            templateRef:
+              name: tpl-at-stac-validate
+              template: main
+            arguments:
+              parameters:
+                - name: uri
+                  value: '{{tasks.get-location.outputs.parameters.location}}flat/collection.json'
+              artifacts:
+                - name: stac-result
+                  raw:
+                    data: '{{tasks.stac-validate.outputs.result}}'
+            depends: 'create-collection.Succeeded'
+
+          - name: create-config
+            when: "'{{workflow.parameters.target_epsg}}' =~ '2193|3857'"
+            arguments:
+              parameters:
+                - name: location
+                  value: '{{tasks.get-location.outputs.parameters.location}}'
+                - name: bucket
+                  value: '{{tasks.get-location.outputs.parameters.bucket}}'
+                - name: key
+                  value: '{{tasks.get-location.outputs.parameters.key}}'
+            template: create-config
+            depends: 'standardise-validate'
+
+          - name: publish-odr
+            templateRef:
+              name: publish-odr
+              template: main
+            when: "'{{workflow.parameters.publish_to_odr}}' == 'true'"
+            arguments:
+              parameters:
+                - name: source
+                  value: '{{tasks.get-location.outputs.parameters.location}}flat/'
+                - name: target_bucket_name
+                  value: 'nz-elevation'
+                - name: copy_option
+                  value: '{{workflow.parameters.copy_option}}'
+                - name: ticket
+                  value: '{{=sprig.trim(workflow.parameters.ticket)}}'
+            depends: 'stac-validate.Succeeded && create-config.Succeeded'
+
+      outputs:
+        parameters:
+          - name: target
+            valueFrom:
+              parameter: '{{tasks.get-location.outputs.parameters.location}}'
+              default: ''
+      # END TEMPLATE `main`
+
+    - name: collection-id-setup
+      script:
+        image: '019359803926.dkr.ecr.ap-southeast-2.amazonaws.com/topo-imagery:{{=sprig.trim(workflow.parameters.version_topo_imagery)}}'
+        args: [python]
+        source: |
+          import ulid
+          collection_id = "{{workflow.parameters.collection_id}}"
+          with open("/tmp/collection-id", "w") as f:
+            if not collection_id:
+              f.write(str(ulid.ULID()))
+            else:
+              f.write(collection_id)
+      outputs:
+        parameters:
+          - name: collection-id
+            valueFrom:
+              path: '/tmp/collection-id'
+
+    - name: create-mapsheet
+      inputs:
+        parameters:
+          - name: config-file
+          - name: compare
+          - name: bucket
+          - name: key
+      container:
+        image: '019359803926.dkr.ecr.ap-southeast-2.amazonaws.com/argo-tasks:{{=sprig.trim(workflow.parameters.version_argo_tasks)}}'
+        resources:
+          requests:
+            cpu: 3000m
+            memory: 7.8Gi
+        command: [node, /app/index.js]
+        env:
+          - name: AWS_ROLE_CONFIG_PATH
+            value: s3://linz-bucket-config/config.json
+        args:
+          [
+            'mapsheet-coverage',
+            '--verbose',
+            '--location',
+            '{{inputs.parameters.config-file}}',
+            '--epsg-code',
+            '{{workflow.parameters.source_epsg}}',
+            '{{inputs.parameters.compare}}',
+          ]
+      outputs:
+        parameters:
+          - name: file_list
+            valueFrom:
+              path: /tmp/mapsheet-coverage/file-list.json
+        artifacts:
+          # List of tiff files that need to be processed
+          - name: files
+            path: /tmp/mapsheet-coverage/file-list.json
+            optional: true
+            archive:
+              none: {}
+          - name: layers_source
+            path: /tmp/mapsheet-coverage/layers-source.geojson.gz
+            optional: true
+            archive:
+              none: {}
+          - name: layers_combined
+            path: /tmp/mapsheet-coverage/layers-combined.geojson.gz
+            optional: true
+            archive:
+              none: {}
+          # Provenance information for the collection
+          - name: capture_dates
+            path: /tmp/create-mapsheet/capture-dates.geojson
+            s3:
+              bucket: '{{inputs.parameters.bucket}}'
+              key: '{{inputs.parameters.key}}flat/capture-dates.geojson'
+            archive:
+              none: {}
+
+    - name: standardise-validate
+      nodeSelector:
+        karpenter.sh/capacity-type: 'spot'
+      inputs:
+        parameters:
+          - name: group_id
+          - name: collection-id
+          - name: target
+        artifacts:
+          - name: group_data
+            path: /tmp/input/
+      container:
+        image: '019359803926.dkr.ecr.ap-southeast-2.amazonaws.com/topo-imagery:{{=sprig.trim(workflow.parameters.version_topo_imagery)}}'
+        resources:
+          requests:
+            memory: 7.8Gi
+            cpu: 15000m
+            ephemeral-storage: 3Gi
+        volumeMounts:
+          - name: ephemeral
+            mountPath: '/tmp'
+        args:
+          - python
+          - '/app/scripts/standardise_validate.py'
+          - '--from-file'
+          - '/tmp/input/{{inputs.parameters.group_id}}.json'
+          - '--target'
+          - '{{inputs.parameters.target}}'
+          - '--preset'
+          - 'dem_lerc'
+          - '--collection-id'
+          - '{{inputs.parameters.collection-id}}'
+          - '--create-footprints'
+          - 'true'
+          - '--source-epsg'
+          - '{{=sprig.trim(workflow.parameters.source_epsg)}}'
+          - '--target-epsg'
+          - '{{=sprig.trim(workflow.parameters.target_epsg)}}'
+          - '--gsd'
+          - '1'
+
+    - name: create-collection
+      nodeSelector:
+        karpenter.sh/capacity-type: 'spot'
+      inputs:
+        parameters:
+          - name: collection-id
+          - name: location
+      outputs:
+        artifacts:
+          - name: capture-area
+            path: '/tmp/capture-area.geojson'
+            optional: true
+            archive:
+              none: {}
+      container:
+        image: '019359803926.dkr.ecr.ap-southeast-2.amazonaws.com/topo-imagery:{{=sprig.trim(workflow.parameters.version_topo_imagery)}}'
+        resources:
+          requests:
+            memory: 7.8Gi
+            cpu: 15000m
+        args:
+          - python
+          - '/app/scripts/collection_from_items.py'
+          - '--uri'
+          - '{{inputs.parameters.location}}flat/'
+          - '--collection-id'
+          - '{{inputs.parameters.collection-id}}'
+          - '--category'
+          - 'dem'
+          - '--region'
+          - 'new-zealand'
+          - '--gsd'
+          - '1'
+          - '--start-date'
+          - '{{=sprig.trim(workflow.parameters.start_datetime)}}'
+          - '--end-date'
+          - '{{=sprig.trim(workflow.parameters.end_datetime)}}'
+          - '--lifecycle'
+          - 'ongoing'
+          - '--producer'
+          - 'Toitū Te Whenua Land Information New Zealand'
+          - '--producer-list'
+          - ''
+          - '--licensor'
+          - 'Toitū Te Whenua Land Information New Zealand'
+          - '--licensor-list'
+          - ''
+          - '--concurrency'
+          - '25'
+
+    - name: get-location
+      script:
+        image: '019359803926.dkr.ecr.ap-southeast-2.amazonaws.com/argo-tasks:{{=sprig.trim(workflow.parameters.version_argo_tasks)}}'
+        command: [node]
+        source: |
+          const fs = require('fs');
+          const loc = JSON.parse(process.env['ARGO_TEMPLATE']).archiveLocation.s3;
+          const key = loc.key.replace('{{pod.name}}','');
+          fs.writeFileSync('/tmp/location', `s3://${loc.bucket}/${key}`);
+          fs.writeFileSync('/tmp/bucket', `${loc.bucket}`);
+          fs.writeFileSync('/tmp/key', `${key}`);
+      outputs:
+        parameters:
+          - name: location
+            valueFrom:
+              path: '/tmp/location'
+          - name: bucket
+            valueFrom:
+              path: '/tmp/bucket'
+          - name: key
+            valueFrom:
+              path: '/tmp/key'
+
+    - name: create-config
+      inputs:
+        parameters:
+          - name: location
+            description: 'Location of the imagery to create config for'
+          - name: bucket
+          - name: key
+      container:
+        image: 'ghcr.io/linz/basemaps/cli:{{=sprig.trim(workflow.parameters.version_basemaps_cli)}}'
+        command: [node, /app/node_modules/@basemaps/cogify/dist/index.cjs]
+        env:
+          - name: AWS_ROLE_CONFIG_PATH
+            value: s3://linz-bucket-config/config.basemaps.json
+        args:
+          - 'config'
+          - '{{ inputs.parameters.location }}flat/'
+      outputs:
+        parameters:
+          - name: url
+            description: 'Basemaps URL to view the imagery'
+            valueFrom:
+              path: '/tmp/cogify/config-url'
+          - name: config
+            description: 'Location of the config file'
+            valueFrom:
+              path: '/tmp/cogify/config-path'
+        artifacts:
+          - name: url
+            path: '/tmp/cogify/config-url'
+            s3:
+              bucket: '{{inputs.parameters.bucket}}'
+              key: '{{inputs.parameters.key}}flat/config-url'
+            archive:
+              none: {}
+
+    - name: exit-handler
+      retryStrategy:
+        limit: '0' # `tpl-exit-handler` retries itself
+      steps:
+        - - name: exit
+            templateRef:
+              name: tpl-exit-handler
+              template: main
+            arguments:
+              parameters:
+                - name: workflow_status
+                  value: '{{workflow.status}}'
+                - name: workflow_parameters
+                  value: '{{workflow.parameters}}'
+
+  volumes:
+    - name: ephemeral
+      emptyDir: {}

@@ -3,6 +3,7 @@
 - [Standardising](#Standardising)
 - [copy](#copy)
 - [publish-odr](#Publish-odr)
+- [National DEM](#national-dem)
 - [tests](#Tests)
 
 # Standardising
@@ -279,6 +280,35 @@ graph TD;
 **copy_option:** `--no-clobber`
 
 See the [copy template](#copy) for more information.
+
+# national-dem
+
+This workflow combines a set of DEMs datasets in order to create a single national dataset composed of 50k tiles.
+
+Upon completion all standardised TIFF and STAC files will be located with the ./flat/ directory of the workflow in the artifacts scratch bucket. In addition, a Basemaps link is produced enabling visual QA.
+
+Publishing to the AWS Registry of Open Data is an optional step [publish-odr](#Publish-odr) that can be run automatically after standardisation.
+
+## Workflow Input Parameters
+
+| Parameter          | Type | Default                                                                                     | Description                                                                                                                                                                                                                                                       |
+| ------------------ | ---- | ------------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| config-file        | str  | https://raw.githubusercontent.com/linz/basemaps-config/master/config/tileset/elevation.json | Location of the configuration file listing the source datasets to merge.                                                                                                                                                                                          |
+| compare            | str  |                                                                                             | Existing collection.json to compare with the new merging.                                                                                                                                                                                                         |
+| source_epsg        | str  | 2193                                                                                        | The EPSG code of the source imagery                                                                                                                                                                                                                               |
+| target_epsg        | str  | 2193                                                                                        | The target EPSG code - if different to source the imagery will be reprojected                                                                                                                                                                                     |
+| group              | 4    |                                                                                             | How many output tiles to process in each standardising task "pod". Change if you have resource or performance issues when standardising a dataset.                                                                                                                |
+| collection_id      | 4    |                                                                                             | Collection ID of the existing National DEM collection.                                                                                                                                                                                                            |
+| publish_to_odr     | str  | false                                                                                       | Run [publish-odr](#Publish-odr) after standardising has completed successfully                                                                                                                                                                                    |
+| target_bucket_name | enum |                                                                                             | Used only if `publish_to_odr` is true. The bucket name of the target ODR location                                                                                                                                                                                 |
+| copy_option        | enum | --no-clobber                                                                                | Used only if `publish_to_odr` is true.<dl><dt>`--no-clobber` </dt><dd> Skip overwriting existing files.</dd><dt> `--force` </dt><dd> Overwrite all files. </dd><dt> `--force-no-clobber` </dt><dd> Overwrite only changed files, skip unchanged files. </dd></dl> |
+
+### Example Input Parameters
+
+| Parameter     | Value                                                                 |
+| ------------- | --------------------------------------------------------------------- |
+| compare       | s3://nz-elevation/new-zealand/new-zealand/dem_1m/2193/collection.json |
+| collection_id | 01J6TK9HHNDHJEG8QRSF98WH11                                            |
 
 # Tests
 
