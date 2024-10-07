@@ -31,7 +31,6 @@ To connect to the EKS cluster you need to be [logged into AWS](https://toitutewh
 
 Then to setup the cluster, only the first time using the cluster you need to run this
 
-
 ```bash
 aws --region=ap-southeast-2 eks update-kubeconfig --name=Workflows
 ```

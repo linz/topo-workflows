@@ -8,11 +8,11 @@ The following list of labels should be used in conjunction with Kubernetes [well
 
 ## Workflows
 
-| Label                 | Description                              | Examples                             |
-| --------------------- | ---------------------------------------- |--------------------------------------|
-| `linz.govt.nz/ticket` | JIRA Ticket number                       | `TDE-912`, `BM-37`                   |
-| `linz.govt.nz/region` | Geographic region that object relates to | "wellington", "auckland"             |
-| `linz.govt.nz/category`  | The LINZ group that owns the workflow    | "basemaps", "raster", "test", "util" |
+| Label                   | Description                              | Examples                             |
+| ----------------------- | ---------------------------------------- | ------------------------------------ |
+| `linz.govt.nz/ticket`   | JIRA Ticket number                       | `TDE-912`, `BM-37`                   |
+| `linz.govt.nz/region`   | Geographic region that object relates to | "wellington", "auckland"             |
+| `linz.govt.nz/category` | The LINZ group that owns the workflow    | "basemaps", "raster", "test", "util" |
 
 For the type of data that is being processed
 
@@ -25,12 +25,12 @@ For the type of data that is being processed
 
 Most other objects deployed via AWS-CDK and CDK8s should also include information about the CICD process that deployed it
 
-| Label                      | Description                              | Examples                                   |
-| -------------------------- | ---------------------------------------- | ------------------------------------------ |
-| `linz.govt.nz/git-hash`    | git hash that deployed the object        | "bb3dab2779922094d2b8ecd4c67f30c66b38613d" |
-| `linz.govt.nz/git-version` | git version information                  | "v6.46.0", "v0.0.1-20-gbb3dab27"           |
-| `linz.govt.nz/git-repository`    | git repository that the object came from | "linz\_\_topo-workflows"                   |
-| `linz.govt.nz/build-id`    | Unique ID of the build that deployed     | "6806791032-1"                             |
+| Label                         | Description                              | Examples                                   |
+| ----------------------------- | ---------------------------------------- | ------------------------------------------ |
+| `linz.govt.nz/git-hash`       | git hash that deployed the object        | "bb3dab2779922094d2b8ecd4c67f30c66b38613d" |
+| `linz.govt.nz/git-version`    | git version information                  | "v6.46.0", "v0.0.1-20-gbb3dab27"           |
+| `linz.govt.nz/git-repository` | git repository that the object came from | "linz\_\_topo-workflows"                   |
+| `linz.govt.nz/build-id`       | Unique ID of the build that deployed     | "6806791032-1"                             |
 
 ## Label Usage
 
