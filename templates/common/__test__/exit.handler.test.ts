@@ -2,6 +2,30 @@ import assert from 'node:assert';
 import fs from 'node:fs';
 import { describe, it } from 'node:test';
 
+import YAML from 'yaml';
+
+/**
+ * Workflow template type (partial)
+ */
+type WorkflowTemplate = { spec: { templates: { name: string; script: { source: string } }[] } };
+
+/**
+ * Extract the script of the task named `taskName` from the `workflowTemplate`
+ * @param workflow Workflow template
+ * @param taskName the task to extract the script from
+ * @returns the script of the task
+ */
+function getScript(workflow: WorkflowTemplate, taskName: string): string {
+  if (workflow.spec && workflow.spec.templates) {
+    for (const template of workflow.spec.templates) {
+      if (template.name === taskName) {
+        return template.script.source;
+      }
+    }
+  }
+  throw new Error(`Task ${taskName} not found in the workflow`);
+}
+
 /**
  * Read the workflow YAML file and create a function from the script inside.
  * replacing {{ inputs.* }} with ctx
@@ -9,11 +33,14 @@ import { describe, it } from 'node:test';
  * @param ctx
  */
 function runTestFunction(ctx: { workflowParameters: string; workflowStatus: string }): void {
-  const func = fs.readFileSync('./templates/common/exit.handler.yml', 'utf-8').split('source: |')[1];
-  if (!func) {
+  const wfRaw = fs.readFileSync('./templates/common/exit.handler.yml', 'utf-8');
+  const wfTemplate = YAML.parse(wfRaw) as WorkflowTemplate;
+  const script = getScript(wfTemplate, 'main');
+
+  if (!script) {
     throw new Error('No script found in the workflow');
   }
-  const newFunc = func
+  const newFunc = script
     // Replace inputs
     .replace('{{= inputs.parameters.workflow_parameters }}', `${ctx.workflowParameters ?? '[]'}`)
     .replace('{{inputs.parameters.workflow_status}}', `${ctx.workflowStatus ?? 'Failed'}`);
