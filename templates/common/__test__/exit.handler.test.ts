@@ -19,6 +19,9 @@ function getScript(workflow: WorkflowTemplate, taskName: string): string {
   if (workflow.spec && workflow.spec.templates) {
     for (const template of workflow.spec.templates) {
       if (template.name === taskName) {
+        if (!template.script?.source) {
+          throw new Error(`Task ${taskName} has no script`);
+        }
         return template.script.source;
       }
     }
@@ -36,10 +39,6 @@ function runTestFunction(ctx: { workflowParameters: string; workflowStatus: stri
   const wfRaw = fs.readFileSync('./templates/common/exit.handler.yml', 'utf-8');
   const wfTemplate = YAML.parse(wfRaw) as WorkflowTemplate;
   const script = getScript(wfTemplate, 'main');
-
-  if (!script) {
-    throw new Error('No script found in the workflow');
-  }
   const newFunc = script
     // Replace inputs
     .replace('{{= inputs.parameters.workflow_parameters }}', `${ctx.workflowParameters ?? '[]'}`)
