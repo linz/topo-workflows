@@ -30,6 +30,7 @@ Main entry point: [app](./cdk8s.ts)
   ```shell
   npm install
   ```
+
 - Login to AWS
 
 ### Deploy CDK
