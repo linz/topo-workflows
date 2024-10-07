@@ -17,17 +17,13 @@ type WorkflowTemplate = { spec: { templates: { name: string; script: { source: s
  * @returns the script of the task
  */
 function getScript(workflow: WorkflowTemplate, taskName: string): string {
-  if (workflow.spec && workflow.spec.templates) {
-    for (const template of workflow.spec.templates) {
-      if (template.name === taskName) {
-        if (!template.script?.source) {
-          throw new Error(`Task ${taskName} has no script`);
-        }
-        return template.script.source;
-      }
-    }
-  }
-  throw new Error(`Task ${taskName} not found in the workflow`);
+  const template = workflow?.spec?.templates?.find((f) => f.name === taskName);
+  if (template == null) throw new Error(`Task ${taskName} not found in the workflow`);
+
+  const source = template.script?.source;
+  if (source == null) throw new Error(`Task ${taskName} has no script`);
+
+  return source;
 }
 
 /**
@@ -40,8 +36,9 @@ function runTestFunction(ctx: { workflowParameters: string; workflowStatus: stri
   const wfRaw = fs.readFileSync('./templates/common/exit.handler.yml', 'utf-8');
   const wfTemplate = YAML.parse(wfRaw) as WorkflowTemplate;
   const script = getScript(wfTemplate, 'main');
+
+  // Replace inputs with ctx
   const newFunc = script
-    // Replace inputs
     .replace('{{= inputs.parameters.workflow_parameters }}', `${ctx.workflowParameters ?? '[]'}`)
     .replace('{{inputs.parameters.workflow_status}}', `${ctx.workflowStatus ?? 'Failed'}`);
   // eslint-disable-next-line @typescript-eslint/no-implied-eval
