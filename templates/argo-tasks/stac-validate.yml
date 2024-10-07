@@ -51,10 +51,10 @@ spec:
           - name: AWS_ROLE_CONFIG_PATH
             value: s3://linz-bucket-config/config.json
         args:
-            - 'stac'
-            - 'validate'
-            - '--concurrency={{inputs.parameters.concurrency}}'
-            - '--recursive={{inputs.parameters.recursive}}'
-            - '--checksum-assets={{inputs.parameters.checksum_assets}}'
-            - '--checksum-links={{inputs.parameters.checksum_links}}'
-            - '{{inputs.parameters.uri}}'
+          - 'stac'
+          - 'validate'
+          - '--concurrency={{inputs.parameters.concurrency}}'
+          - '--recursive={{inputs.parameters.recursive}}'
+          - '--checksum-assets={{inputs.parameters.checksum_assets}}'
+          - '--checksum-links={{inputs.parameters.checksum_links}}'
+          - '{{inputs.parameters.uri}}'
