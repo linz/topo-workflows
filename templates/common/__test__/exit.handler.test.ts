@@ -10,7 +10,8 @@ import YAML from 'yaml';
 type WorkflowTemplate = { spec: { templates: { name: string; script: { source: string } }[] } };
 
 /**
- * Extract the script of the task named `taskName` from the `workflowTemplate`
+ * Extract the script of the task named `taskName` from the `workflowTemplate`.
+ *
  * @param workflow Workflow template
  * @param taskName the task to extract the script from
  * @returns the script of the task
