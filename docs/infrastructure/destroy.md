@@ -5,7 +5,7 @@ Destroying the cluster and stack is not easy, because we use some custom EKS res
 1. Delete the cluster:
 
    ```bash
-   aws eks wait delete-cluster --name=Workflows
+   aws eks delete-cluster --name=Workflows
    aws eks wait cluster-deleted --name=Workflows
    ```
 
