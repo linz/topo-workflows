@@ -3,7 +3,7 @@
 apiVersion: argoproj.io/v1alpha1
 kind: WorkflowTemplate
 metadata:
-  name: national-dem
+  name: test-national-dem
   labels:
     linz.govt.nz/category: raster
     linz.govt.nz/data-type: raster
@@ -261,7 +261,7 @@ spec:
               none: {}
           # Provenance information for the collection
           - name: capture_dates
-            path: /tmp/create-mapsheet/capture-dates.geojson
+            path: /tmp/mapsheet-coverage/capture-dates.geojson
             s3:
               bucket: '{{inputs.parameters.bucket}}'
               key: '{{inputs.parameters.key}}flat/capture-dates.geojson'
