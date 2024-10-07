@@ -36,7 +36,7 @@ spec:
           - 'generate-path'
           - '--target-bucket-name'
           - '{{=sprig.trim(inputs.parameters.target_bucket_name)}}'
-          - '--no_date_in_survey_path={{=sprig.trim(inputs.parameters.no_date_in_survey_path)}}'
+          - '--no-date-in-survey-path={{=sprig.trim(inputs.parameters.no_date_in_survey_path)}}'
           - '{{=sprig.trim(inputs.parameters.source)}}'
 
       outputs:
