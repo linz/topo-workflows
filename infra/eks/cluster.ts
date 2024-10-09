@@ -1,4 +1,4 @@
-import { KubectlV29Layer } from '@aws-cdk/lambda-layer-kubectl-v29';
+import { KubectlV30Layer } from '@aws-cdk/lambda-layer-kubectl-v30';
 import { Aws, CfnOutput, Duration, RemovalPolicy, SecretValue, Size, Stack, StackProps } from 'aws-cdk-lib';
 import * as chatbot from 'aws-cdk-lib/aws-chatbot';
 import * as cloudwatch from 'aws-cdk-lib/aws-cloudwatch';
@@ -44,7 +44,7 @@ export class LinzEksCluster extends Stack {
   /* Cluster ID */
   id: string;
   /** Version of EKS to use, this must be aligned to the `kubectlLayer` */
-  version = KubernetesVersion.of('1.29');
+  version = KubernetesVersion.of('1.30');
   /** Argo needs a database for workflow archive */
   argoDb: DatabaseInstance;
   /** Argo needs a temporary bucket to store objects */
@@ -72,7 +72,7 @@ export class LinzEksCluster extends Stack {
       defaultCapacity: 0,
       vpcSubnets: [{ subnetType: SubnetType.PRIVATE_WITH_EGRESS }],
       /** This must align to Cluster version: {@link version} */
-      kubectlLayer: new KubectlV29Layer(this, 'KubeCtlLayer'),
+      kubectlLayer: new KubectlV30Layer(this, 'KubeCtlLayer'),
       /** To prevent IP exhaustion when running huge workflows run using ipv6 */
       ipFamily: IpFamily.IP_V6,
       clusterLogging: [ClusterLoggingTypes.API, ClusterLoggingTypes.CONTROLLER_MANAGER, ClusterLoggingTypes.SCHEDULER],
@@ -81,7 +81,7 @@ export class LinzEksCluster extends Stack {
     // TODO: setup up a database CNAME for changing Argo DB without updating Argo config
     // TODO: run a Disaster Recovery test to recover database data
     this.argoDb = new DatabaseInstance(this, ArgoDbInstanceName, {
-      engine: DatabaseInstanceEngine.postgres({ version: PostgresEngineVersion.VER_15_3 }),
+      engine: DatabaseInstanceEngine.postgres({ version: PostgresEngineVersion.VER_15_7 }),
       instanceType: InstanceType.of(InstanceClass.T3, InstanceSize.SMALL),
       vpc: this.vpc,
       databaseName: ArgoDbName,

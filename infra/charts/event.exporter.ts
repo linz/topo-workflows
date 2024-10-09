@@ -8,7 +8,7 @@ import {
   Namespace,
   ServiceAccount,
   Volume,
-} from 'cdk8s-plus-29';
+} from 'cdk8s-plus-30';
 import { Construct } from 'constructs';
 
 import { applyDefaultLabels } from '../util/labels.js';
@@ -28,7 +28,7 @@ export class EventExporter extends Chart {
       metadata: { name: 'event-exporter', namespace: props.namespace },
     });
 
-    // https://cdk8s.io/docs/latest/plus/cdk8s-plus-29/rbac/#role
+    // https://cdk8s.io/docs/latest/plus/cdk8s-plus-30/rbac/#role
     const clusterRole = new ClusterRole(this, 'event-exporter-cr', {
       metadata: { name: 'event-exporter' },
     });

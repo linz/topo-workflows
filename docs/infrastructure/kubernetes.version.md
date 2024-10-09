@@ -17,6 +17,7 @@ If there is a version matching to the Kubernetes version to upgrade to, upgrade 
    ```bash
    npm install --save-dev cdk8s-plus-27
    ```
+
 2. Remove the previous version
 
    ```bash
@@ -34,12 +35,13 @@ Below is an example of upgrading from v1.27 to v1.28
    ```bash
    npm install --save-dev @aws-cdk/lambda-layer-kubectl-v28
    ```
-   
+
    While also removing the old lambda-layer version
-   
+
    ```bash
    npm rm @aws-cdk/lambda-layer-kubectl-v27
    ```
+
 2. Set the new Kubernetes version in `LinzEksCluster`
 
    ```typescript
@@ -50,20 +52,23 @@ Below is an example of upgrading from v1.27 to v1.28
 
    ```typescript
    import { KubectlV28Layer } from '@aws-cdk/lambda-layer-kubectl-v28';
-   
+
    // ...
-   
+
          kubectlLayer: new KubectlV28Layer(this, 'KubeCtlLayer'),
    ```
 
 4. Diff the stack to make sure that only versions are updated
 
    ```bash
-   npx cdk diff Workflows -c ci-role-arn=...
+   ci_role="$(aws iam list-roles | jq --raw-output '.Roles[] | select(.RoleName | contains("CiTopo")) | select(.RoleName | contains("-CiRole")).Arn')"
+   admin_role="arn:aws:iam::$(aws sts get-caller-identity --query Account --output text):role/AccountAdminRole"
+   workflow_maintainer_role="$(aws cloudformation describe-stacks --stack-name=TopographicSharedResourcesProd | jq --raw-output .Stacks[0].Outputs[0].OutputValue)"
+   npx cdk diff --context=maintainer-arns="${ci_role},${admin_role},${workflow_maintainer_role}" Workflows
    ```
-   
+
    The only changes should be Kubernetes version related.
-   
+
    ```
    Resources
    [~] AWS::Lambda::LayerVersion KubeCtlLayer KubeCtlLayer replace
@@ -92,8 +97,9 @@ Below is an example of upgrading from v1.27 to v1.28
 ## Cycle out EC2 Nodes to the new version
 
 <https://docs.aws.amazon.com/eks/latest/userguide/kubernetes-versions.html#version-deprecation>
+
 > **Are Amazon EKS managed node groups automatically updated along with the cluster control plane version?**
-No. A managed node group creates Amazon EC2 instances in your account. These instances aren't automatically upgraded when you or Amazon EKS update your control plane. For more information, see Updating a managed node group. We recommend maintaining the same Kubernetes version on your control plane and nodes.
+> No. A managed node group creates Amazon EC2 instances in your account. These instances aren't automatically upgraded when you or Amazon EKS update your control plane. For more information, see Updating a managed node group. We recommend maintaining the same Kubernetes version on your control plane and nodes.
 
 This process is necessary to avoid being blocked for a future Kubernetes version upgrade. For example, if Kubernetes get upgraded from `1.27` to `1.28` and the nodes remain in `1.27`, the next time Kubernetes will be upgraded to `1.29`, the upgrade will fail.
 
@@ -102,10 +108,11 @@ This process is necessary to avoid being blocked for a future Kubernetes version
    ```bash
    node_group_name="$(aws eks list-nodegroups --cluster-name=Workflows | jq --raw-output '.nodegroups[]')"
    ```
+
 2. Describe the nodegroup to validate the versions
 
    By describing the node group you can check the current version, or you can use `k get nodes` to see what version is currently running
-   
+
    ```bash
    aws eks describe-nodegroup --cluster-name=Workflows --nodegroup-name="$node_group_name" | jq --raw-output .nodegroup.version
    ```
@@ -115,9 +122,9 @@ This process is necessary to avoid being blocked for a future Kubernetes version
    ```bash
    aws eks update-nodegroup-version --cluster-name=Workflows --nodegroup-name="$node_group_name"
    ```
-   
+
    This step takes some time to run. You can wait for it to finish with this command:
-   
+
    ```bash
    aws eks wait nodegroup-active --cluster-name=Workflows --nodegroup-name="$node_group_name"
    ```

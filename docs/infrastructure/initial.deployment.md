@@ -12,5 +12,6 @@ The first time a cluster is deployed Custom Resource Definitions (CRD) will not 
 This means that any resources that require a CRD will fail to deploy with a error similar to
 
 > resource mapping not found for name: "karpenter-template" namespace: "" from "dist/0003-karpenter-provisioner.k8s.yaml": no matches for kind "AWSNodeTemplate" in version "karpenter.k8s.aws/v1alpha1"
+> ensure CRDs are installed first
 
-To work around this problem the first deployment can be repeated, as the CRDs are deployed early in the deployment process.
+To work around this problem, re-run the `kubectl apply` command.

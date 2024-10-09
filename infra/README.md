@@ -35,22 +35,19 @@ Main entry point: [app](./cdk8s.ts)
 
 ### Deploy CDK
 
-To deploy with AWS CDK a few configuration variables need to be set
+To deploy with AWS CDK a few context values need to be set:
 
-Due to VPC lookups a AWS account ID needs to be provided
+- `aws-account-id`: Account ID to deploy into. This can be set with `export CDK_DEFAULT_ACCOUNT="$(aws sts get-caller-identity --query Account --output text)"`.
+- `maintainer-arns`: Comma-separated list of AWS Role ARNs for the stack maintainers.
 
-This can be done with either a `export CDK_DEFAULT_ACCOUNT=1234567890` or passed in at run time with `-c aws-account-id=1234567890`
-
-Then a deployment can be made with `cdk`
+Then a deployment can be made with `cdk`:
 
 ```shell
-npx cdk diff -c aws-account-id=1234567890 -c ci-role-arn=arn::...
+ci_role="$(aws iam list-roles | jq --raw-output '.Roles[] | select(.RoleName | contains("CiTopo")) | select(.RoleName | contains("-CiRole")).Arn')"
+admin_role="arn:aws:iam::$(aws sts get-caller-identity --query Account --output text):role/AccountAdminRole"
+workflow_maintainer_role="$(aws cloudformation describe-stacks --stack-name=TopographicSharedResourcesProd | jq --raw-output .Stacks[0].Outputs[0].OutputValue)"
+npx cdk deploy --context=maintainer-arns="${ci_role},${admin_role},${workflow_maintainer_role}" Workflows
 ```
-
-#### CDK Context
-
-- `aws-account-id`: Account ID to deploy into
-- `ci-role-arn`: AWS Role ARN for the CI user
 
 ### Deploy CDK8s
 
@@ -63,12 +60,12 @@ npx cdk8s synth
 Apply the generated yaml files
 
 ```shell
-kubectl apply -f dist/
+kubectl apply --filename=dist/
 ```
 
 ### Testing
 
-To debug use the following as `cdk8s syth` swallows the errors
+To debug use the following as `cdk8s synth` swallows the errors
 
 ```shell
 npx tsx infra/cdk8s.ts
