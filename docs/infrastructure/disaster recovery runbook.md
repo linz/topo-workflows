@@ -17,26 +17,51 @@ Install the following software:
 5. [`aws-azure-login`](https://toitutewhenua.atlassian.net/wiki/spaces/GEOD/pages/86418747/Login+to+AWS+Service+Accounts+via+Azure+in+Command+Line). You need to be able to log in using the following accounts and roles to restore production:
    - `li-topo-prod` as `AccountAdminRole`
    - `odr-access-prod` as `AccountAdminRole`, then sub-profile `odr-prod-admin`
-
-## Teardown instructions
-
-If any of the cluster infrastructure exists but is not functional, how to tear it down completely.
+6. [`jq`](https://jqlang.github.io/jq/)
 
 ## Setup
-
-### Repository state
 
 We need to make sure we're starting from a sane repository state. Skip any steps you're _sure_ you don't need to do:
 
 1. Clone this repository: `git clone git@github.com:linz/topo-workflows.git`
 2. Go into repository: `cd topo-workflows`
 3. Clean the repository of any generated files: `git clean -d --force -x`
-4. Check out the relevant branch: `git checkout BRANCH`
-5. Install dependencies: `npm install`
+4. Reset any changes to files: `git reset --hard HEAD`
+5. Check out the relevant branch: `git checkout BRANCH`
+6. Install dependencies: `npm install`
+7. Use `aws-azure-login` to log in to `li-topo-prod` as `AccountAdminRole`
 
-- Repo setup (clone, clean, check out relevant branch, `git clean -fdx`), `npm i`
-- Login
-- Deploy
+## [Teardown existing cluster](docs/infrastructure/destroy.md)
+
+If any of the cluster infrastructure exists but is not functional, see the above link for how to tear it down completely.
+
+## Update database version if necessary
+
+1. Get the details of the most recent production database snapshot: `aws rds describe-db-snapshots --output json --query="sort_by(DBSnapshots[?contains(DBSnapshotIdentifier,'workflows-argodb')], &SnapshotCreateTime)[-1]"`
+2. Compare `EngineVersion` from the above output to `PostgresEngineVersion.VER_` in the code.
+3. Update `PostgresEngineVersion.VER_` in the code with the snapshot `EngineVersion`.
+4. Git commit and push the change above (if applicable).
+
+## Deployment of new cluster
+
+1. Set AWS Account ID for CDK: `export CDK_DEFAULT_ACCOUNT="$(aws sts get-caller-identity --query Account --output text)"`
+2. Deploy prod cluster using all the relevant roles as maintainers:
+
+   ```
+   ci_role="$(aws iam list-roles | jq --raw-output '.Roles[] | select(.RoleName | contains("CiTopo")) | select(.RoleName | contains("-CiRole")).Arn')"
+   admin_role="arn:aws:iam::$(aws sts get-caller-identity --query Account --output text):role/AccountAdminRole"
+   workflow_maintainer_role="$(aws cloudformation describe-stacks --stack-name=TopographicSharedResourcesProd | jq --raw-output .Stacks[0].Outputs[0].OutputValue)"
+   npx cdk deploy --context=maintainer-arns="${ci_role},${admin_role},${workflow_maintainer_role}" Workflows
+   ```
+3. Deploy Argo Workflows without archiving:
+   1. Connect AWS CLI to the new cluster: `aws eks update-kubeconfig --name=Workflows`
+   2. Create the Argo Workflows configuration files: `npx cdk8s synth`
+   3. Remove the `persistence` section of `dist/0005-argo-workflows.k8s.yaml` to disable workflow archiving to database.
+   4. Apply the configuration files twice (may fail the first time due to CRD async behaviour): `kubectl apply --filename=dist/`
+
+
 - Restore from temp DB
+Run `npx cdk8s synth` to recreate the `persistence` section in `dist/0005-argo-workflows.k8s.yaml`.
+
 - Smoke test
 - Notify users of availability
