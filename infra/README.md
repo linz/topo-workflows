@@ -22,16 +22,7 @@ Main entry point: [app](./cdk8s.ts)
 
 ## Deployments
 
-### Prerequisites
-
-- [Helm](https://helm.sh/docs/intro/install/)
-- Ensure all dependencies are installed
-
-  ```shell
-  npm install
-  ```
-
-- Login to AWS
+[Prerequisites](../docs/infrastructure/disaster%20recovery%20runbook.md#prerequisites)
 
 ### Deploy CDK
 
