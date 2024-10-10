@@ -59,18 +59,21 @@ If any of the cluster infrastructure exists but is not functional, see the above
    3. Remove the `persistence` section of `dist/0005-argo-workflows.k8s.yaml` to disable workflow archiving to database.
    4. Apply the configuration files twice (may fail the first time due to CRD async behaviour): `kubectl apply --filename=dist/`
 4. Create a temporary RDS database from the snapshot identified when finding the engine version above:
-   1. Get the Subnet Group and VPC Security Group of the new cluster database: `aws rds describe-db-instances --db-instance-identifier=ID | jq --raw-output '.DBInstances[0] | (.DBSubnetGroup.DBSubnetGroupName, .VpcSecurityGroups[].VpcSecurityGroupId)'`, replacing "ID" with the `DBInstanceIdentifier`.
+   TODO: rewrite command below without using jq
+   1. Get details of the new cluster database: `aws rds describe-db-instances --query="DBInstances[?DBName=='argo'].{EndpointAddress: Endpoint.Address, DBSubnetGroupName: DBSubnetGroup.DBSubnetGroupName, VpcSecurityGroupIds: VpcSecurityGroups[].VpcSecurityGroupId}"`.
    2. Go to https://ap-southeast-2.console.aws.amazon.com/rds/home?region=ap-southeast-2#db-snapshot:engine=postgres;id=ID, replacing "ID" with the `DBSnapshotIdentifier`.
    3. Click on _Actions_ → _Restore snapshot_.
    4. Under _Availability and durability_: select _Single DB Instance_.
-   5. Under _Instance configuration_ select _Burstable classes_ and _db.t3.micro_.
-   6. Under _Connectivity_ → _DB subnet group_, select the DB Subnet Group of the new cluster.
-   7. Under _Connectivity_ → _Existing VPC security groups_, select the VPC Security Group of the new cluster.
-   8. Click _Restore DB instance_.
+   5. Under _Settings_ set _DB instance identifier_ to "temp-argo-db".
+   6. Under _Instance configuration_: select _Burstable classes_ and _db.t3.micro_.
+   7. Under _Connectivity_ → _DB subnet group_: select the DB subnet group of the new cluster.
+   8. Under _Connectivity_ → _Existing VPC security groups_: select the VPC security group of the new cluster.
+   9. Click _Restore DB instance_.
+   10. Wait for the temporary DB to get to the "Available" state.
 5. Dump the temporary database to the new Argo database:
    1. Submit a ["sleep" workflow](workflows/test/sleep.yml) to the new Argo Workflows installation to spin up a pod:
-   `argo submit --namespace=argo workflows/test/sleep.yml`. This will be used to connect to RDS to dump the database to a file. Make the duration 28800 seconds (8 hours) to give you time to work on it.
-   2. Connect to the sleep workflow pod, e.g.
+   `argo submit --namespace=argo workflows/test/sleep.yml`. This will be used to connect to RDS to dump the database to a file.
+   2. Connect to the sleep pod (it can take a while for the pod to spin up, so you might have to retry the second command): 
    ```
    pod_name="$(kubectl --namespace=argo get pods --output=name | grep --only-matching 'test-sleep-.*')"
    kubectl --namespace=argo exec --stdin --tty "$pod_name" -- /bin/bash
@@ -80,12 +83,12 @@ If any of the cluster infrastructure exists but is not functional, see the above
    apt update
    apt install -y postgresql-client
    ```
-   4. Dump the database from the temporary database:
-   `pg_dump --host=ENDPOINT --username=argo_user --dbname=argo > argodbdump`
-   You will be prompted for a password, which is in the AWS Systems Manager Parameter Store (it is the same as the database the snapshot was taken from).
-   5. Load the database into the new Argo database:
+   4. Get the temporary db endpoint address: `aws rds describe-db-instances --query="DBInstances[?DBName=='temp-argo-db'].Endpoint.Address"`
+   5. Dump the database from the temporary database, replacing ENDPOINT with the temp-argo-db endpoint address: `pg_dump --host=ENDPOINT --username=argo_user --dbname=argo > argodbdump`.
+   You will be prompted for a password, get the password from the [AWS Systems Manager Parameter Store](https://ap-southeast-2.console.aws.amazon.com/systems-manager/parameters/%252Feks%252Fargo%252Fpostgres%252Fpassword/description?region=ap-southeast-2&tab=Table).
+   6. Load the database into the new Argo database, replacing ENDPOINT with the new cluster endpoint address:
    `psql --host=ENDPOINT --username=argo_user --dbname=argo < argodbdump`
-   Again, you will be prompted for a password, which is in the AWS Systems Manager Parameter Store.
+   You will be prompted for a password, get the password from the [AWS Systems Manager Parameter Store](https://ap-southeast-2.console.aws.amazon.com/systems-manager/parameters/%252Feks%252Fargo%252Fpostgres%252Fpassword/description?region=ap-southeast-2&tab=Table).
 6. Redeploy the cluster configuration files to enable the connection to the database and turn on workflow archiving:
    1. Run `npx cdk8s synth` to recreate the `persistence` section in `dist/0005-argo-workflows.k8s.yaml`.
    2. Redeploy the Argo config file: `kubectl replace --filename=dist/0005-argo-workflows.k8s.yaml`
