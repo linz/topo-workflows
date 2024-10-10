@@ -580,6 +580,7 @@ spec:
           - '{{=sprig.trim(workflow.parameters.historic_survey_number)}}'
           - '--lifecycle'
           - '{{=sprig.trim(workflow.parameters.lifecycle)}}'
+          - '--add-title-suffix'
           - '--producer'
           - '{{workflow.parameters.producer}}'
           - '--producer-list'
