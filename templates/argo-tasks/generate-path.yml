@@ -10,6 +10,7 @@ spec:
   templateDefaults:
     container:
       imagePullPolicy: Always
+      image: ''
   entrypoint: main
   templates:
     - name: main
@@ -19,9 +20,9 @@ spec:
             description: s3 path of source data
           - name: target_bucket_name
             description: target bucket name e.g. 'nz-imagery'
-          - name: no_date_in_survey_path
-            description: 'If the survey path should not contain the date'
-            default: 'false'
+          - name: add_date_in_survey_path
+            description: 'The survey path should contain the dates'
+            default: 'true'
           - name: version
             description: argo-task Container version to use
             default: 'v4'
@@ -36,7 +37,7 @@ spec:
           - 'generate-path'
           - '--target-bucket-name'
           - '{{=sprig.trim(inputs.parameters.target_bucket_name)}}'
-          - '--no-date-in-survey-path={{=sprig.trim(inputs.parameters.no_date_in_survey_path)}}'
+          - '--add-date-in-survey-path={{=sprig.trim(inputs.parameters.add_date_in_survey_path)}}'
           - '{{=sprig.trim(inputs.parameters.source)}}'
 
       outputs:

@@ -193,8 +193,8 @@ arguments:
       value: '{{workflow.parameters.version_argo_tasks}}'
     - name: target_bucket_name
       value: '{{inputs.parameters.target_bucket_name}}'
-    - name: no_date_in_survey_path
-      value: '{{inputs.parameters.no_date_in_survey_path}}'
+    - name: add_date_in_survey_path
+      value: '{{inputs.parameters.add_date_in_survey_path}}'
     - name: source
       value: '{{inputs.parameters.source}}'
 ```
