@@ -2,13 +2,13 @@
 export const ClusterName = 'WorkflowsNP';
 /** LINZ conventional name for Argo Workflows artifact bucket */
 export const ScratchBucketName = `linz-${ClusterName.toLowerCase()}-scratch`;
-/** Argo Database Instance name */
-export const ArgoDbInstanceName = 'ArgoDb';
-/** Argo Database name */
-export const ArgoDbName = 'argo';
-/** Argo Database user */
-export const ArgoDbUser = 'argo_user';
-/** AWS default region for our stack */
+// /** Argo Database Instance name */
+// export const ArgoDbInstanceName = 'ArgoDb';
+// /** Argo Database name */
+// export const ArgoDbName = 'argo';
+// /** Argo Database user */
+// export const ArgoDbUser = 'argo_user';
+// /** AWS default region for our stack */
 export const DefaultRegion = 'ap-southeast-2';
 
 /**
@@ -22,7 +22,7 @@ export const UseNodeLocalDns = true;
 export const CfnOutputKeys = {
   ClusterEndpoint: 'ClusterEndpoint',
 
-  ArgoDbEndpoint: 'ArgoDbEndpoint',
+  // ArgoDbEndpoint: 'ArgoDbEndpoint',
 
   KarpenterServiceAccountName: 'KarpenterServiceAccountName',
   KarpenterServiceAccountRoleArn: 'KarpenterServiceAccountRoleArn',
