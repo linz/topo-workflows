@@ -93,6 +93,8 @@ spec:
           - name: source
           - name: target_bucket_name
           - name: ticket
+          - name: add_date_in_survey_path
+            default: 'true'
       dag:
         tasks:
           - name: generate-path
@@ -107,6 +109,8 @@ spec:
                   value: '{{inputs.parameters.target_bucket_name}}'
                 - name: source
                   value: '{{inputs.parameters.source}}'
+                - name: add_date_in_survey_path
+                  value: '{{inputs.parameters.add_date_in_survey_path}}'
 
           - name: push-to-github
             templateRef:

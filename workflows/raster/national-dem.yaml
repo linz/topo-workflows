@@ -3,7 +3,7 @@
 apiVersion: argoproj.io/v1alpha1
 kind: WorkflowTemplate
 metadata:
-  name: test-national-dem
+  name: national-dem
   labels:
     linz.govt.nz/category: raster
     linz.govt.nz/data-type: raster
@@ -182,6 +182,8 @@ spec:
                   value: '{{workflow.parameters.copy_option}}'
                 - name: ticket
                   value: '{{=sprig.trim(workflow.parameters.ticket)}}'
+                - name: add_date_in_survey_path
+                  value: 'false'
             depends: 'stac-validate.Succeeded && create-config.Succeeded'
 
       outputs:
