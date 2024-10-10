@@ -58,7 +58,10 @@ If any of the cluster infrastructure exists but is not functional, see the above
    2. Create the Argo Workflows configuration files: `npx cdk8s synth`
    3. Remove the `persistence` section of `dist/0005-argo-workflows.k8s.yaml` to disable workflow archiving to database.
    4. Apply the configuration files twice (may fail the first time due to CRD async behaviour): `kubectl apply --filename=dist/`
-
+4. Create a temporary RDS database from the snapshot identified when finding the engine version above:
+   1. Go to https://ap-southeast-2.console.aws.amazon.com/rds/home?region=ap-southeast-2#db-snapshot:engine=postgres;id=ID, replacing "ID" with the `DBSnapshotIdentifier`.
+   2. Click on _Actions_ → _Restore snapshot_.
+   3. Under _Connectivity_ → _Existing VPC security groups_, select .
 
 - Restore from temp DB
 Run `npx cdk8s synth` to recreate the `persistence` section in `dist/0005-argo-workflows.k8s.yaml`.
