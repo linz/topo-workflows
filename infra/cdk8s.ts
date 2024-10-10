@@ -29,7 +29,7 @@ async function main(): Promise<void> {
       githubPat: '/eks/github/linz-li-bot/pat',
 
       // Argo Database connection password
-      argoDbPassword: '/eks/argo/postgres/password',
+      //argoDbPassword: '/eks/argo/postgres/password',
     }),
     describeCluster(ClusterName),
   ]);
@@ -75,8 +75,8 @@ async function main(): Promise<void> {
     clusterName: ClusterName,
     saName: cfnOutputs[CfnOutputKeys.ArgoRunnerServiceAccountName],
     tempBucketName: ScratchBucketName,
-    argoDbEndpoint: cfnOutputs[CfnOutputKeys.ArgoDbEndpoint],
-    argoDbPassword: ssmConfig.argoDbPassword,
+    // argoDbEndpoint: cfnOutputs[CfnOutputKeys.ArgoDbEndpoint],
+    // argoDbPassword: ssmConfig.argoDbPassword,
   });
 
   new ArgoExtras(app, 'argo-extras', {
