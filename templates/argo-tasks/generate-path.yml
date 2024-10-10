@@ -21,7 +21,7 @@ spec:
           - name: target_bucket_name
             description: target bucket name e.g. 'nz-imagery'
           - name: add_date_in_survey_path
-            description: 'The survey path should contain the dates'
+            description: 'The survey path should contain the date'
             default: 'true'
           - name: version
             description: argo-task Container version to use
