@@ -35,6 +35,8 @@ Main entry point: [app](./cdk8s.ts)
 
 ### Deploy CDK
 
+_AWS CDK is used to manage the AWS EKS cluster creation/update._
+
 To deploy with AWS CDK a few context values need to be set:
 
 - `aws-account-id`: Account ID to deploy into. This can be set with `export CDK_DEFAULT_ACCOUNT="$(aws sts get-caller-identity --query Account --output text)"`.
@@ -50,6 +52,8 @@ npx cdk deploy --context=maintainer-arns="${ci_role},${admin_role},${workflow_ma
 ```
 
 ### Deploy CDK8s
+
+_CDK8s is used to manage Kubernetes resources on the cluster previously created._
 
 Generate the kubernetes configuration yaml into `dist/`
 
@@ -81,3 +85,4 @@ The deployment of the K8s config is managed by GithubActions in [main](../.githu
 - [Version Upgrade Guide](../docs/infrastructure/kubernetes.version.md)
 - [DNS Troubleshooting](../docs/dns.configuration.md)
 - [Working with Helm](../docs/infrastructure/helm.md)
+- [Local environment](local.environment.md)
