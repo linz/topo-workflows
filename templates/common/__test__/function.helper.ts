@@ -8,23 +8,6 @@ import YAML from 'yaml';
 type WorkflowTemplate = { spec: { templates: { name: string; script: { source: string } }[] } };
 
 /**
- * List of required modules
- */
-export const shimRequired: string[] = [];
-
-/**
- * Return the required module to import.
- *
- * @param name of the required module
- * @returns
- */
-function requireShim(name: string): unknown {
-  shimRequired.push(name);
-  if (name === 'node:fs') return fs;
-  throw new Error('Unknown import: ' + name);
-}
-
-/**
  * Extract the script of the task named `taskName` from the `workflowTemplate`.
  *
  * @param workflow Workflow template
@@ -47,6 +30,11 @@ function getScript(workflow: WorkflowTemplate, taskName: string): string {
 type FunctionData = { toReplace: string; replaceWith: string };
 
 /**
+ * Module
+ */
+type RequireShim = (requiredModule: string) => unknown;
+
+/**
  * Read the workflow YAML file and create a function from the script inside.
  * Replace the data in the script and run the function.
  *
@@ -54,7 +42,7 @@ type FunctionData = { toReplace: string; replaceWith: string };
  * @param data data to replace in the script
  * @param requireModule required module to import (optional)
  */
-export function runTestFunction(workflowPath: string, data: FunctionData[], requireModule?: string): void {
+export function runTestFunction(workflowPath: string, data: FunctionData[], requireModule?: RequireShim): void {
   const wfRaw = fs.readFileSync(workflowPath, 'utf-8');
   const wfTemplate = YAML.parse(wfRaw) as WorkflowTemplate;
   let script = getScript(wfTemplate, 'main');
@@ -62,10 +50,11 @@ export function runTestFunction(workflowPath: string, data: FunctionData[], requ
   data.forEach((d) => {
     script = script.replaceAll(d.toReplace, d.replaceWith);
   });
+  // eslint-disable-next-line @typescript-eslint/no-implied-eval
 
   if (requireModule !== undefined) {
     // eslint-disable-next-line @typescript-eslint/no-implied-eval
-    new Function('require', script)(requireShim);
+    new Function('require', script)(requireModule);
   } else {
     // eslint-disable-next-line @typescript-eslint/no-implied-eval
     new Function(script)();

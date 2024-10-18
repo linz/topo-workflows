@@ -1,11 +1,13 @@
 import assert from 'node:assert';
+import fs from 'node:fs';
 import { describe, it } from 'node:test';
 
-import { runTestFunction, shimRequired } from './function.helper.js';
+import { runTestFunction } from './function.helper.js';
 
 describe('get-location script template', () => {
   it('should output workflow artifact location', (t) => {
     const spy = t.mock.method(console, 'log');
+    const shimRequired: string[] = [];
     runTestFunction(
       './templates/common/get.location.yml',
       [
@@ -21,7 +23,11 @@ describe('get-location script template', () => {
           }),
         },
       ],
-      'node:fs',
+      (req) => {
+        shimRequired.push(req);
+        if (req === 'node:fs') return fs;
+        throw new Error('Failed');
+      },
     );
     assert.equal(spy.mock.callCount(), 3);
 
