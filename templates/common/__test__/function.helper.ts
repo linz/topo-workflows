@@ -50,8 +50,6 @@ export function runTestFunction(workflowPath: string, data: FunctionData[], requ
   data.forEach((d) => {
     script = script.replaceAll(d.toReplace, d.replaceWith);
   });
-  // eslint-disable-next-line @typescript-eslint/no-implied-eval
-
   if (requireModule !== undefined) {
     // eslint-disable-next-line @typescript-eslint/no-implied-eval
     new Function('require', script)(requireModule);
