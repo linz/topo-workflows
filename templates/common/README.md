@@ -89,3 +89,8 @@ spec:
                 - name: workflow_parameters
                   value: '{{workflow.parameters}}'
 ```
+
+## Get Location - `tpl-get-location`
+
+Template to output the S3 Archive location for the workflow (example: `s3://linz-workflows-scratch/2024-10/02-my-workflow-29l4x/`).
+In some cases, we need this location to write output files by the workflow in a specific and consistent "folder" within the archive bucket.
