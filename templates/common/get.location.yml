@@ -37,11 +37,19 @@ spec:
 
           const argoTemplate = JSON.parse(process.env['ARGO_TEMPLATE']);
           const podArchiveLoc = argoTemplate.archiveLocation.s3;
-          const workflowArchiveKey = podArchiveLoc.key.substr(0, podArchiveLoc.key.lastIndexOf('/'));
-          const location = `s3://${podArchiveLoc.bucket}/${workflowArchiveKey}/`
-          console.log(`Location: ${location}`);
-          console.log(`Bucket: ${podArchiveLoc.bucket}`);
-          console.log(`Key: ${workflowArchiveKey}`);
+          const key = podArchiveLoc.key.substr(0, podArchiveLoc.key.lastIndexOf('/'));
+          const bucket = podArchiveLoc.bucket;
+          const location = `s3://${bucket}/${key}/`
+
           fs.writeFileSync('/tmp/location', location);
-          fs.writeFileSync('/tmp/bucket', `${podArchiveLoc.bucket}`);
-          fs.writeFileSync('/tmp/key', `${workflowArchiveKey}`);
+          fs.writeFileSync('/tmp/bucket', bucket);
+          fs.writeFileSync('/tmp/key', key);
+          console.log(JSON.stringify({
+              time: Date.now(),
+              level: 20,
+              pid: 1,
+              msg: 'Workflow:Location',
+              location,
+              bucket,
+              key,
+            }),)

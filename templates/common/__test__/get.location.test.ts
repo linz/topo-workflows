@@ -29,17 +29,22 @@ describe('get-location script template', () => {
         throw new Error('Failed');
       },
     );
-    assert.equal(spy.mock.callCount(), 3);
+    assert.equal(spy.mock.callCount(), 1);
 
-    const location = String(spy.mock.calls[0]?.arguments[0]);
-    assert.equal(location, 'Location: s3://linz-workflows-scratch/2024-10/02-test-get-location-29l4x/');
+    const logOutputDict = JSON.parse(String(spy.mock.calls[0]?.arguments[0])) as { time: number };
 
-    const bucket = String(spy.mock.calls[1]?.arguments[0]);
-    assert.equal(bucket, 'Bucket: linz-workflows-scratch');
+    // override time
+    logOutputDict.time = 1724037007216;
 
-    const key = String(spy.mock.calls[2]?.arguments[0]);
-    assert.equal(key, 'Key: 2024-10/02-test-get-location-29l4x');
-
+    assert.deepEqual(logOutputDict, {
+      time: 1724037007216,
+      level: 20,
+      pid: 1,
+      msg: 'Workflow:Location',
+      location: 's3://linz-workflows-scratch/2024-10/02-test-get-location-29l4x/',
+      bucket: 'linz-workflows-scratch',
+      key: '2024-10/02-test-get-location-29l4x',
+    });
     assert.deepEqual(shimRequired, ['node:fs']);
   });
 });
