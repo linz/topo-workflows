@@ -1,4 +1,6 @@
 on: [push]
+env:
+  ARGO_URL: https://github.com/argoproj/argo-workflows/releases/download/v3.5.5/argo-linux-amd64.gz
 jobs:
   main:
     name: Build, Format and Test
@@ -13,7 +15,7 @@ jobs:
         run: docker run --volume="${PWD}:/repo" --workdir=/repo actionlint -color
       - name: Install Argo
         run: |
-          curl -sLO https://github.com/argoproj/argo-workflows/releases/download/v3.5.5/argo-linux-amd64.gz
+          curl --location --remote-name --silent "${{ env.ARGO_URL }}"
           gunzip argo-linux-amd64.gz
           chmod +x argo-linux-amd64
           ./argo-linux-amd64 version
@@ -108,3 +110,13 @@ jobs:
           for cwf in $CRON_WORKFLOWS; do
               kubectl apply -f "$cwf" --namespace argo
           done
+      - name: Install Argo
+        if: steps.get-infra-changes.outputs.run_infra == 'true'
+        run: |
+          curl --location --remote-name --silent "${{ env.ARGO_URL }}"
+          gunzip argo-linux-amd64.gz
+          chmod +x argo-linux-amd64
+      - name: Smoke test
+        if: steps.get-infra-changes.outputs.run_infra == 'true'
+        run: |
+          ./argo-linux-amd64 --namespace=argo submit --wait --from=wftmpl/imagery-standardising --parameter=validate=false --parameter=gsd=0.3 --parameter=start_datetime=2017-12-02 --parameter=end_datetime=2018-03-11 --parameter=lifecycle="under development" --generate-name="test-ci-is-"
