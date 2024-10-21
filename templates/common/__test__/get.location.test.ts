@@ -24,9 +24,9 @@ describe('get-location script template', () => {
         },
       ],
       (req) => {
+        if (req !== 'node:fs') throw new Error('Failed');
         shimRequired.push(req);
-        if (req === 'node:fs') return fs;
-        throw new Error('Failed');
+        return fs;
       },
     );
     assert.equal(spy.mock.callCount(), 1);
