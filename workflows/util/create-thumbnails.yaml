@@ -35,7 +35,9 @@ spec:
             template: aws-list
 
           - name: get-location
-            template: get-location
+            templateRef:
+              name: tpl-get-location
+              template: main
 
           - name: thumbnails
             template: thumbnails
@@ -99,21 +101,6 @@ spec:
           - '/tmp/file_list.json'
           - '--target'
           - '{{inputs.parameters.target}}'
-
-    - name: get-location
-      script:
-        image: '019359803926.dkr.ecr.ap-southeast-2.amazonaws.com/argo-tasks:{{=sprig.trim(workflow.parameters.version_argo_tasks)}}'
-        command: [node]
-        source: |
-          const fs = require('fs');
-          const loc = JSON.parse(process.env['ARGO_TEMPLATE']).archiveLocation.s3;
-          const key = loc.key.replace('{{pod.name}}','');
-          fs.writeFileSync('/tmp/location', `s3://${loc.bucket}/${key}`);
-      outputs:
-        parameters:
-          - name: location
-            valueFrom:
-              path: '/tmp/location'
 
   volumes:
     - name: ephemeral
