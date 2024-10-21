@@ -31,7 +31,7 @@ describe('get-location script template', () => {
     );
     assert.equal(spy.mock.callCount(), 1);
 
-    const logOutputDict = JSON.parse(String(spy.mock.calls[0]?.arguments[0]));
+    const logOutputDict = JSON.parse(String(spy.mock.calls[0]?.arguments[0])) as { time: number };
 
     assert.deepEqual(logOutputDict, {
       time: logOutputDict.time,
