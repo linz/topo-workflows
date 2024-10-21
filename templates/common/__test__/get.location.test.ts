@@ -31,13 +31,10 @@ describe('get-location script template', () => {
     );
     assert.equal(spy.mock.callCount(), 1);
 
-    const logOutputDict = JSON.parse(String(spy.mock.calls[0]?.arguments[0])) as { time: number };
-
-    // override time
-    logOutputDict.time = 1724037007216;
+    const logOutputDict = JSON.parse(String(spy.mock.calls[0]?.arguments[0]));
 
     assert.deepEqual(logOutputDict, {
-      time: 1724037007216,
+      time: logOutputDict.time,
       level: 20,
       pid: 1,
       msg: 'Workflow:Location',
