@@ -4,7 +4,7 @@ It is possible to install a cluster on your local machine. In this documentation
 
 ## Pre-requisite
 
-- [Docker](https://docs.docker.com/engine/install/) (preferred as production environment uses it) or Podman
+- [Docker](https://docs.docker.com/engine/install/)
 - [`kind`](https://kind.sigs.k8s.io/docs/user/quick-start/#installation)
 - [`kubectl`](https://kubernetes.io/docs/tasks/tools/#kubectl)
 - [Argo CLI](https://argo-workflows.readthedocs.io/en/latest/walk-through/argo-cli/#argo-cli)
