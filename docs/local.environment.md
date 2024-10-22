@@ -1,6 +1,6 @@
-# Local environment
+# Local Argo Workflows environment
 
-It is possible to install a cluster on your local machine. In this documentation we will use [`kind`](https://kind.sigs.k8s.io/).
+It is possible to install Argo Workflows in a K8s cluster on your local machine. In this documentation we will use [`kind`](https://kind.sigs.k8s.io/).
 
 ## Pre-requisite
 
@@ -31,9 +31,9 @@ kubectl apply -n argo -f https://github.com/argoproj/argo-workflows/releases/dow
 You should now be able to run a workflow, for example:
 
 ```bash
-argo -n argo submit workflows/test/env.yaml
+argo -n argo submit https://raw.githubusercontent.com/argoproj/argo-workflows/refs/heads/main/examples/hello-world.yaml
 ```
 
 ## Limitations
 
-At the moment, the [Kubernetes components](../docs/infrastructure/components) configured for the production environment are not directly applicable to a local/`kind` environment as they require to run `CDK8s` using some information retrieved from AWS.
+This documentation is only to install a vanilla version of Argo Workflows. The [Kubernetes components](../docs/infrastructure/components) configured for the production environment are not directly applicable to a local/`kind` environment as they require to run `CDK8s` using some information retrieved from AWS.

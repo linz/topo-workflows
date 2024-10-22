@@ -85,4 +85,4 @@ The deployment of the K8s config is managed by GithubActions in [main](../.githu
 - [Version Upgrade Guide](../docs/infrastructure/kubernetes.version.md)
 - [DNS Troubleshooting](../docs/dns.configuration.md)
 - [Working with Helm](../docs/infrastructure/helm.md)
-- [Local environment](local.environment.md)
+- [Local Argo Workflows environment](../docs/local.environment.md)
