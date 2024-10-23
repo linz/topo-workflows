@@ -26,6 +26,7 @@ Choose and install the Controller and Server of [a release](https://github.com/a
 ```bash
 kubectl create namespace argo
 kubectl apply -n argo -f https://github.com/argoproj/argo-workflows/releases/download/v3.5.5/install.yaml
+kubectl create rolebinding default-admin --clusterrole=admin --serviceaccount=argo:default --namespace=argo
 ```
 
 You should now be able to run a workflow, for example:
