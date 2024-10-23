@@ -227,7 +227,7 @@ spec:
           - name: bucket
           - name: key
       container:
-        image: 'ghcr.io/linz/argo-tasks:pr-1048'
+        image: 'ghcr.io/linz/argo-tasks:pr-1119'
         resources:
           requests:
             cpu: 3000m
@@ -270,7 +270,7 @@ spec:
               none: {}
           # Provenance information for the collection
           - name: capture_dates
-            path: '/tmp/create-mapsheet/capture-dates.geojson.gz'
+            path: '/tmp/mapsheet-coverage/capture-dates.geojson.gz'
             s3:
               bucket: '{{inputs.parameters.bucket}}'
               key: '{{inputs.parameters.key}}flat/capture-dates.geojson.gz'
