@@ -52,7 +52,7 @@ jobs:
       - name: Find Changes in Infra
         id: get-infra-changes
         run: |
-          mapfile -d '' modified_infra_files < <(git diff --name-only -z ${{ github.event.before }} ${{ github.event.after }} -- "infra/*")
+          mapfile -d '' modified_infra_files < <(git diff --name-only -z ${{ github.event.before }} ${{ github.event.after }} -- "infra/*" ":(exclude)infra/*.md")
           if [[ "${#modified_infra_files[@]}" -ge 1 ]]; then
             echo "run_infra=true" >> "$GITHUB_OUTPUT"
           else
