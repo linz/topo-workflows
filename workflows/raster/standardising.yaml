@@ -650,7 +650,7 @@ spec:
             path: '/tmp/cogify/config-url'
             s3:
               bucket: '{{inputs.parameters.bucket}}'
-              key: '{{inputs.parameters.key}}flat/config-url'
+              key: '{{inputs.parameters.key}}/flat/config-url'
             archive:
               none: {}
 
