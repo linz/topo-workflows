@@ -544,6 +544,8 @@ spec:
           - '{{=sprig.trim(workflow.parameters.target_epsg)}}'
           - '--gsd'
           - '{{=sprig.trim(workflow.parameters.gsd)}}'
+          - '--published-path'
+          - '{{=sprig.trim(workflow.parameters.odr_url)}}'
 
     - name: create-collection
       nodeSelector:
