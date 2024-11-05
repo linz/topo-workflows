@@ -413,10 +413,10 @@ spec:
                   value: '{{item}}'
                 - name: collection_id
                   value: '{{tasks.stac-setup.outputs.parameters.collection_id}}'
-                - name: linz_slug
-                  value: '{{tasks.stac-setup.outputs.parameters.linz_slug}}'
                 - name: target
                   value: '{{tasks.get-location.outputs.parameters.location}}flat/'
+                - name: current_datetime
+                  value: '{{tasks.stac-setup.finishedAt}}'
               artifacts:
                 - name: group_data
                   from: '{{ tasks.group.outputs.artifacts.output }}'
@@ -429,6 +429,8 @@ spec:
               parameters:
                 - name: collection_id
                   value: '{{tasks.stac-setup.outputs.parameters.collection_id}}'
+                - name: linz_slug
+                  value: '{{tasks.stac-setup.outputs.parameters.linz_slug}}'
                 - name: location
                   value: '{{tasks.get-location.outputs.parameters.location}}'
             depends: 'standardise-validate'
@@ -504,7 +506,8 @@ spec:
       inputs:
         parameters:
           - name: group_id
-          - name: collection-id
+          - name: collection_id
+          - name: current_datetime
           - name: target
         artifacts:
           - name: group_data
@@ -533,7 +536,7 @@ spec:
           - '--end-datetime'
           - '{{=sprig.trim(workflow.parameters.end_datetime)}}'
           - '--collection-id'
-          - '{{inputs.parameters.collection-id}}'
+          - '{{inputs.parameters.collection_id}}'
           - '--create-footprints'
           - '{{workflow.parameters.create_capture_area}}'
           - '--cutline'
@@ -546,6 +549,8 @@ spec:
           - '{{=sprig.trim(workflow.parameters.gsd)}}'
           - '--published-path'
           - '{{=sprig.trim(workflow.parameters.odr_url)}}'
+          - '--current-datetime'
+          - '{{inputs.parameters.current_datetime}}'
 
     - name: create-collection
       nodeSelector:
@@ -577,8 +582,6 @@ spec:
           - '{{inputs.parameters.collection_id}}'
           - '--linz-slug'
           - '{{inputs.parameters.linz_slug}}'
-          - '--current-datetime'
-          - '{{tasks.standardise-validate.startedAt}}'
           - '--category'
           - '{{=sprig.trim(workflow.parameters.category)}}'
           - '--region'

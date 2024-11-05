@@ -44,21 +44,22 @@ spec:
           - name: AWS_ROLE_CONFIG_PATH
             value: s3://linz-bucket-config/config.json
         args:
-          - 'stac-setup'
+          - 'stac'
+          - 'setup'
           - '--start-year={{=sprig.trunc(4, inputs.parameters.start_datetime)}}'
           - '--end-year={{=sprig.trunc(4, inputs.parameters.end_datetime)}}'
-          - '--gsd={{inputs.parameters.gsd)}}'
-          - '--region={{inputs.parameters.region)}}'
-          - '--geographic-description={{inputs.parameters.geographic_description)}}'
-          - '--geospatial-category={{inputs.parameters.geospatial_category)}}'
-          - '--odr-url={{inputs.parameters.gsd)}}'
+          - '--region={{inputs.parameters.region}}'
+          - '--geographic-description={{inputs.parameters.geographic_description}}'
+          - '--geospatial-category={{inputs.parameters.geospatial_category}}'
+          - '--gsd={{inputs.parameters.gsd}}'
+          - '--odr-url={{inputs.parameters.odr_url}}'
       outputs:
         parameters:
-          - name: collection-id
+          - name: collection_id
             description: ID for collection and item STAC
             valueFrom:
               path: '/tmp/stac-setup/collection-id'
-          - name: linz-slug
+          - name: linz_slug
             description: linz:slug field for collection STAC
             valueFrom:
               path: '/tmp/stac-setup/linz-slug'
