@@ -132,8 +132,8 @@ spec:
       - name: cutline
         description: '(Optional) location of a cutline file to cut the imagery to .fgb or .geojson'
         value: ''
-      - name: collection_id
-        description: '(Optional) If an existing dataset add collection ID here, else a new one will be generated.'
+      - name: odr_url
+        description: '(Optional) If an existing dataset add the S3 link to the dataset collection.json here e.g. "s3://nz-imagery/taranaki/new-plymouth_2017_0.1m/rgb/2193/collection.json"'
         value: ''
       - name: category
         description: 'Geospatial category of the dataset'
@@ -293,7 +293,7 @@ spec:
         description: 'Dataset capture end date in numeric format YYYY-MM-DD, e.g. "2024-02-23"'
         value: 'YYYY-MM-DD'
       - name: geographic_description
-        description: '(Optional) Additional datatset description, to be used in the title in place of the Region, e.g. "Hamilton"'
+        description: '(Optional) Additional dataset description, to be used in the title in place of the Region, e.g. "Hamilton"'
         value: ''
       - name: lifecycle
         description: 'The release lifecycle status of the dataset, e.g. "completed or "ongoing"'
@@ -344,8 +344,28 @@ spec:
           - name: source
       dag:
         tasks:
-          - name: collection-id-setup
-            template: collection-id-setup
+          - name: stac-setup
+            templateRef:
+              name: tpl-at-stac-setup
+              template: main
+            arguments:
+              parameters:
+                - name: start_datetime
+                  value: '{{=sprig.trim(workflow.parameters.start_datetime)}}'
+                - name: end_datetime
+                  value: '{{=sprig.trim(workflow.parameters.end_datetime)}}'
+                - name: gsd
+                  value: '{{=sprig.trim(workflow.parameters.gsd)}}'
+                - name: region
+                  value: '{{=sprig.trim(workflow.parameters.region)}}'
+                - name: geographic_description
+                  value: '{{=sprig.trim(workflow.parameters.geographic_description)}}'
+                - name: geospatial_category
+                  value: '{{=sprig.trim(workflow.parameters.geospatial_category)}}'
+                - name: odr_url
+                  value: '{{=sprig.trim(workflow.parameters.odr_url)}}'
+                - name: version
+                  value: '{{=sprig.trim(workflow.parameters.version)}}'
 
           - name: tile-index-validate
             templateRef:
@@ -391,22 +411,24 @@ spec:
               parameters:
                 - name: group_id
                   value: '{{item}}'
-                - name: collection-id
-                  value: '{{tasks.collection-id-setup.outputs.parameters.collection-id}}'
+                - name: collection_id
+                  value: '{{tasks.stac-setup.outputs.parameters.collection_id}}'
+                - name: linz_slug
+                  value: '{{tasks.stac-setup.outputs.parameters.linz_slug}}'
                 - name: target
                   value: '{{tasks.get-location.outputs.parameters.location}}flat/'
               artifacts:
                 - name: group_data
                   from: '{{ tasks.group.outputs.artifacts.output }}'
-            depends: 'group && collection-id-setup && get-location'
+            depends: 'group && stac-setup && get-location'
             withParam: '{{ tasks.group.outputs.parameters.output }}'
 
           - name: create-collection
             template: create-collection
             arguments:
               parameters:
-                - name: collection-id
-                  value: '{{tasks.collection-id-setup.outputs.parameters.collection-id}}'
+                - name: collection_id
+                  value: '{{tasks.stac-setup.outputs.parameters.collection_id}}'
                 - name: location
                   value: '{{tasks.get-location.outputs.parameters.location}}'
             depends: 'standardise-validate'
@@ -476,24 +498,6 @@ spec:
               parameter: '{{tasks.get-location.outputs.parameters.location}}'
       # END TEMPLATE `main`
 
-    - name: collection-id-setup
-      script:
-        image: '019359803926.dkr.ecr.ap-southeast-2.amazonaws.com/topo-imagery:{{=sprig.trim(workflow.parameters.version_topo_imagery)}}'
-        args: [python]
-        source: |
-          import ulid
-          collection_id = "{{workflow.parameters.collection_id}}"
-          with open("/tmp/collection-id", "w") as f:
-            if not collection_id:
-              f.write(str(ulid.ULID()))
-            else:
-              f.write(collection_id)
-      outputs:
-        parameters:
-          - name: collection-id
-            valueFrom:
-              path: '/tmp/collection-id'
-
     - name: standardise-validate
       nodeSelector:
         karpenter.sh/capacity-type: 'spot'
@@ -546,7 +550,8 @@ spec:
         karpenter.sh/capacity-type: 'spot'
       inputs:
         parameters:
-          - name: collection-id
+          - name: collection_id
+          - name: linz_slug
           - name: location
       outputs:
         artifacts:
@@ -567,7 +572,11 @@ spec:
           - '--uri'
           - '{{inputs.parameters.location}}flat/'
           - '--collection-id'
-          - '{{inputs.parameters.collection-id}}'
+          - '{{inputs.parameters.collection_id}}'
+          - '--linz-slug'
+          - '{{inputs.parameters.linz_slug}}'
+          - '--current-datetime'
+          - '{{tasks.standardise-validate.startedAt}}'
           - '--category'
           - '{{=sprig.trim(workflow.parameters.category)}}'
           - '--region'

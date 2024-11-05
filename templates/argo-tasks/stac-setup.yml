@@ -1,0 +1,64 @@
+# yaml-language-server: $schema=https://raw.githubusercontent.com/argoproj/argo-workflows/v3.5.5/api/jsonschema/schema.json
+
+apiVersion: argoproj.io/v1alpha1
+kind: WorkflowTemplate
+metadata:
+  # Template from linz/argo-tasks
+  # see https://github.com/linz/argo-tasks#stac-setup
+  name: tpl-at-stac-setup
+spec:
+  templateDefaults:
+    container:
+      imagePullPolicy: Always
+      image: ''
+  entrypoint: main
+  templates:
+    - name: main
+      inputs:
+        parameters:
+          - name: start_datetime
+            description: '(Optional) Dataset capture start date in numeric format YYYY-MM-DD'
+            default: ''
+          - name: end_datetime
+            description: '(Optional) Dataset capture end date in numeric format YYYY-MM-DD'
+            default: ''
+          - name: gsd
+            description: 'Dataset GSD in metres'
+          - name: region
+            description: 'Region of the dataset'
+          - name: geographic_description
+            description: '(Optional) Additional dataset description'
+          - name: geospatial_category
+            description: 'Geospatial category of the dataset'
+          - name: odr_url
+            description: '(Optional) S3 path to existing dataset collection.json'
+            default: ''
+          - name: version
+            description: 'argo-task Container version to use'
+            default: 'v4'
+
+      container:
+        image: '019359803926.dkr.ecr.ap-southeast-2.amazonaws.com/argo-tasks:{{= inputs.parameters.version }}'
+        command: [node, /app/index.js]
+        env:
+          - name: AWS_ROLE_CONFIG_PATH
+            value: s3://linz-bucket-config/config.json
+        args:
+          - 'stac-setup'
+          - '--start-year={{=sprig.trunc(4, inputs.parameters.start_datetime)}}'
+          - '--end-year={{=sprig.trunc(4, inputs.parameters.end_datetime)}}'
+          - '--gsd={{inputs.parameters.gsd)}}'
+          - '--region={{inputs.parameters.region)}}'
+          - '--geographic-description={{inputs.parameters.geographic_description)}}'
+          - '--geospatial-category={{inputs.parameters.geospatial_category)}}'
+          - '--odr-url={{inputs.parameters.gsd)}}'
+      outputs:
+        parameters:
+          - name: collection-id
+            description: ID for collection and item STAC
+            valueFrom:
+              path: '/tmp/stac-setup/collection-id'
+          - name: linz-slug
+            description: linz:slug field for collection STAC
+            valueFrom:
+              path: '/tmp/stac-setup/linz-slug'
