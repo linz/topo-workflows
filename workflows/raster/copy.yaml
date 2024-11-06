@@ -87,7 +87,7 @@ spec:
           - '--force-no-clobber'
       - name: flatten
         description: Flatten the files in the target location
-        default: 'false'
+        value: 'false'
         enum:
           - 'true'
           - 'false'
