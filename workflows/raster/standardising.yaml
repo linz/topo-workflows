@@ -133,7 +133,7 @@ spec:
         description: '(Optional) location of a cutline file to cut the imagery to .fgb or .geojson'
         value: ''
       - name: odr_url
-        description: '(Optional) If an existing dataset add the S3 link to the dataset collection.json here e.g. "s3://nz-imagery/taranaki/new-plymouth_2017_0.1m/rgb/2193/collection.json"'
+        description: '(Optional) If an existing dataset add the S3 path to the dataset here to load existing metadata e.g. "s3://nz-imagery/taranaki/new-plymouth_2017_0.1m/rgb/2193/"'
         value: ''
       - name: category
         description: 'Geospatial category of the dataset'
