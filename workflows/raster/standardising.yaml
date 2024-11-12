@@ -361,11 +361,11 @@ spec:
                 - name: geographic_description
                   value: '{{=sprig.trim(workflow.parameters.geographic_description)}}'
                 - name: geospatial_category
-                  value: '{{=sprig.trim(workflow.parameters.geospatial_category)}}'
+                  value: '{{=sprig.trim(workflow.parameters.category)}}'
                 - name: odr_url
                   value: '{{=sprig.trim(workflow.parameters.odr_url)}}'
                 - name: version
-                  value: '{{=sprig.trim(workflow.parameters.version)}}'
+                  value: '{{=sprig.trim(workflow.parameters.version_argo_tasks)}}'
 
           - name: tile-index-validate
             templateRef:
@@ -547,10 +547,6 @@ spec:
           - '{{=sprig.trim(workflow.parameters.target_epsg)}}'
           - '--gsd'
           - '{{=sprig.trim(workflow.parameters.gsd)}}'
-          - '--published-path'
-          - '{{=sprig.trim(workflow.parameters.odr_url)}}'
-          - '--current-datetime'
-          - '{{inputs.parameters.current_datetime}}'
 
     - name: create-collection
       nodeSelector:

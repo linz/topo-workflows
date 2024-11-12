@@ -38,7 +38,7 @@ spec:
             default: 'v4'
 
       container:
-        image: '019359803926.dkr.ecr.ap-southeast-2.amazonaws.com/argo-tasks:{{= inputs.parameters.version }}'
+        image: '019359803926.dkr.ecr.ap-southeast-2.amazonaws.com/argo-tasks:{{=inputs.parameters.version}}'
         command: [node, /app/index.js]
         env:
           - name: AWS_ROLE_CONFIG_PATH
@@ -50,9 +50,9 @@ spec:
           - '--end-year={{=sprig.trunc(4, inputs.parameters.end_datetime)}}'
           - '--region={{inputs.parameters.region}}'
           - '--geographic-description={{inputs.parameters.geographic_description}}'
+          - '--odr-url={{inputs.parameters.odr_url}}'
           - '--geospatial-category={{inputs.parameters.geospatial_category}}'
           - '--gsd={{inputs.parameters.gsd}}'
-          - '--odr-url={{inputs.parameters.odr_url}}'
       outputs:
         parameters:
           - name: collection_id
