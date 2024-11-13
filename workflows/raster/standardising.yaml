@@ -413,6 +413,8 @@ spec:
                   value: '{{item}}'
                 - name: collection_id
                   value: '{{tasks.stac-setup.outputs.parameters.collection_id}}'
+                - name: current_datetime
+                  value: '{{tasks.stac-setup.finishedAt}}'
                 - name: target
                   value: '{{tasks.get-location.outputs.parameters.location}}flat/'
               artifacts:
@@ -505,6 +507,7 @@ spec:
         parameters:
           - name: group_id
           - name: collection_id
+          - name: current_datetime
           - name: target
         artifacts:
           - name: group_data
@@ -544,6 +547,10 @@ spec:
           - '{{=sprig.trim(workflow.parameters.target_epsg)}}'
           - '--gsd'
           - '{{=sprig.trim(workflow.parameters.gsd)}}'
+          - '--published-path'
+          - '{{=sprig.trim(workflow.parameters.odr_url)}}'
+          - '--current-datetime'
+          - '{{inputs.parameters.current_datetime}}'
 
     - name: create-collection
       nodeSelector:
