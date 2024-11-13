@@ -43,7 +43,7 @@ spec:
         value: 'v7'
       - name: version_topo_imagery
         description: 'Specify a version of the topo-imagery image to use, e.g. "v4.8" or "latest"'
-        value: 'v5'
+        value: 'v6'
       - name: user_group
         description: Group of users running the workflow
         value: 'none'
