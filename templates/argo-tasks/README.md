@@ -7,6 +7,8 @@
 - [Create Manifest](##argo-tasks/create-manifest)
 - [Push to Github](##argo-tasks/push-to-github)
 - [Generate Path](##argo-tasks/generate-path)
+- [STAC setup](##argo-tasks/stac-setup)
+- [STAC validate](##argo-tasks/stac-validate)
 
 ## argo-tasks/group - `tpl-at-group`
 
@@ -197,6 +199,38 @@ arguments:
       value: '{{inputs.parameters.add_date_in_survey_path}}'
     - name: source
       value: '{{inputs.parameters.source}}'
+```
+
+## argo-tasks/stac-setup
+
+Template to set up STAC metadata; outputs `collection-id` and `linz-slug`.
+See (https://github.com/linz/argo-tasks#stac-setup)
+
+### Template Usage
+
+```yaml
+- name: stac-setup
+  templateRef:
+    name: tpl-at-stac-setup
+    template: main
+  arguments:
+    parameters:
+      - name: start_datetime
+        value: '{{workflow.parameters.start_datetime}}'
+      - name: end_datetime
+        value: '{{workflow.parameters.end_datetime}}'
+      - name: gsd
+        value: '{{workflow.parameters.gsd}}'
+      - name: region
+        value: '{{workflow.parameters.region}}'
+      - name: geographic_description
+        value: '{{workflow.parameters.geographic_description}}'
+      - name: geospatial_category
+        value: '{{workflow.parameters.geospatial_category}}'
+      - name: odr_url
+        value: '{{workflow.parameters.odr_url}}'
+      - name: version
+        value: '{{workflow.parameters.version_argo_tasks}}'
 ```
 
 ## argo-tasks/stac-validate

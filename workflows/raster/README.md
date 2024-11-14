@@ -17,7 +17,7 @@ Publishing to the AWS Registry of Open Data is an optional step [publish-odr](#P
 ## Workflow Input Parameters
 
 | Parameter              | Type  | Default                               | Description                                                                                                                                                                                                                                                       |
-| ---------------------- | ----- | ------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+|------------------------| ----- | ------------------------------------- |-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
 | user_group             | enum  | none                                  | Group of users running the workflow                                                                                                                                                                                                                               |
 | ticket                 | str   |                                       | Ticket ID e.g. 'AIP-55'                                                                                                                                                                                                                                           |
 | region                 | enum  |                                       | Region of the dataset                                                                                                                                                                                                                                             |
@@ -30,7 +30,7 @@ Publishing to the AWS Registry of Open Data is an optional step [publish-odr](#P
 | compression            | enum  | webp                                  | Standardised file format                                                                                                                                                                                                                                          |
 | create_capture_area    | enum  | true                                  | Create a GeoJSON capture area for the dataset                                                                                                                                                                                                                     |
 | cutline                | str   |                                       | (Optional) location of a cutline file to cut the imagery to `.fgb` or `.geojson` (leave blank if no cutline)                                                                                                                                                      |
-| collection_id          | str   |                                       | (Optional) Provide a Collection ID if re-processing an existing published survery, otherwise a ULID will be generated for the collection.json ID field.                                                                                                           |
+| odr_url                | str   |                                       | (Optional) If an existing dataset add the S3 path to the dataset here to load existing metadata.                                                                                                                                                                  |
 | category               | enum  | urban-aerial-photos                   | Dataset type for collection metadata, also used to Build Dataset title & description                                                                                                                                                                              |
 | gsd                    | str   |                                       | Dataset GSD in metres for collection metadata, also used to build dataset title                                                                                                                                                                                   |
 | producer               | enum  | Unknown                               | Imagery producer :warning: Ignored if `producer_list` is used.                                                                                                                                                                                                    |
@@ -54,7 +54,7 @@ Publishing to the AWS Registry of Open Data is an optional step [publish-odr](#P
 ### Example Input Parameters
 
 | Parameter              | Value                                                                             |
-| ---------------------- | --------------------------------------------------------------------------------- |
+|------------------------| --------------------------------------------------------------------------------- |
 | ticket                 | AIP-55                                                                            |
 | region                 | bay-of-plenty                                                                     |
 | source                 | s3://linz-imagery-upload/PRJ39741_BOPLASS_Imagery_2021-22/PRJ39741_03/01_GeoTiff/ |
@@ -66,7 +66,7 @@ Publishing to the AWS Registry of Open Data is an optional step [publish-odr](#P
 | compression            | webp                                                                              |
 | create_capture_area    | true                                                                              |
 | cutline                | s3://linz-imagery-staging/cutline/bay-of-plenty_2021-2022.fgb                     |
-| collection_id          | 01FP371BHWDSREECKQAH9E8XQ                                                         |
+| odr_url                | s3://nz-imagery/taranaki/new-plymouth_2017_0.1m/rgb/2193/                                                         |
 | category               | rural-aerial-photos                                                               |
 | gsd                    | 0.3                                                                               |
 | producer               | Aerial Surveys                                                                    |
@@ -121,7 +121,7 @@ uri: https://basemaps.linz.govt.nz?config=...
 
 ```mermaid
 graph TD;
-    collection-id-setup-->standardise-validate;
+    stac-setup-->standardise-validate;
     get-location-->standardise-validate;
     tileindex-validate-->standardise-validate;
     standardise-validate-->create-collection;
@@ -130,10 +130,14 @@ graph TD;
     create-overview-.->|compression != dem_lerc|create-config-.->|publish_to_odr == true|publish-odr;
 ```
 
-### [collection-id-setup](./standardising.yaml)
+### [stac-setup](./standardising.yaml)
 
-Sets the collection ID for the workflow as the input parameter.
-If no input collection ID is provided a ULID is generated and used as the collection id for the standardised dataset.
+if `odr_url` is provided, gets existing `linz:slug` and `collection-id` STAC metadata fields (e.g. for dataset resupply),
+If no `odr_url` is provided:
+- a ULID is generated for the collection ID
+- the input parameters are used to generate the LINZ slug
+
+Output parameters are `collection_id` and `linz_slug`.
 
 ### [tileindex-validate](https://github.com/linz/argo-tasks/blob/master/src/commands/tileindex-validate/)
 
