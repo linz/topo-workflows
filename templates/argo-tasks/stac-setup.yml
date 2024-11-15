@@ -28,6 +28,7 @@ spec:
             description: 'Region of the dataset'
           - name: geographic_description
             description: '(Optional) Additional dataset description'
+            default: ''
           - name: geospatial_category
             description: 'Geospatial category of the dataset'
           - name: odr_url
