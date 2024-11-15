@@ -198,8 +198,6 @@ spec:
                   value: '{{workflow.parameters.copy_option}}'
                 - name: ticket
                   value: '{{=sprig.trim(workflow.parameters.ticket)}}'
-                - name: add_date_in_survey_path
-                  value: 'false'
             depends: 'stac-validate.Succeeded && create-config.Succeeded'
 
       outputs:
