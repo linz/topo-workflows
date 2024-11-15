@@ -31,7 +31,7 @@ spec:
         value: 'v7'
       - name: version_topo_imagery
         description: 'Specify a version of the topo-imagery image to use, e.g. "v4.8" or "latest"'
-        value: 'v5'
+        value: 'v6'
       - name: config-file
         description: 'Location of the configuration file listing the source datasets to merge.'
         value: 'https://raw.githubusercontent.com/linz/basemaps-config/master/config/tileset/elevation.json'
@@ -47,9 +47,6 @@ spec:
       - name: group
         description: 'How many output tiles to process in each standardising task "pod". Change if you have resource or performance issues when standardising a dataset.'
         value: '4'
-      - name: collection_id
-        description: 'Collection ID of the existing National DEM Collection.'
-        value: ''
       - name: publish_to_odr
         description: 'Create a Pull Request for publishing to imagery or elevation ODR bucket'
         value: 'false'
@@ -110,8 +107,25 @@ spec:
             depends: 'create-mapsheet'
             when: "{{= len(sprig.fromJson(tasks['create-mapsheet'].outputs.parameters.file_list)) > 0 }}"
 
-          - name: collection-id-setup
-            template: collection-id-setup
+          - name: stac-setup
+            templateRef:
+              name: tpl-at-stac-setup
+              template: main
+            arguments:
+              parameters:
+                - name: gsd
+                  value: '1'
+                - name: region
+                  value: 'new zealand'
+                - name: geospatial_category
+                  value: 'dem'
+                - name: odr_url
+                  # Add ODR URL to value once the National DEM is published
+                  value: ''
+                - name: version
+                  value: '{{=sprig.trim(workflow.parameters.version_argo_tasks)}}'
+                - name: add_date_in_survey_path
+                  value: 'false'
             depends: 'group.Succeeded'
 
           - name: standardise-validate
@@ -120,22 +134,24 @@ spec:
               parameters:
                 - name: group_id
                   value: '{{item}}'
-                - name: collection-id
-                  value: '{{tasks.collection-id-setup.outputs.parameters.collection-id}}'
+                - name: collection_id
+                  value: '{{tasks.stac-setup.outputs.parameters.collection_id}}'
                 - name: target
                   value: '{{tasks.get-location.outputs.parameters.location}}flat/'
               artifacts:
                 - name: group_data
                   from: '{{ tasks.group.outputs.artifacts.output }}'
-            depends: 'collection-id-setup.Succeeded && get-location.Succeeded'
+            depends: 'stac-setup.Succeeded && get-location.Succeeded'
             withParam: '{{ tasks.group.outputs.parameters.output }}'
 
           - name: create-collection
             template: create-collection
             arguments:
               parameters:
-                - name: collection-id
-                  value: '{{tasks.collection-id-setup.outputs.parameters.collection-id}}'
+                - name: collection_id
+                  value: '{{tasks.stac-setup.outputs.parameters.collection_id}}'
+                - name: linz_slug
+                  value: '{{tasks.stac-setup.outputs.parameters.linz_slug}}'
                 - name: location
                   value: '{{tasks.get-location.outputs.parameters.location}}'
             depends: 'standardise-validate.Succeeded'
@@ -193,24 +209,6 @@ spec:
               parameter: '{{tasks.get-location.outputs.parameters.location}}'
               default: ''
       # END TEMPLATE `main`
-
-    - name: collection-id-setup
-      script:
-        image: '019359803926.dkr.ecr.ap-southeast-2.amazonaws.com/topo-imagery:{{=sprig.trim(workflow.parameters.version_topo_imagery)}}'
-        args: [python]
-        source: |
-          import ulid
-          collection_id = "{{workflow.parameters.collection_id}}"
-          with open("/tmp/collection-id", "w") as f:
-            if not collection_id:
-              f.write(str(ulid.ULID()))
-            else:
-              f.write(collection_id)
-      outputs:
-        parameters:
-          - name: collection-id
-            valueFrom:
-              path: '/tmp/collection-id'
 
     - name: create-mapsheet
       inputs:
@@ -276,7 +274,7 @@ spec:
       inputs:
         parameters:
           - name: group_id
-          - name: collection-id
+          - name: collection_id
           - name: target
         artifacts:
           - name: group_data
@@ -301,7 +299,7 @@ spec:
           - '--preset'
           - 'dem_lerc'
           - '--collection-id'
-          - '{{inputs.parameters.collection-id}}'
+          - '{{inputs.parameters.collection_id}}'
           - '--create-footprints'
           - 'true'
           - '--source-epsg'
@@ -316,7 +314,8 @@ spec:
         karpenter.sh/capacity-type: 'spot'
       inputs:
         parameters:
-          - name: collection-id
+          - name: collection_id
+          - name: linz_slug
           - name: location
       outputs:
         artifacts:
@@ -337,7 +336,9 @@ spec:
           - '--uri'
           - '{{inputs.parameters.location}}flat/'
           - '--collection-id'
-          - '{{inputs.parameters.collection-id}}'
+          - '{{inputs.parameters.collection_id}}'
+          - '--linz-slug'
+          - '{{inputs.parameters.linz_slug}}'
           - '--category'
           - 'dem'
           - '--region'
