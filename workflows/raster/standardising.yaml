@@ -547,7 +547,7 @@ spec:
           - '{{=sprig.trim(workflow.parameters.target_epsg)}}'
           - '--gsd'
           - '{{=sprig.trim(workflow.parameters.gsd)}}'
-          - '--published-path'
+          - '--odr-url'
           - '{{=sprig.trim(workflow.parameters.odr_url)}}'
           - '--current-datetime'
           - '{{inputs.parameters.current_datetime}}'
