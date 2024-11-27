@@ -43,7 +43,7 @@ spec:
         value: 'v7'
       - name: version_topo_imagery
         description: 'Specify a version of the topo-imagery image to use, e.g. "v4.8" or "latest"'
-        value: 'v6'
+        value: 'v7'
       - name: user_group
         description: Group of users running the workflow
         value: 'none'
@@ -413,6 +413,8 @@ spec:
                   value: '{{item}}'
                 - name: collection_id
                   value: '{{tasks.stac-setup.outputs.parameters.collection_id}}'
+                - name: current_datetime
+                  value: '{{tasks.stac-setup.finishedAt}}'
                 - name: target
                   value: '{{=sprig.trimSuffix("/", tasks["get-location"].outputs.parameters.location)}}/flat/'
               artifacts:
@@ -505,6 +507,7 @@ spec:
         parameters:
           - name: group_id
           - name: collection_id
+          - name: current_datetime
           - name: target
         artifacts:
           - name: group_data
@@ -544,6 +547,10 @@ spec:
           - '{{=sprig.trim(workflow.parameters.target_epsg)}}'
           - '--gsd'
           - '{{=sprig.trim(workflow.parameters.gsd)}}'
+          - '--odr-url'
+          - '{{=sprig.trim(workflow.parameters.odr_url)}}'
+          - '--current-datetime'
+          - '{{inputs.parameters.current_datetime}}'
 
     - name: create-collection
       nodeSelector:
