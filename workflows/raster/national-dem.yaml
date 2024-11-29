@@ -31,7 +31,7 @@ spec:
         value: 'v7'
       - name: version_topo_imagery
         description: 'Specify a version of the topo-imagery image to use, e.g. "v4.8" or "latest"'
-        value: 'v6'
+        value: 'v7'
       - name: config-file
         description: 'Location of the configuration file listing the source datasets to merge.'
         value: 'https://raw.githubusercontent.com/linz/basemaps-config/master/config/tileset/elevation.json'
@@ -74,7 +74,9 @@ spec:
       dag:
         tasks:
           - name: get-location
-            template: get-location
+            templateRef:
+              name: tpl-get-location
+              template: main
 
           - name: create-mapsheet
             template: create-mapsheet
@@ -136,8 +138,10 @@ spec:
                   value: '{{item}}'
                 - name: collection_id
                   value: '{{tasks.stac-setup.outputs.parameters.collection_id}}'
+                - name: current_datetime
+                  value: '{{tasks.stac-setup.finishedAt}}'
                 - name: target
-                  value: '{{tasks.get-location.outputs.parameters.location}}flat/'
+                  value: '{{=sprig.trimSuffix("/", tasks["get-location"].outputs.parameters.location)}}/flat/'
               artifacts:
                 - name: group_data
                   from: '{{ tasks.group.outputs.artifacts.output }}'
@@ -163,7 +167,7 @@ spec:
             arguments:
               parameters:
                 - name: uri
-                  value: '{{tasks.get-location.outputs.parameters.location}}flat/collection.json'
+                  value: '{{=sprig.trimSuffix("/", tasks["get-location"].outputs.parameters.location)}}/flat/collection.json'
               artifacts:
                 - name: stac-result
                   raw:
@@ -191,7 +195,7 @@ spec:
             arguments:
               parameters:
                 - name: source
-                  value: '{{tasks.get-location.outputs.parameters.location}}flat/'
+                  value: '{{=sprig.trimSuffix("/", tasks["get-location"].outputs.parameters.location)}}/flat/'
                 - name: target_bucket_name
                   value: 'nz-elevation'
                 - name: copy_option
@@ -262,7 +266,7 @@ spec:
             path: /tmp/mapsheet-coverage/capture-dates.geojson
             s3:
               bucket: '{{inputs.parameters.bucket}}'
-              key: '{{inputs.parameters.key}}flat/capture-dates.geojson'
+              key: '{{=sprig.trimSuffix("/", inputs.parameters.key)}}/flat/capture-dates.geojson'
             archive:
               none: {}
 
@@ -273,6 +277,7 @@ spec:
         parameters:
           - name: group_id
           - name: collection_id
+          - name: current_datetime
           - name: target
         artifacts:
           - name: group_data
@@ -306,6 +311,10 @@ spec:
           - '{{=sprig.trim(workflow.parameters.target_epsg)}}'
           - '--gsd'
           - '1'
+          - '--odr-url'
+          - '{{=sprig.trim(workflow.parameters.odr_url)}}'
+          - '--current-datetime'
+          - '{{inputs.parameters.current_datetime}}'
 
     - name: create-collection
       nodeSelector:
@@ -332,7 +341,7 @@ spec:
           - python
           - '/app/scripts/collection_from_items.py'
           - '--uri'
-          - '{{inputs.parameters.location}}flat/'
+          - '{{=sprig.trimSuffix("/", inputs.parameters.location)}}/flat/'
           - '--collection-id'
           - '{{inputs.parameters.collection_id}}'
           - '--linz-slug'
@@ -357,29 +366,6 @@ spec:
           - '25'
           - '--capture-dates'
 
-    - name: get-location
-      script:
-        image: '019359803926.dkr.ecr.ap-southeast-2.amazonaws.com/argo-tasks:{{=sprig.trim(workflow.parameters.version_argo_tasks)}}'
-        command: [node]
-        source: |
-          const fs = require('fs');
-          const loc = JSON.parse(process.env['ARGO_TEMPLATE']).archiveLocation.s3;
-          const key = loc.key.replace('{{pod.name}}','');
-          fs.writeFileSync('/tmp/location', `s3://${loc.bucket}/${key}`);
-          fs.writeFileSync('/tmp/bucket', `${loc.bucket}`);
-          fs.writeFileSync('/tmp/key', `${key}`);
-      outputs:
-        parameters:
-          - name: location
-            valueFrom:
-              path: '/tmp/location'
-          - name: bucket
-            valueFrom:
-              path: '/tmp/bucket'
-          - name: key
-            valueFrom:
-              path: '/tmp/key'
-
     - name: create-config
       inputs:
         parameters:
@@ -395,7 +381,7 @@ spec:
             value: s3://linz-bucket-config/config.basemaps.json
         args:
           - 'config'
-          - '{{ inputs.parameters.location }}flat/'
+          - '{{=sprig.trimSuffix("/", inputs.parameters.location)}}/flat/'
       outputs:
         parameters:
           - name: url
@@ -411,7 +397,7 @@ spec:
             path: '/tmp/cogify/config-url'
             s3:
               bucket: '{{inputs.parameters.bucket}}'
-              key: '{{inputs.parameters.key}}flat/config-url'
+              key: '{{=sprig.trimSuffix("/", inputs.parameters.key)}}/flat/config-url'
             archive:
               none: {}
 
