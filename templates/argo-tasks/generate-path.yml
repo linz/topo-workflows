@@ -20,9 +20,6 @@ spec:
             description: s3 path of source data
           - name: target_bucket_name
             description: target bucket name e.g. 'nz-imagery'
-          - name: add_date_in_survey_path
-            description: 'The survey path should contain the date'
-            default: 'true'
           - name: version
             description: argo-task Container version to use
             default: 'v4'
@@ -37,7 +34,6 @@ spec:
           - 'generate-path'
           - '--target-bucket-name'
           - '{{=sprig.trim(inputs.parameters.target_bucket_name)}}'
-          - '--add-date-in-survey-path={{=sprig.trim(inputs.parameters.add_date_in_survey_path)}}'
           - '{{=sprig.trim(inputs.parameters.source)}}'
 
       outputs:
