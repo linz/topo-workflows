@@ -582,6 +582,8 @@ spec:
           - '{{inputs.parameters.collection_id}}'
           - '--linz-slug'
           - '{{inputs.parameters.linz_slug}}'
+          - '--odr-url'
+          - '{{=sprig.trim(workflow.parameters.odr_url)}}'
           - '--category'
           - '{{=sprig.trim(workflow.parameters.category)}}'
           - '--region'
