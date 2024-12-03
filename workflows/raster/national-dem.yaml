@@ -46,7 +46,7 @@ spec:
         value: '2193'
       - name: group
         description: 'How many output tiles to process in each standardising task "pod". Change if you have resource or performance issues when standardising a dataset.'
-        value: '4'
+        value: '2'
       - name: publish_to_odr
         description: 'Create a Pull Request for publishing to imagery or elevation ODR bucket'
         value: 'false'
