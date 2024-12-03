@@ -17,7 +17,7 @@ Publishing to the AWS Registry of Open Data is an optional step [publish-odr](#P
 ## Workflow Input Parameters
 
 | Parameter              | Type  | Default                               | Description                                                                                                                                                                                                                                                       |
-|------------------------| ----- | ------------------------------------- |-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| ---------------------- | ----- | ------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | user_group             | enum  | none                                  | Group of users running the workflow                                                                                                                                                                                                                               |
 | ticket                 | str   |                                       | Ticket ID e.g. 'AIP-55'                                                                                                                                                                                                                                           |
 | region                 | enum  |                                       | Region of the dataset                                                                                                                                                                                                                                             |
@@ -54,7 +54,7 @@ Publishing to the AWS Registry of Open Data is an optional step [publish-odr](#P
 ### Example Input Parameters
 
 | Parameter              | Value                                                                             |
-|------------------------| --------------------------------------------------------------------------------- |
+| ---------------------- | --------------------------------------------------------------------------------- |
 | ticket                 | AIP-55                                                                            |
 | region                 | bay-of-plenty                                                                     |
 | source                 | s3://linz-imagery-upload/PRJ39741_BOPLASS_Imagery_2021-22/PRJ39741_03/01_GeoTiff/ |
@@ -66,7 +66,7 @@ Publishing to the AWS Registry of Open Data is an optional step [publish-odr](#P
 | compression            | webp                                                                              |
 | create_capture_area    | true                                                                              |
 | cutline                | s3://linz-imagery-staging/cutline/bay-of-plenty_2021-2022.fgb                     |
-| odr_url                | s3://nz-imagery/taranaki/new-plymouth_2017_0.1m/rgb/2193/                                                         |
+| odr_url                | s3://nz-imagery/taranaki/new-plymouth_2017_0.1m/rgb/2193/                         |
 | category               | rural-aerial-photos                                                               |
 | gsd                    | 0.3                                                                               |
 | producer               | Aerial Surveys                                                                    |
@@ -134,6 +134,7 @@ graph TD;
 
 if `odr_url` is provided, gets existing `linz:slug` and `collection-id` STAC metadata fields (e.g. for dataset resupply),
 If no `odr_url` is provided:
+
 - a ULID is generated for the collection ID
 - the input parameters are used to generate the LINZ slug
 
@@ -298,7 +299,7 @@ Publishing to the AWS Registry of Open Data is an optional step [publish-odr](#P
 | Parameter          | Type | Default                                                                                     | Description                                                                                                                                                                                                                                                       |
 | ------------------ | ---- | ------------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | config-file        | str  | https://raw.githubusercontent.com/linz/basemaps-config/master/config/tileset/elevation.json | Location of the configuration file listing the source datasets to merge.                                                                                                                                                                                          |
-| compare            | str  |                                                                                             | Existing collection.json to compare with the new merging.                                                                                                                                                                                                         |
+| odr_url            | str  |                                                                                             | (Optional) If an existing dataset add the S3 path to the dataset here to load existing metadata e.g. "s3://nz-elevation/new-zealand/new-zealand/dem_1m/2193/"                                                                                                     |
 | source_epsg        | str  | 2193                                                                                        | The EPSG code of the source imagery                                                                                                                                                                                                                               |
 | target_epsg        | str  | 2193                                                                                        | The target EPSG code - if different to source the imagery will be reprojected                                                                                                                                                                                     |
 | group              | 4    |                                                                                             | How many output tiles to process in each standardising task "pod". Change if you have resource or performance issues when standardising a dataset.                                                                                                                |
@@ -309,10 +310,9 @@ Publishing to the AWS Registry of Open Data is an optional step [publish-odr](#P
 
 ### Example Input Parameters
 
-| Parameter     | Value                                                                 |
-| ------------- | --------------------------------------------------------------------- |
-| compare       | s3://nz-elevation/new-zealand/new-zealand/dem_1m/2193/collection.json |
-| collection_id | 01J6TK9HHNDHJEG8QRSF98WH11                                            |
+| Parameter | Value                                                  |
+| --------- | ------------------------------------------------------ |
+| odr_url   | s3://nz-elevation/new-zealand/new-zealand/dem_1m/2193/ |
 
 # Tests
 
