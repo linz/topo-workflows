@@ -325,7 +325,7 @@ spec:
           - 'nz-elevation'
           - ''
       - name: copy_option
-        description: 'Do not overwrite existing files with "no-clobber", or "force" overwriting files in the target location'
+        description: 'Do not overwrite existing files with "no-clobber", "force" overwriting files in the target location, or "force-no-clobber" overwriting only changed files, skipping unchanged files'
         value: '--no-clobber'
         enum:
           - '--no-clobber'
@@ -433,6 +433,8 @@ spec:
                   value: '{{tasks.stac-setup.outputs.parameters.linz_slug}}'
                 - name: location
                   value: '{{tasks.get-location.outputs.parameters.location}}'
+                - name: current_datetime
+                  value: '{{tasks.stac-setup.finishedAt}}'
             depends: 'standardise-validate'
 
           - name: stac-validate
@@ -560,6 +562,7 @@ spec:
           - name: collection_id
           - name: linz_slug
           - name: location
+          - name: current_datetime
       outputs:
         artifacts:
           - name: capture-area
@@ -582,6 +585,8 @@ spec:
           - '{{inputs.parameters.collection_id}}'
           - '--linz-slug'
           - '{{inputs.parameters.linz_slug}}'
+          - '--odr-url'
+          - '{{=sprig.trim(workflow.parameters.odr_url)}}'
           - '--category'
           - '{{=sprig.trim(workflow.parameters.category)}}'
           - '--region'
@@ -607,6 +612,8 @@ spec:
           - '{{=sprig.trim(workflow.parameters.licensor_list)}}'
           - '--concurrency'
           - '25'
+          - '--current-datetime'
+          - '{{inputs.parameters.current_datetime}}'
 
     - name: create-overview
       inputs:
