@@ -76,7 +76,7 @@ spec:
       - name: target
         value: 's3://linz-imagery-staging/test/sample_target/'
       - name: include
-        value: '\.tiff?$|\.json$|\.tfw$|\Q/capture-area.geojson\E|\Q/capture-dates.geojson\E'
+        value: '\.tiff?$|\.json$|\.tfw$|/capture-area\.geojson$|/capture-dates\.geojson$'
       - name: exclude
         value: ''
       - name: copy_option
