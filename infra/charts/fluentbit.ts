@@ -100,6 +100,12 @@ HC_Period 5
            * See: https://github.com/argoproj/argo-workflows/issues/13314
            */
           bufferSize: '128k',
+          /**
+           * Remove the `log` field from the logs
+           * as it has been parsed into the `data` field
+           * so we don't want duplicated logs
+           */
+          keepLog: 'Off',
         },
         // FIXME: `livenessProbe` and `readinessProbe` deactivated https://github.com/aws/eks-charts/issues/995
         livenessProbe: false,
