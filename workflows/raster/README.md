@@ -3,6 +3,7 @@
 - [Standardising](#Standardising)
 - [copy](#copy)
 - [publish-odr](#Publish-odr)
+- [National DEM](#national-dem)
 - [tests](#Tests)
 
 # Standardising
@@ -16,7 +17,7 @@ Publishing to the AWS Registry of Open Data is an optional step [publish-odr](#P
 ## Workflow Input Parameters
 
 | Parameter              | Type  | Default                               | Description                                                                                                                                                                                                                                                       |
-|------------------------| ----- | ------------------------------------- |-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| ---------------------- | ----- | ------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | user_group             | enum  | none                                  | Group of users running the workflow                                                                                                                                                                                                                               |
 | ticket                 | str   |                                       | Ticket ID e.g. 'AIP-55'                                                                                                                                                                                                                                           |
 | region                 | enum  |                                       | Region of the dataset                                                                                                                                                                                                                                             |
@@ -53,7 +54,7 @@ Publishing to the AWS Registry of Open Data is an optional step [publish-odr](#P
 ### Example Input Parameters
 
 | Parameter              | Value                                                                             |
-|------------------------| --------------------------------------------------------------------------------- |
+| ---------------------- | --------------------------------------------------------------------------------- |
 | ticket                 | AIP-55                                                                            |
 | region                 | bay-of-plenty                                                                     |
 | source                 | s3://linz-imagery-upload/PRJ39741_BOPLASS_Imagery_2021-22/PRJ39741_03/01_GeoTiff/ |
@@ -65,7 +66,7 @@ Publishing to the AWS Registry of Open Data is an optional step [publish-odr](#P
 | compression            | webp                                                                              |
 | create_capture_area    | true                                                                              |
 | cutline                | s3://linz-imagery-staging/cutline/bay-of-plenty_2021-2022.fgb                     |
-| odr_url                | s3://nz-imagery/taranaki/new-plymouth_2017_0.1m/rgb/2193/                                                         |
+| odr_url                | s3://nz-imagery/taranaki/new-plymouth_2017_0.1m/rgb/2193/                         |
 | category               | rural-aerial-photos                                                               |
 | gsd                    | 0.3                                                                               |
 | producer               | Aerial Surveys                                                                    |
@@ -133,6 +134,7 @@ graph TD;
 
 if `odr_url` is provided, gets existing `linz:slug` and `collection-id` STAC metadata fields (e.g. for dataset resupply),
 If no `odr_url` is provided:
+
 - a ULID is generated for the collection ID
 - the input parameters are used to generate the LINZ slug
 
@@ -212,7 +214,7 @@ Access permissions are controlled by the [Bucket Sharing Config](https://github.
 ## Workflow Input Parameters
 
 | Parameter            | Type  | Default                                                                                                                                                       | Description                                                                                                                                                                                                                 |
-| -------------------- | ----- |---------------------------------------------------------------------------------------------------------------------------------------------------------------| --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| -------------------- | ----- | ------------------------------------------------------------------------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | user_group           | enum  | none                                                                                                                                                          | Group of users running the workflow                                                                                                                                                                                         |
 | ticket               | str   |                                                                                                                                                               | Ticket ID e.g. 'AIP-55'                                                                                                                                                                                                     |
 | region               | enum  |                                                                                                                                                               | Region of the dataset                                                                                                                                                                                                       |
@@ -283,6 +285,24 @@ graph TD;
 **copy_option:** `--no-clobber`
 
 See the [copy template](#copy) for more information.
+
+# national-dem
+
+This workflow combines a set of DEMs datasets in order to create a single national dataset composed of 1:50k tiles.
+
+Upon completion all standardised TIFF and STAC files will be located with the ./flat/ directory of the workflow in the artifacts scratch bucket. In addition, a Basemaps link is produced enabling visual QA.
+
+Publishing to the AWS Registry of Open Data is an optional step [publish-odr](#Publish-odr) that can be run automatically after standardisation.
+
+## Workflow Input Parameters
+
+| Parameter      | Type | Default                                                                                     | Description                                                                                                                                                                                                                                                       |
+| -------------- | ---- | ------------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| config_file    | str  | https://raw.githubusercontent.com/linz/basemaps-config/master/config/tileset/elevation.json | Location of the configuration file listing the source datasets to merge.                                                                                                                                                                                          |
+| odr_url        | str  |                                                                                             | (Optional) If an existing dataset add the S3 path to the dataset here to load existing metadata e.g. "s3://nz-elevation/new-zealand/new-zealand/dem_1m/2193/"                                                                                                     |
+| group          | 2    |                                                                                             | How many output tiles to process in each standardising task "pod". Change if you have resource or performance issues when standardising a dataset.                                                                                                                |
+| publish_to_odr | str  | false                                                                                       | Run [publish-odr](#Publish-odr) after standardising has completed successfully                                                                                                                                                                                    |
+| copy_option    | enum | --force-no-clobber                                                                          | Used only if `publish_to_odr` is true.<dl><dt>`--no-clobber` </dt><dd> Skip overwriting existing files.</dd><dt> `--force` </dt><dd> Overwrite all files. </dd><dt> `--force-no-clobber` </dt><dd> Overwrite only changed files, skip unchanged files. </dd></dl> |
 
 # Tests
 
