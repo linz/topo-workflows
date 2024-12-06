@@ -39,7 +39,7 @@ spec:
         description: '(Optional) If an existing dataset add the S3 path to the dataset here to load existing metadata e.g. "s3://nz-elevation/new-zealand/new-zealand/dem_1m/2193/"'
         value: ''
       - name: group
-        description: 'How many output tiles to process in each standardising task "pod". Change if you have resource or performance issues when standardising a dataset.'
+        description: 'How many output tiles to process in each standardise-validate task "pod". Change if you have resource or performance issues when standardising a dataset.'
         value: '2'
       - name: publish_to_odr
         description: 'Create a Pull Request for publishing to imagery or elevation ODR bucket'
