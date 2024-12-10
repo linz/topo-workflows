@@ -23,6 +23,8 @@ spec:
       name: national-dem
     arguments:
       parameters:
+        - name: 'ticket'
+          value: 'TDE-1130'
         - name: 'config_file'
           value: 'https://raw.githubusercontent.com/linz/basemaps-config/master/config/tileset/elevation.json'
         - name: 'odr_url'
