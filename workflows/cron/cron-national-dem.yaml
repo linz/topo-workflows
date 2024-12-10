@@ -13,6 +13,9 @@ spec:
   successfulJobsHistoryLimit: 3
   failedJobsHistoryLimit: 3
   suspend: false
+  workflowMetadata:
+    labels:
+      linz.govt.nz/ticket: 'TDE-1130'
   workflowSpec:
     podMetadata:
       labels:
@@ -31,3 +34,5 @@ spec:
           value: 'true'
         - name: 'copy_option'
           value: '--force-no-clobber'
+        - name: 'ticket'
+          value: 'TDE-1130'
