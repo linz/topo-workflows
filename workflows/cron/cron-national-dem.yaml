@@ -13,6 +13,9 @@ spec:
   successfulJobsHistoryLimit: 3
   failedJobsHistoryLimit: 3
   suspend: false
+  workflowMetadata:
+    labels:
+      linz.govt.nz/ticket: 'TDE-1130'
   workflowSpec:
     podMetadata:
       labels:
@@ -24,12 +27,12 @@ spec:
     arguments:
       parameters:
         - name: 'ticket'
-          value: 'TDE-1130'
+          value: 'TEST-ticket'
         - name: 'config_file'
           value: 'https://raw.githubusercontent.com/linz/basemaps-config/master/config/tileset/elevation.json'
         - name: 'odr_url'
           value: 's3://nz-elevation/new-zealand/new-zealand/dem_1m/2193/'
         - name: publish_to_odr
-          value: 'true'
+          value: 'false'
         - name: 'copy_option'
           value: '--force-no-clobber'
