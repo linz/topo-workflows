@@ -26,13 +26,11 @@ spec:
       name: national-dem
     arguments:
       parameters:
-        - name: 'ticket'
-          value: 'TEST-ticket'
         - name: 'config_file'
           value: 'https://raw.githubusercontent.com/linz/basemaps-config/master/config/tileset/elevation.json'
         - name: 'odr_url'
           value: 's3://nz-elevation/new-zealand/new-zealand/dem_1m/2193/'
         - name: publish_to_odr
-          value: 'false'
+          value: 'true'
         - name: 'copy_option'
           value: '--force-no-clobber'
