@@ -7,7 +7,7 @@ metadata:
     linz.govt.nz/category: raster
     linz.govt.nz/data-type: raster
 spec:
-  schedule: '0 6 * * 1-5' # 6AM every day from Monday to Friday
+  schedule: '0 6 * * 1-5' # At 06:00 AM, Monday through Friday
   timezone: 'NZ'
   concurrencyPolicy: 'Allow'
   successfulJobsHistoryLimit: 3
