@@ -1,9 +1,9 @@
 # yaml-language-server: $schema=https://raw.githubusercontent.com/argoproj/argo-workflows/v3.5.5/api/jsonschema/schema.json
 
 apiVersion: argoproj.io/v1alpha1
-kind: Workflow
+kind: WorkflowTemplate
 metadata:
-  generateName: gdalmerge-
+  name: tpl-gdalmerge
   labels:
     linz.govt.nz/category: util
 spec:
@@ -31,12 +31,6 @@ spec:
         description: 'Optional file name for output file, e.g. "CB13.tiff"'
         default: 'merge_output.tiff'
         value: 'merge_output.tiff'
-      - name: base_filename
-        description: 'File to use as base layer (use /vsis3/ paths instead of s3), e.g. "/vsis3_streaming/bucket/8m/CB13.tiff"'
-        value: ''
-      - name: additional_filename
-        description: 'File to use as top layer (use /vsis3/ paths instead of s3), e.g. "/vsis3_streaming/bucket/1m/CB13.tiff". Use VRT files to layer multiple files.'
-        value: ''
   templates:
     - name: main
       retryStrategy:
@@ -66,6 +60,14 @@ spec:
         resources:
           requests:
             memory: 12.0Gi
+      inputs:
+        parameters:
+          - name: base_filename
+            description: 'File to use as base layer (use /vsis3/ paths instead of s3://), e.g. "/vsis3_streaming/bucket/8m/CB13.tiff"'
+            value: ''
+          - name: additional_filename
+            description: 'File to use as top layer (use /vsis3/ paths instead of s3://), e.g. "/vsis3_streaming/bucket/1m/CB13.tiff". Use VRT files to layer multiple files.'
+            value: ''
       outputs:
         artifacts:
           - name: merged_tiff
