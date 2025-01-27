@@ -47,15 +47,22 @@ spec:
         command: [gdal_merge.py]
         args:
           [
-           '-of', 'GTiff',
-           '-ps', '1', '-1',
-           '-co', 'COMPRESS=lerc',
-           '-co', 'MAX_Z_ERROR=0',
-           '-co', 'NUM_THREADS=ALL_CPUS',
-           '-o', '{{workflow.parameters.merged_filename}}',
-           '{{workflow.parameters.base_filename}}',
-           '{{workflow.parameters.additional_filename}}',
-           ]
+            '-of',
+            'GTiff',
+            '-ps',
+            '1',
+            '-1',
+            '-co',
+            'COMPRESS=lerc',
+            '-co',
+            'MAX_Z_ERROR=0',
+            '-co',
+            'NUM_THREADS=ALL_CPUS',
+            '-o',
+            '{{workflow.parameters.merged_filename}}',
+            '{{workflow.parameters.base_filename}}',
+            '{{workflow.parameters.additional_filename}}',
+          ]
         resources:
           requests:
             memory: 12.0Gi
