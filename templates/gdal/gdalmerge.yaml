@@ -13,30 +13,18 @@ spec:
   workflowMetadata:
     labelsFrom:
       linz.govt.nz/ticket:
-        expression: workflow.parameters.ticket
+        expression: inputs.parameters.ticket
   podMetadata:
     labels:
       linz.govt.nz/category: raster
       linz.govt.nz/data-type: raster
-      linz.govt.nz/ticket: '{{workflow.parameters.ticket}}'
-  arguments:
-    parameters:
-      - name: version_topo_imagery
-        description: 'Specify a version of the topo-imagery image to use, e.g. "v7" or "latest"'
-        value: 'v7'
-      - name: ticket
-        description: 'Ticket ID, e.g. "LI-1570"'
-        value: ''
-      - name: merged_filename
-        description: 'Optional file name for output file, e.g. "CB13.tiff"'
-        default: 'merge_output.tiff'
-        value: 'merge_output.tiff'
+      linz.govt.nz/ticket: '{{inputs.parameters.ticket}}'
   templates:
     - name: main
       retryStrategy:
         expression: 'false'
       container:
-        image: 019359803926.dkr.ecr.ap-southeast-2.amazonaws.com/topo-imagery:{{=sprig.trim(workflow.parameters.version_topo_imagery)}}
+        image: 019359803926.dkr.ecr.ap-southeast-2.amazonaws.com/topo-imagery:{{=sprig.trim(inputs.parameters.version_topo_imagery)}}
         imagePullPolicy: Always
         command: [gdal_merge.py]
         args:
@@ -53,9 +41,9 @@ spec:
             '-co',
             'NUM_THREADS=ALL_CPUS',
             '-o',
-            '{{workflow.parameters.merged_filename}}',
-            '{{workflow.parameters.base_filename}}',
-            '{{workflow.parameters.additional_filename}}',
+            '{{inputs.parameters.merged_filename}}',
+            '{{inputs.parameters.base_filename}}',
+            '{{inputs.parameters.additional_filename}}',
           ]
         resources:
           requests:
@@ -64,13 +52,20 @@ spec:
         parameters:
           - name: base_filename
             description: 'File to use as base layer (use /vsis3/ paths instead of s3://), e.g. "/vsis3_streaming/bucket/8m/CB13.tiff"'
-            value: ''
           - name: additional_filename
             description: 'File to use as top layer (use /vsis3/ paths instead of s3://), e.g. "/vsis3_streaming/bucket/1m/CB13.tiff". Use VRT files to layer multiple files.'
-            value: ''
+          - name: version_topo_imagery
+            description: 'Specify a version of the topo-imagery image to use, e.g. "v7" or "latest"'
+            default: 'v7'
+          - name: ticket
+            description: 'Ticket ID, e.g. "LI-1570"'
+            default: ''
+          - name: merged_filename
+            description: 'Optional file name for output file, e.g. "CB13.tiff"'
+            default: 'merge_output.tiff'
       outputs:
         artifacts:
           - name: merged_tiff
             archive:
               none: {}
-            path: '{{workflow.parameters.merged_filename}}'
+            path: '{{inputs.parameters.merged_filename}}'
