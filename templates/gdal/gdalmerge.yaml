@@ -10,15 +10,6 @@ spec:
   nodeSelector:
     karpenter.sh/capacity-type: 'spot'
   entrypoint: main
-  workflowMetadata:
-    labelsFrom:
-      linz.govt.nz/ticket:
-        expression: inputs.parameters.ticket
-  podMetadata:
-    labels:
-      linz.govt.nz/category: raster
-      linz.govt.nz/data-type: raster
-      linz.govt.nz/ticket: '{{inputs.parameters.ticket}}'
   templates:
     - name: main
       retryStrategy:
@@ -42,8 +33,8 @@ spec:
             'NUM_THREADS=ALL_CPUS',
             '-o',
             '{{inputs.parameters.merged_filename}}',
-            '{{inputs.parameters.base_filename}}',
-            '{{inputs.parameters.additional_filename}}',
+            '{{= sprig.replace("s3://", "/vsis3_streaming/", inputs.parameters.base_filename)}}',
+            '{{= sprig.replace("s3://", "/vsis3_streaming/", inputs.parameters.additional_filename)}}',
           ]
         resources:
           requests:
@@ -51,18 +42,15 @@ spec:
       inputs:
         parameters:
           - name: base_filename
-            description: 'File to use as base layer (use /vsis3/ paths instead of s3://), e.g. "/vsis3_streaming/bucket/8m/CB13.tiff"'
+            description: 'File to use as base layer, e.g. "s3://bucket/8m/CB13.tiff"'
           - name: additional_filename
-            description: 'File to use as top layer (use /vsis3/ paths instead of s3://), e.g. "/vsis3_streaming/bucket/1m/CB13.tiff". Use VRT files to layer multiple files.'
+            description: 'File to use as top layer, e.g. "s3://bucket/1m/CB13.tiff". Use VRT files to layer multiple files. Note: VRT files must contain /vsis3/ or /vsis3_streaming/ paths instead of s3://.'
           - name: version_topo_imagery
             description: 'Specify a version of the topo-imagery image to use, e.g. "v7" or "latest"'
             default: 'v7'
-          - name: ticket
-            description: 'Ticket ID, e.g. "LI-1570"'
-            default: ''
           - name: merged_filename
-            description: 'Optional file name for output file, e.g. "CB13.tiff"'
-            default: 'merge_output.tiff'
+            description: 'Optional file name for output file, e.g. "CB13.tiff". Defaults to base_filename basename.'
+            default: '{{= sprig.last(sprig.splitList("/", inputs.parameters.base_filename))}}'
       outputs:
         artifacts:
           - name: merged_tiff
