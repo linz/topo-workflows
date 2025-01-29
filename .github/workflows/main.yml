@@ -9,19 +9,27 @@ jobs:
       - uses: linz/action-typescript@9bf69b0f313b3525d3ba3116f26b1aff7eb7a6c0 # v3.1.0
         with:
           node-version: 20.x
+
+      - name: Check formatting
+        run: npx prettier --check .
+
       - name: Download actionlint
         run: docker build --tag actionlint - < .github/workflows/actionlint.dockerfile
+
       - name: Run actionlint to check workflow files
         run: docker run --volume="${PWD}:/repo" --workdir=/repo actionlint -color
+
       - name: Install Argo
         run: |
           curl --location --remote-name --silent "${{ env.ARGO_URL }}"
           gunzip argo-linux-amd64.gz
           chmod +x argo-linux-amd64
           ./argo-linux-amd64 version
+
       - name: Lint workflows
         run: |
           ./argo-linux-amd64 lint --offline templates/ workflows/
+
   deploy-prod:
     runs-on: ubuntu-latest
     concurrency: deploy-prod-${{ github.ref }}
