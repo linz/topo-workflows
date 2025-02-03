@@ -406,22 +406,60 @@ spec:
             depends: 'tile-index-validate'
 
           - name: standardise-validate
-            template: standardise-validate
+            templateRef:
+              name: tpl-ti-standardise-validate
+              template: main
             arguments:
               parameters:
                 - name: group_id
                   value: '{{item}}'
+                - name: odr_url
+                  value: '{{=sprig.trim(workflow.parameters.odr_url)}}'
                 - name: collection_id
                   value: '{{tasks.stac-setup.outputs.parameters.collection_id}}'
+                - name: compression
+                  value: '{{= workflow.parameters.compression}}'
                 - name: current_datetime
                   value: '{{tasks.stac-setup.finishedAt}}'
+                - name: start_datetime
+                  value: '{{=sprig.trim(workflow.parameters.start_datetime)}}'
+                - name: end_datetime
+                  value: '{{=sprig.trim(workflow.parameters.end_datetime)}}'
+                - name: create_capture_area
+                  value: '{{=sprig.trim(workflow.parameters.create_capture_area)}}'
+                - name: cutline
+                  value: '{{=sprig.trim(workflow.parameters.cutline)}}'
+                - name: gsd
+                  value: '{{=sprig.trim(workflow.parameters.gsd)}}'
                 - name: target
                   value: '{{=sprig.trimSuffix("/", tasks["get-location"].outputs.parameters.location)}}/flat/'
+                - name: source_epsg
+                  value: '{{=sprig.trim(workflow.parameters.source_epsg)}}'
+                - name: target_epsg
+                  value: '{{=sprig.trim(workflow.parameters.target_epsg)}}'
               artifacts:
                 - name: group_data
                   from: '{{ tasks.group.outputs.artifacts.output }}'
             depends: 'group && stac-setup && get-location'
             withParam: '{{ tasks.group.outputs.parameters.output }}'
+
+#          - name: standardise-validate
+#            template: standardise-validate
+#            arguments:
+#              parameters:
+#                - name: group_id
+#                  value: '{{item}}'
+#                - name: collection_id
+#                  value: '{{tasks.stac-setup.outputs.parameters.collection_id}}'
+#                - name: current_datetime
+#                  value: '{{tasks.stac-setup.finishedAt}}'
+#                - name: target
+#                  value: '{{=sprig.trimSuffix("/", tasks["get-location"].outputs.parameters.location)}}/flat/'
+#              artifacts:
+#                - name: group_data
+#                  from: '{{ tasks.group.outputs.artifacts.output }}'
+#            depends: 'group && stac-setup && get-location'
+#            withParam: '{{ tasks.group.outputs.parameters.output }}'
 
           - name: create-collection
             template: create-collection
@@ -501,58 +539,58 @@ spec:
             valueFrom:
               parameter: '{{tasks.get-location.outputs.parameters.location}}'
       # END TEMPLATE `main`
-
-    - name: standardise-validate
-      nodeSelector:
-        karpenter.sh/capacity-type: 'spot'
-      inputs:
-        parameters:
-          - name: group_id
-          - name: collection_id
-          - name: current_datetime
-          - name: target
-        artifacts:
-          - name: group_data
-            path: /tmp/input/
-      container:
-        image: '019359803926.dkr.ecr.ap-southeast-2.amazonaws.com/topo-imagery:{{=sprig.trim(workflow.parameters.version_topo_imagery)}}'
-        resources:
-          requests:
-            memory: 7.8Gi
-            cpu: 15000m
-            ephemeral-storage: 29.5Gi
-        volumeMounts:
-          - name: ephemeral
-            mountPath: '/tmp'
-        args:
-          - python
-          - '/app/scripts/standardise_validate.py'
-          - '--from-file'
-          - '/tmp/input/{{inputs.parameters.group_id}}.json'
-          - '--target'
-          - '{{inputs.parameters.target}}'
-          - '--preset'
-          - '{{workflow.parameters.compression}}'
-          - '--start-datetime'
-          - '{{=sprig.trim(workflow.parameters.start_datetime)}}'
-          - '--end-datetime'
-          - '{{=sprig.trim(workflow.parameters.end_datetime)}}'
-          - '--collection-id'
-          - '{{inputs.parameters.collection_id}}'
-          - '--create-footprints'
-          - '{{workflow.parameters.create_capture_area}}'
-          - '--cutline'
-          - '{{=sprig.trim(workflow.parameters.cutline)}}'
-          - '--source-epsg'
-          - '{{=sprig.trim(workflow.parameters.source_epsg)}}'
-          - '--target-epsg'
-          - '{{=sprig.trim(workflow.parameters.target_epsg)}}'
-          - '--gsd'
-          - '{{=sprig.trim(workflow.parameters.gsd)}}'
-          - '--odr-url'
-          - '{{=sprig.trim(workflow.parameters.odr_url)}}'
-          - '--current-datetime'
-          - '{{inputs.parameters.current_datetime}}'
+#
+#    - name: standardise-validate
+#      nodeSelector:
+#        karpenter.sh/capacity-type: 'spot'
+#      inputs:
+#        parameters:
+#          - name: group_id
+#          - name: collection_id
+#          - name: current_datetime
+#          - name: target
+#        artifacts:
+#          - name: group_data
+#            path: /tmp/input/
+#      container:
+#        image: '019359803926.dkr.ecr.ap-southeast-2.amazonaws.com/topo-imagery:{{=sprig.trim(workflow.parameters.version_topo_imagery)}}'
+#        resources:
+#          requests:
+#            memory: 7.8Gi
+#            cpu: 15000m
+#            ephemeral-storage: 29.5Gi
+#        volumeMounts:
+#          - name: ephemeral
+#            mountPath: '/tmp'
+#        args:
+#          - python
+#          - '/app/scripts/standardise_validate.py'
+#          - '--from-file'
+#          - '/tmp/input/{{inputs.parameters.group_id}}.json'
+#          - '--target'
+#          - '{{inputs.parameters.target}}'
+#          - '--preset'
+#          - '{{workflow.parameters.compression}}'
+#          - '--start-datetime'
+#          - '{{=sprig.trim(workflow.parameters.start_datetime)}}'
+#          - '--end-datetime'
+#          - '{{=sprig.trim(workflow.parameters.end_datetime)}}'
+#          - '--collection-id'
+#          - '{{inputs.parameters.collection_id}}'
+#          - '--create-footprints'
+#          - '{{workflow.parameters.create_capture_area}}'
+#          - '--cutline'
+#          - '{{=sprig.trim(workflow.parameters.cutline)}}'
+#          - '--source-epsg'
+#          - '{{=sprig.trim(workflow.parameters.source_epsg)}}'
+#          - '--target-epsg'
+#          - '{{=sprig.trim(workflow.parameters.target_epsg)}}'
+#          - '--gsd'
+#          - '{{=sprig.trim(workflow.parameters.gsd)}}'
+#          - '--odr-url'
+#          - '{{=sprig.trim(workflow.parameters.odr_url)}}'
+#          - '--current-datetime'
+#          - '{{inputs.parameters.current_datetime}}'
 
     - name: create-collection
       nodeSelector:

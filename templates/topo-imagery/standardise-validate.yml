@@ -24,7 +24,6 @@ spec:
           - name: group_id
             description: 'TODO'
             default: ''
-            value: '{{item}}'
 
           - name: odr_url
             description: '(Optional) If an existing dataset add the S3 path to the dataset here to load existing metadata e.g. "s3://nz-imagery/taranaki/new-plymouth_2017_0.1m/rgb/2193/"'
