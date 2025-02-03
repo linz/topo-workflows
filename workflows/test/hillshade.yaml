@@ -1,0 +1,46 @@
+# yaml-language-server: $schema=https://raw.githubusercontent.com/argoproj/argo-workflows/v3.5.5/api/jsonschema/schema.json
+
+apiVersion: argoproj.io/v1alpha1
+kind: Workflow
+metadata:
+  generateName: test-hillshade-
+  labels:
+    linz.govt.nz/category: test
+spec:
+  volumes:
+    - name: ephemeral
+      emptyDir: {}
+  entrypoint: main
+  podMetadata:
+    labels:
+      linz.govt.nz/category: test
+  templates:
+    - name: main
+      dag:
+        tasks:
+          - name: get-location
+            templateRef:
+              name: tpl-get-location
+              template: main
+
+          - name: create-hillshade
+            templateRef:
+              name: test-tpl-create-hillshade
+              template: main
+            arguments:
+              parameters:
+                - name: source
+                  value: 's3://linz-workflows-scratch/pfo/dems/'
+                - name: scale
+                  value: '50000'
+                - name: group
+                  value: '2'
+                - name: version_argo_tasks
+                  value: 'v4'
+                - name: version_topo_imagery
+                  value: 'pr-1253'
+                - name: target
+                  value: '{{=sprig.trimSuffix("/", tasks["get-location"].outputs.parameters.location)}}/flat/'
+                - name: preset
+                  value: '["greyscale", "igor"]'
+            depends: get-location
