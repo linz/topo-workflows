@@ -3,33 +3,38 @@
 apiVersion: argoproj.io/v1alpha1
 kind: WorkflowTemplate
 metadata:
-  name: test-tpl-create-hillshade
+  # Template calling linz/topo-imagery for its main task (generate-hillshade)
+  # see https://github.com/linz/topo-imagery/pull/1253
+  name: tpl-create-hillshade
   labels:
-    linz.govt.nz/category: test
+    linz.govt.nz/category: raster
 spec:
-  parallelism: 50
-  nodeSelector:
-    karpenter.sh/capacity-type: 'spot'
-  entrypoint: main
   templateDefaults:
     container:
       imagePullPolicy: Always
       image: ''
+  entrypoint: main
   templates:
     - name: main
-      retryStrategy:
-        expression: 'false'
       inputs:
         parameters:
           - name: source
+            description: 's3 path to where the TIFF files to generate hillshade from are stored.'
           - name: scale
+            description: 'Scale of the source data.'
           - name: group
+            description: 'Number of tiles to group together.'
           - name: version_argo_tasks
+            description: 'Version of the argo-tasks image to use.'
             default: 'v4'
           - name: version_topo_imagery
+            description: 'Version of the topo-imagery image to use.'
             default: 'v7'
           - name: target
+            description: 's3 path to where the hillshade tiles will be stored. The different hillshade types will be stored in subdirectories using the preset name.'
           - name: preset
+            description: 'List of hillshade types to generate. Expect a list of strings.'
+            default: '["greyscale", "igor"]'
       dag:
         tasks:
           - name: tile-index-validate
@@ -88,8 +93,6 @@ spec:
             depends: 'group'
             withParam: '{{ tasks.group.outputs.parameters.output }}'
 
-      # END TEMPLATE `main`
-
     - name: hillshade-preset
       inputs:
         parameters:
@@ -137,6 +140,7 @@ spec:
             cpu: 15000m
             ephemeral-storage: 29.5Gi
         volumeMounts:
+          # This volume must be defined in the workflow calling this workflowTemplate
           - name: ephemeral
             mountPath: '/tmp'
         args:
@@ -148,7 +152,3 @@ spec:
           - '{{=sprig.trimSuffix("/", inputs.parameters.target)}}/{{inputs.parameters.preset}}/'
           - '--preset'
           - '{{inputs.parameters.preset}}'
-
-  volumes:
-    - name: ephemeral
-      emptyDir: {}
