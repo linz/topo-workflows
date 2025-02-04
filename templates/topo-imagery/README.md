@@ -36,6 +36,14 @@ It allows to generate multiple types of hillshade from the same source of TIFF f
             value: '["greyscale", "igor"]'
 ```
 
+The Workflow caller must have the following volume:
+
+```yaml
+volumes:
+  - name: ephemeral
+    emptyDir: {}
+```
+
 ### Output
 
 The hillshade TIFF files will be saved in a subdirectory for each of the `preset` within the `target` directory.
