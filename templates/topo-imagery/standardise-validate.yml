@@ -117,5 +117,6 @@ spec:
             cpu: 15000m
             ephemeral-storage: 29.5Gi
         volumeMounts:
+          # This volume must be defined in the workflow calling this workflowTemplate
           - name: ephemeral
             mountPath: '/tmp'
