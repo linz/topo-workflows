@@ -22,7 +22,7 @@ spec:
             default: 'v7'
 
           - name: group_id
-            description: 'TODO'
+            description: 'The ID of the group of files to use as the input.'
             default: ''
 
           - name: odr_url
@@ -75,7 +75,6 @@ spec:
 
         artifacts:
           - name: group_data
-            from: '{{ tasks.group.outputs.artifacts.output }}'
             path: /tmp/input/
 
       container:
