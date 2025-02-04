@@ -20,20 +20,20 @@ It allows generating multiple types of hillshade from the same source TIFF files
     template: main
   arguments:
     parameters:
-        - name: source
-            value: 's3://nz-elevation/new-zealand/new-zealand-contour/dem_8m/2193/'
-        - name: scale
-            value: '50000'
-        - name: group
-            value: '2'
-        - name: version_argo_tasks
-            value: 'v4'
-        - name: version_topo_imagery
-            value: 'v7'
-        - name: target
-            value: '{{=sprig.trimSuffix("/", tasks["get-location"].outputs.parameters.location)}}/flat/'
-        - name: preset
-            value: '["greyscale", "igor"]'
+      - name: source
+        value: 's3://nz-elevation/new-zealand/new-zealand-contour/dem_8m/2193/'
+      - name: scale
+        value: '50000'
+      - name: group
+        value: '2'
+      - name: version_argo_tasks
+        value: 'v4'
+      - name: version_topo_imagery
+        value: 'v7'
+      - name: target
+        value: '{{=sprig.trimSuffix("/", tasks["get-location"].outputs.parameters.location)}}/flat/'
+      - name: preset
+        value: '["greyscale", "igor"]'
 ```
 
 The Workflow caller must have the following volume:
