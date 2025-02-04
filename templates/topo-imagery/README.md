@@ -4,12 +4,12 @@
 
 Template for creating hillshades from TIFFs (DEM).  
 See [generate_hillshade.py](https://github.com/linz/topo-imagery/pull/1253)
-This `WorkflowTemplate` is also calling other templates in order to prepare the call of `linz/topo-imagery/generate_hillshade.py` script:
+This `WorkflowTemplate` is also calling other templates in order to create the inputs of the `linz/topo-imagery/generate_hillshade.py` script:
 
 1. `tile-index-validate` to create a list of tiles with their source TIFF files
-2. `group` to split the list created into grouped tiles for parallelism processing
+2. `group` to split the list created into grouped tiles for parallel processing
 
-It allows to generate multiple types of hillshade from the same source of TIFF files as the `preset` parameter expects a list of hillshade presets.
+It allows generating multiple types of hillshade from the same source TIFF files, as the `preset` parameter expects a list of hillshade presets.
 
 ### Template usage
 
