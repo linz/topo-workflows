@@ -8,7 +8,7 @@
 
 Template for TIFF standardisation and non-visual QA.
 
-See [standardise-validate.py](https://github.com/linz/topo-imagery/scripts/standardise_validate.py)
+See [standardise-validate.py](https://github.com/linz/topo-imagery/blob/master/scripts/standardise_validate.py)
 
 ### Template usage
 ```yaml

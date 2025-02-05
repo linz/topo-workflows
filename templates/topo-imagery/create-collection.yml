@@ -4,7 +4,7 @@ apiVersion: argoproj.io/v1alpha1
 kind: WorkflowTemplate
 metadata:
   # Template from https://github.com/linz/topo-imagery
-  # see https://github.com/linz/topo-imagery/blob/master/scripts/standardise_validate.py
+  # see https://github.com/linz/topo-imagery/scripts/standardise_validate.py
   name: tpl-ti-standardise-validate
 spec:
   templateDefaults:
