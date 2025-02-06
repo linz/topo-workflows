@@ -437,6 +437,8 @@ spec:
                   value: '{{=sprig.trim(workflow.parameters.source_epsg)}}'
                 - name: target_epsg
                   value: '{{=sprig.trim(workflow.parameters.target_epsg)}}'
+                - name: version
+                  value: '{{= workflow.parameters.version_topo_imagery}}'
               artifacts:
                 - name: group_data
                   from: '{{ tasks.group.outputs.artifacts.output }}'
