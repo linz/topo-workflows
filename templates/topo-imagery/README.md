@@ -22,14 +22,16 @@ See [standardise_validate.py](https://github.com/linz/topo-imagery/blob/master/s
     parameters:
       - name: group_id
         value: '{{item}}'
-      - name: odr_url
-        value: '{{=sprig.trim(workflow.parameters.odr_url)}}'
       - name: collection_id
         value: '{{tasks.stac-setup.outputs.parameters.collection_id}}'
-      - name: compression
-        value: '{{= workflow.parameters.compression}}'
       - name: current_datetime
         value: '{{tasks.stac-setup.finishedAt}}'
+      - name: target
+        value: '{{=sprig.trimSuffix("/", tasks["get-location"].outputs.parameters.location)}}/flat/'
+      - name: compression
+        value: '{{= workflow.parameters.compression}}'
+      - name: odr_url
+        value: '{{=sprig.trim(workflow.parameters.odr_url)}}'
       - name: start_datetime
         value: '{{=sprig.trim(workflow.parameters.start_datetime)}}'
       - name: end_datetime
@@ -40,8 +42,6 @@ See [standardise_validate.py](https://github.com/linz/topo-imagery/blob/master/s
         value: '{{=sprig.trim(workflow.parameters.cutline)}}'
       - name: gsd
         value: '{{=sprig.trim(workflow.parameters.gsd)}}'
-      - name: target
-        value: '{{=sprig.trimSuffix("/", tasks["get-location"].outputs.parameters.location)}}/flat/'
       - name: source_epsg
         value: '{{=sprig.trim(workflow.parameters.source_epsg)}}'
       - name: target_epsg
@@ -80,12 +80,12 @@ See [collection_from_items.py](https://github.com/linz/topo-imagery/blob/master/
         value: '{{tasks.stac-setup.outputs.parameters.collection_id}}'
       - name: linz_slug
         value: '{{tasks.stac-setup.outputs.parameters.linz_slug}}'
-      - name: odr_url
-        value: '{{=sprig.trim(workflow.parameters.odr_url)}}'
       - name: location
         value: '{{tasks.get-location.outputs.parameters.location}}'
       - name: current_datetime
         value: '{{tasks.stac-setup.finishedAt}}'
+      - name: odr_url
+        value: '{{=sprig.trim(workflow.parameters.odr_url)}}'
       - name: category
         value: '{{=sprig.trim(workflow.parameters.category)}}'
       - name: region
