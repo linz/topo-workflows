@@ -12,6 +12,7 @@ Template for TIFF standardisation and non-visual QA.
 See [standardise_validate.py](https://github.com/linz/topo-imagery/blob/master/scripts/standardise_validate.py)
 
 ### Template usage
+
 ```yaml
 - name: standardise-validate
   templateRef:
@@ -67,6 +68,7 @@ Template for TIFF standardisation and non-visual QA.
 See [collection_from_items.py](https://github.com/linz/topo-imagery/blob/master/scripts/collection_from_items.py)
 
 ### Template usage
+
 ```yaml
 - name: create-collection
   templateRef:
@@ -108,3 +110,4 @@ See [collection_from_items.py](https://github.com/linz/topo-imagery/blob/master/
         value: '{{=sprig.trim(workflow.parameters.licensor_list)}}'
       - name: version
         value: '{{= workflow.parameters.version_argo_tasks}}'
+```
