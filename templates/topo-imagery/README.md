@@ -63,7 +63,8 @@ volumes:
 
 ## topo-imagery/create-collection - `tpl-ti-create-collection`
 
-Template for TIFF standardisation and non-visual QA.
+Template for creating a STAC collection from existing STAC items and asset TIFFs.
+If TIFF footprint files exist, a `capture-area.geojson` output artifact will be created.
 
 See [collection_from_items.py](https://github.com/linz/topo-imagery/blob/master/scripts/collection_from_items.py)
 
