@@ -47,7 +47,7 @@ See [standardise_validate.py](https://github.com/linz/topo-imagery/blob/master/s
         value: '{{=sprig.trim(workflow.parameters.source_epsg)}}'
       - name: target_epsg
         value: '{{=sprig.trim(workflow.parameters.target_epsg)}}'
-      - name: version
+      - name: version_topo_imagery
         value: '{{= workflow.parameters.version_topo_imagery}}'
     artifacts:
       - name: group_data
@@ -110,7 +110,7 @@ See [collection_from_items.py](https://github.com/linz/topo-imagery/blob/master/
         value: '{{workflow.parameters.licensor}}'
       - name: licensor_list
         value: '{{=sprig.trim(workflow.parameters.licensor_list)}}'
-      - name: version
+      - name: version_topo_imagery
         value: '{{= workflow.parameters.version_argo_tasks}}'
 ```
 
