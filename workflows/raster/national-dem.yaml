@@ -152,7 +152,7 @@ spec:
                   value: '2193'
                 - name: target_epsg
                   value: '2193'
-                - name: version
+                - name: version_topo_imagery
                   value: '{{= workflow.parameters.version_topo_imagery}}'
               artifacts:
                 - name: group_data

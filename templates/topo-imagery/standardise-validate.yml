@@ -97,7 +97,7 @@ spec:
           - '--collection-id'
           - '{{inputs.parameters.collection_id}}'
           - '--create-footprints'
-          - '{{workflow.parameters.create_capture_area}}'
+          - '{{inputs.parameters.create_capture_area}}'
           - '--cutline'
           - '{{=sprig.trim(inputs.parameters.cutline)}}'
           - '--source-epsg'
