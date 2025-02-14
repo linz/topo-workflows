@@ -60,10 +60,6 @@ spec:
             description: '(Optional) Event name if dataset has been captured in association with an event, e.g. "Top of the South Floods"'
             default: ''
 
-          - name: add_title_suffix
-            description: 'Add a title suffix to the collection title based on the lifecycle. For example, "[TITLE] - Preview"'
-            default: 'true'
-
           - name: historic_survey_number
             description: '(Optional) Survey Number associated with historical datasets, e.g. "SN8844"'
             default: ''
@@ -71,6 +67,10 @@ spec:
           - name: lifecycle
             description: 'The release lifecycle status of the dataset, e.g. "completed or "ongoing"'
             default: ''
+
+          - name: add_title_suffix
+            description: 'Add a title suffix to the collection title based on the lifecycle. For example, "[TITLE] - Preview"'
+            default: 'false'
 
           - name: producer
             description: 'The producer of the source dataset, e.g. aerial or bathymetric survey company'
@@ -87,6 +87,10 @@ spec:
           - name: licensor_list
             description: '(Optional) List of imagery licensors, separated by semicolon (;). Has no effect unless a semicolon delimited list is entered.'
             default: ''
+
+          - name: create_capture_dates
+            description: 'Add a capture-dates.geojson.gz file to the collection assets'
+            default: 'false'
 
       outputs:
         artifacts:
@@ -125,6 +129,8 @@ spec:
           - '{{=sprig.trim(inputs.parameters.lifecycle)}}'
           - '--add-title-suffix'
           - '{{=sprig.trim(inputs.parameters.add_title_suffix)}}'
+          - '--capture-dates'
+          - '{{=sprig.trim(inputs.parameters.create_capture_dates}}'
           - '--producer'
           - '{{inputs.parameters.producer}}'
           - '--producer-list'

@@ -102,6 +102,8 @@ See [collection_from_items.py](https://github.com/linz/topo-imagery/blob/master/
         value: '{{=sprig.trim(workflow.parameters.historic_survey_number)}}'
       - name: lifecycle
         value: '{{=sprig.trim(workflow.parameters.lifecycle)}}'
+      - name: add_title_suffix
+        value: 'true'
       - name: producer
         value: '{{workflow.parameters.producer}}'
       - name: producer_list
@@ -110,6 +112,8 @@ See [collection_from_items.py](https://github.com/linz/topo-imagery/blob/master/
         value: '{{workflow.parameters.licensor}}'
       - name: licensor_list
         value: '{{=sprig.trim(workflow.parameters.licensor_list)}}'
+      - name: create_capture_dates
+        value: 'false'
       - name: version_topo_imagery
         value: '{{= workflow.parameters.version_argo_tasks}}'
 ```

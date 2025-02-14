@@ -184,12 +184,12 @@ spec:
                   value: '1'
                 - name: lifecycle
                   value: 'ongoing'
-                - name: add_title_suffix
-                  value: 'false'
                 - name: producer
                   value: 'Toitū Te Whenua Land Information New Zealand'
                 - name: licensor
                   value: 'Toitū Te Whenua Land Information New Zealand'
+                - name: create_capture_dates
+                  value: 'true'
                 - name: version_topo_imagery
                   value: '{{= workflow.parameters.version_topo-imagery}}'
             depends: 'standardise-validate.Succeeded'

@@ -475,6 +475,8 @@ spec:
                   value: '{{=sprig.trim(workflow.parameters.historic_survey_number)}}'
                 - name: lifecycle
                   value: '{{=sprig.trim(workflow.parameters.lifecycle)}}'
+                - name: add_title_suffix
+                  value: 'true'
                 - name: producer
                   value: '{{workflow.parameters.producer}}'
                 - name: producer_list
