@@ -60,6 +60,10 @@ spec:
             description: '(Optional) Event name if dataset has been captured in association with an event, e.g. "Top of the South Floods"'
             default: ''
 
+          - name: add_title_suffix
+            description: 'Add a title suffix to the collection title based on the lifecycle. For example, "[TITLE] - Preview"'
+            default: 'true'
+
           - name: historic_survey_number
             description: '(Optional) Survey Number associated with historical datasets, e.g. "SN8844"'
             default: ''
@@ -120,6 +124,7 @@ spec:
           - '--lifecycle'
           - '{{=sprig.trim(inputs.parameters.lifecycle)}}'
           - '--add-title-suffix'
+          - '{{=sprig.trim(inputs.parameters.add_title_suffix)}}'
           - '--producer'
           - '{{inputs.parameters.producer}}'
           - '--producer-list'
