@@ -130,7 +130,7 @@ spec:
           - '--add-title-suffix'
           - '{{=sprig.trim(inputs.parameters.add_title_suffix)}}'
           - '--capture-dates'
-          - '{{=sprig.trim(inputs.parameters.create_capture_dates}}'
+          - '{{=sprig.trim(inputs.parameters.create_capture_dates)}}'
           - '--producer'
           - '{{inputs.parameters.producer}}'
           - '--producer-list'
