@@ -485,8 +485,8 @@ spec:
                   value: '{{workflow.parameters.licensor}}'
                 - name: licensor_list
                   value: '{{=sprig.trim(workflow.parameters.licensor_list)}}'
-                - name: version
-                  value: '{{= workflow.parameters.version_topo-imagery}}'
+                - name: version_topo_imagery
+                  value: '{{= workflow.parameters.version_topo_imagery}}'
             depends: 'standardise-validate'
 
           - name: stac-validate
