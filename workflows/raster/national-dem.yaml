@@ -191,7 +191,7 @@ spec:
                 - name: create_capture_dates
                   value: 'true'
                 - name: version_topo_imagery
-                  value: '{{= workflow.parameters.version_topo-imagery}}'
+                  value: '{{= workflow.parameters.version_topo_imagery}}'
             depends: 'standardise-validate.Succeeded'
 
           - name: stac-validate
