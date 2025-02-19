@@ -5,7 +5,7 @@ kind: WorkflowTemplate
 metadata:
   # Template from linz/argo-tasks
   # see https://github.com/linz/argo-tasks#tileindex-validate
-  name: tpl-at-tile-index-validate
+  name: test-tpl-at-tile-index-validate
 spec:
   templateDefaults:
     container:
@@ -30,6 +30,10 @@ spec:
           - name: include
             description: Limit the input list to this regexp
             default: ''
+
+          - name: includeDerived
+            description: Sets includeDerived=true/false in file-list.json
+            default: 'false'
 
           - name: validate
             description: Validate that all input tiffs perfectly align to tile grid
@@ -85,6 +89,7 @@ spec:
           - '--preset={{= inputs.parameters.preset }}'
           - "{{= sprig.empty(inputs.parameters.source_epsg) ? '' : '--source-epsg=' + inputs.parameters.source_epsg }}"
           - "{{= sprig.empty(inputs.parameters.include) ? '' : '--include=' + inputs.parameters.include }}"
+          - '--includeDerived={{= inputs.parameters.includeDerived }}'
           - '{{= sprig.trim(inputs.parameters.source) }}'
         resources:
           requests:

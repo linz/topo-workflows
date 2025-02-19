@@ -120,6 +120,136 @@ spec:
                   from: '{{inputs.artifacts.group_data}}'
             withParam: '{{inputs.parameters.preset}}'
 
+          - name: standardise-validate
+            templateRef:
+              name: tpl-ti-standardise-validate
+              template: main
+            arguments:
+              parameters:
+                - name: group_id
+                  value: '{{item}}'
+                - name: collection_id
+                  value: '{{tasks.hs-stac-setup.outputs.parameters.collection_id}}'
+                - name: current_datetime
+                  value: '{{tasks.stac-setup.finishedAt}}'
+                - name: target
+                  value: '{{=sprig.trimSuffix("/", tasks["get-location"].outputs.parameters.location)}}/hillshades/igor/'
+                - name: odr_url
+                  value: '{{=sprig.trim(workflow.parameters.odr_url)}}'
+                - name: compression
+                  value: '{{=sprig.trim(workflow.parameters.compression)}}'
+                - name: create_capture_area
+                  value: '{{=sprig.trim(workflow.parameters.create_capture_area)}}'
+                - name: gsd
+                  value: '{{=sprig.trim(workflow.parameters.gsd)}}'
+                - name: source_epsg
+                  value: '{{=sprig.trim(workflow.parameters.source_epsg)}}'
+                - name: target_epsg
+                  value: '{{=sprig.trim(workflow.parameters.target_epsg)}}'
+                - name: version_topo_imagery
+                  value: '{{= workflow.parameters.version_topo_imagery}}'
+              artifacts:
+                - name: group_data
+                  from: '{{ tasks.hs-group.outputs.artifacts.output }}'
+            depends: 'hs-stac-setup.Succeeded && get-location.Succeeded'
+            withParam: '{{ tasks.hs-group.outputs.parameters.output }}'
+
+          - name: hs-create-collection
+            templateRef:
+              name: tpl-ti-create-collection
+              template: main
+            arguments:
+              parameters:
+                - name: collection_id
+                  value: '{{tasks.hs-stac-setup.outputs.parameters.collection_id}}'
+                - name: linz_slug
+                  value: '{{tasks.hs-stac-setup.outputs.parameters.linz_slug}}'
+                - name: location
+                  value: '{{tasks.get-location.outputs.parameters.location}}'
+                - name: current_datetime
+                  value: '{{tasks.stac-setup.finishedAt}}'  # not hs-stac-setup
+                - name: odr_url
+                  value: '{{=sprig.trim(workflow.parameters.odr_url)}}'  # TODO: does this need a hs-specific odr_url?
+                - name: category
+                  value: 'dem'  # todo: parameterise
+                - name: region
+                  value: 'new-zealand'
+                - name: gsd
+                  value: '1'
+                - name: lifecycle
+                  value: 'ongoing'
+                - name: producer
+                  value: 'Toitū Te Whenua Land Information New Zealand'
+                - name: licensor
+                  value: 'Toitū Te Whenua Land Information New Zealand'
+                - name: create_capture_dates
+                  value: 'true'
+                - name: version_topo_imagery
+                  value: '{{= workflow.parameters.version_topo_imagery}}'
+            depends: 'hs-standardise-validate.Succeeded'
+
+          - name: hs-stac-validate
+            templateRef:
+              name: tpl-at-stac-validate
+              template: main
+            arguments:
+              parameters:
+                - name: uri
+                  value: '{{=sprig.trimSuffix("/", tasks["get-location"].outputs.parameters.location)}}/hillshades/collection.json'
+              artifacts:
+                - name: stac-result
+                  raw:
+                    data: '{{tasks.hs-stac-validate.outputs.result}}'
+            depends: 'hs-create-collection'
+
+          #          - name: hs-get-location
+          #            templateRef:
+          #              name: tpl-get-location
+          #              template: main
+
+          - name: hs-create-overview
+            # when: "'{{workflow.parameters.target_epsg}}' =~ '2193|3857' && '{{workflow.parameters.compression}}' != 'dem_lerc'"
+            arguments:
+              parameters:
+                - name: location
+                  value: '{{tasks.get-location.outputs.parameters.location}}/hillshades/igor/'
+            template: create-overview
+            depends: 'hs-standardise-validate'
+
+          #
+          #          - name: hs-create-config
+          #            when: "'{{workflow.parameters.target_epsg}}' =~ '2193|3857'"
+          #            arguments:
+          #              parameters:
+          #                - name: location
+          #                  value: '{{tasks.get-location.outputs.parameters.location}}'
+          #                - name: bucket
+          #                  value: '{{tasks.get-location.outputs.parameters.bucket}}'
+          #                - name: key
+          #                  value: '{{tasks.get-location.outputs.parameters.key}}'
+          #            template: create-config
+          #            depends: 'hs-create-overview'
+
+          - name: hs-publish-odr
+            templateRef:
+              name: publish-odr
+              template: main
+            when: "'{{workflow.parameters.publish_to_odr}}' == 'true'"
+            arguments:
+              parameters:
+                - name: source
+                  ## TODO: FIX IGOR
+                  value: '{{=sprig.trimSuffix("/", tasks["get-location"].outputs.parameters.location)}}/hillshades/igor/'
+                - name: target_bucket_name
+                  value: '{{workflow.parameters.target_bucket_name}}'
+                - name: copy_option
+                  value: '{{workflow.parameters.copy_option}}'
+                - name: ticket
+                  value: '{{=sprig.trim(workflow.parameters.ticket)}}'
+            depends: 'hs-stac-validate && create-config'
+
+
+
     - name: generate-hillshade
       nodeSelector:
         karpenter.sh/capacity-type: 'spot'
