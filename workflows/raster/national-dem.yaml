@@ -3,7 +3,7 @@
 apiVersion: argoproj.io/v1alpha1
 kind: WorkflowTemplate
 metadata:
-  name: national-dem
+  name: test-hs-national-dem
   labels:
     linz.govt.nz/category: raster
     linz.govt.nz/data-type: raster
@@ -53,6 +53,12 @@ spec:
         enum:
           - 'false'
           - 'true'
+      - name: generate_hillshade
+        description: 'Create hillshade products derived from the supplied elevation data'
+        value: 'false'
+        enum:
+          - 'false'
+          - 'true'
       - name: copy_option
         description: 'Do not overwrite existing files with "no-clobber", "force" overwriting files in the target location, or "force-no-clobber" overwriting only changed files, skipping unchanged files'
         value: '--force-no-clobber'
@@ -60,6 +66,42 @@ spec:
           - '--no-clobber'
           - '--force'
           - '--force-no-clobber'
+      # TODO: Move these to the main template args instead of workflow arguments
+      - name: compression
+        value: 'dem_lerc'
+      - name: create_capture_area
+        value: 'true'
+        enum:
+          - 'false'
+          - 'true'
+      - name: gsd
+        value: '1'
+      - name: source_epsg
+        value: '2193'
+      - name: target_epsg
+        value: '2193'
+      - name: include
+        description: 'Regular expression pattern match for paths/files to include e.g ".tiff?$"'
+        value: '.tiff?$'
+      - name: scale
+        description: 'Scale of the standardised output imagery'
+        value: '50000'
+        enum:
+          - '500'
+          - '1000'
+          - '2000'
+          - '5000'
+          - '10000'
+          - '50000'
+          - 'None'
+      - name: target_bucket_name
+        description: 'The ODR bucket name to publish to'
+        value: 'nz-elevation'
+        enum:
+          - 'nz-imagery'
+          - 'nz-elevation'
+      - name: region
+        value: 'new-zealand'
   templateDefaults:
     container:
       imagePullPolicy: Always
@@ -115,7 +157,7 @@ spec:
                 - name: gsd
                   value: '1'
                 - name: region
-                  value: 'new zealand'
+                  value: '{{= workflow.parameters.region}}'
                 - name: geospatial_category
                   value: 'dem'
                 - name: odr_url
@@ -127,7 +169,9 @@ spec:
             depends: 'group.Succeeded'
 
           - name: standardise-validate
-            template: standardise-validate
+            templateRef:
+              name: tpl-ti-standardise-validate
+              template: main
             arguments:
               parameters:
                 - name: group_id
@@ -138,14 +182,311 @@ spec:
                   value: '{{tasks.stac-setup.finishedAt}}'
                 - name: target
                   value: '{{=sprig.trimSuffix("/", tasks["get-location"].outputs.parameters.location)}}/flat/'
+                - name: odr_url
+                  value: '{{=sprig.trim(workflow.parameters.odr_url)}}'
+                - name: compression
+                  value: '{{=sprig.trim(workflow.parameters.compression)}}'
+                - name: create_capture_area
+                  value: '{{=sprig.trim(workflow.parameters.create_capture_area)}}'
+                - name: gsd
+                  value: '{{=sprig.trim(workflow.parameters.gsd)}}'
+                - name: source_epsg
+                  value: '{{=sprig.trim(workflow.parameters.source_epsg)}}'
+                - name: target_epsg
+                  value: '{{=sprig.trim(workflow.parameters.target_epsg)}}'
+                - name: version_topo_imagery
+                  value: '{{= workflow.parameters.version_topo_imagery}}'
               artifacts:
                 - name: group_data
                   from: '{{ tasks.group.outputs.artifacts.output }}'
             depends: 'stac-setup.Succeeded && get-location.Succeeded'
             withParam: '{{ tasks.group.outputs.parameters.output }}'
 
+          - name: generate-hillshade
+            templateRef:
+              name: tpl-create-hillshade
+              template: main
+            when: "'{{workflow.parameters.generate_hillshade}}' == 'true'"
+            arguments:
+              parameters:
+                - name: source
+                  value: '{{=sprig.trimSuffix("/", tasks["get-location"].outputs.parameters.location)}}/flat/'
+                - name: scale
+                  value: '{{= workflow.parameters.scale}}'
+                - name: group
+                  value: '{{= workflow.parameters.group}}'
+                - name: version_argo_tasks
+                  value: '{{= workflow.parameters.version_argo_tasks}}'
+                - name: version_topo_imagery
+                  value: '{{= workflow.parameters.version_topo_imagery}}'
+                - name: target
+                  value: '{{=sprig.trimSuffix("/", tasks["get-location"].outputs.parameters.location)}}/hillshades/'
+#                - name: presets
+#                  default: '["greyscale", "igor"]'
+#
+            #              artifacts:
+            #                - name: group_data
+            #                  from: '{{ tasks.group.outputs.artifacts.output }}'
+            depends: 'standardise-validate.Succeeded'
+          #            withParam: '{{ tasks.group.outputs.artifacts.output }}'
+
+          ############################### START NEW STUFF
+
+          - name: hs-stac-setup
+            templateRef:
+              name: tpl-at-stac-setup
+              template: main
+            arguments:
+              parameters:
+#                - name: start_datetime
+#                  value: '{{=sprig.trim(inputs.parameters.start_datetime)}}'
+#                - name: end_datetime
+#                  value: '{{=sprig.trim(inputs.parameters.end_datetime)}}'
+                - name: gsd
+                  value: '{{=sprig.trim(workflow.parameters.gsd)}}'
+                - name: region
+                  value: '{{=sprig.trim(workflow.parameters.region)}}'
+#                - name: geographic_description
+#                  value: '{{=sprig.trim(workflow.parameters.geographic_description)}}'
+                - name: geospatial_category
+#                  value: '{{=sprig.trim(workflow.parameters.geospatial_category)}}'
+                  value: 'dem-hillshade-igor'  # Todo: fix this igor and parameterise
+                - name: odr_url
+                  value: '{{=sprig.trim(workflow.parameters.odr_url)}}'
+                - name: version
+                  value: '{{=sprig.trim(workflow.parameters.version_argo_tasks)}}'
+            depends: 'generate-hillshade.Succeeded'
+
+          - name: hs-tile-index-validate  # TODO: this needs to be able to accept the 8m base layer plus new layer as a source
+#            template: create-mapsheet
+#            arguments:
+#              parameters:
+#                - name: config_file
+#                  value: '{{workflow.parameters.config_file}}'
+#                - name: compare
+#                  # Workaround --compare with empty value will fail so we add the flag inside the input parameter
+#                  value: '{{= workflow.parameters.odr_url == "" ? "" : "--compare=" + sprig.trimSuffix("/", workflow.parameters.odr_url) + "/collection.json" }}'
+#                - name: bucket
+#                  value: '{{tasks.get-location.outputs.parameters.bucket}}'
+#                - name: key
+#                  value: '{{tasks.get-location.outputs.parameters.key}}'
+#            depends: 'hs-stac-setup'
+#            depends: 'get-location.Succeeded'
+            templateRef:
+              name: test-tpl-at-tile-index-validate
+              template: main
+            arguments:
+              parameters:
+                - name: scale
+                  value: '{{workflow.parameters.scale}}'
+                - name: include
+                  value: '{{workflow.parameters.include}}'
+                - name: source
+                  value: '{{=sprig.trimSuffix("/", tasks["get-location"].outputs.parameters.location)}}/flat/'
+                - name: source_epsg
+                  value: '{{=sprig.trim(workflow.parameters.source_epsg)}}'
+                - name: validate
+                  value: 'false'
+                - name: retile
+                  value: 'true'
+                - name: preset
+                  value: 'dem_lerc'
+                - name: version
+                  value: '{{= workflow.parameters.version_argo_tasks}}'
+                - name: includeDerived
+                  value: 'true'
+            depends: 'hs-stac-setup'
+
+          - name: hs-group
+            templateRef:
+              name: tpl-at-group
+              template: main
+            arguments:
+              artifacts:
+                - name: input
+                  from: '{{ tasks.hs-tile-index-validate.outputs.artifacts.files }}'
+              parameters:
+                - name: size
+                  value: '{{workflow.parameters.group}}'
+                - name: version
+                  value: '{{= workflow.parameters.version_argo_tasks}}'
+            depends: 'hs-tile-index-validate.Succeeded'
+#            when: "{{= len(sprig.fromJson(tasks['hs-tile-index-validate'].outputs.parameters.files)) > 0 }}"
+
+          - name: hs-standardise-validate
+            templateRef:
+              name: tpl-ti-standardise-validate
+              template: main
+            arguments:
+              parameters:
+                - name: group_id
+                  value: '{{item}}'
+                - name: collection_id
+                  value: '{{tasks.hs-stac-setup.outputs.parameters.collection_id}}'
+                - name: current_datetime
+                  value: '{{tasks.stac-setup.finishedAt}}'
+                - name: target
+                  value: '{{=sprig.trimSuffix("/", tasks["get-location"].outputs.parameters.location)}}/hillshades/igor/'
+                - name: odr_url
+                  value: '{{=sprig.trim(workflow.parameters.odr_url)}}'
+                - name: compression
+                  value: '{{=sprig.trim(workflow.parameters.compression)}}'
+                - name: create_capture_area
+                  value: '{{=sprig.trim(workflow.parameters.create_capture_area)}}'
+                - name: gsd
+                  value: '{{=sprig.trim(workflow.parameters.gsd)}}'
+                - name: source_epsg
+                  value: '{{=sprig.trim(workflow.parameters.source_epsg)}}'
+                - name: target_epsg
+                  value: '{{=sprig.trim(workflow.parameters.target_epsg)}}'
+                - name: version_topo_imagery
+                  value: '{{= workflow.parameters.version_topo_imagery}}'
+              artifacts:
+                - name: group_data
+                  from: '{{ tasks.hs-group.outputs.artifacts.output }}'
+            depends: 'hs-group.Succeeded && hs-stac-setup.Succeeded && get-location.Succeeded'
+            withParam: '{{ tasks.hs-group.outputs.parameters.output }}'
+
+          - name: hs-create-collection
+            templateRef:
+              name: test-tpl-ti-create-collection
+              template: main
+            arguments:
+              parameters:
+                - name: collection_id
+                  value: '{{tasks.hs-stac-setup.outputs.parameters.collection_id}}'
+                - name: linz_slug
+                  value: '{{tasks.hs-stac-setup.outputs.parameters.linz_slug}}'
+                - name: location
+                  value: '{{=sprig.trimSuffix("/", tasks["get-location"].outputs.parameters.location)}}/hillshades/igor/' # todo: fix this for non-igor
+                - name: current_datetime
+                  value: '{{tasks.stac-setup.finishedAt}}'  # not hs-stac-setup
+                - name: odr_url
+                  value: '{{=sprig.trim(workflow.parameters.odr_url)}}'  # TODO: does this need a hs-specific odr_url?
+                - name: category
+                  value: 'dem-hillshade-igor'  # todo: parameterise
+                - name: region
+                  value: '{{=sprig.trim(workflow.parameters.region)}}'
+                - name: gsd
+                  value: '1'
+                - name: lifecycle
+                  value: 'ongoing'
+                - name: producer
+                  value: 'Toitū Te Whenua Land Information New Zealand'
+                - name: licensor
+                  value: 'Toitū Te Whenua Land Information New Zealand'
+                - name: create_capture_dates
+                  value: 'false'
+                - name: version_topo_imagery
+                  value: '{{= workflow.parameters.version_topo_imagery}}'
+            depends: 'hs-standardise-validate.Succeeded'
+
+          - name: hs-stac-validate
+            templateRef:
+              name: tpl-at-stac-validate
+              template: main
+            arguments:
+              parameters:
+                - name: uri
+                  value: '{{=sprig.trimSuffix("/", tasks["get-location"].outputs.parameters.location)}}/hillshades/igor/collection.json'
+              artifacts:
+                - name: stac-result
+                  raw:
+                    data: '{{tasks.hs-stac-validate.outputs.result}}'
+            depends: 'hs-create-collection'
+
+#          - name: hs-get-location
+#            templateRef:
+#              name: tpl-get-location
+#              template: main
+
+          - name: hs-create-overview
+            # when: "'{{workflow.parameters.target_epsg}}' =~ '2193|3857' && '{{workflow.parameters.compression}}' != 'dem_lerc'"
+            arguments:
+              parameters:
+                - name: location
+                  value: '{{tasks.get-location.outputs.parameters.location}}/hillshades/igor/'
+            template: create-overview
+            depends: 'hs-standardise-validate'
+
+#
+#          - name: hs-create-config
+#            when: "'{{workflow.parameters.target_epsg}}' =~ '2193|3857'"
+#            arguments:
+#              parameters:
+#                - name: location
+#                  value: '{{tasks.get-location.outputs.parameters.location}}'
+#                - name: bucket
+#                  value: '{{tasks.get-location.outputs.parameters.bucket}}'
+#                - name: key
+#                  value: '{{tasks.get-location.outputs.parameters.key}}'
+#            template: create-config
+#            depends: 'hs-create-overview'
+
+          - name: hs-publish-odr
+            templateRef:
+              name: publish-odr
+              template: main
+            when: "'{{workflow.parameters.publish_to_odr}}' == 'true'"
+            arguments:
+              parameters:
+                - name: source
+                  ## TODO: FIX IGOR
+                  value: '{{=sprig.trimSuffix("/", tasks["get-location"].outputs.parameters.location)}}/hillshades/igor/'
+                - name: target_bucket_name
+                  value: '{{workflow.parameters.target_bucket_name}}'
+                - name: copy_option
+                  value: '{{workflow.parameters.copy_option}}'
+                - name: ticket
+                  value: '{{=sprig.trim(workflow.parameters.ticket)}}'
+            depends: 'hs-stac-validate && create-config'
+
+
+
+          ############################### END NEW STUFF
+
+
+
+#
+#
+#          - name: hillshade-standardise
+#            templateRef:
+#              name: imagery-standardising
+#              template: main
+#            arguments:
+#              parameters:
+#                - name: group_id
+#                  value: '{{item}}'
+#                - name: collection_id
+#                  value: '{{tasks.stac-setup.outputs.parameters.collection_id}}'
+#                - name: current_datetime
+#                  value: '{{tasks.stac-setup.finishedAt}}'
+#                - name: target
+#                  value: '{{=sprig.trimSuffix("/", tasks["get-location"].outputs.parameters.location)}}/hillshade/'
+#                - name: odr_url
+#                  value: '{{=sprig.trim(workflow.parameters.odr_url)}}'
+#                - name: compression
+#                  value: 'dem_lerc'
+#                - name: create_capture_area
+#                  value: 'true'
+#                - name: gsd
+#                  value: '1'
+#                - name: source_epsg
+#                  value: '2193'
+#                - name: target_epsg
+#                  value: '2193'
+#                - name: version_topo_imagery
+#                  value: '{{= workflow.parameters.version_topo_imagery}}'
+#              artifacts:
+#                - name: group_data
+#                  from: '{{ tasks.group.outputs.artifacts.output }}'
+#            depends: 'generate-hillshade.Succeeded'
+#            withParam: '{{ tasks.group.outputs.parameters.output }}'
+
           - name: create-collection
-            template: create-collection
+            templateRef:
+              name: tpl-ti-create-collection
+              template: main
             arguments:
               parameters:
                 - name: collection_id
@@ -156,6 +497,24 @@ spec:
                   value: '{{tasks.get-location.outputs.parameters.location}}'
                 - name: current_datetime
                   value: '{{tasks.stac-setup.finishedAt}}'
+                - name: odr_url
+                  value: '{{=sprig.trim(workflow.parameters.odr_url)}}'
+                - name: category
+                  value: 'dem'
+                - name: region
+                  value: '{{=sprig.trim(workflow.parameters.region)}}'
+                - name: gsd
+                  value: '1'
+                - name: lifecycle
+                  value: 'ongoing'
+                - name: producer
+                  value: 'Toitū Te Whenua Land Information New Zealand'
+                - name: licensor
+                  value: 'Toitū Te Whenua Land Information New Zealand'
+                - name: create_capture_dates
+                  value: 'true'
+                - name: version_topo_imagery
+                  value: '{{= workflow.parameters.version_topo_imagery}}'
             depends: 'standardise-validate.Succeeded'
 
           - name: stac-validate
@@ -267,107 +626,6 @@ spec:
             archive:
               none: {}
 
-    - name: standardise-validate
-      nodeSelector:
-        karpenter.sh/capacity-type: 'spot'
-      inputs:
-        parameters:
-          - name: group_id
-          - name: collection_id
-          - name: current_datetime
-          - name: target
-        artifacts:
-          - name: group_data
-            path: /tmp/input/
-      container:
-        image: '019359803926.dkr.ecr.ap-southeast-2.amazonaws.com/topo-imagery:{{=sprig.trim(workflow.parameters.version_topo_imagery)}}'
-        resources:
-          requests:
-            memory: 7.8Gi
-            cpu: 15000m
-            ephemeral-storage: 3Gi
-        volumeMounts:
-          - name: ephemeral
-            mountPath: '/tmp'
-        args:
-          - python
-          - '/app/scripts/standardise_validate.py'
-          - '--from-file'
-          - '/tmp/input/{{inputs.parameters.group_id}}.json'
-          - '--target'
-          - '{{inputs.parameters.target}}'
-          - '--preset'
-          - 'dem_lerc'
-          - '--collection-id'
-          - '{{inputs.parameters.collection_id}}'
-          - '--create-footprints'
-          - 'true'
-          - '--source-epsg'
-          - '2193'
-          - '--target-epsg'
-          - '2193'
-          - '--gsd'
-          - '1'
-          - '--odr-url'
-          - '{{=sprig.trim(workflow.parameters.odr_url)}}'
-          - '--current-datetime'
-          - '{{inputs.parameters.current_datetime}}'
-
-    - name: create-collection
-      nodeSelector:
-        karpenter.sh/capacity-type: 'spot'
-      inputs:
-        parameters:
-          - name: collection_id
-          - name: linz_slug
-          - name: location
-          - name: current_datetime
-      outputs:
-        artifacts:
-          - name: capture-area
-            path: '/tmp/capture-area.geojson'
-            optional: true
-            archive:
-              none: {}
-      container:
-        image: '019359803926.dkr.ecr.ap-southeast-2.amazonaws.com/topo-imagery:{{=sprig.trim(workflow.parameters.version_topo_imagery)}}'
-        resources:
-          requests:
-            memory: 7.8Gi
-            cpu: 15000m
-        args:
-          - python
-          - '/app/scripts/collection_from_items.py'
-          - '--uri'
-          - '{{=sprig.trimSuffix("/", inputs.parameters.location)}}/flat/'
-          - '--collection-id'
-          - '{{inputs.parameters.collection_id}}'
-          - '--linz-slug'
-          - '{{inputs.parameters.linz_slug}}'
-          - '--odr-url'
-          - '{{=sprig.trim(workflow.parameters.odr_url)}}'
-          - '--category'
-          - 'dem'
-          - '--region'
-          - 'new-zealand'
-          - '--gsd'
-          - '1'
-          - '--lifecycle'
-          - 'ongoing'
-          - '--producer'
-          - 'Toitū Te Whenua Land Information New Zealand'
-          - '--producer-list'
-          - ''
-          - '--licensor'
-          - 'Toitū Te Whenua Land Information New Zealand'
-          - '--licensor-list'
-          - ''
-          - '--concurrency'
-          - '25'
-          - '--capture-dates'
-          - '--current-datetime'
-          - '{{inputs.parameters.current_datetime}}'
-
     - name: create-config
       inputs:
         parameters:
@@ -402,6 +660,32 @@ spec:
               key: '{{=sprig.trimSuffix("/", inputs.parameters.key)}}/flat/config-url'
             archive:
               none: {}
+
+    - name: create-overview
+      inputs:
+        parameters:
+          - name: location
+      container:
+        # Basemaps v7+ has removed overview creation
+        image: 'ghcr.io/linz/basemaps/cli:v6'
+        resources:
+          requests:
+            cpu: 3000m
+            memory: 7.8Gi
+        command: [node, index.cjs]
+        env:
+          - name: AWS_ROLE_CONFIG_PATH
+            value: s3://linz-bucket-config/config.json
+        args:
+          [
+            '-V',
+            'create-overview',
+            '--source',
+            '{{=sprig.trimSuffix("/", inputs.parameters.location)}}',
+            '--output',
+            '{{=sprig.trimSuffix("/", inputs.parameters.location)}}',
+          ]
+
 
     - name: exit-handler
       retryStrategy:
