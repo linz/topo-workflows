@@ -17,7 +17,7 @@ spec:
       inputs:
         parameters:
           - name: version_topo_imagery
-            description: version of topo-imagery to use
+            description: 'Specify a version of the topo-imagery image to use, e.g. "v4.8" or "latest"'
             default: 'v7'
 
           - name: group_id
