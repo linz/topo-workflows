@@ -106,7 +106,7 @@ spec:
           - python
           - '/app/scripts/collection_from_items.py'
           - '--uri'
-          - '{{=sprig.trimSuffix("/", inputs.parameters.location)}}/flat/'
+          - '{{=sprig.trimSuffix("/", inputs.parameters.location)}}'
           - '--collection-id'
           - '{{inputs.parameters.collection_id}}'
           - '--linz-slug'
