@@ -33,7 +33,7 @@ It allows generating multiple types of hillshade from the same source TIFF files
       - name: target
         value: '{{=sprig.trimSuffix("/", tasks["get-location"].outputs.parameters.location)}}/flat/'
       - name: preset
-        value: '["greyscale", "igor"]'
+        value: '["hillshade", "hillshade-igor"]'
 ```
 
 The Workflow caller must have the following volume:
