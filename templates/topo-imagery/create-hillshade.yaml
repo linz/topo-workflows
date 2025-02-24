@@ -5,10 +5,54 @@ kind: WorkflowTemplate
 metadata:
   # Template calling linz/topo-imagery for its main task (generate-hillshade)
   # see https://github.com/linz/topo-imagery/pull/1253
-  name: tpl-create-hillshade
+  name: test-tpl-create-hillshade
   labels:
     linz.govt.nz/category: raster
 spec:
+  arguments:
+    parameters:
+      - name: version_argo_tasks
+        description: 'Specify a version of the argo-tasks image to use, e.g. "v4.1" or "latest"'
+        default: 'v4'
+      - name: version_topo_imagery
+        description: 'Specify a version of the topo-imagery image to use, e.g. "v4.8" or "latest"'
+        default: 'v7'
+      - name: source
+        description: 's3 path to where the TIFF files to generate hillshade from are stored.'
+      - name: scale
+        description: 'Scale of the source data.'
+        default: '50000'
+        enum:
+          - '500'
+          - '1000'
+          - '2000'
+          - '5000'
+          - '10000'
+          - '50000'
+          - 'None'
+      - name: group
+        description: 'Number of tiles to group together.'
+        default: '5'
+      - name: target
+        description: 's3 path to where the hillshade tiles will be stored. The different hillshade types will be stored in subdirectories using the preset name.'
+      - name: hillshade_preset
+        description: 'Type of hillshade to generate. Expects a string.'
+        default: 'hillshade'
+        enum:
+          - 'hillshade'
+          - 'hillshade-igor'
+      - name: source_epsg
+        default: '2193'
+      - name: target_epsg
+        default: '2193'
+      - name: gdal_compression_preset
+        default: 'dem_lerc'
+      - name: include
+        default: '.tiff?$'
+      - name: odr_url
+        default: ''
+      - name: collection_id
+        default: ''
   templateDefaults:
     container:
       imagePullPolicy: Always
@@ -19,46 +63,60 @@ spec:
       inputs:
         parameters:
           - name: source
-            description: 's3 path to where the TIFF files to generate hillshade from are stored.'
+            default: '{{workflow.parameters.source}}'
           - name: scale
-            description: 'Scale of the source data.'
+            default: '{{workflow.parameters.scale}}'
           - name: group
-            description: 'Number of tiles to group together.'
+#            default: '{{workflow.parameters.group}}'
+            value: '3'
           - name: version_argo_tasks
-            description: 'Version of the argo-tasks image to use.'
-            default: 'v4'
+            default: '{{workflow.parameters.version_argo_tasks}}'
           - name: version_topo_imagery
-            description: 'Version of the topo-imagery image to use.'
-            default: 'v7'
+            default: '{{workflow.parameters.version_topo_imagery}}'
           - name: target
-            description: 's3 path to where the hillshade tiles will be stored. The different hillshade types will be stored in subdirectories using the preset name.'
-          - name: preset
-            description: 'List of hillshade types to generate. Expect a list of strings.'
-            default: '["greyscale", "igor"]'
+            default: '{{workflow.parameters.target}}'
+          - name: hillshade_preset
+            default: '{{workflow.parameters.hillshade_preset}}'
+          - name: source_epsg
+            default: '{{workflow.parameters.source_epsg}}'
+          - name: target_epsg
+            default: '{{workflow.parameters.target_epsg}}'
+          - name: gdal_compression_preset
+            default: '{{workflow.parameters.gdal_compression_preset}}'
+          - name: gsd
+            default: '{{workflow.parameters.gsd}}'
+          - name: include
+            default: '{{workflow.parameters.include}}'
+          - name: odr_url
+            default: '{{workflow.parameters.odr_url}}'
+          - name: collection_id
+            default: '{{workflow.parameters.collection_id}}'
       dag:
         tasks:
           - name: tile-index-validate
             templateRef:
-              name: tpl-at-tile-index-validate
+              name: test-tpl-at-tile-index-validate
               template: main
             arguments:
               parameters:
                 - name: scale
                   value: '{{inputs.parameters.scale}}'
                 - name: include
-                  value: '.tiff?$'
+                  value: '{{inputs.parameters.include}}'
                 - name: source
                   value: '{{=sprig.trim(inputs.parameters.source)}}'
                 - name: source_epsg
-                  value: '2193'
+                  value: '{{inputs.parameters.source_epsg}}'
                 - name: validate
                   value: 'false'
                 - name: retile
                   value: 'true'
                 - name: preset
-                  value: 'dem_lerc'
+                  value: '{{inputs.parameters.gdal_compression_preset}}'
                 - name: version
                   value: '{{= inputs.parameters.version_argo_tasks}}'
+                - name: includeDerived
+                  value: 'true'
 
           - name: group
             templateRef:
@@ -73,182 +131,64 @@ spec:
                   value: '{{inputs.parameters.group}}'
                 - name: version
                   value: '{{= inputs.parameters.version_argo_tasks}}'
-            depends: 'tile-index-validate'
+            depends: 'tile-index-validate.Succeeded'
 
-          - name: hillshade-preset
-            template: hillshade-preset
+          - name: generate-hillshade
+            template: generate-hillshade
             arguments:
               parameters:
                 - name: group_id
                   value: '{{item}}'
                 - name: target
                   value: '{{inputs.parameters.target}}'
-                - name: preset
-                  value: '{{inputs.parameters.preset}}'
+                - name: hillshade_preset
+                  value: '{{inputs.parameters.hillshade_preset}}'
                 - name: version_topo_imagery
                   value: '{{inputs.parameters.version_topo_imagery}}'
               artifacts:
                 - name: group_data
                   from: '{{ tasks.group.outputs.artifacts.output }}'
             depends: 'group'
-            withParam: '{{ tasks.group.outputs.parameters.output }}'
-
-    - name: hillshade-preset
-      inputs:
-        parameters:
-          - name: group_id
-          - name: target
-          - name: preset
-          - name: version_topo_imagery
-        artifacts:
-          - name: group_data
-      steps:
-        - - name: generate-hillshade
-            template: generate-hillshade
-            arguments:
-              parameters:
-                - name: group_id
-                  value: '{{inputs.parameters.group_id}}'
-                - name: target
-                  value: '{{inputs.parameters.target}}'
-                - name: preset
-                  value: '{{item}}'
-                - name: version_topo_imagery
-                  value: '{{inputs.parameters.version_topo_imagery}}'
-              artifacts:
-                - name: group_data
-                  from: '{{inputs.artifacts.group_data}}'
-            withParam: '{{inputs.parameters.preset}}'
+            withParam: '{{tasks.group.outputs.parameters.output}}'
 
           - name: standardise-validate
             templateRef:
-              name: tpl-ti-standardise-validate
+              name: test-tpl-ti-standardise-validate
               template: main
             arguments:
               parameters:
-                - name: group_id
-                  value: '{{item}}'
-                - name: collection_id
-                  value: '{{tasks.hs-stac-setup.outputs.parameters.collection_id}}'
-                - name: current_datetime
-                  value: '{{tasks.stac-setup.finishedAt}}'
-                - name: target
-                  value: '{{=sprig.trimSuffix("/", tasks["get-location"].outputs.parameters.location)}}/hillshades/igor/'
-                - name: odr_url
-                  value: '{{=sprig.trim(workflow.parameters.odr_url)}}'
-                - name: compression
-                  value: '{{=sprig.trim(workflow.parameters.compression)}}'
-                - name: create_capture_area
-                  value: '{{=sprig.trim(workflow.parameters.create_capture_area)}}'
-                - name: gsd
-                  value: '{{=sprig.trim(workflow.parameters.gsd)}}'
-                - name: source_epsg
-                  value: '{{=sprig.trim(workflow.parameters.source_epsg)}}'
-                - name: target_epsg
-                  value: '{{=sprig.trim(workflow.parameters.target_epsg)}}'
-                - name: version_topo_imagery
-                  value: '{{= workflow.parameters.version_topo_imagery}}'
+              - name: group_id
+                value: '{{item}}'
+              - name: collection_id
+                value: '{{inputs.parameters.collection_id}}'
+              - name: current_datetime
+                value: '{{tasks.tile-index-validate.finishedAt}}'
+              - name: target
+                value: '{{inputs.parameters.target}}'
+              - name: odr_url
+                value: '{{=sprig.trim(inputs.parameters.odr_url)}}'
+              - name: compression
+                value: '{{=sprig.trim(inputs.parameters.gdal_compression_preset)}}'
+              - name: create_capture_area
+                value: 'false'
+              - name: gsd
+                value: '{{=sprig.trim(inputs.parameters.gsd)}}'
+              - name: scale_to_resolution
+#                value: '{{=sprig.trim(inputs.parameters.scale_to_resolution)}}'
+                value: ''
+              - name: source_epsg
+                value: '{{=sprig.trim(inputs.parameters.source_epsg)}}'
+              - name: target_epsg
+                value: '{{=sprig.trim(inputs.parameters.target_epsg)}}'
+              - name: version_topo_imagery
+                value: '{{= inputs.parameters.version_topo_imagery}}'
+#                 - name: collection_id
+#                  value: 'temp-{{inputs.parameters.hillshade_preset}}-{{workflow.name}}'
               artifacts:
                 - name: group_data
-                  from: '{{ tasks.hs-group.outputs.artifacts.output }}'
-            depends: 'hs-stac-setup.Succeeded && get-location.Succeeded'
-            withParam: '{{ tasks.hs-group.outputs.parameters.output }}'
-
-          - name: hs-create-collection
-            templateRef:
-              name: tpl-ti-create-collection
-              template: main
-            arguments:
-              parameters:
-                - name: collection_id
-                  value: '{{tasks.hs-stac-setup.outputs.parameters.collection_id}}'
-                - name: linz_slug
-                  value: '{{tasks.hs-stac-setup.outputs.parameters.linz_slug}}'
-                - name: location
-                  value: '{{tasks.get-location.outputs.parameters.location}}'
-                - name: current_datetime
-                  value: '{{tasks.stac-setup.finishedAt}}'  # not hs-stac-setup
-                - name: odr_url
-                  value: '{{=sprig.trim(workflow.parameters.odr_url)}}'  # TODO: does this need a hs-specific odr_url?
-                - name: category
-                  value: 'dem'  # todo: parameterise
-                - name: region
-                  value: 'new-zealand'
-                - name: gsd
-                  value: '1'
-                - name: lifecycle
-                  value: 'ongoing'
-                - name: producer
-                  value: 'Toitū Te Whenua Land Information New Zealand'
-                - name: licensor
-                  value: 'Toitū Te Whenua Land Information New Zealand'
-                - name: create_capture_dates
-                  value: 'true'
-                - name: version_topo_imagery
-                  value: '{{= workflow.parameters.version_topo_imagery}}'
-            depends: 'hs-standardise-validate.Succeeded'
-
-          - name: hs-stac-validate
-            templateRef:
-              name: tpl-at-stac-validate
-              template: main
-            arguments:
-              parameters:
-                - name: uri
-                  value: '{{=sprig.trimSuffix("/", tasks["get-location"].outputs.parameters.location)}}/hillshades/collection.json'
-              artifacts:
-                - name: stac-result
-                  raw:
-                    data: '{{tasks.hs-stac-validate.outputs.result}}'
-            depends: 'hs-create-collection'
-
-          #          - name: hs-get-location
-          #            templateRef:
-          #              name: tpl-get-location
-          #              template: main
-
-          - name: hs-create-overview
-            # when: "'{{workflow.parameters.target_epsg}}' =~ '2193|3857' && '{{workflow.parameters.compression}}' != 'dem_lerc'"
-            arguments:
-              parameters:
-                - name: location
-                  value: '{{tasks.get-location.outputs.parameters.location}}/hillshades/igor/'
-            template: create-overview
-            depends: 'hs-standardise-validate'
-
-          #
-          #          - name: hs-create-config
-          #            when: "'{{workflow.parameters.target_epsg}}' =~ '2193|3857'"
-          #            arguments:
-          #              parameters:
-          #                - name: location
-          #                  value: '{{tasks.get-location.outputs.parameters.location}}'
-          #                - name: bucket
-          #                  value: '{{tasks.get-location.outputs.parameters.bucket}}'
-          #                - name: key
-          #                  value: '{{tasks.get-location.outputs.parameters.key}}'
-          #            template: create-config
-          #            depends: 'hs-create-overview'
-
-          - name: hs-publish-odr
-            templateRef:
-              name: publish-odr
-              template: main
-            when: "'{{workflow.parameters.publish_to_odr}}' == 'true'"
-            arguments:
-              parameters:
-                - name: source
-                  ## TODO: FIX IGOR
-                  value: '{{=sprig.trimSuffix("/", tasks["get-location"].outputs.parameters.location)}}/hillshades/igor/'
-                - name: target_bucket_name
-                  value: '{{workflow.parameters.target_bucket_name}}'
-                - name: copy_option
-                  value: '{{workflow.parameters.copy_option}}'
-                - name: ticket
-                  value: '{{=sprig.trim(workflow.parameters.ticket)}}'
-            depends: 'hs-stac-validate && create-config'
-
-
+                  from: '{{ tasks.group.outputs.artifacts.output }}'
+            depends: 'generate-hillshade.Succeeded'
+            withParam: '{{ tasks.group.outputs.parameters.output }}'
 
     - name: generate-hillshade
       nodeSelector:
@@ -257,7 +197,7 @@ spec:
         parameters:
           - name: group_id
           - name: target
-          - name: preset
+          - name: hillshade_preset
           - name: version_topo_imagery
         artifacts:
           - name: group_data
@@ -279,6 +219,6 @@ spec:
           - '--from-file'
           - '/tmp/input/{{inputs.parameters.group_id}}.json'
           - '--target'
-          - '{{=sprig.trimSuffix("/", inputs.parameters.target)}}/{{inputs.parameters.preset}}/'
+          - '{{=sprig.trimSuffix("/", inputs.parameters.target)}}/'
           - '--preset'
-          - '{{inputs.parameters.preset}}'
+          - '{{inputs.parameters.hillshade_preset}}'
