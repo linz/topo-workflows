@@ -362,6 +362,8 @@ spec:
                   value: '{{=sprig.trim(workflow.parameters.geographic_description)}}'
                 - name: geospatial_category
                   value: '{{=sprig.trim(workflow.parameters.category)}}'
+                - name: survey_id
+                  value: '{{=sprig.trim(workflow.parameters.historic_survey_number)}}'
                 - name: odr_url
                   value: '{{=sprig.trim(workflow.parameters.odr_url)}}'
                 - name: version
