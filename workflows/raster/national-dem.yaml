@@ -171,6 +171,24 @@ spec:
                   raw:
                     data: '{{tasks.stac-validate.outputs.result}}'
             depends: 'create-collection.Succeeded'
+            when: "'{{workflow.parameters.odr_url}}' == ''"
+          
+          - name: stac-validate-only-updated
+            templateRef:
+              name: tpl-at-stac-validate
+              template: main
+            arguments:
+              parameters:
+                - name: uri
+                  value: '{{=sprig.trimSuffix("/", tasks["get-location"].outputs.parameters.location)}}/flat/'
+                - name: recursive
+                  value: 'false' # The Collection might have some Items that are only in the published location
+              artifacts:
+                - name: stac-result
+                  raw:
+                    data: '{{tasks.stac-validate.outputs.result}}'
+            depends: 'create-collection.Succeeded'
+            when: "'{{workflow.parameters.odr_url}}' != ''"
 
           - name: create-config
             arguments:
