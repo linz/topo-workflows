@@ -3,7 +3,7 @@
 apiVersion: argoproj.io/v1alpha1
 kind: WorkflowTemplate
 metadata:
-  name: test-topo-maps-standardising
+  name: topo-raster-maps-standardising
   labels:
     linz.govt.nz/category: basemaps
     linz.govt.nz/data-type: raster
@@ -27,36 +27,52 @@ spec:
 
       - name: version_argo_tasks
         description: Version of the argo tasks CLI docker container to use
-        value: pr-1145
+        value: v4
 
       - name: source
-        description: Source topographic map location
+        description: s3 directory of the NZTopo Map Series imagery to process
         value: 's3://linz-topographic-upload/topographic/TopoReleaseArchive/NZTopo50_GeoTif_Gridless/'
+        enum:
+          - 's3://linz-topographic-upload/topographic/TopoReleaseArchive/NZTopo50_GeoTif_Gridless/'
+          - 's3://linz-topographic-upload/topographic/TopoReleaseArchive/NZTopo250_GeoTif_Gridless/'
 
       - name: target
-        description: Target location for output COGs
-        value: 's3://linz-basemaps-staging/'
+        description: s3 directory into which to save the generated directory structure of STAC files and COGs
+        value: 's3://linz-topographic/'
         enum:
           - 's3://linz-basemaps-staging/'
+          - 's3://linz-workflows-scratch/'
           - 's3://linz-topographic/'
 
-      - name: title
-        description: Title of the processed map
-        value: 'Raster Topographic Maps 50k'
-        enum:
-          - 'Raster Topographic Maps 50k'
-          - 'Raster Topographic Maps 250k'
-
-      - name: scale
+      - name: map_series
         description: topo50 or topo250
         value: 'topo50'
         enum:
           - 'topo50'
           - 'topo250'
 
+      - name: latest_only
+        description: Only process the latest version of each map sheet
+        value: 'false'
+        enum:
+          - 'true'
+          - 'false'
+
       - name: group_size
         description: How many items to pass to each create-cog job
         value: '50'
+
+      - name: copy_option
+        description: --no-clobber Skip overwriting existing files. --force Overwrite all files. --force-no-clobber Overwrite only changed files, skip unchanged files.
+        value: '--force-no-clobber'
+        enum:
+          - '--no-clobber'
+          - '--force'
+          - '--force-no-clobber'
+
+      - name: aws_role_config_path
+        description: s3 URL or comma-separated list of s3 URLs allowing the workflow to write to a target(s)
+        value: 's3://linz-bucket-config/config-write.topographic.json,s3://linz-bucket-config/config.basemaps.json'
 
   templates:
     # Main entrypoint into the workflow
@@ -67,8 +83,8 @@ spec:
         parameters:
           - name: source
           - name: target
-          - name: title
-          - name: scale
+          - name: map_series
+          - name: latest_only
           - name: group_size
       dag:
         tasks:
@@ -86,10 +102,10 @@ spec:
                   value: '{{ inputs.parameters.source }}'
                 - name: target
                   value: '{{ tasks.get-location.outputs.parameters.location }}'
-                - name: title
-                  value: '{{ inputs.parameters.title }}'
-                - name: scale
-                  value: '{{ inputs.parameters.scale }}'
+                - name: map_series
+                  value: '{{ inputs.parameters.map_series }}'
+                - name: latest-only
+                  value: '{{ inputs.parameters.latest_only }}'
             depends: get-location
 
           - name: group
@@ -121,13 +137,58 @@ spec:
 
           - name: create-config
             template: create-config
+            when: '{{ item.epsg }} == 2193'
+            withParam: '{{ tasks.topo-stac-creation.outputs.parameters.targets }}'
             arguments:
               parameters:
-                - name: path
-                  value: '{{ tasks.get-location.outputs.parameters.location }}'
-                - name: scale
-                  value: '{{ inputs.parameters.scale }}'
-            depends: 'topo-cog-creation'
+                - name: location
+                  value: '{{ item.url }}'
+            depends: topo-stac-creation && topo-cog-creation
+
+          - name: copy
+            templateRef:
+              name: copy
+              template: main
+            when: '{{ inputs.parameters.latest_only }} == false'
+            arguments:
+              parameters:
+                - name: source
+                  value: '{{ tasks.get-location.outputs.parameters.location }}{{ inputs.parameters.map_series }}/'
+                - name: target
+                  value: '{{ inputs.parameters.target }}{{ inputs.parameters.map_series }}/'
+                - name: include
+                  value: '\.tiff?$|\.json$'
+                - name: exclude
+                  value: ''
+                - name: flatten
+                  value: 'false'
+                - name: group
+                  value: '1000'
+                - name: group_size
+                  value: '100Gi'
+            depends: topo-stac-creation && topo-cog-creation
+
+          - name: copy-latest
+            templateRef:
+              name: copy
+              template: main
+            arguments:
+              parameters:
+                - name: source
+                  value: '{{ tasks.get-location.outputs.parameters.location }}{{ inputs.parameters.map_series }}_latest/'
+                - name: target
+                  value: '{{ inputs.parameters.target }}{{ inputs.parameters.map_series }}_latest/'
+                - name: include
+                  value: '\.tiff?$|\.json$'
+                - name: exclude
+                  value: ''
+                - name: flatten
+                  value: 'false'
+                - name: group
+                  value: '1000'
+                - name: group_size
+                  value: '100Gi'
+            depends: topo-stac-creation && topo-cog-creation
 
     # List of the topographic tiles from source and import into target bucket
     - name: topo-stac-creation
@@ -135,30 +196,30 @@ spec:
         parameters:
           - name: source
           - name: target
-          - name: title
-          - name: scale
+          - name: map_series
+          - name: latest-only
       container:
-        resources:
-          requests:
-            memory: 30Gi
-            cpu: 15000m # AWS gives 2x cpu cores = memory for most instances
-            ephemeral-storage: 98Gi # 2 pods per 200GB of storage
-        image: 019359803926.dkr.ecr.ap-southeast-2.amazonaws.com/argo-tasks:{{workflow.parameters.version_argo_tasks}}
-        command: [node, /app/index.js]
+        image: ghcr.io/linz/basemaps/cli:{{ workflow.parameters.version_basemaps_cli }}
+        command: [node, /app/node_modules/@basemaps/cogify/dist/index.cjs]
         env:
           - name: AWS_ROLE_CONFIG_PATH
             value: s3://linz-bucket-config/config.json
         args:
-          - 'bmc'
-          - 'topo-stac-creation'
-          - '--source={{ inputs.parameters.source }}'
+          - 'topo'
           - '--target={{ inputs.parameters.target }}'
-          - '--title={{ inputs.parameters.title }}'
-          - '--scale={{ inputs.parameters.scale }}'
+          - '--map-series={{ inputs.parameters.map_series }}'
+          - '--latest-only={{ inputs.parameters.latest-only }}'
+          - '{{ inputs.parameters.source }}'
       outputs:
         artifacts:
           - name: tiles
             path: /tmp/topo-stac-creation/tiles.json
+          - name: broken_tiffs
+            path: /tmp/topo-stac-creation/broken-tiffs.json
+        parameters:
+          - name: targets
+            valueFrom:
+              path: /tmp/topo-stac-creation/targets.json
 
     - name: topo-cog-creation
       nodeSelector:
@@ -175,23 +236,22 @@ spec:
             memory: 30Gi
             cpu: 15000m # AWS gives 2x cpu cores = memory for most instances
             ephemeral-storage: 98Gi # 2 pods per 200GB of storage
-        image: 019359803926.dkr.ecr.ap-southeast-2.amazonaws.com/argo-tasks:{{workflow.parameters.version_argo_tasks}}
-        command: [node, /app/index.js]
+        image: ghcr.io/linz/basemaps/cli:{{ workflow.parameters.version_basemaps_cli }}
+        command: [node, /app/node_modules/@basemaps/cogify/dist/index.cjs]
         env:
           - name: AWS_ROLE_CONFIG_PATH
             value: s3://linz-bucket-config/config.json
         args:
-          - 'bmc'
-          - 'topo-cog-creation'
+          - 'create'
           - '--from-file={{= inputs.artifacts.grouped.path }}{{inputs.parameters.grouped_id}}.json'
+          - '--concurrency=2'
 
     # Create a basemaps configuration file to view the imagery
     - name: create-config
       inputs:
         parameters:
-          - name: path
+          - name: location
             description: Location of the imagery to create config for
-          - name: scale
       container:
         image: ghcr.io/linz/basemaps/cli:{{ workflow.parameters.version_basemaps_cli }}
         command: [node, /app/node_modules/@basemaps/cogify/dist/index.cjs]
@@ -200,7 +260,7 @@ spec:
             value: s3://linz-bucket-config/config.json
         args:
           - 'config'
-          - '{{= inputs.parameters.path }}{{= inputs.parameters.scale }}-latest/'
+          - '{{ inputs.parameters.location }}'
       outputs:
         parameters:
           - name: url
