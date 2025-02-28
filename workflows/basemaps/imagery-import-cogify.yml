@@ -167,6 +167,10 @@ spec:
           - 'true'
           - 'false'
 
+      - name: background
+        description: 'Background RGBA hexstring to fill empty space in the COG. Format: "#rrggbbaa"'
+        value: ''
+
   templates:
     # Main entrypoint into the workflow
     - name: main
@@ -182,6 +186,7 @@ spec:
           - name: cutline_blend
           - name: group_size
           - name: require_stac_collection
+          - name: background
       dag:
         tasks:
           # For each tile matrix specified run the "cogify" template
@@ -206,6 +211,8 @@ spec:
                   value: '{{ inputs.parameters.group_size }}'
                 - name: require_stac_collection
                   value: '{{ inputs.parameters.require_stac_collection }}'
+                - name: background
+                  value: '{{ inputs.parameters.background }}'
           - name: create-pull-request
             template: create-pull-request
             arguments:
@@ -227,6 +234,7 @@ spec:
           - name: group_size
           - name: preset
           - name: require_stac_collection
+          - name: background
       dag:
         tasks:
           # generate a tile covering from the source imagery
@@ -248,6 +256,8 @@ spec:
                   value: '{{ inputs.parameters.cutline_blend }}'
                 - name: require_stac_collection
                   value: '{{ inputs.parameters.require_stac_collection }}'
+                - name: background
+                  value: '{{ inputs.parameters.background }}'
 
           # Group covering output into chunks to pass to create-cog
           - name: group
@@ -320,6 +330,7 @@ spec:
           - name: cutline_blend
           - name: preset
           - name: require_stac_collection
+          - name: background
       container:
         image: ghcr.io/linz/basemaps/cli:{{ workflow.parameters.version_basemaps_cli }}
         resources:
@@ -336,6 +347,7 @@ spec:
           - '--require-stac-collection={{ inputs.parameters.require_stac_collection }}'
           - "{{= sprig.empty(inputs.parameters.cutline) ? '' : '--cutline=' + inputs.parameters.cutline }}"
           - '--cutline-blend={{ inputs.parameters.cutline_blend }}'
+          - "{{= sprig.empty(inputs.parameters.background) ? '' : '--background=' + inputs.parameters.background }}"
           - '--target={{= sprig.trim(inputs.parameters.target) }}'
           - '{{= sprig.trim(inputs.parameters.source) }}'
       outputs:
