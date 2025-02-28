@@ -30,7 +30,7 @@ spec:
         value: v4
 
       - name: source
-        description: s3 directory of the NZTopo Map Series imagery to process
+        description: s3 directory of the NZ Topo Raster Map Series imagery to process
         value: 's3://linz-topographic-upload/topographic/TopoReleaseArchive/NZTopo50_GeoTif_Gridless/'
         enum:
           - 's3://linz-topographic-upload/topographic/TopoReleaseArchive/NZTopo50_GeoTif_Gridless/'
