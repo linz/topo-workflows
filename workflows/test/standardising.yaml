@@ -392,7 +392,6 @@ spec:
                 - name: copy_option
                   value: '{{workflow.parameters.copy_option}}'
 
-
   volumes:
     - name: ephemeral
       emptyDir: {}
