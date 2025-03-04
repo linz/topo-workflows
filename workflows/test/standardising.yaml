@@ -333,7 +333,7 @@ spec:
       steps:
         - - name: standardise-validate
             templateRef:
-              name: test-tpl-imagery-standardising
+              name: imagery-standardising
               template: main
             arguments:
               parameters:
