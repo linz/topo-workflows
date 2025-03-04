@@ -341,7 +341,72 @@ spec:
         expression: 'false'
       inputs:
         parameters:
+          - name: version_argo_tasks
+            value: '{{workflow.parameters.version_argo_tasks}}'
+          - name: version_basemaps_cli
+            value: '{{workflow.parameters.version_basemaps_cli}}'
+          - name: version_topo_imagery
+            value: '{{workflow.parameters.version_topo_imagery}}'
+          - name: user_group
+            value: '{{workflow.parameters.user_group}}'
+          - name: ticket
+            value: '{{workflow.parameters.ticket}}'
+          - name: region
+            value: '{{workflow.parameters.region}}'
           - name: source
+            value: '{{workflow.parameters.source}}'
+          - name: include
+            value: '{{workflow.parameters.include}}'
+          - name: scale
+            value: '{{workflow.parameters.scale}}'
+          - name: validate
+            value: '{{workflow.parameters.validate}}'
+          - name: retile
+            value: '{{workflow.parameters.retile}}'
+          - name: source_epsg
+            value: '{{workflow.parameters.source_epsg}}'
+          - name: target_epsg
+            value: '{{workflow.parameters.target_epsg}}'
+          - name: group
+            value: '{{workflow.parameters.group}}'
+          - name: compression
+            value: '{{workflow.parameters.compression}}'
+          - name: create_capture_area
+            value: '{{workflow.parameters.create_capture_area}}'
+          - name: cutline
+            value: '{{workflow.parameters.cutline}}'
+          - name: odr_url
+            value: '{{workflow.parameters.odr_url}}'
+          - name: category
+            value: '{{workflow.parameters.category}}'
+          - name: gsd
+            value: '{{workflow.parameters.gsd}}'
+          - name: producer
+            value: '{{workflow.parameters.producer}}'
+          - name: producer_list
+            value: '{{workflow.parameters.producer_list}}'
+          - name: licensor
+            value: '{{workflow.parameters.licensor}}'
+          - name: licensor_list
+            value: '{{workflow.parameters.licensor_list}}'
+          - name: start_datetime
+            value: '{{workflow.parameters.start_datetime}}'
+          - name: end_datetime
+            value: '{{workflow.parameters.end_datetime}}'
+          - name: geographic_description
+            value: '{{workflow.parameters.geographic_description}}'
+          - name: lifecycle
+            value: '{{workflow.parameters.lifecycle}}'
+          - name: event
+            value: '{{workflow.parameters.event}}'
+          - name: historic_survey_number
+            value: '{{workflow.parameters.historic_survey_number}}'
+          - name: publish_to_odr
+            value: '{{workflow.parameters.publish_to_odr}}'
+          - name: target_bucket_name
+            value: '{{workflow.parameters.target_bucket_name}}'
+          - name: copy_option
+            value: '{{workflow.parameters.copy_option}}'
       dag:
         tasks:
           - name: stac-setup
@@ -351,21 +416,21 @@ spec:
             arguments:
               parameters:
                 - name: start_datetime
-                  value: '{{=sprig.trim(workflow.parameters.start_datetime)}}'
+                  value: '{{=sprig.trim(input.parameters.start_datetime)}}'
                 - name: end_datetime
-                  value: '{{=sprig.trim(workflow.parameters.end_datetime)}}'
+                  value: '{{=sprig.trim(input.parameters.end_datetime)}}'
                 - name: gsd
-                  value: '{{=sprig.trim(workflow.parameters.gsd)}}'
+                  value: '{{=sprig.trim(input.parameters.gsd)}}'
                 - name: region
-                  value: '{{=sprig.trim(workflow.parameters.region)}}'
+                  value: '{{=sprig.trim(input.parameters.region)}}'
                 - name: geographic_description
-                  value: '{{=sprig.trim(workflow.parameters.geographic_description)}}'
+                  value: '{{=sprig.trim(input.parameters.geographic_description)}}'
                 - name: geospatial_category
-                  value: '{{=sprig.trim(workflow.parameters.category)}}'
+                  value: '{{=sprig.trim(input.parameters.category)}}'
                 - name: odr_url
-                  value: '{{=sprig.trim(workflow.parameters.odr_url)}}'
+                  value: '{{=sprig.trim(input.parameters.odr_url)}}'
                 - name: version
-                  value: '{{=sprig.trim(workflow.parameters.version_argo_tasks)}}'
+                  value: '{{=sprig.trim(input.parameters.version_argo_tasks)}}'
 
           - name: tile-index-validate
             templateRef:
@@ -374,21 +439,21 @@ spec:
             arguments:
               parameters:
                 - name: scale
-                  value: '{{workflow.parameters.scale}}'
+                  value: '{{input.parameters.scale}}'
                 - name: include
-                  value: '{{workflow.parameters.include}}'
+                  value: '{{input.parameters.include}}'
                 - name: source
                   value: '{{=sprig.trim(inputs.parameters.source)}}'
                 - name: source_epsg
-                  value: '{{=sprig.trim(workflow.parameters.source_epsg)}}'
+                  value: '{{=sprig.trim(input.parameters.source_epsg)}}'
                 - name: validate
-                  value: '{{= workflow.parameters.validate}}'
+                  value: '{{= input.parameters.validate}}'
                 - name: retile
-                  value: '{{= workflow.parameters.retile}}'
+                  value: '{{= input.parameters.retile}}'
                 - name: preset
-                  value: '{{= workflow.parameters.compression}}'
+                  value: '{{= input.parameters.compression}}'
                 - name: version
-                  value: '{{= workflow.parameters.version_argo_tasks}}'
+                  value: '{{= input.parameters.version_argo_tasks}}'
 
           - name: group
             templateRef:
@@ -400,9 +465,9 @@ spec:
                   from: '{{ tasks.tile-index-validate.outputs.artifacts.files }}'
               parameters:
                 - name: size
-                  value: '{{workflow.parameters.group}}'
+                  value: '{{input.parameters.group}}'
                 - name: version
-                  value: '{{= workflow.parameters.version_argo_tasks}}'
+                  value: '{{= input.parameters.version_argo_tasks}}'
             depends: 'tile-index-validate'
 
           - name: standardise-validate
@@ -457,7 +522,7 @@ spec:
               template: main
 
           - name: create-overview
-            when: "'{{workflow.parameters.target_epsg}}' =~ '2193|3857' && '{{workflow.parameters.compression}}' != 'dem_lerc'"
+            when: "'{{input.parameters.target_epsg}}' =~ '2193|3857' && '{{input.parameters.compression}}' != 'dem_lerc'"
             arguments:
               parameters:
                 - name: location
@@ -466,7 +531,7 @@ spec:
             depends: 'standardise-validate'
 
           - name: create-config
-            when: "'{{workflow.parameters.target_epsg}}' =~ '2193|3857'"
+            when: "'{{input.parameters.target_epsg}}' =~ '2193|3857'"
             arguments:
               parameters:
                 - name: location
@@ -482,17 +547,17 @@ spec:
             templateRef:
               name: publish-odr
               template: main
-            when: "'{{workflow.parameters.publish_to_odr}}' == 'true'"
+            when: "'{{input.parameters.publish_to_odr}}' == 'true'"
             arguments:
               parameters:
                 - name: source
                   value: '{{=sprig.trimSuffix("/", tasks["get-location"].outputs.parameters.location)}}/flat/'
                 - name: target_bucket_name
-                  value: '{{workflow.parameters.target_bucket_name}}'
+                  value: '{{input.parameters.target_bucket_name}}'
                 - name: copy_option
-                  value: '{{workflow.parameters.copy_option}}'
+                  value: '{{input.parameters.copy_option}}'
                 - name: ticket
-                  value: '{{=sprig.trim(workflow.parameters.ticket)}}'
+                  value: '{{=sprig.trim(input.parameters.ticket)}}'
             depends: 'stac-validate && create-config'
 
       outputs:
@@ -515,7 +580,7 @@ spec:
           - name: group_data
             path: /tmp/input/
       container:
-        image: '019359803926.dkr.ecr.ap-southeast-2.amazonaws.com/topo-imagery:{{=sprig.trim(workflow.parameters.version_topo_imagery)}}'
+        image: '019359803926.dkr.ecr.ap-southeast-2.amazonaws.com/topo-imagery:{{=sprig.trim(input.parameters.version_topo_imagery)}}'
         resources:
           requests:
             memory: 7.8Gi
@@ -532,25 +597,25 @@ spec:
           - '--target'
           - '{{inputs.parameters.target}}'
           - '--preset'
-          - '{{workflow.parameters.compression}}'
+          - '{{input.parameters.compression}}'
           - '--start-datetime'
-          - '{{=sprig.trim(workflow.parameters.start_datetime)}}'
+          - '{{=sprig.trim(input.parameters.start_datetime)}}'
           - '--end-datetime'
-          - '{{=sprig.trim(workflow.parameters.end_datetime)}}'
+          - '{{=sprig.trim(input.parameters.end_datetime)}}'
           - '--collection-id'
           - '{{inputs.parameters.collection_id}}'
           - '--create-footprints'
-          - '{{workflow.parameters.create_capture_area}}'
+          - '{{input.parameters.create_capture_area}}'
           - '--cutline'
-          - '{{=sprig.trim(workflow.parameters.cutline)}}'
+          - '{{=sprig.trim(input.parameters.cutline)}}'
           - '--source-epsg'
-          - '{{=sprig.trim(workflow.parameters.source_epsg)}}'
+          - '{{=sprig.trim(input.parameters.source_epsg)}}'
           - '--target-epsg'
-          - '{{=sprig.trim(workflow.parameters.target_epsg)}}'
+          - '{{=sprig.trim(input.parameters.target_epsg)}}'
           - '--gsd'
-          - '{{=sprig.trim(workflow.parameters.gsd)}}'
+          - '{{=sprig.trim(input.parameters.gsd)}}'
           - '--odr-url'
-          - '{{=sprig.trim(workflow.parameters.odr_url)}}'
+          - '{{=sprig.trim(input.parameters.odr_url)}}'
           - '--current-datetime'
           - '{{inputs.parameters.current_datetime}}'
 
@@ -571,7 +636,7 @@ spec:
             archive:
               none: {}
       container:
-        image: '019359803926.dkr.ecr.ap-southeast-2.amazonaws.com/topo-imagery:{{=sprig.trim(workflow.parameters.version_topo_imagery)}}'
+        image: '019359803926.dkr.ecr.ap-southeast-2.amazonaws.com/topo-imagery:{{=sprig.trim(input.parameters.version_topo_imagery)}}'
         resources:
           requests:
             memory: 7.8Gi
@@ -586,30 +651,30 @@ spec:
           - '--linz-slug'
           - '{{inputs.parameters.linz_slug}}'
           - '--odr-url'
-          - '{{=sprig.trim(workflow.parameters.odr_url)}}'
+          - '{{=sprig.trim(input.parameters.odr_url)}}'
           - '--category'
-          - '{{=sprig.trim(workflow.parameters.category)}}'
+          - '{{=sprig.trim(input.parameters.category)}}'
           - '--region'
-          - '{{=sprig.trim(workflow.parameters.region)}}'
+          - '{{=sprig.trim(input.parameters.region)}}'
           - '--gsd'
-          - '{{=sprig.trim(workflow.parameters.gsd)}}'
+          - '{{=sprig.trim(input.parameters.gsd)}}'
           - '--geographic-description'
-          - '{{=sprig.trim(workflow.parameters.geographic_description)}}'
+          - '{{=sprig.trim(input.parameters.geographic_description)}}'
           - '--event'
-          - '{{=sprig.trim(workflow.parameters.event)}}'
+          - '{{=sprig.trim(input.parameters.event)}}'
           - '--historic-survey-number'
-          - '{{=sprig.trim(workflow.parameters.historic_survey_number)}}'
+          - '{{=sprig.trim(input.parameters.historic_survey_number)}}'
           - '--lifecycle'
-          - '{{=sprig.trim(workflow.parameters.lifecycle)}}'
+          - '{{=sprig.trim(input.parameters.lifecycle)}}'
           - '--add-title-suffix'
           - '--producer'
-          - '{{workflow.parameters.producer}}'
+          - '{{input.parameters.producer}}'
           - '--producer-list'
-          - '{{=sprig.trim(workflow.parameters.producer_list)}}'
+          - '{{=sprig.trim(input.parameters.producer_list)}}'
           - '--licensor'
-          - '{{workflow.parameters.licensor}}'
+          - '{{input.parameters.licensor}}'
           - '--licensor-list'
-          - '{{=sprig.trim(workflow.parameters.licensor_list)}}'
+          - '{{=sprig.trim(input.parameters.licensor_list)}}'
           - '--concurrency'
           - '25'
           - '--current-datetime'
@@ -648,7 +713,7 @@ spec:
           - name: bucket
           - name: key
       container:
-        image: 'ghcr.io/linz/basemaps/cli:{{=sprig.trim(workflow.parameters.version_basemaps_cli)}}'
+        image: 'ghcr.io/linz/basemaps/cli:{{=sprig.trim(input.parameters.version_basemaps_cli)}}'
         command: [node, /app/node_modules/@basemaps/cogify/dist/index.cjs]
         env:
           - name: AWS_ROLE_CONFIG_PATH
