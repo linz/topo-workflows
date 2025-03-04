@@ -217,6 +217,9 @@ spec:
                   value: '{{inputs.parameters.include}}'
                 - name: source  # combine both base_layer_source and temporary hillshade folder
                   value: '{{= inputs.parameters.base_layer_source == "/" + inputs.parameters.hillshade_preset + "/" ? "" : inputs.parameters.base_layer_source + ";" }}{{=sprig.trimSuffix("/", tasks["get-location"].outputs.parameters.location)}}/{{inputs.parameters.hillshade_preset}}/temp_hillshade/'
+                #                  value: '{{= inputs.parameters.base_layer_source == "" ? "" : inputs.parameters.base_layer_source + ";" }}{{= tasks["create-hillshade"].inputs.parameters.target == "" ? "NO_SOURCE" : tasks["create-hillshade"].inputs.parameters.target}}/temp_hillshade/'
+                #                  value: '{{=sprig.trimSuffix("/", tasks["get-location"].outputs.parameters.location)}}/{{inputs.parameters.hillshade_preset}}/temp_hillshade/'
+                #                  value: '{{= inputs.parameters.base_layer_source == "" ? "" : inputs.parameters.base_layer_source + ";" }}{{=sprig.trimSuffix("/", tasks["get-location"].outputs.parameters.location)}}/{{inputs.parameters.hillshade_preset}}/'
                 - name: source_epsg
                   value: '{{=sprig.trim(inputs.parameters.source_epsg)}}'
                 - name: validate
@@ -245,6 +248,15 @@ spec:
                 - name: version
                   value: '{{= inputs.parameters.version_argo_tasks}}'
             depends: 'tile-index-validate.Succeeded'
+
+#          - name: steps-per-hillshade-preset
+#            template: steps-per-hillshade-preset
+#            arguments:
+#              parameters:
+#                - name: hillshade_preset
+#                  value: '{{item}}'
+#            withParam: '{{workflow.parameters.hillshade_presets}}'
+#            depends: 'group.Succeeded'
 
           - name: standardise-validate
             templateRef:
@@ -279,7 +291,7 @@ spec:
               artifacts:
                 - name: group_data
                   from: '{{ tasks.group.outputs.artifacts.output }}'
-            depends: 'group.Succeeded && stac-setup-hillshade.Succeeded && get-location.Succeeded'
+            depends: 'group.Succeeded'
             withParam: '{{ tasks.group.outputs.parameters.output }}'
 
           - name: create-collection
@@ -293,7 +305,8 @@ spec:
                 - name: linz_slug
                   value: '{{tasks.stac-setup-hillshade.outputs.parameters.linz_slug}}'
                 - name: location
-                  value: '{{=sprig.trimSuffix("/", tasks["get-location"].outputs.parameters.location)}}/flat/'
+                  value: '{{=sprig.trimSuffix("/", tasks["get-location"].outputs.parameters.location)}}/{{inputs.parameters.hillshade_preset}}/flat/'
+#                  value: '{{=sprig.trimSuffix("/", tasks["get-location"].outputs.parameters.location)}}/flat/'
                 - name: current_datetime
                   value: '{{tasks.stac-setup-hillshade.finishedAt}}'  # not stac-setup
                 - name: odr_url

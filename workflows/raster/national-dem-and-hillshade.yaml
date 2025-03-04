@@ -161,49 +161,96 @@ spec:
                 value: '{{workflow.parameters.target_bucket_name}}'
               - name: region
                 value: '{{workflow.parameters.region}}'
-          - name: national-hillshade
+          - name: national-hillshade-create  # Todo: calls create-hillshade.yaml template. Inputs are 1m DEM source and hillshade presets
             templateRef:
               name: test-tpl-national-hillshade
               template: main
             when: "'{{workflow.parameters.generate_hillshade}}' == 'true'"
             arguments:
               parameters:
-              - name: ticket
-                value: '{{workflow.parameters.ticket}}'
-              - name: source
-                value: '{{=sprig.trimSuffix("/", tasks["national-dem"].outputs.parameters.target)}}/flat/'
-              - name: base_layer_source
-                value: '{{=sprig.trimSuffix("/", workflow.parameters.base_layer_source)}}/{{item}}/'
-              - name: odr_url
-                value: '{{workflow.parameters.odr_url}}'
-              - name: group
-                value: '{{workflow.parameters.group}}'
-              - name: publish_to_odr
-                value: '{{workflow.parameters.publish_to_odr}}'
-              - name: copy_option
-                value: '{{workflow.parameters.copy_option}}'
-              - name: compression
-                value: '{{workflow.parameters.gdal_compression_preset}}'
-              - name: create_capture_area
-                value: '{{workflow.parameters.create_capture_area}}'
-              - name: gsd
-                value: '{{workflow.parameters.gsd}}'
-              - name: scale_to_resolution
-                value: '{{workflow.parameters.scale_to_resolution}}'
-              - name: source_epsg
-                value: '{{workflow.parameters.source_epsg}}'
-              - name: target_epsg
-                value: '{{workflow.parameters.target_epsg}}'
-              - name: include
-                value: '{{workflow.parameters.include}}'
-              - name: scale
-                value: '{{workflow.parameters.scale}}'
-              - name: target_bucket_name
-                value: '{{workflow.parameters.target_bucket_name}}'
-              - name: region
-                value: '{{workflow.parameters.region}}'
-              - name: hillshade_preset
-                value: '{{item}}'
+                - name: ticket
+                  value: '{{workflow.parameters.ticket}}'
+                - name: source
+                  value: '{{=sprig.trimSuffix("/", tasks["national-dem"].outputs.parameters.target)}}/flat/'
+                - name: base_layer_source
+                  #                value: '{{= workflow.parameters.base_layer_source == "" ? "" : sprig.trimSuffix("/", workflow.parameters.base_layer_source) + "/" + item + "/" }}'
+                  value: '{{=sprig.trimSuffix("/", workflow.parameters.base_layer_source)}}/{{item}}/'
+                - name: odr_url
+                  value: '{{workflow.parameters.odr_url}}'
+                - name: group
+                  value: '{{workflow.parameters.group}}'
+                - name: publish_to_odr
+                  value: '{{workflow.parameters.publish_to_odr}}'
+                - name: copy_option
+                  value: '{{workflow.parameters.copy_option}}'
+                - name: compression
+                  value: '{{workflow.parameters.gdal_compression_preset}}'
+                - name: create_capture_area
+                  value: '{{workflow.parameters.create_capture_area}}'
+                - name: gsd
+                  value: '{{workflow.parameters.gsd}}'
+                - name: scale_to_resolution
+                  value: '{{workflow.parameters.scale_to_resolution}}'
+                - name: source_epsg
+                  value: '{{workflow.parameters.source_epsg}}'
+                - name: target_epsg
+                  value: '{{workflow.parameters.target_epsg}}'
+                - name: include
+                  value: '{{workflow.parameters.include}}'
+                - name: scale
+                  value: '{{workflow.parameters.scale}}'
+                - name: target_bucket_name
+                  value: '{{workflow.parameters.target_bucket_name}}'
+                - name: region
+                  value: '{{workflow.parameters.region}}'
+                - name: hillshade_preset
+                  value: '{{item}}'
+            withParam: '{{workflow.parameters.hillshade_presets}}'
+            depends: 'national-dem.Succeeded'
+          - name: national-hillshade-merge  # Todo: inputs are: 8m Hillshade (ODR), 1m Hillshade (ODR), scale_to; then loop over hillshade_presets
+            templateRef:
+              name: test-tpl-national-hillshade
+              template: main
+            when: "'{{workflow.parameters.generate_hillshade}}' == 'true'"
+            arguments:
+              parameters:
+                - name: ticket
+                  value: '{{workflow.parameters.ticket}}'
+                - name: source
+                  value: '{{=sprig.trimSuffix("/", tasks["national-dem"].outputs.parameters.target)}}/flat/'
+                - name: base_layer_source
+                  #                value: '{{= workflow.parameters.base_layer_source == "" ? "" : sprig.trimSuffix("/", workflow.parameters.base_layer_source) + "/" + item + "/" }}'
+                  value: '{{=sprig.trimSuffix("/", workflow.parameters.base_layer_source)}}/{{item}}/'
+                - name: odr_url
+                  value: '{{workflow.parameters.odr_url}}'
+                - name: group
+                  value: '{{workflow.parameters.group}}'
+                - name: publish_to_odr
+                  value: '{{workflow.parameters.publish_to_odr}}'
+                - name: copy_option
+                  value: '{{workflow.parameters.copy_option}}'
+                - name: compression
+                  value: '{{workflow.parameters.gdal_compression_preset}}'
+                - name: create_capture_area
+                  value: '{{workflow.parameters.create_capture_area}}'
+                - name: gsd
+                  value: '{{workflow.parameters.gsd}}'
+                - name: scale_to_resolution
+                  value: '{{workflow.parameters.scale_to_resolution}}'
+                - name: source_epsg
+                  value: '{{workflow.parameters.source_epsg}}'
+                - name: target_epsg
+                  value: '{{workflow.parameters.target_epsg}}'
+                - name: include
+                  value: '{{workflow.parameters.include}}'
+                - name: scale
+                  value: '{{workflow.parameters.scale}}'
+                - name: target_bucket_name
+                  value: '{{workflow.parameters.target_bucket_name}}'
+                - name: region
+                  value: '{{workflow.parameters.region}}'
+                - name: hillshade_preset
+                  value: '{{item}}'
             withParam: '{{workflow.parameters.hillshade_presets}}'
             depends: 'national-dem.Succeeded'
 
