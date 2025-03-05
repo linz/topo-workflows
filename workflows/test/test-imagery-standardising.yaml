@@ -55,7 +55,7 @@ spec:
           - 'none'
       - name: ticket
         description: 'Ticket ID, e.g. "LI-1570"'
-        value: 'TDE-1359'
+        value: ''
       - name: region
         description: 'Region of the dataset from the list below'
         value: 'new-zealand'
@@ -127,10 +127,10 @@ spec:
         value: ''
       - name: odr_url
         description: '(Optional) If an existing dataset add the S3 path to the dataset here to load existing metadata e.g. "s3://nz-imagery/taranaki/new-plymouth_2017_0.1m/rgb/2193/"'
-        value: 's3://linz-workflows-scratch/2025-03/04-test-imagery-standardising-x85kh/flat/'
+        value: ''
       - name: category
         description: 'Geospatial category of the dataset'
-        value: 'rural-aerial-photos'
+        value: 'aerial-photos'
         enum:
           - 'aerial-photos'
           - 'urban-aerial-photos'
@@ -338,290 +338,71 @@ spec:
             arguments:
               parameters:
                 - name: version_argo_tasks
-                  description: 'Specify a version of the argo-tasks image to use, e.g. "v4.1" or "latest"'
-                  value: 'v4'
+                  value: '{{workflow.parameters.version_argo_tasks}}'
                 - name: version_basemaps_cli
-                  description: 'Specify a version of the basemaps-cli image to use, e.g. "v7.1" or "latest"'
-                  value: 'v7'
+                  value: '{{workflow.parameters.version_basemaps_cli}}'
                 - name: version_topo_imagery
-                  description: 'Specify a version of the topo-imagery image to use, e.g. "v4.8" or "latest"'
-                  value: 'latest'
+                  value: '{{workflow.parameters.version_topo_imagery}}'
                 - name: user_group
-                  description: Group of users running the workflow
-                  value: 'none'
-                  enum:
-                    - 'land'
-                    - 'sea'
-                    - 'none'
+                  value: '{{workflow.parameters.user_group}}'
                 - name: ticket
-                  description: 'Ticket ID, e.g. "LI-1570"'
-                  value: 'TDE-1359'
+                  value: '{{workflow.parameters.ticket}}'
                 - name: region
-                  description: 'Region of the dataset from the list below'
-                  value: 'new-zealand'
-                  enum:
-                    - 'antarctica'
-                    - 'auckland'
-                    - 'bay-of-plenty'
-                    - 'canterbury'
-                    - 'gisborne'
-                    - 'global'
-                    - 'hawkes-bay'
-                    - 'manawatu-whanganui'
-                    - 'marlborough'
-                    - 'nelson'
-                    - 'new-zealand'
-                    - 'northland'
-                    - 'otago'
-                    - 'pacific-islands'
-                    - 'southland'
-                    - 'taranaki'
-                    - 'tasman'
-                    - 'waikato'
-                    - 'wellington'
-                    - 'west-coast'
+                  value: '{{workflow.parameters.region}}'
                 - name: source
-                  description: 'S3 location of the source dataset(s). Separate multiple sources with a semicolon (;) for merging. Target imagery will be layered (bottom to top) in order specified (left to right)'
-                  value: ''
+                  value: '{{workflow.parameters.source}}'
                 - name: include
-                  description: 'Regular expression pattern match for paths/files to include e.g ".tiff?$"'
-                  value: '.tiff?$'
+                  value: '{{workflow.parameters.include}}'
                 - name: scale
-                  description: 'Scale of the standardised output imagery'
-                  value: '500'
-                  enum:
-                    - '500'
-                    - '1000'
-                    - '2000'
-                    - '5000'
-                    - '10000'
-                    - '50000'
-                    - 'None'
+                  value: '{{workflow.parameters.scale}}'
                 - name: validate
-                  description: 'Validate the tiles match LINZ map sheet tile index and there are no duplicate tiles'
-                  value: 'false'
+                  value: '{{workflow.parameters.validate}}'
                 - name: retile
-                  description: 'Retile the dataset to the output scale specified in the "scale" parameter'
-                  value: 'false'
+                  value: '{{workflow.parameters.retile}}'
                 - name: source_epsg
-                  description: 'EPSG of the source files'
-                  value: '2193'
+                  value: '{{workflow.parameters.source_epsg}}'
                 - name: target_epsg
-                  description: 'EPSG of the standardised output files'
-                  value: '2193'
+                  value: '{{workflow.parameters.target_epsg}}'
                 - name: group
-                  description: 'How many output tiles to process in each standardise-validate task "pod". Change if you have resource or performance issues when standardising a dataset.'
-                  value: '50'
+                  value: '{{workflow.parameters.group}}'
                 - name: compression
-                  description: 'Compression type to use when standardising TIFFs, e.g. "webp" for imagery or "dem_lerc" for elevation data'
-                  value: 'webp'
-                  enum:
-                    - 'webp'
-                    - 'lzw'
-                    - 'dem_lerc'
+                  value: '{{workflow.parameters.compression}}'
                 - name: create_capture_area
-                  description: 'Create a capture area GeoJSON file for the standardised dataset'
-                  value: 'true'
+                  value: '{{workflow.parameters.create_capture_area}}'
                 - name: cutline
-                  description: '(Optional) location of a cutline file to cut the imagery to .fgb or .geojson'
-                  value: ''
+                  value: '{{workflow.parameters.cutline}}'
                 - name: odr_url
-                  description: '(Optional) If an existing dataset add the S3 path to the dataset here to load existing metadata e.g. "s3://nz-imagery/taranaki/new-plymouth_2017_0.1m/rgb/2193/"'
-                  value: 's3://linz-workflows-scratch/2025-03/04-test-imagery-standardising-x85kh/flat/'
+                  value: '{{workflow.parameters.odr_url}}'
                 - name: category
-                  description: 'Geospatial category of the dataset'
-                  value: 'rural-aerial-photos'
-                  enum:
-                    - 'aerial-photos'
-                    - 'urban-aerial-photos'
-                    - 'rural-aerial-photos'
-                    - 'scanned-aerial-photos'
-                    - 'dem'
-                    - 'dsm'
-                    - 'satellite-imagery'
+                  value: '{{workflow.parameters.category}}'
                 - name: gsd
-                  description: 'Dataset GSD in metres, e.g., "0.3" for 30 centimetres'
-                  value: '0.3'
+                  value: '{{workflow.parameters.gsd}}'
                 - name: producer
-                  description: 'The producer of the source dataset, e.g. aerial or bathymetric survey company'
-                  value: 'Unknown'
-                  enum:
-                    [
-                      'Unknown',
-                      'AAM NZ',
-                      'Aerial Surveys',
-                      'Beca',
-                      'Chang Guang Satellite Technology',
-                      'Christchurch Helicopters',
-                      'Dimap',
-                      'European Space Agency',
-                      'GeoSmart',
-                      'Landpro',
-                      'Maxar',
-                      'NZ Aerial Mapping',
-                      'Ocean Infinity',
-                      'Recon',
-                      'RPS',
-                      'SKYCAN',
-                      'SKYVUW',
-                      'Terralink International',
-                      'UAV Mapping NZ',
-                      'University of Canterbury',
-                      'Woolpert',
-                    ]
+                  value: '{{workflow.parameters.producer}}'
                 - name: producer_list
-                  description: '(Optional) List of imagery producers, separated by semicolon (;). Has no effect unless a semicolon delimited list is entered.'
-                  value: ''
+                  value: '{{workflow.parameters.producer_list}}'
                 - name: licensor
-                  description: 'The licensor of the dataset, e.g. local or regional council, government agency, satellite provider'
-                  value: 'Unknown'
-                  enum:
-                    [
-                      'Unknown',
-                      'Ashburton District Council',
-                      'Auckland Council',
-                      'BOPLASS',
-                      'Bay of Plenty Regional Council',
-                      'Buller District Council',
-                      'Canterbury Aerial Imagery Consortium (CAI)',
-                      'Carterton District Council',
-                      "Central Hawke's Bay District Council",
-                      'Central Otago District Council',
-                      'Chang Guang Satellite Technology',
-                      'Chatham Islands Council',
-                      'Christchurch City Council',
-                      'Clutha District Council',
-                      'CoLAB',
-                      'Department of Conservation',
-                      'Dunedin City Council',
-                      'Environment Canterbury',
-                      'Environment Southland',
-                      'Far North District Council',
-                      'Gisborne District Council',
-                      'Gore District Council',
-                      'Greater Wellington Regional Council',
-                      'Grey District Council',
-                      'Hamilton City Council',
-                      'Hastings District Council',
-                      'Hauraki District Council',
-                      "Hawke's Bay Local Authority Shared Services (HB LASS)",
-                      "Hawke's Bay Regional Council",
-                      'Horizons Regional Council',
-                      'Horowhenua District Council',
-                      'Hurunui District Council',
-                      'Hutt City Council',
-                      'Invercargill City Council',
-                      'Kaikōura District Council',
-                      'Kaipara District Council',
-                      'Kawerau District Council',
-                      'Kāpiti Coast District Council',
-                      'Mackenzie District Council',
-                      'Manawatū District Council',
-                      'Manawatū-Whanganui LASS',
-                      'Marlborough District Council',
-                      'Masterton District Council',
-                      'Matamata-Piako District Council',
-                      'Maxar Technologies',
-                      'Ministry of Business, Innovation and Employment',
-                      'Ministry of Primary Industries',
-                      'NZ Aerial Mapping',
-                      'Napier City Council',
-                      'National Emergency Management Agency',
-                      'National Institute of Water and Atmospheric Research',
-                      'Nelson City Council',
-                      'New Plymouth District Council',
-                      'Northland Regional Council',
-                      'Ōpōtiki District Council',
-                      'Ōtorohanga District Council',
-                      'Otago Regional Council',
-                      'Palmerston North City Council',
-                      'Planet',
-                      'Porirua City Council',
-                      'Queenstown-Lakes District Council',
-                      'Rangitīkei District Council',
-                      'Regional Software Holdings Limited',
-                      'Rotorua District Council',
-                      'Ruapehu District Council',
-                      'Selwyn District Council',
-                      'Sinergise',
-                      'South Taranaki District Council',
-                      'South Waikato District Council',
-                      'South Wairarapa District Council',
-                      'Southland District Council',
-                      'Stratford District Council',
-                      'Taranaki Regional Council',
-                      'Tararua District Council',
-                      'Tasman District Council',
-                      'Taupō District Council',
-                      'Tauranga City Council',
-                      'Terralink International',
-                      'Thames-Coromandel District Council',
-                      'Timaru District Council',
-                      'Toitū Te Whenua Land Information New Zealand',
-                      'Upper Hutt City Council',
-                      'Waikato District Council',
-                      'Waikato Regional Aerial Photography Service (WRAPS)',
-                      'Waikato Regional Council',
-                      'Waimakariri District Council',
-                      'Waimate District Council',
-                      'Waipā District Council',
-                      'Wairoa District Council',
-                      'Waitaki District Council',
-                      'Waitomo District Council',
-                      'Waka Kotahi',
-                      'Wellington City Council',
-                      'West Coast Regional Council',
-                      'Western Bay of Plenty District Council',
-                      'Westland District Council',
-                      'Whakatāne District Council',
-                      'Whanganui District Council',
-                      'Whangārei District Council',
-                    ]
+                  value: '{{workflow.parameters.licensor}}'
                 - name: licensor_list
-                  description: '(Optional) List of imagery licensors, separated by semicolon (;). Has no effect unless a semicolon delimited list is entered.'
-                  value: ''
+                  value: '{{workflow.parameters.licensor_list}}'
                 - name: start_datetime
-                  description: 'Dataset capture start date in numeric format YYYY-MM-DD, e.g. "2024-01-14"'
-                  value: '2025-01-01'
+                  value: '{{workflow.parameters.start_datetime}}'
                 - name: end_datetime
-                  description: 'Dataset capture end date in numeric format YYYY-MM-DD, e.g. "2024-02-23"'
-                  value: '2025-01-01'
+                  value: '{{workflow.parameters.end_datetime}}'
                 - name: geographic_description
-                  description: '(Optional) Additional dataset description, to be used in the title in place of the Region, e.g. "Hamilton"'
-                  value: ''
+                  value: '{{workflow.parameters.geographic_description}}'
                 - name: lifecycle
-                  description: 'The release lifecycle status of the dataset, e.g. "completed or "ongoing"'
-                  value: 'under development'
-                  enum:
-                    - 'under development'
-                    - 'preview'
-                    - 'ongoing'
-                    - 'completed'
-                    - 'deprecated'
+                  value: '{{workflow.parameters.lifecycle}}'
                 - name: event
-                  description: '(Optional) Event name if dataset has been captured in association with an event, e.g. "Top of the South Floods"'
-                  value: ''
+                  value: '{{workflow.parameters.event}}'
                 - name: historic_survey_number
-                  description: '(Optional) Survey Number associated with historical datasets, e.g. "SN8844"'
-                  value: ''
+                  value: '{{workflow.parameters.historic_survey_number}}'
                 - name: publish_to_odr
-                  description: 'Create a Pull Request for publishing to imagery or elevation ODR bucket'
-                  value: 'false'
+                  value: '{{workflow.parameters.publish_to_odr}}'
                 - name: target_bucket_name
-                  description: 'The ODR bucket name to publish to'
-                  value: ''
-                  enum:
-                    - ''
-                    - 'nz-imagery'
-                    - 'nz-elevation'
-                    - ''
+                  value: '{{workflow.parameters.target_bucket_name}}'
                 - name: copy_option
-                  description: 'Do not overwrite existing files with "no-clobber", "force" overwriting files in the target location, or "force-no-clobber" overwriting only changed files, skipping unchanged files'
-                  value: '--no-clobber'
-                  enum:
-                    - '--no-clobber'
-                    - '--force'
-                    - '--force-no-clobber'
+                  value: '{{workflow.parameters.copy_option}}'
   volumes:
     - name: ephemeral
       emptyDir: {}
