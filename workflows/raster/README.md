@@ -126,7 +126,13 @@ graph TD;
     tileindex-validate-->standardise-validate;
     standardise-validate-->create-collection;
     standardise-validate-->create-overview;
-    create-collection-->stac-validate-.->|publish_to_odr == true|publish-odr;
+
+    create-collection-->|odr_url == ''|stac-validate-all;
+    create-collection-->|odr_url != ''|stac-validate-only-updated;
+
+    stac-validate-all-.->|publish_to_odr == true|publish-odr;
+    stac-validate-only-updated-.->|publish_to_odr == true|publish-odr;
+
     create-overview-.->|compression != dem_lerc|create-config-.->|publish_to_odr == true|publish-odr;
 ```
 
