@@ -29,6 +29,10 @@ spec:
           value: 'true'
         - name: 'checksum_links'
           value: 'true'
+        - name: 'recursive'
+          value: 'true'
+        - name: 'concurrency'
+          value: '1'
     templates:
       - name: main
         retryStrategy:
@@ -50,6 +54,10 @@ spec:
                     value: '{{workflow.parameters.checksum_assets}}'
                   - name: 'checksum_links'
                     value: '{{workflow.parameters.checksum_links}}'
+                  - name: 'recursive'
+                    value: '{{workflow.parameters.recursive}}'
+                  - name: 'concurrency'
+                    value: '{{workflow.parameters.concurrency}}'
             - name: stac-validate-elevation
               templateRef:
                 name: stac-validate-parallel
@@ -66,6 +74,10 @@ spec:
                     value: '{{workflow.parameters.checksum_assets}}'
                   - name: 'checksum_links'
                     value: '{{workflow.parameters.checksum_links}}'
+                  - name: 'recursive'
+                    value: '{{workflow.parameters.recursive}}'
+                  - name: 'concurrency'
+                    value: '{{workflow.parameters.concurrency}}'
       - name: exit-handler
         retryStrategy:
           limit: '0' # `tpl-exit-handler` retries itself

@@ -35,6 +35,15 @@ spec:
         enum:
           - 'false'
           - 'true'
+      - name: recursive
+        description: 'Follow and validate STAC links'
+        value: 'true'
+        enum:
+          - 'false'
+          - 'true'
+      - name: concurrency
+        description: 'Number of parent STAC documents to be validated concurrently. Used to group the files by aws-list.'
+        value: '1'
   templateDefaults:
     container:
       imagePullPolicy: Always
@@ -55,10 +64,14 @@ spec:
             value: '{{workflow.parameters.checksum_assets}}'
           - name: checksum_links
             value: '{{workflow.parameters.checksum_links}}'
+          - name: recursive
+            value: '{{workflow.parameters.recursive}}'
+          - name: concurrency
+            value: '{{workflow.parameters.concurrency}}'
       dag:
         tasks:
-          - name: aws-list-collections
-            template: aws-list-collections
+          - name: aws-list
+            template: aws-list
             arguments:
               parameters:
                 - name: version_argo_tasks
@@ -67,7 +80,9 @@ spec:
                   value: '{{inputs.parameters.include}}'
                 - name: uri
                   value: '{{inputs.parameters.uri}}'
-          - name: stac-validate-collections
+                - name: group
+                  value: '{{inputs.parameters.concurrency}}'
+          - name: stac-validate
             templateRef:
               name: tpl-at-stac-validate
               template: main
@@ -79,14 +94,17 @@ spec:
                   value: '{{inputs.parameters.checksum_assets}}'
                 - name: checksum_links
                   value: '{{inputs.parameters.checksum_links}}'
-            depends: aws-list-collections
-            withParam: '{{tasks.aws-list-collections.outputs.parameters.files}}'
-    - name: aws-list-collections
+                - name: recursive
+                  value: '{{inputs.parameters.recursive}}'
+            depends: aws-list
+            withParam: '{{tasks.aws-list.outputs.parameters.files}}'
+    - name: aws-list
       inputs:
         parameters:
           - name: version_argo_tasks
           - name: include
           - name: uri
+          - name: group
       retryStrategy:
         limit: '2' # force retrying this specific task
       container:
@@ -102,7 +120,7 @@ spec:
             '--include',
             '{{=sprig.trim(inputs.parameters.include)}}',
             '--group',
-            '1',
+            '{{=sprig.trim(inputs.parameters.group)}}',
             '--output',
             '/tmp/file_list.json',
             '{{=sprig.trim(inputs.parameters.uri)}}',

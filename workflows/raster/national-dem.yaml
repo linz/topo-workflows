@@ -194,7 +194,7 @@ spec:
                   value: '{{= workflow.parameters.version_topo_imagery}}'
             depends: 'standardise-validate.Succeeded'
 
-          - name: stac-validate
+          - name: stac-validate-all
             templateRef:
               name: tpl-at-stac-validate
               template: main
@@ -205,8 +205,30 @@ spec:
               artifacts:
                 - name: stac-result
                   raw:
-                    data: '{{tasks.stac-validate.outputs.result}}'
+                    data: '{{tasks.stac-validate-all.outputs.result}}'
             depends: 'create-collection.Succeeded'
+            when: "'{{workflow.parameters.odr_url}}' == ''"
+
+          - name: stac-validate-only-updated
+            templateRef:
+              name: stac-validate-parallel # Needs to validate a list of STAC documents
+              template: main
+            arguments:
+              parameters:
+                - name: uri
+                  value: '{{=sprig.trimSuffix("/", tasks["get-location"].outputs.parameters.location)}}/flat/'
+                - name: recursive
+                  value: 'false' # The Collection might have some Items that are only in the published location
+                - name: checksum_links
+                  value: 'false'
+                - name: checksum_assets
+                  value: 'true'
+                - name: include
+                  value: '\.json$' # FIXME: For now, assuming we have only STAC as JSON files in the scratch location
+                - name: concurrency
+                  value: '50'
+            depends: 'create-collection.Succeeded'
+            when: "'{{workflow.parameters.odr_url}}' != ''"
 
           - name: create-config
             arguments:
@@ -235,7 +257,7 @@ spec:
                   value: '{{workflow.parameters.copy_option}}'
                 - name: ticket
                   value: '{{=sprig.trim(workflow.parameters.ticket)}}'
-            depends: 'stac-validate.Succeeded && create-config.Succeeded'
+            depends: '(stac-validate-all.Succeeded || stac-validate-only-updated.Succeeded) && create-config.Succeeded'
 
       outputs:
         parameters:
