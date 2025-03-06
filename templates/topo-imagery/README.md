@@ -43,6 +43,8 @@ See [standardise_validate.py](https://github.com/linz/topo-imagery/blob/master/s
         value: '{{=sprig.trim(workflow.parameters.cutline)}}'
       - name: gsd
         value: '{{=sprig.trim(workflow.parameters.gsd)}}'
+      - name: scale_to_resolution
+        value: '{{=sprig.trim(workflow.parameters.scale_to_resolution)}}'
       - name: source_epsg
         value: '{{=sprig.trim(workflow.parameters.source_epsg)}}'
       - name: target_epsg

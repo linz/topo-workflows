@@ -64,6 +64,10 @@ spec:
             description: 'Dataset GSD in metres, e.g., "0.3" for 30 centimetres'
             default: ''
 
+          - name: scale_to_resolution
+            description: 'Scale output TIFFs to x,y resolution (e.g. 1,1 - leave blank for no scaling)'
+            default: ''
+
           - name: source_epsg
             description: 'EPSG of the source files'
             default: '2193'
@@ -110,6 +114,8 @@ spec:
           - '{{=sprig.trim(inputs.parameters.odr_url)}}'
           - '--current-datetime'
           - '{{inputs.parameters.current_datetime}}'
+          - '--scale-to-resolution'
+          - '{{=sprig.trim(inputs.parameters.scale_to_resolution)}}'
         resources:
           requests:
             memory: 7.8Gi
