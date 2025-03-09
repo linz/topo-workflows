@@ -53,6 +53,9 @@ spec:
         default: ''
       - name: collection_id
         default: ''
+      - name: cutline
+        default: 's3://linz-basemaps-source/cutline/2020-05-07-cutline-nz-coasts-rural-and-urban.geojson'
+
   templateDefaults:
     container:
       imagePullPolicy: Always
@@ -67,8 +70,7 @@ spec:
           - name: scale
             default: '{{workflow.parameters.scale}}'
           - name: group
-#            default: '{{workflow.parameters.group}}'
-            value: '3'
+            default: '{{workflow.parameters.group}}'
           - name: version_argo_tasks
             default: '{{workflow.parameters.version_argo_tasks}}'
           - name: version_topo_imagery
@@ -91,11 +93,13 @@ spec:
             default: '{{workflow.parameters.odr_url}}'
           - name: collection_id
             default: '{{workflow.parameters.collection_id}}'
+          - name: cutline
+            default: '{{workflow.parameters.cutline}}'
       dag:
         tasks:
           - name: tile-index-validate
             templateRef:
-              name: test-tpl-at-tile-index-validate
+              name: tpl-at-tile-index-validate
               template: main
             arguments:
               parameters:
@@ -151,9 +155,9 @@ spec:
             depends: 'group'
             withParam: '{{tasks.group.outputs.parameters.output}}'
 
-          - name: standardise-validate
+          - name: standardise-validate  # this doesn't actually standardise, just creates the STAC files (existing TIFF files get skipped)
             templateRef:
-              name: test-tpl-ti-standardise-validate
+              name: tpl-ti-standardise-validate
               template: main
             arguments:
               parameters:
@@ -182,8 +186,8 @@ spec:
                 value: '{{=sprig.trim(inputs.parameters.target_epsg)}}'
               - name: version_topo_imagery
                 value: '{{= inputs.parameters.version_topo_imagery}}'
-#                 - name: collection_id
-#                  value: 'temp-{{inputs.parameters.hillshade_preset}}-{{workflow.name}}'
+#              - name: cutline  # doesn't work as TIFF files have already been created
+#                value: '{{inputs.parameters.cutline}}'
               artifacts:
                 - name: group_data
                   from: '{{ tasks.group.outputs.artifacts.output }}'

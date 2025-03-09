@@ -40,11 +40,12 @@ spec:
         value: ''
       - name: source
         description: 'Location of the input elevation data to create hillshade.'
-      - name: base_layer_source
-        description: 'Location of the base layer (e.g. 8m DEM hillshade) to fill any gaps in the hillshade.'
       - name: odr_url
         description: '(Optional) If an existing dataset add the S3 path to the dataset here to load existing metadata e.g. "s3://nz-elevation/new-zealand/new-zealand/dem_1m/2193/"'
         value: ''
+      - name: cutline
+        description: 'Location of a cutline file to cut the imagery to .fgb or .geojson'
+        value: 's3://linz-basemaps-source/cutline/2020-05-07-cutline-nz-coasts-rural-and-urban.geojson'
       - name: group
         description: 'How many output tiles to process in each standardise-validate task "pod". Change if you have resource or performance issues when standardising a dataset.'
         value: '2'
@@ -137,6 +138,8 @@ spec:
           value: '{{workflow.parameters.create_capture_area}}'
         - name: gsd
           value: '{{workflow.parameters.gsd}}'
+        - name: cutline
+          value: '{{workflow.parameters.cutline}}'
         - name: scale_to_resolution
           value: '{{workflow.parameters.scale_to_resolution}}'
         - name: source_epsg
@@ -191,6 +194,8 @@ spec:
                   value: '{{=sprig.trimSuffix("/", inputs.parameters.source)}}/'
                 - name: scale
                   value: '{{= inputs.parameters.scale}}'
+                - name: cutline
+                  value: '{{=sprig.trim(inputs.parameters.cutline)}}'
                 - name: group
                   value: '{{= inputs.parameters.group}}'
                 - name: hillshade_preset
@@ -200,99 +205,102 @@ spec:
                 - name: version_topo_imagery
                   value: '{{= inputs.parameters.version_topo_imagery}}'
                 - name: target  # not using flat/ here, but {{inputs.parameters.hillshade_preset}}/ to keep temporary HS output separate
-                  value: '{{=sprig.trimSuffix("/", tasks["get-location"].outputs.parameters.location)}}/{{inputs.parameters.hillshade_preset}}/temp_hillshade/'
+                  value: '{{=sprig.trimSuffix("/", tasks["get-location"].outputs.parameters.location)}}/{{inputs.parameters.hillshade_preset}}/flat/'
                 - name: collection_id
                   value: '{{tasks.stac-setup-hillshade.outputs.parameters.collection_id}}'
             depends: 'get-location.Succeeded && stac-setup-hillshade.Succeeded'
-
-          - name: tile-index-validate
-            templateRef:
-              name: test-tpl-at-tile-index-validate
-              template: main
-            arguments:
-              parameters:
-                - name: scale
-                  value: '{{inputs.parameters.scale}}'
-                - name: include
-                  value: '{{inputs.parameters.include}}'
-                - name: source  # combine both base_layer_source and temporary hillshade folder
-                  value: '{{= inputs.parameters.base_layer_source == "/" + inputs.parameters.hillshade_preset + "/" ? "" : inputs.parameters.base_layer_source + ";" }}{{=sprig.trimSuffix("/", tasks["get-location"].outputs.parameters.location)}}/{{inputs.parameters.hillshade_preset}}/temp_hillshade/'
-                #                  value: '{{= inputs.parameters.base_layer_source == "" ? "" : inputs.parameters.base_layer_source + ";" }}{{= tasks["create-hillshade"].inputs.parameters.target == "" ? "NO_SOURCE" : tasks["create-hillshade"].inputs.parameters.target}}/temp_hillshade/'
-                #                  value: '{{=sprig.trimSuffix("/", tasks["get-location"].outputs.parameters.location)}}/{{inputs.parameters.hillshade_preset}}/temp_hillshade/'
-                #                  value: '{{= inputs.parameters.base_layer_source == "" ? "" : inputs.parameters.base_layer_source + ";" }}{{=sprig.trimSuffix("/", tasks["get-location"].outputs.parameters.location)}}/{{inputs.parameters.hillshade_preset}}/'
-                - name: source_epsg
-                  value: '{{=sprig.trim(inputs.parameters.source_epsg)}}'
-                - name: validate
-                  value: 'false'
-                - name: retile
-                  value: 'true'
-                - name: preset
-                  value: 'dem_lerc'
-                - name: version
-                  value: '{{= inputs.parameters.version_argo_tasks}}'
-                - name: includeDerived
-                  value: 'true'
-            depends: 'create-hillshade.Succeeded'
-
-          - name: group
-            templateRef:
-              name: tpl-at-group
-              template: main
-            arguments:
-              artifacts:
-                - name: input
-                  from: '{{ tasks.tile-index-validate.outputs.artifacts.files }}'
-              parameters:
-                - name: size
-                  value: '{{inputs.parameters.group}}'
-                - name: version
-                  value: '{{= inputs.parameters.version_argo_tasks}}'
-            depends: 'tile-index-validate.Succeeded'
-
-#          - name: steps-per-hillshade-preset
-#            template: steps-per-hillshade-preset
+#
+#          - name: tile-index-validate
+#            templateRef:
+#              name: test-tpl-at-tile-index-validate
+#              template: main
 #            arguments:
 #              parameters:
-#                - name: hillshade_preset
+#                - name: scale
+#                  value: '{{inputs.parameters.scale}}'
+#                - name: include
+#                  value: '{{inputs.parameters.include}}'
+#                - name: source  # combine both base_layer_source and temporary hillshade folder
+#                  value: '{{=sprig.trimSuffix("/", tasks["get-location"].outputs.parameters.location)}}/{{inputs.parameters.hillshade_preset}}/temp_hillshade/'
+##                  value: '{{= inputs.parameters.base_layer_source == "/" + inputs.parameters.hillshade_preset + "/" ? "" : inputs.parameters.base_layer_source + ";" }}{{=sprig.trimSuffix("/", tasks["get-location"].outputs.parameters.location)}}/{{inputs.parameters.hillshade_preset}}/temp_hillshade/'
+#                #                  value: '{{= inputs.parameters.base_layer_source == "" ? "" : inputs.parameters.base_layer_source + ";" }}{{= tasks["create-hillshade"].inputs.parameters.target == "" ? "NO_SOURCE" : tasks["create-hillshade"].inputs.parameters.target}}/temp_hillshade/'
+#                #                  value: '{{=sprig.trimSuffix("/", tasks["get-location"].outputs.parameters.location)}}/{{inputs.parameters.hillshade_preset}}/temp_hillshade/'
+#                #                  value: '{{= inputs.parameters.base_layer_source == "" ? "" : inputs.parameters.base_layer_source + ";" }}{{=sprig.trimSuffix("/", tasks["get-location"].outputs.parameters.location)}}/{{inputs.parameters.hillshade_preset}}/'
+#                - name: source_epsg
+#                  value: '{{=sprig.trim(inputs.parameters.source_epsg)}}'
+#                - name: validate
+#                  value: 'false'
+#                - name: retile
+#                  value: 'true'
+#                - name: preset
+#                  value: 'dem_lerc'
+#                - name: version
+#                  value: '{{= inputs.parameters.version_argo_tasks}}'
+#                - name: includeDerived
+#                  value: 'true'
+#            depends: 'create-hillshade.Succeeded'
+#
+#          - name: group
+#            templateRef:
+#              name: tpl-at-group
+#              template: main
+#            arguments:
+#              artifacts:
+#                - name: input
+#                  from: '{{ tasks.tile-index-validate.outputs.artifacts.files }}'
+#              parameters:
+#                - name: size
+#                  value: '{{inputs.parameters.group}}'
+#                - name: version
+#                  value: '{{= inputs.parameters.version_argo_tasks}}'
+#            depends: 'tile-index-validate.Succeeded'
+#
+##          - name: steps-per-hillshade-preset
+##            template: steps-per-hillshade-preset
+##            arguments:
+##              parameters:
+##                - name: hillshade_preset
+##                  value: '{{item}}'
+##            withParam: '{{workflow.parameters.hillshade_presets}}'
+##            depends: 'group.Succeeded'
+#
+#          - name: standardise-validate
+#            templateRef:
+#              name: test-tpl-ti-standardise-validate
+#              template: main
+#            arguments:
+#              parameters:
+#                - name: group_id
 #                  value: '{{item}}'
-#            withParam: '{{workflow.parameters.hillshade_presets}}'
+#                - name: collection_id
+#                  value: '{{tasks.stac-setup-hillshade.outputs.parameters.collection_id}}'
+#                - name: current_datetime
+#                  value: '{{tasks.stac-setup-hillshade.finishedAt}}'
+#                - name: target
+#                  value: '{{=sprig.trimSuffix("/", tasks["get-location"].outputs.parameters.location)}}/{{inputs.parameters.hillshade_preset}}/flat/'
+#                - name: odr_url
+#                  value: '{{=sprig.trim(inputs.parameters.odr_url)}}'
+#                - name: compression
+#                  value: '{{=sprig.trim(inputs.parameters.gdal_compression_preset)}}'
+#                - name: create_capture_area
+#                  value: '{{=sprig.trim(inputs.parameters.create_capture_area)}}'
+#                - name: gsd
+#                  value: '{{=sprig.trim(inputs.parameters.gsd)}}'
+#                - name: scale_to_resolution
+#                  value: '{{=sprig.trim(inputs.parameters.scale_to_resolution)}}'
+#                - name: source_epsg
+#                  value: '{{=sprig.trim(inputs.parameters.source_epsg)}}'
+#                - name: target_epsg
+#                  value: '{{=sprig.trim(inputs.parameters.target_epsg)}}'
+#                - name: version_topo_imagery
+#                  value: '{{= inputs.parameters.version_topo_imagery}}'
+#                - name: cutline
+#                  value: 's3://linz-basemaps-source/cutline/2020-05-07-cutline-nz-coasts-rural-and-urban.geojson'
+#              artifacts:
+#                - name: group_data
+#                  from: '{{ tasks.group.outputs.artifacts.output }}'
 #            depends: 'group.Succeeded'
-
-          - name: standardise-validate
-            templateRef:
-              name: test-tpl-ti-standardise-validate
-              template: main
-            arguments:
-              parameters:
-                - name: group_id
-                  value: '{{item}}'
-                - name: collection_id
-                  value: '{{tasks.stac-setup-hillshade.outputs.parameters.collection_id}}'
-                - name: current_datetime
-                  value: '{{tasks.stac-setup-hillshade.finishedAt}}'
-                - name: target
-                  value: '{{=sprig.trimSuffix("/", tasks["get-location"].outputs.parameters.location)}}/{{inputs.parameters.hillshade_preset}}/flat/'
-                - name: odr_url
-                  value: '{{=sprig.trim(inputs.parameters.odr_url)}}'
-                - name: compression
-                  value: '{{=sprig.trim(inputs.parameters.gdal_compression_preset)}}'
-                - name: create_capture_area
-                  value: '{{=sprig.trim(inputs.parameters.create_capture_area)}}'
-                - name: gsd
-                  value: '{{=sprig.trim(inputs.parameters.gsd)}}'
-                - name: scale_to_resolution
-                  value: '{{=sprig.trim(inputs.parameters.scale_to_resolution)}}'
-                - name: source_epsg
-                  value: '{{=sprig.trim(inputs.parameters.source_epsg)}}'
-                - name: target_epsg
-                  value: '{{=sprig.trim(inputs.parameters.target_epsg)}}'
-                - name: version_topo_imagery
-                  value: '{{= inputs.parameters.version_topo_imagery}}'
-              artifacts:
-                - name: group_data
-                  from: '{{ tasks.group.outputs.artifacts.output }}'
-            depends: 'group.Succeeded'
-            withParam: '{{ tasks.group.outputs.parameters.output }}'
+#            withParam: '{{ tasks.group.outputs.parameters.output }}'
 
           - name: create-collection
             templateRef:
@@ -327,7 +335,8 @@ spec:
                   value: 'false'
                 - name: version_topo_imagery
                   value: '{{= inputs.parameters.version_topo_imagery}}'
-            depends: 'standardise-validate.Succeeded'
+            depends: 'create-hillshade.Succeeded'
+#            depends: 'standardise-validate.Succeeded'
 
           - name: stac-validate
             templateRef:
@@ -336,7 +345,7 @@ spec:
             arguments:
               parameters:
                 - name: uri
-                  value: '{{=sprig.trimSuffix("/", tasks["get-location"].outputs.parameters.location)}}/flat/collection.json'
+                  value: '{{=sprig.trimSuffix("/", tasks["get-location"].outputs.parameters.location)}}/{{inputs.parameters.hillshade_preset}}/flat/collection.json'
               artifacts:
                 - name: stac-result
                   raw:
@@ -348,13 +357,14 @@ spec:
             arguments:
               parameters:
                 - name: location
-                  value: '{{tasks.get-location.outputs.parameters.location}}'
+                  value: '{{=sprig.trimSuffix("/", tasks["get-location"].outputs.parameters.location)}}/{{inputs.parameters.hillshade_preset}}/'
                 - name: bucket
                   value: '{{tasks.get-location.outputs.parameters.bucket}}'
                 - name: key
-                  value: '{{tasks.get-location.outputs.parameters.key}}'
+                  value: '{{tasks.get-location.outputs.parameters.key}}/{{inputs.parameters.hillshade_preset}}'
             template: create-config
-            depends: 'standardise-validate'
+            depends: 'create-hillshade.Succeeded'
+#            depends: 'standardise-validate'
 
           - name: publish-odr
             templateRef:
@@ -364,7 +374,7 @@ spec:
             arguments:
               parameters:
                 - name: source
-                  value: '{{=sprig.trimSuffix("/", tasks["get-location"].outputs.parameters.location)}}/flat/'
+                  value: '{{=sprig.trimSuffix("/", tasks["get-location"].outputs.parameters.location)}}/{{inputs.parameters.hillshade_preset}}/flat/'
                 - name: target_bucket_name
                   value: '{{inputs.parameters.target_bucket_name}}'
                 - name: copy_option
@@ -377,7 +387,7 @@ spec:
         parameters:
           - name: target
             valueFrom:
-              parameter: '{{tasks["get-location"].outputs.parameters.location}}'
+              parameter: '{{tasks["get-location"].outputs.parameters.location}}'  ## TODO: Check if this needs hillshade_preset - may not be used?
               default: ''
 
     - name: create-config
