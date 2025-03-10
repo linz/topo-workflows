@@ -313,7 +313,7 @@ spec:
                 - name: linz_slug
                   value: '{{tasks.stac-setup-hillshade.outputs.parameters.linz_slug}}'
                 - name: location
-                  value: '{{=sprig.trimSuffix("/", tasks["get-location"].outputs.parameters.location)}}/{{inputs.parameters.hillshade_preset}}/flat/standardised/'
+                  value: '{{=sprig.trimSuffix("/", tasks["get-location"].outputs.parameters.location)}}/{{inputs.parameters.hillshade_preset}}/flat/'
 #                  value: '{{=sprig.trimSuffix("/", tasks["get-location"].outputs.parameters.location)}}/flat/'
                 - name: current_datetime
                   value: '{{tasks.stac-setup-hillshade.finishedAt}}'  # not stac-setup
@@ -345,7 +345,7 @@ spec:
             arguments:
               parameters:
                 - name: uri
-                  value: '{{=sprig.trimSuffix("/", tasks["get-location"].outputs.parameters.location)}}/{{inputs.parameters.hillshade_preset}}/flat/standardised/collection.json'
+                  value: '{{=sprig.trimSuffix("/", tasks["get-location"].outputs.parameters.location)}}/{{inputs.parameters.hillshade_preset}}/flat/collection.json'
               artifacts:
                 - name: stac-result
                   raw:
@@ -357,11 +357,11 @@ spec:
             arguments:
               parameters:
                 - name: location
-                  value: '{{=sprig.trimSuffix("/", tasks["get-location"].outputs.parameters.location)}}/{{inputs.parameters.hillshade_preset}}/flat/standardised/'
+                  value: '{{=sprig.trimSuffix("/", tasks["get-location"].outputs.parameters.location)}}/{{inputs.parameters.hillshade_preset}}/flat/'
                 - name: bucket
                   value: '{{tasks.get-location.outputs.parameters.bucket}}'
                 - name: key
-                  value: '{{tasks.get-location.outputs.parameters.key}}/{{inputs.parameters.hillshade_preset}}/flat/standardised/'
+                  value: '{{tasks.get-location.outputs.parameters.key}}/{{inputs.parameters.hillshade_preset}}/flat/'
             template: create-config
             depends: 'create-hillshade.Succeeded'
 #            depends: 'standardise-validate'
@@ -374,7 +374,7 @@ spec:
             arguments:
               parameters:
                 - name: source
-                  value: '{{=sprig.trimSuffix("/", tasks["get-location"].outputs.parameters.location)}}/{{inputs.parameters.hillshade_preset}}/flat/standardised/'
+                  value: '{{=sprig.trimSuffix("/", tasks["get-location"].outputs.parameters.location)}}/{{inputs.parameters.hillshade_preset}}/flat/'
                 - name: target_bucket_name
                   value: '{{inputs.parameters.target_bucket_name}}'
                 - name: copy_option
