@@ -174,7 +174,7 @@ spec:
               - name: compression
                 value: '{{=sprig.trim(inputs.parameters.gdal_compression_preset)}}'
               - name: create_capture_area
-                value: 'false'
+                value: 'true'
               - name: gsd
                 value: '{{=sprig.trim(inputs.parameters.gsd)}}'
               - name: scale_to_resolution
