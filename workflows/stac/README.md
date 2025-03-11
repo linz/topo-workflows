@@ -1,6 +1,6 @@
 # stac-validate-parallel
 
-This Workflow will validate each collection (and linked items/assets) in a separate pod so that multiple collections can be processed in parallel, using the `tpl-at-stac-validate` template.
+This Workflow will validate each stac document (searched based on name, i.e. `collection.json$`) (and linked items/assets if options specified) in a separate pod so that multiple documents can be processed in parallel, using the `tpl-at-stac-validate` template.
 
 ## Workflow Outputs
 
