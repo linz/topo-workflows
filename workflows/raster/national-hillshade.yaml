@@ -3,7 +3,7 @@
 apiVersion: argoproj.io/v1alpha1
 kind: WorkflowTemplate
 metadata:
-  name: test-af-national-hillshade-create
+  name: national-hillshade
   labels:
     linz.govt.nz/category: raster
     linz.govt.nz/data-type: raster
@@ -61,16 +61,16 @@ spec:
           - '--no-clobber'
           - '--force'
           - '--force-no-clobber'
-      - name: create_capture_area
-        value: 'true'
-        enum:
-          - 'false'
-          - 'true'
+#      - name: create_capture_area
+#        value: 'true'
+#        enum:
+#          - 'false'
+#          - 'true'
       - name: gsd
         value: '1'
-      - name: scale_to_resolution
-        description: 'Scale output TIFFs to x,y resolution (e.g. 1,1 - leave blank for no scaling)'
-        value: '1,1'
+#      - name: scale_to_resolution
+#        description: 'Scale output TIFFs to x,y resolution (e.g. 1,1 - leave blank for no scaling)'
+#        value: '1,1'
       - name: source_epsg
         value: '2193'
       - name: target_epsg
@@ -97,8 +97,8 @@ spec:
           - 'nz-elevation'
       - name: region
         value: 'new-zealand'
-      - name: gdal_compression_preset
-        default: 'dem_lerc'
+#      - name: gdal_compression_preset
+#        default: 'dem_lerc'
       - name: cutline
         default: 's3://linz-basemaps-source/cutline/2020-05-07-cutline-nz-coasts-rural-and-urban.geojson'
 
@@ -112,9 +112,9 @@ spec:
         expression: 'false'
       dag:
         tasks:
-          - name: national-hillshade-create
+          - name: create-hillshades
             templateRef:
-              name: test-af-tpl-national-hillshade
+              name: tpl-hillshade
               template: main
             arguments:
               parameters:
@@ -132,20 +132,14 @@ spec:
                   value: '{{workflow.parameters.copy_option}}'
                 - name: compression
                   value: '{{workflow.parameters.gdal_compression_preset}}'
-                - name: create_capture_area
-                  value: '{{workflow.parameters.create_capture_area}}'
                 - name: gsd
                   value: '{{workflow.parameters.gsd}}'
-                - name: scale_to_resolution
-                  value: '{{workflow.parameters.scale_to_resolution}}'
                 - name: source_epsg
                   value: '{{workflow.parameters.source_epsg}}'
                 - name: target_epsg
                   value: '{{workflow.parameters.target_epsg}}'
                 - name: include
                   value: '{{workflow.parameters.include}}'
-                - name: cutline
-                  value: '{{workflow.parameters.cutline}}'
                 - name: scale
                   value: '{{workflow.parameters.scale}}'
                 - name: target_bucket_name

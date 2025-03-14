@@ -3,7 +3,7 @@
 apiVersion: argoproj.io/v1alpha1
 kind: WorkflowTemplate
 metadata:
-  name: test-af-tpl-national-hillshade
+  name: tpl-hillshade
   labels:
     linz.govt.nz/category: raster
     linz.govt.nz/data-type: raster
@@ -43,9 +43,6 @@ spec:
       - name: odr_url
         description: '(Optional) If an existing dataset add the S3 path to the dataset here to load existing metadata e.g. "s3://nz-elevation/new-zealand/new-zealand/dem_1m/2193/"'
         value: ''
-      - name: cutline
-        description: 'Location of a cutline file to cut the imagery to .fgb or .geojson'
-        value: 's3://linz-basemaps-source/cutline/2020-05-07-cutline-nz-coasts-rural-and-urban.geojson'
       - name: group
         description: 'How many output tiles to process in each standardise-validate task "pod". Change if you have resource or performance issues when standardising a dataset.'
         value: '2'
@@ -70,16 +67,8 @@ spec:
           - '--force-no-clobber'
       - name: gdal_compression_preset
         value: 'dem_lerc'
-      - name: create_capture_area
-        value: 'true'
-        enum:
-          - 'false'
-          - 'true'
       - name: gsd
         value: '1'
-      - name: scale_to_resolution
-        description: 'Scale output TIFFs to x,y resolution (e.g. 1,1 - leave blank for no scaling)'
-        value: '1,1'
       - name: source_epsg
         value: '2193'
       - name: target_epsg
@@ -120,8 +109,6 @@ spec:
             value: '{{workflow.parameters.ticket}}'
           - name: source
             value: '{{workflow.parameters.source}}'
-          - name: base_layer_source
-            value: '{{workflow.parameters.base_layer_source}}'
           - name: odr_url
             value: '{{workflow.parameters.odr_url}}'
           - name: group
@@ -134,14 +121,8 @@ spec:
             value: '{{workflow.parameters.copy_option}}'
           - name: gdal_compression_preset
             value: '{{workflow.parameters.gdal_compression_preset}}'
-          - name: create_capture_area
-            value: '{{workflow.parameters.create_capture_area}}'
           - name: gsd
             value: '{{workflow.parameters.gsd}}'
-          - name: cutline
-            value: '{{workflow.parameters.cutline}}'
-          - name: scale_to_resolution
-            value: '{{workflow.parameters.scale_to_resolution}}'
           - name: source_epsg
             value: '{{workflow.parameters.source_epsg}}'
           - name: target_epsg
@@ -184,33 +165,71 @@ spec:
                 - name: version
                   value: '{{=sprig.trim(inputs.parameters.version_argo_tasks)}}'
 
-          - name: create-hillshade
+          - name: tile-index-validate
             templateRef:
-              name: test-af-tpl-create-hillshade
+              name: tpl-at-tile-index-validate
               template: main
             arguments:
               parameters:
-                - name: source
-                  value: '{{=sprig.trimSuffix("/", inputs.parameters.source)}}/'
                 - name: scale
-                  value: '{{= inputs.parameters.scale}}'
-                - name: cutline
-                  value: '{{=sprig.trim(inputs.parameters.cutline)}}'
-                - name: group
-                  value: '{{= inputs.parameters.group}}'
+                  value: '{{inputs.parameters.scale}}'
+                - name: include
+                  value: '{{inputs.parameters.include}}'
+                - name: source
+                  value: '{{=sprig.trim(inputs.parameters.source)}}'
+                - name: source_epsg
+                  value: '{{inputs.parameters.source_epsg}}'
+                - name: validate
+                  value: 'false'
+                - name: retile
+                  value: 'true'
+                - name: preset
+                  value: '{{inputs.parameters.gdal_compression_preset}}'
+                - name: version
+                  value: '{{= inputs.parameters.version_argo_tasks}}'
+                - name: includeDerived
+                  value: 'true'
+
+          - name: group
+            templateRef:
+              name: tpl-at-group
+              template: main
+            arguments:
+              artifacts:
+                - name: input
+                  from: '{{ tasks.tile-index-validate.outputs.artifacts.files }}'
+              parameters:
+                - name: size
+                  value: '{{inputs.parameters.group}}'
+                - name: version
+                  value: '{{= inputs.parameters.version_argo_tasks}}'
+            depends: 'tile-index-validate.Succeeded'
+
+          - name: generate-hillshade
+            templateRef:
+              name: tpl-ti-generate-hillshade
+              template: main
+            arguments:
+              parameters:
+                - name: group_id
+                  value: '{{item}}'
                 - name: hillshade_preset
                   value: '{{= inputs.parameters.hillshade_preset}}'
-                - name: version_argo_tasks
-                  value: '{{= inputs.parameters.version_argo_tasks}}'
                 - name: version_topo_imagery
                   value: '{{= inputs.parameters.version_topo_imagery}}'
                 - name: target  # not using flat/ here, but {{inputs.parameters.hillshade_preset}}/ to keep temporary HS output separate
                   value: '{{=sprig.trimSuffix("/", tasks["get-location"].outputs.parameters.location)}}/{{inputs.parameters.hillshade_preset}}/flat/'
                 - name: collection_id
                   value: '{{tasks.stac-setup-hillshade.outputs.parameters.collection_id}}'
+                - name: gsd
+                  value: '{{= inputs.parameters.gsd}}'
                 - name: current_datetime
                   value: '{{tasks.stac-setup-hillshade.finishedAt}}'
-            depends: 'get-location.Succeeded && stac-setup-hillshade.Succeeded'
+              artifacts:
+                - name: group_data
+                  from: '{{tasks.group.outputs.artifacts.output}}'
+            depends: 'get-location.Succeeded && stac-setup-hillshade.Succeeded && group.Succeeded'
+            withParam: '{{tasks.group.outputs.parameters.output}}'
 
           - name: create-collection
             templateRef:
@@ -227,7 +246,7 @@ spec:
                 - name: current_datetime
                   value: '{{tasks.stac-setup-hillshade.finishedAt}}'  # not stac-setup
                 - name: odr_url
-                  value: '{{=sprig.trim(inputs.parameters.odr_url)}}'  # TODO: does this need the hillshade odr_url?
+                  value: '{{=sprig.trim(inputs.parameters.odr_url)}}'
                 - name: category
                   value: 'dem-{{inputs.parameters.hillshade_preset}}'
                 - name: region
@@ -244,7 +263,7 @@ spec:
                   value: 'false'
                 - name: version_topo_imagery
                   value: '{{= inputs.parameters.version_topo_imagery}}'
-            depends: 'create-hillshade.Succeeded'
+            depends: 'generate-hillshade.Succeeded'
 
           - name: stac-validate
             templateRef:
@@ -271,7 +290,7 @@ spec:
                 - name: key
                   value: '{{tasks.get-location.outputs.parameters.key}}/{{inputs.parameters.hillshade_preset}}/flat/'
             template: create-config
-            depends: 'create-hillshade.Succeeded'
+            depends: 'generate-hillshade.Succeeded'
 
           - name: publish-odr
             templateRef:
