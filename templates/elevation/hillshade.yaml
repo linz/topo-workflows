@@ -217,7 +217,7 @@ spec:
                   value: '{{= inputs.parameters.hillshade_preset}}'
                 - name: version_topo_imagery
                   value: '{{= inputs.parameters.version_topo_imagery}}'
-                - name: target  # not using flat/ here, but {{inputs.parameters.hillshade_preset}}/ to keep temporary HS output separate
+                - name: target # not using flat/ here, but {{inputs.parameters.hillshade_preset}}/ to keep temporary HS output separate
                   value: '{{=sprig.trimSuffix("/", tasks["get-location"].outputs.parameters.location)}}/{{inputs.parameters.hillshade_preset}}/flat/'
                 - name: collection_id
                   value: '{{tasks.stac-setup-hillshade.outputs.parameters.collection_id}}'
@@ -244,7 +244,7 @@ spec:
                 - name: location
                   value: '{{=sprig.trimSuffix("/", tasks["get-location"].outputs.parameters.location)}}/{{inputs.parameters.hillshade_preset}}/flat/'
                 - name: current_datetime
-                  value: '{{tasks.stac-setup-hillshade.finishedAt}}'  # not stac-setup
+                  value: '{{tasks.stac-setup-hillshade.finishedAt}}' # not stac-setup
                 - name: odr_url
                   value: '{{=sprig.trim(inputs.parameters.odr_url)}}'
                 - name: category
@@ -313,7 +313,7 @@ spec:
         parameters:
           - name: target
             valueFrom:
-              parameter: '{{tasks["get-location"].outputs.parameters.location}}'  ## TODO: Check if this needs hillshade_preset - may not be used?
+              parameter: '{{tasks["get-location"].outputs.parameters.location}}' ## TODO: Check if this needs hillshade_preset - may not be used?
               default: ''
 
     - name: create-config
