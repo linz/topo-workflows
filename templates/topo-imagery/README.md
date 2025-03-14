@@ -5,6 +5,7 @@
 - [Standardise Validate](##topo-imagery/standardise-validate)
 - [Create Collection](##topo-imagery/create-collection)
 - [Generate Hillshade](##topo-imagery/generate-hillshade)
+- [Merge Hillshade Layers](##topo-imagery/merge-hillshade-layers)
 
 ## topo-imagery/standardise-validate - `tpl-ti-standardise-validate`
 
@@ -168,3 +169,87 @@ volumes:
 
 The hillshade TIFF files will be saved in a subdirectory for each of the `preset` within the `target` directory.
 Example: `s3://linz-workflows-scratch/2025-02/03-test-hillshade-94clh/flat/igor/`
+
+## topo-imagery/merge-hillshade-layers - `tpl-merge-hillshade-layers`
+
+Template for merging TIFFs (used for hillshades).  
+This `WorkflowTemplate` uses the following workflows:
+
+1. `get-location`
+2. `stac-setup`
+3. `tile-index-validate` to create a list of output tiles with (both) their source TIFF files
+4. `group` to split the list created into grouped tiles for parallel processing
+5. `standardise-validate` to standardise TIFF files and create the STAC items
+6. `create-collection` to create the STAC collection
+7. `stac-validate` to validate the STAC collection
+8. `create-config` to create a basemaps config for visual QA
+9. `publish-odr`
+
+### Template usage
+
+See implementation at `merge-national-hillshades.yaml`.
+
+```yaml
+- name: merge-hillshade-layers
+  templateRef:
+    name: tpl-merge-hillshade-layers
+    template: main
+  arguments:
+    parameters:
+      - name: version_argo_tasks
+        value: 'v4'
+      - name: version_basemaps_cli
+        value: 'v7'
+      - name: version_topo_imagery
+        value: 'v7'
+      - name: ticket
+        value: '{{workflow.parameters.ticket}}'
+      - name: top_layer_source
+        value: 's3://nz-elevation/new-zealand/new-zealand/dem-hillshade-igor_1m/2193/'
+      - name: base_layer_source
+        value: 's3://nz-elevation/new-zealand/new-zealand-contour/dem-hillshade-igor_8m/2193/'
+      - name: odr_url
+        value: 's3://nz-elevation/new-zealand/new-zealand/dem-hillshade-igor/2193/'
+      - name: group
+        value: '4'
+      - name: publish_to_odr
+        value: 'false'
+      - name: copy_option
+        value: '--force-no-clobber'
+      - name: create_capture_area
+        value: 'true'
+      - name: gsd
+        value: '1'
+      - name: scale_to_resolution
+        value: '1,1'
+      - name: source_epsg
+        value: '2193'
+      - name: target_epsg
+        value: '2193'
+      - name: include
+        value: '.tiff?$'
+      - name: scale
+        value: '50000'
+      - name: target_bucket_name
+        value: 'nz-elevation'
+      - name: region
+        value: 'new-zealand'
+      - name: geospatial_category
+        value: 'dem-hillshade-igor'
+      - name: gdal_compression_preset
+        value: 'dem_lerc'
+  withParam: '{{workflow.parameters.hillshades}}'
+```
+
+The Workflow caller must have the following volume:
+
+```yaml
+volumes:
+  - name: ephemeral
+    emptyDir: {}
+```
+
+### Output
+
+The merged TIFF files will be saved in the `tasks["get-location"].outputs.parameters.location` folder, one subdirectory per `inputs.parameters.geospatial_category` to enable being called in parallel.
+Example: `s3://linz-workflows-scratch/2025-03/14-merge-hillshade-layers-94clh/dem-hillshade-igor/flat/`
