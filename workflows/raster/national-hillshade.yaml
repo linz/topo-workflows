@@ -99,8 +99,8 @@ spec:
         value: 'new-zealand'
       #      - name: gdal_compression_preset
       #        default: 'dem_lerc'
-      - name: cutline
-        default: 's3://linz-basemaps-source/cutline/2020-05-07-cutline-nz-coasts-rural-and-urban.geojson'
+  #      - name: cutline
+  #        default: 's3://linz-basemaps-source/cutline/2020-05-07-cutline-nz-coasts-rural-and-urban.geojson'
 
   templateDefaults:
     container:
