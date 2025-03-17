@@ -183,7 +183,7 @@ spec:
                   value: 'new-zealand'
                 - name: gsd
                   value: '1'
-                - name: workflow
+                - name: lifecycle
                   value: 'ongoing'
                 - name: producer
                   value: 'Toitū Te Whenua Land Information New Zealand'
