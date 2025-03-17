@@ -1,0 +1,167 @@
+# yaml-language-server: $schema=https://raw.githubusercontent.com/argoproj/argo-workflows/v3.5.5/api/jsonschema/schema.json
+
+apiVersion: argoproj.io/v1alpha1
+kind: Workflow
+metadata:
+  generateName: merge-national-igor-hillshades-
+  namespace: argo
+  labels:
+    linz.govt.nz/category: raster
+    linz.govt.nz/data-type: raster
+spec:
+  parallelism: 50
+  nodeSelector:
+    karpenter.sh/capacity-type: 'spot'
+  entrypoint: main
+  onExit: exit-handler
+  workflowMetadata:
+    labels:
+      linz.govt.nz/region: 'new-zealand'
+    labelsFrom:
+      linz.govt.nz/ticket:
+        expression: workflow.parameters.ticket
+  podMetadata:
+    labels:
+      linz.govt.nz/category: raster
+      linz.govt.nz/data-type: raster
+      linz.govt.nz/region: 'new-zealand'
+  arguments:
+    parameters:
+      - name: version_argo_tasks
+        description: 'Specify a version of the argo-tasks image to use, e.g. "v4.1" or "latest"'
+        value: 'v4'
+      - name: version_basemaps_cli
+        description: 'Specify a version of the basemaps-cli image to use, e.g. "v7.1" or "latest"'
+        value: 'v7'
+      - name: version_topo_imagery
+        description: 'Specify a version of the topo-imagery image to use, e.g. "v4.8" or "latest"'
+        value: 'v7'
+      - name: ticket
+        description: 'Ticket ID, e.g. "TDE-1130"'
+        value: ''
+      - name: top_layer_source
+        description: 'Location of the top layer (1m hillshade-igor) to merge'
+        value: 's3://nz-elevation/new-zealand/new-zealand/dem-hillshade-igor_1m/2193/'
+      - name: base_layer_source
+        description: 'Location of the base layer (8m hillshade-igor) to merge'
+        value: 's3://nz-elevation/new-zealand/new-zealand-contour/dem-hillshade-igor_8m/2193/'
+      - name: odr_url
+        description: '(Optional) If an existing dataset add the S3 path to the dataset here to load existing metadata.'
+        value: 's3://nz-elevation/new-zealand/new-zealand/dem-hillshade-igor/2193/'
+      - name: group
+        description: 'How many output tiles to process in each standardise-validate task "pod". Change if you have resource or performance issues when standardising a dataset.'
+        value: '4'
+      - name: publish_to_odr
+        description: 'Create a Pull Request for publishing to imagery or elevation ODR bucket'
+        value: 'false'
+        enum:
+          - 'false'
+          - 'true'
+      - name: copy_option
+        description: 'Do not overwrite existing files with "no-clobber", "force" overwriting files in the target location, or "force-no-clobber" overwriting only changed files, skipping unchanged files'
+        value: '--force-no-clobber'
+        enum:
+          - '--no-clobber'
+          - '--force'
+          - '--force-no-clobber'
+      - name: geospatial_category
+        description: 'Geospatial category of the dataset'
+        value: 'dem-hillshade-igor'
+        enum:
+          - 'aerial-photos'
+          - 'urban-aerial-photos'
+          - 'rural-aerial-photos'
+          - 'scanned-aerial-photos'
+          - 'dem'
+          - 'dsm'
+          - 'satellite-imagery'
+          - 'dem-hillshade'
+          - 'dem-hillshade-igor'
+      - name: create_capture_area
+        value: 'true'
+        enum:
+          - 'false'
+          - 'true'
+      - name: create_capture_dates
+        value: 'false'
+        enum:
+          - 'false'
+          - 'true'
+      - name: gsd
+        value: '1'
+      - name: scale_to_resolution
+        description: 'Scale output TIFFs to x,y resolution (e.g. 1,1 - leave blank for no scaling)'
+        value: '1,1'
+      - name: source_epsg
+        value: '2193'
+      - name: target_epsg
+        value: '2193'
+      - name: include
+        description: 'Regular expression pattern match for paths/files to include e.g ".tiff?$"'
+        value: '.tiff?$'
+      - name: scale
+        description: 'Scale of the standardised output imagery'
+        value: '50000'
+        enum:
+          - '500'
+          - '1000'
+          - '2000'
+          - '5000'
+          - '10000'
+          - '50000'
+          - 'None'
+      - name: target_bucket_name
+        description: 'The ODR bucket name to publish to'
+        value: 'nz-elevation'
+        enum:
+          - 'nz-imagery'
+          - 'nz-elevation'
+      - name: region
+        value: 'new-zealand'
+      - name: gdal_compression_preset
+        value: 'dem_lerc'
+  templateDefaults:
+    container:
+      imagePullPolicy: Always
+      image: ''
+  templates:
+    - name: main
+      retryStrategy:
+        expression: 'false'
+      dag:
+        tasks:
+          - name: merge-hillshade-layers-igor
+            templateRef:
+              name: tpl-merge-hillshade-layers
+              template: main
+            arguments:
+              parameters:
+                - name: top_layer_source
+                  value: '{{workflow.parameters.top_layer_source}}'
+                - name: base_layer_source
+                  value: '{{workflow.parameters.base_layer_source}}'
+                - name: odr_url
+                  value: '{{workflow.parameters.odr_url}}'
+                - name: publish_to_odr
+                  value: '{{workflow.parameters.publish_to_odr}}'
+                - name: geospatial_category
+                  value: '{{workflow.parameters.geospatial_category}}'
+
+    - name: exit-handler
+      retryStrategy:
+        limit: '0' # `tpl-exit-handler` retries itself
+      steps:
+        - - name: exit
+            templateRef:
+              name: tpl-exit-handler
+              template: main
+            arguments:
+              parameters:
+                - name: workflow_status
+                  value: '{{workflow.status}}'
+                - name: workflow_parameters
+                  value: '{{workflow.parameters}}'
+
+  volumes:
+    - name: ephemeral
+      emptyDir: {}
