@@ -36,7 +36,7 @@ spec:
 
           - name: gsd
             description: 'Dataset GSD in metres, e.g., "0.3" for 30 centimetres'
-            default: ''
+            default: '1'
 
           - name: collection_id
             description: 'Collection ID of existing dataset, or else a generated collection ID'
