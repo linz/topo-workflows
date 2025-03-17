@@ -258,7 +258,7 @@ spec:
                   value: '{{=sprig.trim(workflow.parameters.copy_option)}}'
                 - name: ticket
                   value: '{{=sprig.trim(workflow.parameters.ticket)}}'
-            depends: 'stac-validate.Succeeded && create-config.Succeeded'
+            depends: '(stac-validate-all.Succeeded || stac-validate-only-updated.Succeeded) && create-config.Succeeded'
 
       outputs:
         parameters:
