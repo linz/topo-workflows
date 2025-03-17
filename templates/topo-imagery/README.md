@@ -185,6 +185,19 @@ This `WorkflowTemplate` uses the following workflows:
 8. `create-config` to create a basemaps config for visual QA
 9. `publish-odr`
 
+```mermaid
+graph TD
+  A[stac-setup] --> C[tile-index-validate]
+  B[get-location] --> C
+  C --> D[group]
+  D --> |1..n|E[standardise-validate]
+  E --> F[create-config]
+  E --> G[create-collection]
+  G --> H[stac-validate]
+  F --> I[publish-odr]
+  H --> I[publish-odr]
+```
+
 ### Template usage
 
 See implementation at `merge-national-hillshades.yaml`.
