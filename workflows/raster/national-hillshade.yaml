@@ -41,9 +41,12 @@ spec:
       - name: source
         description: 'Location of the input elevation data to create hillshade.'
         value: 's3://nz-elevation/new-zealand/new-zealand/dem_1m/2193/'
-      #      - name: odr_url
-      #        description: '(Optional) If an existing dataset add the S3 path to the dataset here to load existing metadata e.g. "s3://nz-elevation/new-zealand/new-zealand/dem_1m/2193/"'
-      #        value: ''
+      - name: odr_url
+        description: '(Optional) If an existing dataset add the S3 path to the dataset here to load existing metadata e.g. "s3://nz-elevation/new-zealand/new-zealand/dem_1m/2193/"'
+        value: ''
+      - name: hillshade_preset
+        description: 'Hillshade preset to use, must be one of "hillshade" or "hillshade-igor"'
+        value: 'hillshade'
       - name: group
         description: 'How many output tiles to process in each standardise-validate task "pod". Change if you have resource or performance issues when standardising a dataset.'
         value: '4'
@@ -53,9 +56,6 @@ spec:
         enum:
           - 'false'
           - 'true'
-      - name: hillshade_preset
-        description: 'Hillshade preset to use, must be one of "hillshade" or "hillshade-igor"'
-        value: 'hillshade'
       - name: copy_option
         description: 'Do not overwrite existing files with "no-clobber", "force" overwriting files in the target location, or "force-no-clobber" overwriting only changed files, skipping unchanged files'
         value: '--force-no-clobber'
@@ -63,25 +63,6 @@ spec:
           - '--no-clobber'
           - '--force'
           - '--force-no-clobber'
-  #      - name: gdal_compression_preset
-  #        value: 'dem_lerc'
-  #      - name: gsd
-  #        value: '1'
-  #      - name: source_epsg
-  #        value: '2193'
-  #      - name: target_epsg
-  #        value: '2193'
-  #      - name: include
-  #        description: 'Regular expression pattern match for paths/files to include e.g ".tiff?$"'
-  #        value: '.tiff?$'
-  #      - name: scale
-  #        description: 'Scale of the standardised output imagery'
-  #        value: '50000'
-  #      - name: target_bucket_name
-  #        description: 'The ODR bucket name to publish to'
-  #        value: 'nz-elevation'
-  #      - name: region
-  #        value: 'new-zealand'
   templateDefaults:
     container:
       imagePullPolicy: Always
