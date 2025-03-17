@@ -3,7 +3,7 @@
 apiVersion: argoproj.io/v1alpha1
 kind: WorkflowTemplate
 metadata:
-  name: tpl-merge-hillshade-layers
+  name: merge-layers
   labels:
     linz.govt.nz/category: raster
     linz.govt.nz/data-type: raster
@@ -39,10 +39,10 @@ spec:
         description: 'Ticket ID, e.g. "TDE-1130"'
         value: ''
       - name: top_layer_source
-        description: 'Location of the top layer hillshade. Semi-colon separated list of paths.'
-        default: 's3://nz-elevation/new-zealand/new-zealand/dem-hillshade-igor_1m/2193/'
+        description: 'Location of the top layer (e.g. 1m DEM hillshade). Semi-colon separated list of paths.'
+        value: 's3://nz-elevation/new-zealand/new-zealand/dem-hillshade-igor_1m/2193/'
       - name: base_layer_source
-        description: 'Location of the base layers (e.g. 8m DEM hillshade) to fill any gaps in the hillshade. Semi-colon separated list of paths.'
+        description: 'Location of the base layers (e.g. 8m DEM hillshade) to fill any gaps in the top layer. Semi-colon separated list of paths.'
         value: 's3://nz-elevation/new-zealand/new-zealand-contour/dem-hillshade-igor_8m/2193/'
       - name: odr_url
         description: '(Optional) If an existing dataset add the S3 path to the dataset here to load existing metadata e.g. "s3://nz-elevation/new-zealand/new-zealand/dem-hillshade-igor/2193/"'
@@ -118,7 +118,7 @@ spec:
       - name: region
         value: 'new-zealand'
       - name: gdal_compression_preset
-        default: 'dem_lerc'
+        value: 'dem_lerc'
   templateDefaults:
     container:
       imagePullPolicy: Always
