@@ -3,7 +3,7 @@
 apiVersion: argoproj.io/v1alpha1
 kind: WorkflowTemplate
 metadata:
-  name: national-hillshade
+  name: national-hillshade-1m
   labels:
     linz.govt.nz/category: raster
     linz.govt.nz/data-type: raster
@@ -202,7 +202,7 @@ spec:
             arguments:
               parameters:
                 - name: uri
-                  value: '{{=sprig.trimSuffix("/", tasks["get-location"].outputs.parameters.location)}/{{=sprig.trim(workflow.parameters.hillshade_preset)}}}/flat/collection.json'
+                  value: '{{=sprig.trimSuffix("/", tasks["get-location"].outputs.parameters.location)}}/{{=sprig.trim(workflow.parameters.hillshade_preset)}}/flat/collection.json'
               artifacts:
                 - name: stac-result
                   raw:
