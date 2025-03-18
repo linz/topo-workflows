@@ -35,6 +35,8 @@
     "cdk8s-cli": "^2.198.228",
     "cdk8s-plus-30": "^2.2.5",
     "constructs": "^10.3.0",
+    "eslint": "^8.57.1",
+    "eslint-plugin-yml": "^1.17.0",
     "tsx": "^4.6.2",
     "yaml": "^2.5.1"
   }
