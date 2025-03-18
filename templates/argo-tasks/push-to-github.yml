@@ -44,7 +44,6 @@ spec:
               secretKeyRef:
                 name: github-linz-li-bot-pat
                 key: pat
-        command: [node, /app/index.js]
         args:
           [
             'stac',

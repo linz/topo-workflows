@@ -74,7 +74,6 @@ Environment variables can be set in the containers as below, which is setting th
 ```yaml
 container:
   image: 019359803926.dkr.ecr.ap-southeast-2.amazonaws.com/argo-tasks:latest
-  command: [node, /app/index.js]
   env:
     - name: AWS_ROLE_CONFIG_PATH
       value: s3://linz-bucket-config/config.json
