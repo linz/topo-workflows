@@ -10,7 +10,7 @@ metadata:
 spec:
   parallelism: 50
   nodeSelector:
-    karpenter.sh/capacity-type: 'spot'
+    karpenter.sh/capacity-type: spot
   entrypoint: main
   onExit: exit-handler
   workflowMetadata:
@@ -28,21 +28,21 @@ spec:
     parameters:
       - name: version_argo_tasks
         description: 'Specify a version of the argo-tasks image to use, e.g. "v4.1" or "latest"'
-        value: 'v4'
+        value: v4
       - name: version_basemaps_cli
         description: 'Specify a version of the basemaps-cli image to use, e.g. "v7.1" or "latest"'
-        value: 'v7'
+        value: v7
       - name: version_topo_imagery
         description: 'Specify a version of the topo-imagery image to use, e.g. "v4.8" or "latest"'
-        value: 'v7'
+        value: v7
       - name: ticket
         description: 'Ticket ID, e.g. "TDE-1130"'
         value: ''
       - name: top_layer_source
-        description: 'Location of the top layer (e.g. 1m DEM hillshade). Semi-colon separated list of paths.'
+        description: Location of the top layer (e.g. 1m DEM hillshade). Semi-colon separated list of paths.
         value: 's3://nz-elevation/new-zealand/new-zealand/dem-hillshade-igor_1m/2193/'
       - name: base_layer_source
-        description: 'Location of the base layers (e.g. 8m DEM hillshade) to fill any gaps in the top layer. Semi-colon separated list of paths.'
+        description: Location of the base layers (e.g. 8m DEM hillshade) to fill any gaps in the top layer. Semi-colon separated list of paths.
         value: 's3://nz-elevation/new-zealand/new-zealand-contour/dem-hillshade-igor_8m/2193/'
       - name: odr_url
         description: '(Optional) If an existing dataset add the S3 path to the dataset here to load existing metadata e.g. "s3://nz-elevation/new-zealand/new-zealand/dem-hillshade-igor/2193/"'
@@ -51,31 +51,31 @@ spec:
         description: 'How many output tiles to process in each standardise-validate task "pod". Change if you have resource or performance issues when standardising a dataset.'
         value: '4'
       - name: publish_to_odr
-        description: 'Create a Pull Request for publishing to imagery or elevation ODR bucket'
+        description: Create a Pull Request for publishing to imagery or elevation ODR bucket
         value: 'false'
         enum:
           - 'false'
           - 'true'
       - name: copy_option
         description: 'Do not overwrite existing files with "no-clobber", "force" overwriting files in the target location, or "force-no-clobber" overwriting only changed files, skipping unchanged files'
-        value: '--force-no-clobber'
+        value: --force-no-clobber
         enum:
-          - '--no-clobber'
-          - '--force'
-          - '--force-no-clobber'
+          - --no-clobber
+          - --force
+          - --force-no-clobber
       - name: geospatial_category
         description: 'Geospatial category of the dataset, e.g. "dem-hillshade"'
-        value: 'dem-hillshade-igor'
+        value: dem-hillshade-igor
         enum:
-          - 'aerial-photos'
-          - 'urban-aerial-photos'
-          - 'rural-aerial-photos'
-          - 'scanned-aerial-photos'
-          - 'dem'
-          - 'dsm'
-          - 'satellite-imagery'
-          - 'dem-hillshade'
-          - 'dem-hillshade-igor'
+          - aerial-photos
+          - urban-aerial-photos
+          - rural-aerial-photos
+          - scanned-aerial-photos
+          - dem
+          - dsm
+          - satellite-imagery
+          - dem-hillshade
+          - dem-hillshade-igor
       - name: create_capture_area
         value: 'true'
         enum:
@@ -97,9 +97,9 @@ spec:
         value: '2193'
       - name: include
         description: 'Regular expression pattern match for paths/files to include e.g ".tiff?$"'
-        value: '.tiff?$'
+        value: .tiff?$
       - name: scale
-        description: 'Scale of the standardised output imagery'
+        description: Scale of the standardised output imagery
         value: '50000'
         enum:
           - '500'
@@ -108,17 +108,17 @@ spec:
           - '5000'
           - '10000'
           - '50000'
-          - 'None'
+          - None
       - name: target_bucket_name
-        description: 'The ODR bucket name to publish to'
-        value: 'nz-elevation'
+        description: The ODR bucket name to publish to
+        value: nz-elevation
         enum:
-          - 'nz-imagery'
-          - 'nz-elevation'
+          - nz-imagery
+          - nz-elevation
       - name: region
-        value: 'new-zealand'
+        value: new-zealand
       - name: gdal_compression_preset
-        value: 'dem_lerc'
+        value: dem_lerc
   templateDefaults:
     container:
       imagePullPolicy: Always
@@ -236,7 +236,7 @@ spec:
                   value: '{{inputs.parameters.group}}'
                 - name: version
                   value: '{{= inputs.parameters.version_argo_tasks}}'
-            depends: 'tile-index-validate.Succeeded'
+            depends: tile-index-validate.Succeeded
 
           - name: standardise-validate
             templateRef:
@@ -273,7 +273,7 @@ spec:
               artifacts:
                 - name: group_data
                   from: '{{ tasks.group.outputs.artifacts.output }}'
-            depends: 'group.Succeeded'
+            depends: group.Succeeded
             withParam: '{{ tasks.group.outputs.parameters.output }}'
 
           - name: create-collection
@@ -297,18 +297,18 @@ spec:
                 - name: gsd
                   value: '{{=sprig.trim(inputs.parameters.gsd)}}'
                 - name: lifecycle
-                  value: 'ongoing'
+                  value: ongoing
                 - name: producer
-                  value: 'Toitū Te Whenua Land Information New Zealand'
+                  value: Toitū Te Whenua Land Information New Zealand
                 - name: licensor
-                  value: 'Toitū Te Whenua Land Information New Zealand'
+                  value: Toitū Te Whenua Land Information New Zealand
                 - name: create_capture_area
                   value: '{{inputs.parameters.create_capture_area}}'
                 - name: create_capture_dates
                   value: '{{inputs.parameters.create_capture_dates}}'
                 - name: version_topo_imagery
                   value: '{{= inputs.parameters.version_topo_imagery}}'
-            depends: 'standardise-validate.Succeeded'
+            depends: standardise-validate.Succeeded
 
           - name: stac-validate
             templateRef:
@@ -322,7 +322,7 @@ spec:
                 - name: stac-result
                   raw:
                     data: '{{tasks.stac-validate.outputs.result}}'
-            depends: 'create-collection'
+            depends: create-collection
 
           - name: create-config
             when: "'{{inputs.parameters.target_epsg}}' =~ '2193|3857'"
@@ -335,7 +335,7 @@ spec:
                 - name: key
                   value: '{{tasks.get-location.outputs.parameters.key}}/{{inputs.parameters.geospatial_category}}'
             template: create-config
-            depends: 'standardise-validate'
+            depends: standardise-validate
 
           - name: publish-odr
             templateRef:
@@ -365,31 +365,33 @@ spec:
       inputs:
         parameters:
           - name: location
-            description: 'Location of the imagery to create config for'
+            description: Location of the imagery to create config for
           - name: bucket
           - name: key
       container:
         image: 'ghcr.io/linz/basemaps/cli:{{=sprig.trim(workflow.parameters.version_basemaps_cli)}}'
-        command: [node, /app/node_modules/@basemaps/cogify/dist/index.cjs]
+        command:
+          - node
+          - /app/node_modules/@basemaps/cogify/dist/index.cjs
         env:
           - name: AWS_ROLE_CONFIG_PATH
             value: s3://linz-bucket-config/config.basemaps.json
         args:
-          - 'config'
+          - config
           - '{{=sprig.trimSuffix("/", inputs.parameters.location)}}/flat/'
       outputs:
         parameters:
           - name: url
-            description: 'Basemaps URL to view the imagery'
+            description: Basemaps URL to view the imagery
             valueFrom:
-              path: '/tmp/cogify/config-url'
+              path: /tmp/cogify/config-url
           - name: config
-            description: 'Location of the config file'
+            description: Location of the config file
             valueFrom:
-              path: '/tmp/cogify/config-path'
+              path: /tmp/cogify/config-path
         artifacts:
           - name: url
-            path: '/tmp/cogify/config-url'
+            path: /tmp/cogify/config-url
             s3:
               bucket: '{{inputs.parameters.bucket}}'
               key: '{{=sprig.trimSuffix("/", inputs.parameters.key)}}/flat/config-url'

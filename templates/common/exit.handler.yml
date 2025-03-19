@@ -21,10 +21,11 @@ spec:
             description: Parameters of the workflow
           - name: version_argo_tasks
             description: Version of argo-tasks to use
-            default: 'v4'
+            default: v4
       script:
         image: '019359803926.dkr.ecr.ap-southeast-2.amazonaws.com/argo-tasks:{{=sprig.trim(inputs.parameters.version_argo_tasks)}}'
-        command: [node]
+        command:
+          - node
         source: |
           let parameters = {};
           {{= inputs.parameters.workflow_parameters }}.forEach((pair) => (parameters[pair.name] = pair.value));

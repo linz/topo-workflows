@@ -17,21 +17,22 @@ spec:
         parameters:
           - name: version_argo_tasks
             description: Version of argo-tasks to use
-            default: 'v4'
+            default: v4
       outputs:
         parameters:
           - name: location
             valueFrom:
-              path: '/tmp/location'
+              path: /tmp/location
           - name: bucket
             valueFrom:
-              path: '/tmp/bucket'
+              path: /tmp/bucket
           - name: key
             valueFrom:
-              path: '/tmp/key'
+              path: /tmp/key
       script:
         image: '019359803926.dkr.ecr.ap-southeast-2.amazonaws.com/argo-tasks:{{=sprig.trim(inputs.parameters.version_argo_tasks)}}'
-        command: [node]
+        command:
+          - node
         source: |
           const fs = require('node:fs');
 

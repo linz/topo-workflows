@@ -47,11 +47,11 @@ spec:
 
       - name: user_group
         description: Group of users running the workflow
-        value: 'none'
+        value: none
         enum:
-          - 'land'
-          - 'sea'
-          - 'none'
+          - land
+          - sea
+          - none
 
       - name: ticket
         description: Ticket ID e.g. 'AIP-55'
@@ -59,36 +59,36 @@ spec:
 
       - name: preset
         description: Import preset configuration, WebP for 4 band RGBA LERC for 1 band DEM/DSM
-        value: 'webp'
+        value: webp
         enum:
-          - 'webp'
-          - 'lerc_10mm'
-          - 'lerc_1mm'
+          - webp
+          - lerc_10mm
+          - lerc_1mm
 
       - name: region
         description: Region of the dataset
-        value: 'new-zealand'
+        value: new-zealand
         enum:
-          - 'antarctica'
-          - 'auckland'
-          - 'bay-of-plenty'
-          - 'canterbury'
-          - 'gisborne'
-          - 'global'
-          - 'hawkes-bay'
-          - 'manawatu-whanganui'
-          - 'marlborough'
-          - 'nelson'
-          - 'new-zealand'
-          - 'northland'
-          - 'otago'
-          - 'pacific-islands'
-          - 'southland'
-          - 'taranaki'
-          - 'tasman'
-          - 'waikato'
-          - 'wellington'
-          - 'west-coast'
+          - antarctica
+          - auckland
+          - bay-of-plenty
+          - canterbury
+          - gisborne
+          - global
+          - hawkes-bay
+          - manawatu-whanganui
+          - marlborough
+          - nelson
+          - new-zealand
+          - northland
+          - otago
+          - pacific-islands
+          - southland
+          - taranaki
+          - tasman
+          - waikato
+          - wellington
+          - west-coast
 
       - name: source
         description: Source imagery location "s3://linz-imagery"
@@ -102,35 +102,35 @@ spec:
           - 'false'
 
       - name: create_pull_request
-        description: 'Create pull request after importing imagery.'
+        description: Create pull request after importing imagery.
         value: 'true'
         enum:
           - 'true'
           - 'false'
 
       - name: config_type
-        description: 'Type of Basemaps Config file to create in pull requests'
-        value: 'raster'
+        description: Type of Basemaps Config file to create in pull requests
+        value: raster
         enum:
-          - 'raster'
-          - 'elevation'
+          - raster
+          - elevation
 
       - name: individual
-        description: 'Individual Config or Combined Config'
-        value: 'combined'
+        description: Individual Config or Combined Config
+        value: combined
         enum:
-          - 'individual'
-          - 'combined'
+          - individual
+          - combined
 
       - name: category
-        value: 'Rural Aerial Photos'
+        value: Rural Aerial Photos
         enum:
-          - 'Rural Aerial Photos'
-          - 'Urban Aerial Photos'
-          - 'Scanned Aerial Imagery'
-          - 'Satellite Imagery'
-          - 'Event'
-          - 'Elevation'
+          - Rural Aerial Photos
+          - Urban Aerial Photos
+          - Scanned Aerial Imagery
+          - Satellite Imagery
+          - Event
+          - Elevation
 
       - name: target
         description: Target location for output COGs
@@ -142,11 +142,11 @@ spec:
 
       - name: tile_matrix
         description: Output tile matrix, ";" separated list
-        value: 'NZTM2000Quad;WebMercatorQuad'
+        value: NZTM2000Quad;WebMercatorQuad
         enum:
-          - 'NZTM2000Quad'
-          - 'WebMercatorQuad'
-          - 'NZTM2000Quad;WebMercatorQuad'
+          - NZTM2000Quad
+          - WebMercatorQuad
+          - NZTM2000Quad;WebMercatorQuad
 
       - name: cutline
         description: Path to cutline to apply
@@ -161,7 +161,7 @@ spec:
         value: '20'
 
       - name: create_overview
-        description: 'Create overview after importing imagery.'
+        description: Create overview after importing imagery.
         value: 'true'
         enum:
           - 'true'
@@ -220,7 +220,7 @@ spec:
                 - name: target
                   value: '{{ tasks.cogify.outputs.parameters.target }}'
             when: '{{workflow.parameters.create_pull_request}} == true'
-            depends: 'cogify'
+            depends: cogify
 
     # Generate COGs for a specific tile matrix from a given collection of source imagery
     - name: cogify
@@ -320,7 +320,7 @@ spec:
     # Generate a tile covering for input imagery
     - name: create-covering
       nodeSelector:
-        karpenter.sh/capacity-type: 'spot'
+        karpenter.sh/capacity-type: spot
       inputs:
         parameters:
           - name: source
@@ -336,12 +336,14 @@ spec:
         resources:
           requests:
             memory: 2Gi
-        command: [node, /app/node_modules/@basemaps/cogify/dist/index.cjs]
+        command:
+          - node
+          - /app/node_modules/@basemaps/cogify/dist/index.cjs
         env:
           - name: AWS_ROLE_CONFIG_PATH
             value: s3://linz-bucket-config/config.basemaps.json
         args:
-          - 'cover'
+          - cover
           - '--preset={{ inputs.parameters.preset }}'
           - '--tile-matrix={{ inputs.parameters.tile_matrix }}'
           - '--require-stac-collection={{ inputs.parameters.require_stac_collection }}'
@@ -369,7 +371,7 @@ spec:
     # Actually create COGs using gdal_translate on a large spot instances
     - name: create-cog
       nodeSelector:
-        karpenter.sh/capacity-type: 'spot'
+        karpenter.sh/capacity-type: spot
       inputs:
         artifacts:
           - name: covering_grouped
@@ -383,14 +385,16 @@ spec:
             cpu: 15000m # AWS gives 2x cpu cores = memory for most instances
             ephemeral-storage: 98Gi # 2 pods per 200GB of storage
         image: ghcr.io/linz/basemaps/cli:{{ workflow.parameters.version_basemaps_cli }}
-        command: [node, /app/node_modules/@basemaps/cogify/dist/index.cjs]
+        command:
+          - node
+          - /app/node_modules/@basemaps/cogify/dist/index.cjs
         env:
           - name: AWS_ROLE_CONFIG_PATH
             value: s3://linz-bucket-config/config.basemaps.json
         args:
-          - 'create'
+          - create
           - '--from-file={{= inputs.artifacts.covering_grouped.path }}{{inputs.parameters.covering_grouped_id}}.json'
-          - '--concurrency=2'
+          - --concurrency=2
 
     # Create a basemaps configuration file to view the imagery
     - name: create-config
@@ -400,28 +404,30 @@ spec:
             description: Location of the imagery to create config for
       container:
         image: ghcr.io/linz/basemaps/cli:{{ workflow.parameters.version_basemaps_cli }}
-        command: [node, /app/node_modules/@basemaps/cogify/dist/index.cjs]
+        command:
+          - node
+          - /app/node_modules/@basemaps/cogify/dist/index.cjs
         env:
           - name: AWS_ROLE_CONFIG_PATH
             value: s3://linz-bucket-config/config.basemaps.json
         args:
-          - 'config'
+          - config
           - '{{ inputs.parameters.path }}'
       outputs:
         parameters:
           - name: url
             description: Basemaps URL to view the imagery
             valueFrom:
-              path: '/tmp/cogify/config-url'
+              path: /tmp/cogify/config-url
           - name: config
             description: Location of the config file
             valueFrom:
-              path: '/tmp/cogify/config-path'
+              path: /tmp/cogify/config-path
 
     # create additional overviews for any COGs found in the path
     - name: create-overview
       nodeSelector:
-        karpenter.sh/capacity-type: 'spot'
+        karpenter.sh/capacity-type: spot
       inputs:
         parameters:
           - name: path
@@ -432,13 +438,15 @@ spec:
             memory: 7.8Gi
             cpu: 15000m
         image: ghcr.io/linz/basemaps/cli:v6
-        command: [node, index.cjs]
+        command:
+          - node
+          - index.cjs
         env:
           - name: AWS_ROLE_CONFIG_PATH
             value: s3://linz-bucket-config/config.basemaps.json
         args:
-          - '-V'
-          - 'create-overview'
+          - -V
+          - create-overview
           - '--source={{= sprig.trim(inputs.parameters.path) }}'
           - '--output={{= sprig.trim(inputs.parameters.path) }}'
 
@@ -457,8 +465,8 @@ spec:
                 name: github-linz-li-bot-pat
                 key: pat
         args:
-          - 'bmc'
-          - 'create-pr'
+          - bmc
+          - create-pr
           - '--target={{inputs.parameters.target}}'
           - '--ticket={{workflow.parameters.ticket}}'
           - '--config-type={{workflow.parameters.config_type}}'

@@ -18,26 +18,26 @@ spec:
     parameters:
       - name: version_argo_tasks
         description: Version of the Argo Tasks CLI docker container to use
-        value: 'v4'
+        value: v4
 
       - name: version_basemaps_etl
         description: Version of the Basemaps ETL eks container to use
-        value: 'v1'
+        value: v1
 
       - name: target
         description: S3 Bucket to use for storing the output
-        value: 'linz-basemaps'
+        value: linz-basemaps
         enum:
-          - 'linz-basemaps'
-          - 'linz-basemaps-staging'
+          - linz-basemaps
+          - linz-basemaps-staging
 
       - name: filename
         description: output filename in s3
-        value: 'topographic'
+        value: topographic
 
       - name: title
         description: title for the output data, which will populate in stac file
-        value: 'Topographic'
+        value: Topographic
 
       - name: create_pull_request
         description: Should a pull request be created in linz/basemaps-config
@@ -47,18 +47,18 @@ spec:
           - 'false'
 
       - name: individual
-        description: 'Individual Config or Combined Config'
-        value: 'combined'
+        description: Individual Config or Combined Config
+        value: combined
         enum:
-          - 'individual'
-          - 'combined'
+          - individual
+          - combined
 
       - name: retry
         description: Number of retry on failure vector-etl task
         value: '1'
 
       - name: config
-        description: 'Config file that etl importing to compare'
+        description: Config file that etl importing to compare
         value: 's3://linz-basemaps/config/config-latest.json.gz'
 
   templateDefaults:
@@ -77,7 +77,7 @@ spec:
 
           - name: vector-etl
             template: vector-etl
-            depends: 'check-updates'
+            depends: check-updates
             when: '{{tasks.check-updates.outputs.parameters.updatesRequired}} == true'
 
           - name: create-pull-request
@@ -87,58 +87,62 @@ spec:
                 - name: target
                   value: '{{ tasks.vector-etl.outputs.parameters.target }}'
             when: '{{ workflow.parameters.create_pull_request }} == true && {{tasks.check-updates.outputs.parameters.updatesRequired}} == true'
-            depends: 'vector-etl'
+            depends: vector-etl
 
     - name: check-updates
       container:
         image: 019359803926.dkr.ecr.ap-southeast-2.amazonaws.com/eks:bm-etl-{{ workflow.parameters.version_basemaps_etl }}
-        command: [node, /app/index.js]
+        command:
+          - node
+          - /app/index.js
         env:
           - name: AWS_ROLE_CONFIG_PATH
             value: s3://linz-bucket-config/config.json
         args:
-          - 'check-updates'
+          - check-updates
           - '--filename={{ workflow.parameters.filename }}'
           - '--config={{ workflow.parameters.config }}'
-          - '--output=/tmp/'
+          - --output=/tmp/
       outputs:
         parameters:
           - name: updates
             valueFrom:
-              path: '/tmp/updates.json'
+              path: /tmp/updates.json
           - name: updatesRequired
             valueFrom:
-              path: '/tmp/updatesRequired'
+              path: /tmp/updatesRequired
 
     - name: vector-etl
       retryStrategy:
         limit: '{{workflow.parameters.retry}}'
-        retryPolicy: 'Always'
+        retryPolicy: Always
       nodeSelector:
-        karpenter.sh/capacity-type: 'spot'
+        karpenter.sh/capacity-type: spot
       container:
         image: 019359803926.dkr.ecr.ap-southeast-2.amazonaws.com/eks:bm-etl-{{ workflow.parameters.version_basemaps_etl }}
         resources:
           requests:
             memory: 7.8Gi
             cpu: 15000m
-        command: [node, /app/index.js]
+        command:
+          - node
+          - /app/index.js
         env:
           - name: AWS_ROLE_CONFIG_PATH
             value: s3://linz-bucket-config/config.basemaps.json
         args:
-          - 'etl'
+          - etl
           - "{{= workflow.parameters.filename == 'topographic'? '--all' : '--layer=' + workflow.parameters.filename }}"
           - '--target={{ workflow.parameters.target }}'
           - '--filename={{ workflow.parameters.filename }}'
           - '--title={{ workflow.parameters.title }}'
-          - '--output=/tmp/'
-          - '--commit'
+          - --output=/tmp/
+          - --commit
       outputs:
         parameters:
           - name: target
             valueFrom:
-              path: '/tmp/target'
+              path: /tmp/target
 
     - name: create-pull-request
       inputs:
@@ -155,10 +159,10 @@ spec:
                 name: github-linz-li-bot-pat
                 key: pat
         args:
-          - 'bmc'
-          - 'create-pr'
+          - bmc
+          - create-pr
           - '--target={{ inputs.parameters.target }}'
-          - '--config-type=vector'
+          - --config-type=vector
           - "--individual={{= workflow.parameters.individual == 'individual'? 'true' : 'false' }}"
 
     - name: exit-handler

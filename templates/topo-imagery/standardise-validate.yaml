@@ -18,10 +18,10 @@ spec:
         parameters:
           - name: version_topo_imagery
             description: 'Specify a version of the topo-imagery image to use, e.g. "v4.8" or "latest"'
-            default: 'v7'
+            default: v7
 
           - name: group_id
-            description: 'The ID of the group of files to use as the input.'
+            description: The ID of the group of files to use as the input.
             default: ''
 
           - name: odr_url
@@ -29,7 +29,7 @@ spec:
             default: ''
 
           - name: target
-            description: 'Location for output files'
+            description: Location for output files
             default: ''
 
           - name: collection_id
@@ -41,7 +41,7 @@ spec:
             default: ''
 
           - name: current_datetime
-            description: 'Current date and time of the workflow'
+            description: Current date and time of the workflow
             default: ''
 
           - name: start_datetime
@@ -53,11 +53,11 @@ spec:
             default: ''
 
           - name: create_capture_area
-            description: 'Create a capture area GeoJSON file for the standardised dataset'
+            description: Create a capture area GeoJSON file for the standardised dataset
             default: ''
 
           - name: cutline
-            description: '(Optional) location of a cutline file to cut the imagery to .fgb or .geojson'
+            description: (Optional) location of a cutline file to cut the imagery to .fgb or .geojson
             default: ''
 
           - name: gsd
@@ -69,11 +69,11 @@ spec:
             default: ''
 
           - name: source_epsg
-            description: 'EPSG of the source files'
+            description: EPSG of the source files
             default: '2193'
 
           - name: target_epsg
-            description: 'EPSG of the standardised output files'
+            description: EPSG of the standardised output files
             default: '2193'
 
         artifacts:
@@ -87,34 +87,34 @@ spec:
             value: s3://linz-bucket-config/config.json
         args:
           - python
-          - '/app/scripts/standardise_validate.py'
-          - '--from-file'
+          - /app/scripts/standardise_validate.py
+          - --from-file
           - '/tmp/input/{{inputs.parameters.group_id}}.json'
-          - '--target'
+          - --target
           - '{{inputs.parameters.target}}'
-          - '--preset'
+          - --preset
           - '{{inputs.parameters.compression}}'
-          - '--start-datetime'
+          - --start-datetime
           - '{{=sprig.trim(inputs.parameters.start_datetime)}}'
-          - '--end-datetime'
+          - --end-datetime
           - '{{=sprig.trim(inputs.parameters.end_datetime)}}'
-          - '--collection-id'
+          - --collection-id
           - '{{inputs.parameters.collection_id}}'
-          - '--create-footprints'
+          - --create-footprints
           - '{{inputs.parameters.create_capture_area}}'
-          - '--cutline'
+          - --cutline
           - '{{=sprig.trim(inputs.parameters.cutline)}}'
-          - '--source-epsg'
+          - --source-epsg
           - '{{=sprig.trim(inputs.parameters.source_epsg)}}'
-          - '--target-epsg'
+          - --target-epsg
           - '{{=sprig.trim(inputs.parameters.target_epsg)}}'
-          - '--gsd'
+          - --gsd
           - '{{=sprig.trim(inputs.parameters.gsd)}}'
-          - '--odr-url'
+          - --odr-url
           - '{{=sprig.trim(inputs.parameters.odr_url)}}'
-          - '--current-datetime'
+          - --current-datetime
           - '{{inputs.parameters.current_datetime}}'
-          - '--scale-to-resolution'
+          - --scale-to-resolution
           - '{{=sprig.trim(inputs.parameters.scale_to_resolution)}}'
         resources:
           requests:
@@ -124,4 +124,4 @@ spec:
         volumeMounts:
           # This volume must be defined in the workflow calling this workflowTemplate
           - name: ephemeral
-            mountPath: '/tmp'
+            mountPath: /tmp

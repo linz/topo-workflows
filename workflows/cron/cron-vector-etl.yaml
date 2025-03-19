@@ -8,9 +8,9 @@ metadata:
     linz.govt.nz/data-type: vector
 spec:
   schedule: '0 06 * * 3' # 6 AM every Wednesday
-  timezone: 'NZ'
+  timezone: NZ
   startingDeadlineSeconds: 3600 # Allow 1 hour delay if the workflow-controller clashes during the starting time.
-  concurrencyPolicy: 'Allow'
+  concurrencyPolicy: Allow
   successfulJobsHistoryLimit: 3
   failedJobsHistoryLimit: 3
   suspend: false
@@ -23,9 +23,9 @@ spec:
       name: basemaps-vector-etl
     arguments:
       parameters:
-        - name: 'filename'
-          value: 'topographic'
-        - name: 'title'
-          value: 'Topographic'
-        - name: 'retry'
+        - name: filename
+          value: topographic
+        - name: title
+          value: Topographic
+        - name: retry
           value: '2'

@@ -10,7 +10,7 @@ metadata:
 spec:
   parallelism: 50
   nodeSelector:
-    karpenter.sh/capacity-type: 'spot'
+    karpenter.sh/capacity-type: spot
   entrypoint: main
   onExit: exit-handler
   synchronization:
@@ -36,41 +36,41 @@ spec:
   arguments:
     parameters:
       - name: version_argo_tasks
-        value: 'v4'
+        value: v4
       - name: user_group
         description: Group of users running the workflow
-        value: 'none'
+        value: none
         enum:
-          - 'land'
-          - 'sea'
-          - 'none'
+          - land
+          - sea
+          - none
       - name: ticket
         description: Ticket ID e.g. 'AIP-55'
         value: ''
       - name: region
         description: Region of the dataset
-        value: 'new-zealand'
+        value: new-zealand
         enum:
-          - 'antarctica'
-          - 'auckland'
-          - 'bay-of-plenty'
-          - 'canterbury'
-          - 'gisborne'
-          - 'global'
-          - 'hawkes-bay'
-          - 'manawatu-whanganui'
-          - 'marlborough'
-          - 'nelson'
-          - 'new-zealand'
-          - 'northland'
-          - 'otago'
-          - 'pacific-islands'
-          - 'southland'
-          - 'taranaki'
-          - 'tasman'
-          - 'waikato'
-          - 'wellington'
-          - 'west-coast'
+          - antarctica
+          - auckland
+          - bay-of-plenty
+          - canterbury
+          - gisborne
+          - global
+          - hawkes-bay
+          - manawatu-whanganui
+          - marlborough
+          - nelson
+          - new-zealand
+          - northland
+          - otago
+          - pacific-islands
+          - southland
+          - taranaki
+          - tasman
+          - waikato
+          - wellington
+          - west-coast
       - name: source
         value: 's3://linz-imagery-staging/test/sample/'
       - name: target
@@ -80,11 +80,11 @@ spec:
       - name: exclude
         value: ''
       - name: copy_option
-        value: '--no-clobber'
+        value: --no-clobber
         enum:
-          - '--no-clobber'
-          - '--force'
-          - '--force-no-clobber'
+          - --no-clobber
+          - --force
+          - --force-no-clobber
       - name: flatten
         description: Flatten the files in the target location
         value: 'false'
@@ -94,9 +94,9 @@ spec:
       - name: group
         value: '1000'
       - name: group_size
-        value: '100Gi'
+        value: 100Gi
       - name: transform
-        value: 'f'
+        value: f
       - name: aws_role_config_path
         description: s3 URL or comma-separated list of s3 URLs allowing the workflow to write to a target(s)
         value: 's3://linz-bucket-config/config-write.elevation.json,s3://linz-bucket-config/config-write.imagery.json,s3://linz-bucket-config/config-write.topographic.json'
@@ -157,7 +157,7 @@ spec:
                   value: '{{workflow.parameters.version_argo_tasks}}'
                 - name: aws_role_config_path
                   value: '{{workflow.parameters.aws_role_config_path}}'
-            depends: 'create-manifest'
+            depends: create-manifest
             withParam: '{{tasks.create-manifest.outputs.parameters.files}}'
 
     - name: exit-handler

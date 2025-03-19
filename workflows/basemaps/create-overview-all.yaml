@@ -11,7 +11,7 @@ metadata:
 spec:
   parallelism: 20
   nodeSelector:
-    karpenter.sh/capacity-type: 'spot'
+    karpenter.sh/capacity-type: spot
   entrypoint: main
   podMetadata:
     labels:
@@ -20,7 +20,7 @@ spec:
   arguments:
     parameters:
       - name: version_basemaps_cli
-        value: 'v6'
+        value: v6
   templateDefaults:
     container:
       imagePullPolicy: Always
@@ -39,22 +39,23 @@ spec:
               parameters:
                 - name: source
                   value: '{{item}}'
-            depends: 'list-imagery'
+            depends: list-imagery
             withParam: '{{tasks.list-imagery.outputs.parameters.imagery}}'
 
     - name: list-imagery
       container:
         image: peterevans/curl-jq:latest
-        command: [sh, -c]
+        command:
+          - sh
+          - -c
         args:
-          [
-            'curl https://raw.githubusercontent.com/linz/basemaps-config/master/config/tileset/aerial.json | jq ''.layers[] | [.["2193"], .["3857"]] | flatten[]'' -r | sort | uniq | grep -v "null" | jq -ncR ''[inputs]'' -r > /tmp/imagery.json',
-          ]
+          - 'curl https://raw.githubusercontent.com/linz/basemaps-config/master/config/tileset/aerial.json | jq ''.layers[] | [.["2193"], .["3857"]] | flatten[]'' -r | sort | uniq | grep -v "null" | jq -ncR ''[inputs]'' -r > /tmp/imagery.json'
+
       outputs:
         parameters:
           - name: imagery
             valueFrom:
-              path: '/tmp/imagery.json'
+              path: /tmp/imagery.json
 
     - name: create-overview
       inputs:
@@ -66,16 +67,16 @@ spec:
           requests:
             cpu: 3000m
             memory: 7.8Gi
-        command: [node, index.cjs]
+        command:
+          - node
+          - index.cjs
         env:
           - name: AWS_ROLE_CONFIG_PATH
             value: s3://linz-bucket-config/config.basemaps.json
         args:
-          [
-            '-V',
-            'create-overview',
-            '--source',
-            '{{inputs.parameters.source}}',
-            '--output',
-            '{{inputs.parameters.source}}',
-          ]
+          - -V
+          - create-overview
+          - --source
+          - '{{inputs.parameters.source}}'
+          - --output
+          - '{{inputs.parameters.source}}'

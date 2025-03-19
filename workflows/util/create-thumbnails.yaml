@@ -11,14 +11,14 @@ metadata:
 spec:
   parallelism: 50
   nodeSelector:
-    karpenter.sh/capacity-type: 'spot'
+    karpenter.sh/capacity-type: spot
   entrypoint: main
   arguments:
     parameters:
       - name: version_argo_tasks
-        value: 'v4'
+        value: v4
       - name: version_topo_imagery
-        value: 'v4'
+        value: v4
       - name: source
         value: 's3://linz-topographic-upload/maps/topo50/'
       - name: include
@@ -58,17 +58,16 @@ spec:
           - name: AWS_ROLE_CONFIG_PATH
             value: s3://linz-bucket-config/config.json
         args:
-          [
-            'list',
-            '--verbose',
-            '--include',
-            '{{workflow.parameters.include}}',
-            '--group',
-            '2000',
-            '--output',
-            '/tmp/file_list.json',
-            '{{workflow.parameters.source}}',
-          ]
+          - list
+          - --verbose
+          - --include
+          - '{{workflow.parameters.include}}'
+          - --group
+          - '2000'
+          - --output
+          - /tmp/file_list.json
+          - '{{workflow.parameters.source}}'
+
       outputs:
         artifacts:
           - name: files
@@ -76,7 +75,7 @@ spec:
 
     - name: thumbnails
       nodeSelector:
-        karpenter.sh/capacity-type: 'spot'
+        karpenter.sh/capacity-type: spot
       inputs:
         parameters:
           - name: target
@@ -92,13 +91,13 @@ spec:
             ephemeral-storage: 3Gi
         volumeMounts:
           - name: ephemeral
-            mountPath: '/tmp'
+            mountPath: /tmp
         args:
           - python
-          - '/app/scripts/thumbnails.py'
-          - '--from-file'
-          - '/tmp/file_list.json'
-          - '--target'
+          - /app/scripts/thumbnails.py
+          - --from-file
+          - /tmp/file_list.json
+          - --target
           - '{{inputs.parameters.target}}'
 
   volumes:

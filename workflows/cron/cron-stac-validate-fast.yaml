@@ -7,9 +7,9 @@ metadata:
     linz.govt.nz/category: stac
 spec:
   schedule: '0 05 * * *' # 5 AM every day
-  timezone: 'NZ'
+  timezone: NZ
   startingDeadlineSeconds: 3600 # Allow 1 hour delay if the workflow-controller clashes during the starting time.
-  concurrencyPolicy: 'Allow'
+  concurrencyPolicy: Allow
   successfulJobsHistoryLimit: 3
   failedJobsHistoryLimit: 3
   suspend: false
@@ -23,7 +23,7 @@ spec:
       parameters:
         - name: checksum_assets
           value: 'false'
-        - name: 'checksum_links'
+        - name: checksum_links
           value: 'true'
     templates:
       - name: main
@@ -36,11 +36,11 @@ spec:
                 template: main
               arguments:
                 parameters:
-                  - name: 'uri'
+                  - name: uri
                     value: 's3://nz-imagery/catalog.json'
-                  - name: 'checksum_assets'
+                  - name: checksum_assets
                     value: '{{workflow.parameters.checksum_assets}}'
-                  - name: 'checksum_links'
+                  - name: checksum_links
                     value: '{{workflow.parameters.checksum_links}}'
             - name: stac-validate-elevation
               templateRef:
@@ -48,11 +48,11 @@ spec:
                 template: main
               arguments:
                 parameters:
-                  - name: 'uri'
+                  - name: uri
                     value: 's3://nz-elevation/catalog.json'
-                  - name: 'checksum_assets'
+                  - name: checksum_assets
                     value: '{{workflow.parameters.checksum_assets}}'
-                  - name: 'checksum_links'
+                  - name: checksum_links
                     value: '{{workflow.parameters.checksum_links}}'
       - name: exit-handler
         retryStrategy:

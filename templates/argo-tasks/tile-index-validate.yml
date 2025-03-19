@@ -45,11 +45,11 @@ spec:
 
           - name: preset
             description: Compression type of dataset e.g. webp, lzw, dem_lerc
-            default: 'webp'
+            default: webp
 
           - name: version
             description: container version to use
-            default: 'v4'
+            default: v4
 
       outputs:
         artifacts:
@@ -80,8 +80,8 @@ spec:
           - name: AWS_ROLE_CONFIG_PATH
             value: s3://linz-bucket-config/config.json
         args:
-          - 'tileindex-validate'
-          - '--verbose'
+          - tileindex-validate
+          - --verbose
           - '--scale={{= inputs.parameters.scale }}'
           - '--validate={{= inputs.parameters.validate }}'
           - '--retile={{= inputs.parameters.retile }}'

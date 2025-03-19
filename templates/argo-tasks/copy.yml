@@ -21,15 +21,15 @@ spec:
 
           - name: version_argo_tasks
             description: version of argo-tasks to use
-            default: 'v4'
+            default: v4
 
           - name: copy_option
             description: --no-clobber Skip overwriting existing files. --force Overwrite all files. --force-no-clobber Overwrite only changed files, skip unchanged files.
-            default: '--no-clobber'
+            default: --no-clobber
             enum:
-              - '--no-clobber'
-              - '--force'
-              - '--force-no-clobber'
+              - --no-clobber
+              - --force
+              - --force-no-clobber
 
           - name: aws_role_config_path
             description: s3 URL or comma-separated list of s3 URLs allowing the workflow to write to a target(s)
@@ -44,4 +44,7 @@ spec:
         env:
           - name: AWS_ROLE_CONFIG_PATH
             value: '{{inputs.parameters.aws_role_config_path}},s3://linz-bucket-config/config.json'
-        args: ['copy', '{{inputs.parameters.copy_option}}', '{{inputs.parameters.file}}']
+        args:
+          - copy
+          - '{{inputs.parameters.copy_option}}'
+          - '{{inputs.parameters.file}}'

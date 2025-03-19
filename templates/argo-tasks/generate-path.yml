@@ -22,7 +22,7 @@ spec:
             description: target bucket name e.g. 'nz-imagery'
           - name: version
             description: argo-task Container version to use
-            default: 'v4'
+            default: v4
 
       container:
         image: '019359803926.dkr.ecr.ap-southeast-2.amazonaws.com/argo-tasks:{{= inputs.parameters.version }}'
@@ -30,8 +30,8 @@ spec:
           - name: AWS_ROLE_CONFIG_PATH
             value: s3://linz-bucket-config/config.json
         args:
-          - 'generate-path'
-          - '--target-bucket-name'
+          - generate-path
+          - --target-bucket-name
           - '{{=sprig.trim(inputs.parameters.target_bucket_name)}}'
           - '{{=sprig.trim(inputs.parameters.source)}}'
 
@@ -40,4 +40,4 @@ spec:
           - name: target
             description: ODR target path
             valueFrom:
-              path: '/tmp/generate-path/target'
+              path: /tmp/generate-path/target

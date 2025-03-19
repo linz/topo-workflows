@@ -17,26 +17,26 @@ spec:
       inputs:
         parameters:
           - name: start_datetime
-            description: '(Optional) Dataset capture start date in numeric format YYYY-MM-DD'
+            description: (Optional) Dataset capture start date in numeric format YYYY-MM-DD
             default: ''
           - name: end_datetime
-            description: '(Optional) Dataset capture end date in numeric format YYYY-MM-DD'
+            description: (Optional) Dataset capture end date in numeric format YYYY-MM-DD
             default: ''
           - name: gsd
-            description: 'Dataset GSD in metres'
+            description: Dataset GSD in metres
           - name: region
-            description: 'Region of the dataset'
+            description: Region of the dataset
           - name: geographic_description
-            description: '(Optional) Additional dataset description'
+            description: (Optional) Additional dataset description
             default: ''
           - name: geospatial_category
-            description: 'Geospatial category of the dataset'
+            description: Geospatial category of the dataset
           - name: odr_url
-            description: '(Optional) S3 path to existing dataset collection.json'
+            description: (Optional) S3 path to existing dataset collection.json
             default: ''
           - name: version
-            description: 'argo-task Container version to use'
-            default: 'v4'
+            description: argo-task Container version to use
+            default: v4
 
       container:
         image: '019359803926.dkr.ecr.ap-southeast-2.amazonaws.com/argo-tasks:{{=inputs.parameters.version}}'
@@ -44,8 +44,8 @@ spec:
           - name: AWS_ROLE_CONFIG_PATH
             value: s3://linz-bucket-config/config.json
         args:
-          - 'stac'
-          - 'setup'
+          - stac
+          - setup
           - '--start-year={{=sprig.trunc(4, inputs.parameters.start_datetime)}}'
           - '--end-year={{=sprig.trunc(4, inputs.parameters.end_datetime)}}'
           - '--region={{inputs.parameters.region}}'
@@ -58,8 +58,8 @@ spec:
           - name: collection_id
             description: ID for collection and item STAC
             valueFrom:
-              path: '/tmp/stac-setup/collection-id'
+              path: /tmp/stac-setup/collection-id
           - name: linz_slug
             description: linz:slug field for collection STAC
             valueFrom:
-              path: '/tmp/stac-setup/linz-slug'
+              path: /tmp/stac-setup/linz-slug

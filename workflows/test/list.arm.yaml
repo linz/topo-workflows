@@ -16,7 +16,7 @@ spec:
     parameters:
       - name: version_argo_tasks
         description: container tag to use
-        value: 'latest'
+        value: latest
 
       - name: uri
         description: location to list
@@ -36,24 +36,24 @@ spec:
                 - name: uri
                   value: '{{workflow.parameters.uri}}'
                 - name: include
-                  value: '.tiff?$'
+                  value: .tiff?$
     - name: aws-list
 
       # Request a SPOT & ARM64
       nodeSelector:
-        karpenter.sh/capacity-type: 'spot'
-        kubernetes.io/arch: 'arm64'
+        karpenter.sh/capacity-type: spot
+        kubernetes.io/arch: arm64
 
       # Ensure the containers tolerate the taints that will be put on them
       tolerations:
-        - key: 'kubernetes.io/arch'
-          operator: 'Equal'
-          value: 'arm64'
-          effect: 'NoSchedule'
-        - key: 'karpenter.sh/capacity-type'
-          operator: 'Equal'
-          value: 'spot'
-          effect: 'NoSchedule'
+        - key: kubernetes.io/arch
+          operator: Equal
+          value: arm64
+          effect: NoSchedule
+        - key: karpenter.sh/capacity-type
+          operator: Equal
+          value: spot
+          effect: NoSchedule
 
       inputs:
         parameters:
@@ -65,11 +65,11 @@ spec:
           - name: AWS_ROLE_CONFIG_PATH
             value: s3://linz-bucket-config/config.json
         args:
-          - 'list'
-          - '--verbose'
+          - list
+          - --verbose
           - '--include={{inputs.parameters.include}}'
-          - '--group=2'
-          - '--output=/tmp/file_list.json'
+          - --group=2
+          - --output=/tmp/file_list.json
           - '{{inputs.parameters.uri}}'
       outputs:
         parameters:

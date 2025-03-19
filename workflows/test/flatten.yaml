@@ -8,7 +8,7 @@ metadata:
     linz.govt.nz/category: test
 spec:
   nodeSelector:
-    karpenter.sh/capacity-type: 'spot'
+    karpenter.sh/capacity-type: spot
   entrypoint: main
   podMetadata:
     labels:
@@ -16,17 +16,17 @@ spec:
   arguments:
     parameters:
       - name: version_argo_tasks
-        value: 'latest'
+        value: latest
       - name: uri
         value: ''
       - name: filter
         value: '\.tiff?$|\.json$'
       - name: copy_option
-        value: '--no-clobber'
+        value: --no-clobber
         enum:
-          - '--no-clobber'
-          - '--force'
-          - '--force-no-clobber'
+          - --no-clobber
+          - --force
+          - --force-no-clobber
   templateDefaults:
     container:
       imagePullPolicy: Always
@@ -49,7 +49,7 @@ spec:
               parameters:
                 - name: file
                   value: '{{item}}'
-            depends: 'flatten'
+            depends: flatten
             withParam: '{{tasks.flatten.outputs.parameters.files}}'
     - name: flatten
       inputs:
@@ -62,19 +62,18 @@ spec:
           - name: AWS_ROLE_CONFIG_PATH
             value: s3://linz-bucket-config/config.json
         args:
-          [
-            'flatten',
-            '--verbose',
-            '--include',
-            '{{=sprig.trim(inputs.parameters.filter)}}',
-            '--group',
-            '1000',
-            '--group-size',
-            '100Gi',
-            '--output',
-            '/tmp/file_list.json',
-            '{{=sprig.trim(inputs.parameters.uri)}}',
-          ]
+          - flatten
+          - --verbose
+          - --include
+          - '{{=sprig.trim(inputs.parameters.filter)}}'
+          - --group
+          - '1000'
+          - --group-size
+          - 100Gi
+          - --output
+          - /tmp/file_list.json
+          - '{{=sprig.trim(inputs.parameters.uri)}}'
+
       outputs:
         parameters:
           - name: files
@@ -90,4 +89,7 @@ spec:
           requests:
             memory: 7.8Gi
             cpu: 2000m
-        args: ['copy', '{{workflow.parameters.copy_option}}', '{{inputs.parameters.file}}']
+        args:
+          - copy
+          - '{{workflow.parameters.copy_option}}'
+          - '{{inputs.parameters.file}}'

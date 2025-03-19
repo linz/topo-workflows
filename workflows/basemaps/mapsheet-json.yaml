@@ -18,7 +18,7 @@ spec:
   arguments:
     parameters:
       - name: version_argo_tasks
-        value: 'v4'
+        value: v4
       - name: layer
         value: '104687'
       - name: config
@@ -26,7 +26,7 @@ spec:
       - name: include
         value: ''
       - name: exclude
-        value: 'new-zealand'
+        value: new-zealand
   templateDefaults:
     container:
       imagePullPolicy: Always
@@ -49,14 +49,14 @@ spec:
               artifacts:
                 - name: geopackage
                   from: '{{tasks.fetch-layer.outputs.artifacts.geopackage}}'
-            depends: 'fetch-layer'
+            depends: fetch-layer
           - name: create-mapsheet
             template: create-mapsheet
             arguments:
               artifacts:
                 - name: flatGeobuf
                   from: '{{tasks.transform.outputs.artifacts.flatGeobuf}}'
-            depends: 'transform'
+            depends: transform
 
     - name: fetch-layer
       inputs:
@@ -67,7 +67,10 @@ spec:
         env:
           - name: AWS_ROLE_CONFIG_PATH
             value: s3://linz-bucket-config/config.json
-        args: ['lds-fetch-layer', '{{=sprig.trim(inputs.parameters.layer)}}', '--target=/tmp/lds-layer']
+        args:
+          - lds-fetch-layer
+          - '{{=sprig.trim(inputs.parameters.layer)}}'
+          - --target=/tmp/lds-layer
       outputs:
         artifacts:
           - name: geopackage
@@ -81,8 +84,11 @@ spec:
       container:
         image: ghcr.io/osgeo/gdal:alpine-small-3.7.0
         imagePullPolicy: IfNotPresent
-        command: [sh]
-        args: ['-c', 'ogr2ogr -f FlatGeobuf tmp/flatGeobuf.fgb tmp/*.gpkg']
+        command:
+          - sh
+        args:
+          - -c
+          - 'ogr2ogr -f FlatGeobuf tmp/flatGeobuf.fgb tmp/*.gpkg'
       outputs:
         artifacts:
           - name: flatGeobuf
@@ -99,15 +105,14 @@ spec:
           - name: AWS_ROLE_CONFIG_PATH
             value: s3://linz-bucket-config/config.json
         args:
-          [
-            'bmc',
-            'create-mapsheet',
-            '--path=/tmp/flatGeobuf.fgb',
-            '--bm-config={{=sprig.trim(workflow.parameters.config)}}',
-            '--output=/tmp/mapsheet.json',
-            '--include={{=sprig.trim(workflow.parameters.include)}}',
-            '--exclude={{=sprig.trim(workflow.parameters.exclude)}}',
-          ]
+          - bmc
+          - create-mapsheet
+          - --path=/tmp/flatGeobuf.fgb
+          - '--bm-config={{=sprig.trim(workflow.parameters.config)}}'
+          - --output=/tmp/mapsheet.json
+          - '--include={{=sprig.trim(workflow.parameters.include)}}'
+          - '--exclude={{=sprig.trim(workflow.parameters.exclude)}}'
+
       outputs:
         artifacts:
           - name: mapsheet

@@ -6,7 +6,7 @@ metadata:
   namespace: argo
 spec:
   nodeSelector:
-    karpenter.sh/capacity-type: 'spot'
+    karpenter.sh/capacity-type: spot
   entrypoint: main
   templates:
     - name: main
@@ -17,5 +17,7 @@ spec:
     - name: say-hello-template
       container:
         image: '019359803926.dkr.ecr.ap-southeast-2.amazonaws.com/topo-imagery:v3'
-        command: [echo]
-        args: ['hello world']
+        command:
+          - echo
+        args:
+          - hello world

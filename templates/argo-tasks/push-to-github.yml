@@ -23,7 +23,7 @@ spec:
 
           - name: version_argo_tasks
             description: version of argo-tasks to use
-            default: 'v4'
+            default: v4
 
           - name: repository
             description: Repository Name
@@ -45,17 +45,15 @@ spec:
                 name: github-linz-li-bot-pat
                 key: pat
         args:
-          [
-            'stac',
-            'github-import',
-            '--source',
-            '{{=sprig.trim(inputs.parameters.source)}}',
-            '--target',
-            '{{inputs.parameters.target}}',
-            '--repo-name',
-            'linz/{{=sprig.regexFind(inputs.parameters.repository, inputs.parameters.target)}}',
-            '--ticket',
-            '{{inputs.parameters.ticket}}',
-            '--copy-option',
-            '{{inputs.parameters.copy_option}}',
-          ]
+          - stac
+          - github-import
+          - --source
+          - '{{=sprig.trim(inputs.parameters.source)}}'
+          - --target
+          - '{{inputs.parameters.target}}'
+          - --repo-name
+          - 'linz/{{=sprig.regexFind(inputs.parameters.repository, inputs.parameters.target)}}'
+          - --ticket
+          - '{{inputs.parameters.ticket}}'
+          - --copy-option
+          - '{{inputs.parameters.copy_option}}'
