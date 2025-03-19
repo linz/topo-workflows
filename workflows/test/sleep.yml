@@ -1,31 +1,31 @@
 # yaml-language-server: $schema=https://raw.githubusercontent.com/argoproj/argo-workflows/v3.5.5/api/jsonschema/schema.json
 
-apiVersion: argoproj.io/v1alpha1
-kind: Workflow
+apiVersion: 'argoproj.io/v1alpha1'
+kind: 'Workflow'
 metadata:
-  generateName: test-sleep-
+  generateName: 'test-sleep-'
   labels:
-    linz.govt.nz/category: test
+    linz.govt.nz/category: 'test'
 spec:
-  entrypoint: sleep
+  entrypoint: 'sleep'
   podMetadata:
     labels:
-      linz.govt.nz/category: test
+      linz.govt.nz/category: 'test'
   templates:
-    - name: sleep
+    - name: 'sleep'
       nodeSelector:
-        karpenter.sh/capacity-type: on-demand
+        karpenter.sh/capacity-type: 'on-demand'
       tolerations:
-        - key: karpenter.sh/capacity-type
-          operator: Equal
-          value: on-demand
-          effect: NoSchedule
+        - key: 'karpenter.sh/capacity-type'
+          operator: 'Equal'
+          value: 'on-demand'
+          effect: 'NoSchedule'
       container:
         resources:
           requests:
-            memory: 3.9Gi
-            cpu: 2000m
-        image: 019359803926.dkr.ecr.ap-southeast-2.amazonaws.com/argo-tasks:latest
+            memory: '3.9Gi'
+            cpu: '2000m'
+        image: '019359803926.dkr.ecr.ap-southeast-2.amazonaws.com/argo-tasks:latest'
         command:
-          - sleep
+          - 'sleep'
           - '3600'

@@ -1,23 +1,23 @@
 ---
-apiVersion: argoproj.io/v1alpha1
-kind: Workflow
+apiVersion: 'argoproj.io/v1alpha1'
+kind: 'Workflow'
 metadata:
-  generateName: test-hello-world-
-  namespace: argo
+  generateName: 'test-hello-world-'
+  namespace: 'argo'
 spec:
   nodeSelector:
-    karpenter.sh/capacity-type: spot
-  entrypoint: main
+    karpenter.sh/capacity-type: 'spot'
+  entrypoint: 'main'
   templates:
-    - name: main
+    - name: 'main'
       dag:
         tasks:
-          - name: say-hello-task
-            template: say-hello-template
-    - name: say-hello-template
+          - name: 'say-hello-task'
+            template: 'say-hello-template'
+    - name: 'say-hello-template'
       container:
         image: '019359803926.dkr.ecr.ap-southeast-2.amazonaws.com/topo-imagery:v3'
         command:
-          - echo
+          - 'echo'
         args:
-          - hello world
+          - 'hello world'

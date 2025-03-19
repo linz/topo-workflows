@@ -16,6 +16,9 @@ cfg.overrides.push({
     'yml/block-sequence-hyphen-indicator-newline': ['off'],
     // Prettier will sometimes convert these to multiline, so be safe and always use multi
     'yml/block-sequence': ['error', { singleline: 'always' }],
+
+    // Force string values to be quoted
+    'yml/plain-scalar': ['error', 'never', { overrides: { mappingKey: 'always' } }],
   },
   parser: 'yaml-eslint-parser',
 });

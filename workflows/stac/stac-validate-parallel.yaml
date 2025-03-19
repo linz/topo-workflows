@@ -1,130 +1,130 @@
 # yaml-language-server: $schema=https://raw.githubusercontent.com/argoproj/argo-workflows/v3.5.5/api/jsonschema/schema.json
 
-apiVersion: argoproj.io/v1alpha1
-kind: WorkflowTemplate
+apiVersion: 'argoproj.io/v1alpha1'
+kind: 'WorkflowTemplate'
 metadata:
-  name: stac-validate-parallel
+  name: 'stac-validate-parallel'
   labels:
-    linz.govt.nz/category: stac
+    linz.govt.nz/category: 'stac'
 spec:
   parallelism: 20
   nodeSelector:
-    karpenter.sh/capacity-type: spot
-  entrypoint: main
+    karpenter.sh/capacity-type: 'spot'
+  entrypoint: 'main'
   podMetadata:
     labels:
-      linz.govt.nz/category: stac
+      linz.govt.nz/category: 'stac'
   arguments:
     parameters:
-      - name: version_argo_tasks
-        value: v4
-      - name: uri
-        description: Path(s) to the STAC file(s).
+      - name: 'version_argo_tasks'
+        value: 'v4'
+      - name: 'uri'
+        description: 'Path(s) to the STAC file(s).'
         value: 's3://linz-imagery-staging/test/stac-validate/'
-      - name: include
-        value: collection.json$
-      - name: checksum_assets
+      - name: 'include'
+        value: 'collection.json$'
+      - name: 'checksum_assets'
         description: 'Validate the file:checksum of each asset if it exists'
         value: 'false'
         enum:
           - 'true'
           - 'false'
-      - name: checksum_links
+      - name: 'checksum_links'
         description: 'Validate the file:checksum of each link if it exists'
         value: 'true'
         enum:
           - 'false'
           - 'true'
-      - name: recursive
-        description: Follow and validate STAC links
+      - name: 'recursive'
+        description: 'Follow and validate STAC links'
         value: 'true'
         enum:
           - 'false'
           - 'true'
-      - name: concurrency
-        description: Number of parent STAC documents to be validated concurrently. Used to group the files by aws-list.
+      - name: 'concurrency'
+        description: 'Number of parent STAC documents to be validated concurrently. Used to group the files by aws-list.'
         value: '1'
   templateDefaults:
     container:
-      imagePullPolicy: Always
+      imagePullPolicy: 'Always'
       image: ''
   templates:
-    - name: main
+    - name: 'main'
       retryStrategy:
         expression: 'false'
       inputs:
         parameters:
-          - name: version_argo_tasks
+          - name: 'version_argo_tasks'
             value: '{{workflow.parameters.version_argo_tasks}}'
-          - name: include
+          - name: 'include'
             value: '{{workflow.parameters.include}}'
-          - name: uri
+          - name: 'uri'
             value: '{{workflow.parameters.uri}}'
-          - name: checksum_assets
+          - name: 'checksum_assets'
             value: '{{workflow.parameters.checksum_assets}}'
-          - name: checksum_links
+          - name: 'checksum_links'
             value: '{{workflow.parameters.checksum_links}}'
-          - name: recursive
+          - name: 'recursive'
             value: '{{workflow.parameters.recursive}}'
-          - name: concurrency
+          - name: 'concurrency'
             value: '{{workflow.parameters.concurrency}}'
       dag:
         tasks:
-          - name: aws-list
-            template: aws-list
+          - name: 'aws-list'
+            template: 'aws-list'
             arguments:
               parameters:
-                - name: version_argo_tasks
+                - name: 'version_argo_tasks'
                   value: '{{inputs.parameters.version_argo_tasks}}'
-                - name: include
+                - name: 'include'
                   value: '{{inputs.parameters.include}}'
-                - name: uri
+                - name: 'uri'
                   value: '{{inputs.parameters.uri}}'
-                - name: group
+                - name: 'group'
                   value: '{{inputs.parameters.concurrency}}'
-          - name: stac-validate
+          - name: 'stac-validate'
             templateRef:
-              name: tpl-at-stac-validate
-              template: main
+              name: 'tpl-at-stac-validate'
+              template: 'main'
             arguments:
               parameters:
-                - name: uri
+                - name: 'uri'
                   value: '{{item}}'
-                - name: checksum_assets
+                - name: 'checksum_assets'
                   value: '{{inputs.parameters.checksum_assets}}'
-                - name: checksum_links
+                - name: 'checksum_links'
                   value: '{{inputs.parameters.checksum_links}}'
-                - name: recursive
+                - name: 'recursive'
                   value: '{{inputs.parameters.recursive}}'
-            depends: aws-list
+            depends: 'aws-list'
             withParam: '{{tasks.aws-list.outputs.parameters.files}}'
-    - name: aws-list
+    - name: 'aws-list'
       inputs:
         parameters:
-          - name: version_argo_tasks
-          - name: include
-          - name: uri
-          - name: group
+          - name: 'version_argo_tasks'
+          - name: 'include'
+          - name: 'uri'
+          - name: 'group'
       retryStrategy:
         limit: '2' # force retrying this specific task
       container:
         image: '019359803926.dkr.ecr.ap-southeast-2.amazonaws.com/argo-tasks:{{=sprig.trim(inputs.parameters.version_argo_tasks)}}'
         env:
-          - name: AWS_ROLE_CONFIG_PATH
-            value: s3://linz-bucket-config/config.json
+          - name: 'AWS_ROLE_CONFIG_PATH'
+            value: 's3://linz-bucket-config/config.json'
         args:
-          - list
-          - --verbose
-          - --include
+          - 'list'
+          - '--verbose'
+          - '--include'
           - '{{=sprig.trim(inputs.parameters.include)}}'
-          - --group
+          - '--group'
           - '{{=sprig.trim(inputs.parameters.group)}}'
-          - --output
-          - /tmp/file_list.json
+          - '--output'
+          - '/tmp/file_list.json'
           - '{{=sprig.trim(inputs.parameters.uri)}}'
 
       outputs:
         parameters:
-          - name: files
+          - name: 'files'
             valueFrom:
-              path: /tmp/file_list.json
+              path: '/tmp/file_list.json'

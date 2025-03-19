@@ -1,57 +1,57 @@
 # yaml-language-server: $schema=https://raw.githubusercontent.com/argoproj/argo-workflows/v3.5.5/api/jsonschema/schema.json
 
-apiVersion: argoproj.io/v1alpha1
-kind: WorkflowTemplate
+apiVersion: 'argoproj.io/v1alpha1'
+kind: 'WorkflowTemplate'
 metadata:
   # Template from linz/argo-tasks
   # see https://github.com/linz/argo-tasks?tab=readme-ov-file#stac-validate
-  name: tpl-at-stac-validate
+  name: 'tpl-at-stac-validate'
 spec:
   templateDefaults:
     container:
-      imagePullPolicy: Always
+      imagePullPolicy: 'Always'
       image: ''
-  entrypoint: main
+  entrypoint: 'main'
   templates:
-    - name: main
+    - name: 'main'
       inputs:
         parameters:
-          - name: uri
-            description: STAC file uri to validate
+          - name: 'uri'
+            description: 'STAC file uri to validate'
             default: ''
 
-          - name: recursive
-            description: Follow and validate STAC links
+          - name: 'recursive'
+            description: 'Follow and validate STAC links'
             default: 'true'
 
-          - name: concurrency
-            description: Number of requests to run concurrently
+          - name: 'concurrency'
+            description: 'Number of requests to run concurrently'
             default: '50'
 
-          - name: checksum_assets
-            description: Validate the file:checksum of each asset if it exists
+          - name: 'checksum_assets'
+            description: 'Validate the file:checksum of each asset if it exists'
             default: 'false'
 
-          - name: checksum_links
-            description: Validate the file:checksum of each link if it exists
+          - name: 'checksum_links'
+            description: 'Validate the file:checksum of each link if it exists'
             default: 'false'
 
-          - name: version
-            description: container version to use
-            default: v4
+          - name: 'version'
+            description: 'container version to use'
+            default: 'v4'
 
       container:
         image: '019359803926.dkr.ecr.ap-southeast-2.amazonaws.com/argo-tasks:{{=sprig.trim(inputs.parameters.version)}}'
         resources:
           requests:
-            cpu: 15000m
-            memory: 7.8Gi
+            cpu: '15000m'
+            memory: '7.8Gi'
         env:
-          - name: AWS_ROLE_CONFIG_PATH
-            value: s3://linz-bucket-config/config.json
+          - name: 'AWS_ROLE_CONFIG_PATH'
+            value: 's3://linz-bucket-config/config.json'
         args:
-          - stac
-          - validate
+          - 'stac'
+          - 'validate'
           - '--concurrency={{inputs.parameters.concurrency}}'
           - '--recursive={{inputs.parameters.recursive}}'
           - '--checksum-assets={{inputs.parameters.checksum_assets}}'

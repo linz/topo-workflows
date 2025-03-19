@@ -1,61 +1,61 @@
 # yaml-language-server: $schema=https://raw.githubusercontent.com/argoproj/argo-workflows/v3.5.5/api/jsonschema/schema.json
 
-apiVersion: argoproj.io/v1alpha1
-kind: WorkflowTemplate
+apiVersion: 'argoproj.io/v1alpha1'
+kind: 'WorkflowTemplate'
 metadata:
-  name: basemaps-config-create
+  name: 'basemaps-config-create'
   labels:
-    linz.govt.nz/category: basemaps
+    linz.govt.nz/category: 'basemaps'
 spec:
-  entrypoint: main
+  entrypoint: 'main'
   podMetadata:
     labels:
-      linz.govt.nz/category: basemaps
+      linz.govt.nz/category: 'basemaps'
   arguments:
     parameters:
-      - name: version_basemaps_cli
-        value: v7
-      - name: location
+      - name: 'version_basemaps_cli'
+        value: 'v7'
+      - name: 'location'
         value: 's3://bucket/path/to'
   templateDefaults:
     container:
-      imagePullPolicy: Always
+      imagePullPolicy: 'Always'
       image: ''
   templates:
-    - name: main
+    - name: 'main'
       retryStrategy:
         expression: 'false'
       dag:
         tasks:
-          - name: create-config
-            template: create-config
+          - name: 'create-config'
+            template: 'create-config'
             arguments:
               parameters:
-                - name: location
+                - name: 'location'
                   value: '{{workflow.parameters.location}}'
-    - name: create-config
+    - name: 'create-config'
       inputs:
         parameters:
-          - name: location
-            description: Location of the imagery to create config for
+          - name: 'location'
+            description: 'Location of the imagery to create config for'
       container:
-        image: ghcr.io/linz/basemaps/cli:{{=sprig.trim(workflow.parameters.version_basemaps_cli)}}
+        image: 'ghcr.io/linz/basemaps/cli:{{=sprig.trim(workflow.parameters.version_basemaps_cli)}}'
         command:
-          - node
-          - /app/node_modules/@basemaps/cogify/dist/index.cjs
+          - 'node'
+          - '/app/node_modules/@basemaps/cogify/dist/index.cjs'
         env:
-          - name: AWS_ROLE_CONFIG_PATH
-            value: s3://linz-bucket-config/config.basemaps.json
+          - name: 'AWS_ROLE_CONFIG_PATH'
+            value: 's3://linz-bucket-config/config.basemaps.json'
         args:
-          - config
+          - 'config'
           - '{{ inputs.parameters.location }}'
       outputs:
         parameters:
-          - name: url
-            description: Basemaps URL to view the imagery
+          - name: 'url'
+            description: 'Basemaps URL to view the imagery'
             valueFrom:
-              path: /tmp/cogify/config-url
-          - name: config
-            description: Location of the config file
+              path: '/tmp/cogify/config-url'
+          - name: 'config'
+            description: 'Location of the config file'
             valueFrom:
-              path: /tmp/cogify/config-path
+              path: '/tmp/cogify/config-path'

@@ -1,101 +1,101 @@
 # yaml-language-server: $schema=https://raw.githubusercontent.com/argoproj/argo-workflows/v3.5.5/api/jsonschema/schema.json
 
-apiVersion: argoproj.io/v1alpha1
-kind: WorkflowTemplate
+apiVersion: 'argoproj.io/v1alpha1'
+kind: 'WorkflowTemplate'
 metadata:
   # Template from https://github.com/linz/topo-imagery
   # see https://github.com/linz/topo-imagery/blob/master/scripts/collection_from_items.py
-  name: tpl-ti-create-collection
+  name: 'tpl-ti-create-collection'
 spec:
   templateDefaults:
     container:
-      imagePullPolicy: Always
+      imagePullPolicy: 'Always'
       image: ''
-  entrypoint: main
+  entrypoint: 'main'
   templates:
-    - name: main
+    - name: 'main'
       inputs:
         parameters:
-          - name: version_topo_imagery
+          - name: 'version_topo_imagery'
             description: 'Specify a version of the topo-imagery image to use, e.g. "v4.8" or "latest"'
-            default: v7
+            default: 'v7'
 
-          - name: collection_id
+          - name: 'collection_id'
             description: 'Collection ID of existing dataset, or else a generated collection ID'
             default: ''
 
-          - name: linz_slug
-            description: Dataset identifying slug
+          - name: 'linz_slug'
+            description: 'Dataset identifying slug'
             default: ''
 
-          - name: odr_url
+          - name: 'odr_url'
             description: '(Optional) If an existing dataset add the S3 path to the dataset here to load existing metadata e.g. "s3://nz-imagery/taranaki/new-plymouth_2017_0.1m/rgb/2193/"'
             default: ''
 
-          - name: location
-            description: Location for output files
+          - name: 'location'
+            description: 'Location for output files'
             default: ''
 
-          - name: current_datetime
-            description: Current date and time of the workflow
+          - name: 'current_datetime'
+            description: 'Current date and time of the workflow'
             default: ''
 
-          - name: category
-            description: Geospatial category of the dataset
+          - name: 'category'
+            description: 'Geospatial category of the dataset'
             default: ''
 
-          - name: region
-            description: Region of the dataset
+          - name: 'region'
+            description: 'Region of the dataset'
             default: ''
 
-          - name: gsd
+          - name: 'gsd'
             description: 'Dataset GSD in metres, e.g., "0.3" for 30 centimetres'
             default: ''
 
-          - name: geographic_description
+          - name: 'geographic_description'
             description: '(Optional) Additional dataset description, to be used in the title in place of the Region, e.g. "Hamilton"'
             default: ''
 
-          - name: event
+          - name: 'event'
             description: '(Optional) Event name if dataset has been captured in association with an event, e.g. "Top of the South Floods"'
             default: ''
 
-          - name: historic_survey_number
+          - name: 'historic_survey_number'
             description: '(Optional) Survey Number associated with historical datasets, e.g. "SN8844"'
             default: ''
 
-          - name: lifecycle
+          - name: 'lifecycle'
             description: 'The release lifecycle status of the dataset, e.g. "completed or "ongoing"'
             default: ''
 
-          - name: add_title_suffix
+          - name: 'add_title_suffix'
             description: 'Add a title suffix to the collection title based on the lifecycle. For example, "[TITLE] - Preview"'
             default: 'false'
 
-          - name: producer
+          - name: 'producer'
             description: 'The producer of the source dataset, e.g. aerial or bathymetric survey company'
             default: ''
 
-          - name: producer_list
+          - name: 'producer_list'
             description: '(Optional) List of imagery producers, separated by semicolon (;). Has no effect unless a semicolon delimited list is entered.'
             default: ''
 
-          - name: licensor
+          - name: 'licensor'
             description: 'The licensor of the dataset, e.g. local or regional council, government agency, satellite provider'
             default: ''
 
-          - name: licensor_list
+          - name: 'licensor_list'
             description: '(Optional) List of imagery licensors, separated by semicolon (;). Has no effect unless a semicolon delimited list is entered.'
             default: ''
 
-          - name: create_capture_dates
-            description: Add a capture-dates.geojson.gz file to the collection assets
+          - name: 'create_capture_dates'
+            description: 'Add a capture-dates.geojson.gz file to the collection assets'
             default: 'false'
 
       outputs:
         artifacts:
-          - name: capture-area
-            path: /tmp/capture-area.geojson
+          - name: 'capture-area'
+            path: '/tmp/capture-area.geojson'
             optional: true
             archive:
               none: {}
@@ -103,47 +103,47 @@ spec:
       container:
         image: '019359803926.dkr.ecr.ap-southeast-2.amazonaws.com/topo-imagery:{{=sprig.trim(inputs.parameters.version_topo_imagery)}}'
         args:
-          - python
-          - /app/scripts/collection_from_items.py
-          - --uri
+          - 'python'
+          - '/app/scripts/collection_from_items.py'
+          - '--uri'
           - '{{=sprig.trimSuffix("/", inputs.parameters.location)}}'
-          - --collection-id
+          - '--collection-id'
           - '{{inputs.parameters.collection_id}}'
-          - --linz-slug
+          - '--linz-slug'
           - '{{inputs.parameters.linz_slug}}'
-          - --odr-url
+          - '--odr-url'
           - '{{=sprig.trim(inputs.parameters.odr_url)}}'
-          - --category
+          - '--category'
           - '{{=sprig.trim(inputs.parameters.category)}}'
-          - --region
+          - '--region'
           - '{{=sprig.trim(inputs.parameters.region)}}'
-          - --gsd
+          - '--gsd'
           - '{{=sprig.trim(inputs.parameters.gsd)}}'
-          - --geographic-description
+          - '--geographic-description'
           - '{{=sprig.trim(inputs.parameters.geographic_description)}}'
-          - --event
+          - '--event'
           - '{{=sprig.trim(inputs.parameters.event)}}'
-          - --historic-survey-number
+          - '--historic-survey-number'
           - '{{=sprig.trim(inputs.parameters.historic_survey_number)}}'
-          - --lifecycle
+          - '--lifecycle'
           - '{{=sprig.trim(inputs.parameters.lifecycle)}}'
-          - --add-title-suffix
+          - '--add-title-suffix'
           - '{{inputs.parameters.add_title_suffix}}'
-          - --capture-dates
+          - '--capture-dates'
           - '{{inputs.parameters.create_capture_dates}}'
-          - --producer
+          - '--producer'
           - '{{inputs.parameters.producer}}'
-          - --producer-list
+          - '--producer-list'
           - '{{=sprig.trim(inputs.parameters.producer_list)}}'
-          - --licensor
+          - '--licensor'
           - '{{inputs.parameters.licensor}}'
-          - --licensor-list
+          - '--licensor-list'
           - '{{=sprig.trim(inputs.parameters.licensor_list)}}'
-          - --concurrency
+          - '--concurrency'
           - '25'
-          - --current-datetime
+          - '--current-datetime'
           - '{{inputs.parameters.current_datetime}}'
         resources:
           requests:
-            memory: 7.8Gi
-            cpu: 15000m
+            memory: '7.8Gi'
+            cpu: '15000m'

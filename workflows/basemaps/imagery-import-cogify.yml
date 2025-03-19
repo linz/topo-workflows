@@ -1,349 +1,349 @@
 # yaml-language-server: $schema=https://raw.githubusercontent.com/argoproj/argo-workflows/v3.5.5/api/jsonschema/schema.json
 
-apiVersion: argoproj.io/v1alpha1
-kind: WorkflowTemplate
+apiVersion: 'argoproj.io/v1alpha1'
+kind: 'WorkflowTemplate'
 metadata:
-  name: basemaps-imagery-import-cogify
+  name: 'basemaps-imagery-import-cogify'
   labels:
-    linz.govt.nz/category: basemaps
-    linz.govt.nz/data-type: raster
+    linz.govt.nz/category: 'basemaps'
+    linz.govt.nz/data-type: 'raster'
 spec:
   parallelism: 100
-  entrypoint: main
-  onExit: exit-handler
+  entrypoint: 'main'
+  onExit: 'exit-handler'
   synchronization:
     semaphore:
       configMapKeyRef:
-        name: semaphores
-        key: basemaps_import
+        name: 'semaphores'
+        key: 'basemaps_import'
   templateDefaults:
     container:
-      imagePullPolicy: Always
+      imagePullPolicy: 'Always'
       image: ''
   workflowMetadata:
     labelsFrom:
       linz.govt.nz/user-group:
-        expression: workflow.parameters.user_group
+        expression: 'workflow.parameters.user_group'
       linz.govt.nz/ticket:
-        expression: workflow.parameters.ticket
+        expression: 'workflow.parameters.ticket'
       linz.govt.nz/region:
-        expression: workflow.parameters.region
+        expression: 'workflow.parameters.region'
   podMetadata:
     labels:
       linz.govt.nz/user-group: '{{workflow.parameters.user_group}}'
-      linz.govt.nz/category: basemaps
-      linz.govt.nz/data-type: raster
+      linz.govt.nz/category: 'basemaps'
+      linz.govt.nz/data-type: 'raster'
       linz.govt.nz/ticket: '{{workflow.parameters.ticket}}'
       linz.govt.nz/region: '{{workflow.parameters.region}}'
   arguments:
     parameters:
-      - name: version_basemaps_cli
-        description: Version of the basemaps CLI docker container to use
-        value: v7
+      - name: 'version_basemaps_cli'
+        description: 'Version of the basemaps CLI docker container to use'
+        value: 'v7'
 
-      - name: version_argo_tasks
-        description: Version of the basemaps CLI docker container to use
-        value: v4
+      - name: 'version_argo_tasks'
+        description: 'Version of the basemaps CLI docker container to use'
+        value: 'v4'
 
-      - name: user_group
-        description: Group of users running the workflow
-        value: none
+      - name: 'user_group'
+        description: 'Group of users running the workflow'
+        value: 'none'
         enum:
-          - land
-          - sea
-          - none
+          - 'land'
+          - 'sea'
+          - 'none'
 
-      - name: ticket
-        description: Ticket ID e.g. 'AIP-55'
+      - name: 'ticket'
+        description: "Ticket ID e.g. 'AIP-55'"
         value: ''
 
-      - name: preset
-        description: Import preset configuration, WebP for 4 band RGBA LERC for 1 band DEM/DSM
-        value: webp
+      - name: 'preset'
+        description: 'Import preset configuration, WebP for 4 band RGBA LERC for 1 band DEM/DSM'
+        value: 'webp'
         enum:
-          - webp
-          - lerc_10mm
-          - lerc_1mm
+          - 'webp'
+          - 'lerc_10mm'
+          - 'lerc_1mm'
 
-      - name: region
-        description: Region of the dataset
-        value: new-zealand
+      - name: 'region'
+        description: 'Region of the dataset'
+        value: 'new-zealand'
         enum:
-          - antarctica
-          - auckland
-          - bay-of-plenty
-          - canterbury
-          - gisborne
-          - global
-          - hawkes-bay
-          - manawatu-whanganui
-          - marlborough
-          - nelson
-          - new-zealand
-          - northland
-          - otago
-          - pacific-islands
-          - southland
-          - taranaki
-          - tasman
-          - waikato
-          - wellington
-          - west-coast
+          - 'antarctica'
+          - 'auckland'
+          - 'bay-of-plenty'
+          - 'canterbury'
+          - 'gisborne'
+          - 'global'
+          - 'hawkes-bay'
+          - 'manawatu-whanganui'
+          - 'marlborough'
+          - 'nelson'
+          - 'new-zealand'
+          - 'northland'
+          - 'otago'
+          - 'pacific-islands'
+          - 'southland'
+          - 'taranaki'
+          - 'tasman'
+          - 'waikato'
+          - 'wellington'
+          - 'west-coast'
 
-      - name: source
-        description: Source imagery location "s3://linz-imagery"
+      - name: 'source'
+        description: 'Source imagery location "s3://linz-imagery"'
         value: 's3://linz-imagery-staging/test/sample/'
 
-      - name: require_stac_collection
-        description: Validate that a STAC collection.json exists with the source
+      - name: 'require_stac_collection'
+        description: 'Validate that a STAC collection.json exists with the source'
         value: 'true'
         enum:
           - 'true'
           - 'false'
 
-      - name: create_pull_request
-        description: Create pull request after importing imagery.
+      - name: 'create_pull_request'
+        description: 'Create pull request after importing imagery.'
         value: 'true'
         enum:
           - 'true'
           - 'false'
 
-      - name: config_type
-        description: Type of Basemaps Config file to create in pull requests
-        value: raster
+      - name: 'config_type'
+        description: 'Type of Basemaps Config file to create in pull requests'
+        value: 'raster'
         enum:
-          - raster
-          - elevation
+          - 'raster'
+          - 'elevation'
 
-      - name: individual
-        description: Individual Config or Combined Config
-        value: combined
+      - name: 'individual'
+        description: 'Individual Config or Combined Config'
+        value: 'combined'
         enum:
-          - individual
-          - combined
+          - 'individual'
+          - 'combined'
 
-      - name: category
-        value: Rural Aerial Photos
+      - name: 'category'
+        value: 'Rural Aerial Photos'
         enum:
-          - Rural Aerial Photos
-          - Urban Aerial Photos
-          - Scanned Aerial Imagery
-          - Satellite Imagery
-          - Event
-          - Elevation
+          - 'Rural Aerial Photos'
+          - 'Urban Aerial Photos'
+          - 'Scanned Aerial Imagery'
+          - 'Satellite Imagery'
+          - 'Event'
+          - 'Elevation'
 
-      - name: target
-        description: Target location for output COGs
+      - name: 'target'
+        description: 'Target location for output COGs'
         value: 's3://linz-basemaps/'
         enum:
           - 's3://linz-basemaps/'
           - 's3://linz-basemaps-staging/'
           - 's3://linz-workflowsnp-scratch/'
 
-      - name: tile_matrix
-        description: Output tile matrix, ";" separated list
-        value: NZTM2000Quad;WebMercatorQuad
+      - name: 'tile_matrix'
+        description: 'Output tile matrix, ";" separated list'
+        value: 'NZTM2000Quad;WebMercatorQuad'
         enum:
-          - NZTM2000Quad
-          - WebMercatorQuad
-          - NZTM2000Quad;WebMercatorQuad
+          - 'NZTM2000Quad'
+          - 'WebMercatorQuad'
+          - 'NZTM2000Quad;WebMercatorQuad'
 
-      - name: cutline
-        description: Path to cutline to apply
+      - name: 'cutline'
+        description: 'Path to cutline to apply'
         value: 's3://linz-basemaps-source/cutline/2020-05-07-cutline-nz-coasts-rural-and-urban.geojson'
 
-      - name: cutline_blend
-        description: Blending to use for cutline see gdal_translate#cblend
+      - name: 'cutline_blend'
+        description: 'Blending to use for cutline see gdal_translate#cblend'
         value: '20'
 
-      - name: group_size
-        description: How many items to pass to each create-cog job
+      - name: 'group_size'
+        description: 'How many items to pass to each create-cog job'
         value: '20'
 
-      - name: create_overview
-        description: Create overview after importing imagery.
+      - name: 'create_overview'
+        description: 'Create overview after importing imagery.'
         value: 'true'
         enum:
           - 'true'
           - 'false'
 
-      - name: background
+      - name: 'background'
         description: 'Background RGBA hexstring to fill empty space in the COG. Format: "#rrggbbaa"'
         value: ''
 
   templates:
     # Main entrypoint into the workflow
-    - name: main
+    - name: 'main'
       retryStrategy:
         expression: 'false'
       inputs:
         parameters:
-          - name: source
-          - name: target
-          - name: preset
-          - name: tile_matrix
-          - name: cutline
-          - name: cutline_blend
-          - name: group_size
-          - name: require_stac_collection
-          - name: background
+          - name: 'source'
+          - name: 'target'
+          - name: 'preset'
+          - name: 'tile_matrix'
+          - name: 'cutline'
+          - name: 'cutline_blend'
+          - name: 'group_size'
+          - name: 'require_stac_collection'
+          - name: 'background'
       dag:
         tasks:
           # For each tile matrix specified run the "cogify" template
-          - name: cogify
-            template: cogify
+          - name: 'cogify'
+            template: 'cogify'
             withParam: "{{= toJson(sprig.splitList(';', inputs.parameters.tile_matrix)) }}"
             arguments:
               parameters:
-                - name: source
+                - name: 'source'
                   value: '{{ inputs.parameters.source }}'
-                - name: target
+                - name: 'target'
                   value: '{{ inputs.parameters.target }}'
-                - name: preset
+                - name: 'preset'
                   value: '{{ inputs.parameters.preset }}'
-                - name: tile_matrix
+                - name: 'tile_matrix'
                   value: '{{ item }}'
-                - name: cutline
+                - name: 'cutline'
                   value: '{{ inputs.parameters.cutline }}'
-                - name: cutline_blend
+                - name: 'cutline_blend'
                   value: '{{ inputs.parameters.cutline_blend }}'
-                - name: group_size
+                - name: 'group_size'
                   value: '{{ inputs.parameters.group_size }}'
-                - name: require_stac_collection
+                - name: 'require_stac_collection'
                   value: '{{ inputs.parameters.require_stac_collection }}'
-                - name: background
+                - name: 'background'
                   value: '{{ inputs.parameters.background }}'
-          - name: create-pull-request
-            template: create-pull-request
+          - name: 'create-pull-request'
+            template: 'create-pull-request'
             arguments:
               parameters:
-                - name: target
+                - name: 'target'
                   value: '{{ tasks.cogify.outputs.parameters.target }}'
             when: '{{workflow.parameters.create_pull_request}} == true'
-            depends: cogify
+            depends: 'cogify'
 
     # Generate COGs for a specific tile matrix from a given collection of source imagery
-    - name: cogify
+    - name: 'cogify'
       inputs:
         parameters:
-          - name: source
-          - name: target
-          - name: tile_matrix
-          - name: cutline
-          - name: cutline_blend
-          - name: group_size
-          - name: preset
-          - name: require_stac_collection
-          - name: background
+          - name: 'source'
+          - name: 'target'
+          - name: 'tile_matrix'
+          - name: 'cutline'
+          - name: 'cutline_blend'
+          - name: 'group_size'
+          - name: 'preset'
+          - name: 'require_stac_collection'
+          - name: 'background'
       dag:
         tasks:
           # generate a tile covering from the source imagery
-          - name: create-covering
-            template: create-covering
+          - name: 'create-covering'
+            template: 'create-covering'
             arguments:
               parameters:
-                - name: source
+                - name: 'source'
                   value: '{{ inputs.parameters.source }}'
-                - name: target
+                - name: 'target'
                   value: '{{ inputs.parameters.target }}'
-                - name: preset
+                - name: 'preset'
                   value: '{{ inputs.parameters.preset }}'
-                - name: tile_matrix
+                - name: 'tile_matrix'
                   value: '{{ inputs.parameters.tile_matrix }}'
-                - name: cutline
+                - name: 'cutline'
                   value: '{{ inputs.parameters.cutline }}'
-                - name: cutline_blend
+                - name: 'cutline_blend'
                   value: '{{ inputs.parameters.cutline_blend }}'
-                - name: require_stac_collection
+                - name: 'require_stac_collection'
                   value: '{{ inputs.parameters.require_stac_collection }}'
-                - name: background
+                - name: 'background'
                   value: '{{ inputs.parameters.background }}'
 
           # Group covering output into chunks to pass to create-cog
-          - name: group
+          - name: 'group'
             arguments:
               parameters:
-                - name: size
+                - name: 'size'
                   value: '{{ inputs.parameters.group_size }}'
-                - name: version
+                - name: 'version'
                   value: '{{= workflow.parameters.version_argo_tasks }}'
               artifacts:
-                - name: input
+                - name: 'input'
                   from: '{{ tasks.create-covering.outputs.artifacts.tiles }}'
             templateRef:
-              name: tpl-at-group
-              template: main
-            depends: create-covering
+              name: 'tpl-at-group'
+              template: 'main'
+            depends: 'create-covering'
 
           # Create COGS from the grouped output of create-covering
-          - name: create-cog
-            depends: group
-            template: create-cog
+          - name: 'create-cog'
+            depends: 'group'
+            template: 'create-cog'
             withParam: '{{ tasks.group.outputs.parameters.output }}'
             arguments:
               parameters:
-                - name: covering_grouped_id
+                - name: 'covering_grouped_id'
                   value: '{{ item }}'
               artifacts:
-                - name: covering_grouped
+                - name: 'covering_grouped'
                   from: '{{ tasks.group.outputs.artifacts.output }}'
 
           # TODO: overviews are only supported in RGBA pipelines
           # once all COGs are created generate a more overviews to increase tile rendering performance
-          - name: create-overview
-            template: create-overview
+          - name: 'create-overview'
+            template: 'create-overview'
             when: '{{workflow.parameters.create_overview}} == true'
-            depends: create-cog
+            depends: 'create-cog'
             arguments:
               parameters:
-                - name: path
+                - name: 'path'
                   value: '{{ tasks.create-covering.outputs.parameters.target }}'
 
           # Create a basemaps config to view the imagery directly
-          - name: create-config
-            template: create-config
-            depends: create-overview
+          - name: 'create-config'
+            template: 'create-config'
+            depends: 'create-overview'
             arguments:
               parameters:
-                - name: path
+                - name: 'path'
                   value: '{{ tasks.create-covering.outputs.parameters.target }}'
-                - name: title
+                - name: 'title'
                   value: '{{ tasks.create-covering.outputs.parameters.title }}'
 
       outputs:
         parameters:
-          - name: target
-            description: location of where the output tiffs were created
+          - name: 'target'
+            description: 'location of where the output tiffs were created'
             valueFrom:
               parameter: '{{ tasks.create-covering.outputs.parameters.target }}'
 
     # Generate a tile covering for input imagery
-    - name: create-covering
+    - name: 'create-covering'
       nodeSelector:
-        karpenter.sh/capacity-type: spot
+        karpenter.sh/capacity-type: 'spot'
       inputs:
         parameters:
-          - name: source
-          - name: target
-          - name: tile_matrix
-          - name: cutline
-          - name: cutline_blend
-          - name: preset
-          - name: require_stac_collection
-          - name: background
+          - name: 'source'
+          - name: 'target'
+          - name: 'tile_matrix'
+          - name: 'cutline'
+          - name: 'cutline_blend'
+          - name: 'preset'
+          - name: 'require_stac_collection'
+          - name: 'background'
       container:
-        image: ghcr.io/linz/basemaps/cli:{{ workflow.parameters.version_basemaps_cli }}
+        image: 'ghcr.io/linz/basemaps/cli:{{ workflow.parameters.version_basemaps_cli }}'
         resources:
           requests:
-            memory: 2Gi
+            memory: '2Gi'
         command:
-          - node
-          - /app/node_modules/@basemaps/cogify/dist/index.cjs
+          - 'node'
+          - '/app/node_modules/@basemaps/cogify/dist/index.cjs'
         env:
-          - name: AWS_ROLE_CONFIG_PATH
-            value: s3://linz-bucket-config/config.basemaps.json
+          - name: 'AWS_ROLE_CONFIG_PATH'
+            value: 's3://linz-bucket-config/config.basemaps.json'
         args:
-          - cover
+          - 'cover'
           - '--preset={{ inputs.parameters.preset }}'
           - '--tile-matrix={{ inputs.parameters.tile_matrix }}'
           - '--require-stac-collection={{ inputs.parameters.require_stac_collection }}'
@@ -354,136 +354,136 @@ spec:
           - '{{= sprig.trim(inputs.parameters.source) }}'
       outputs:
         parameters:
-          - name: target
-            description: output path for where the covering was written
+          - name: 'target'
+            description: 'output path for where the covering was written'
             valueFrom:
-              path: /tmp/cogify/cover-target
+              path: '/tmp/cogify/cover-target'
 
-          - name: title
-            description: Title for the covering
+          - name: 'title'
+            description: 'Title for the covering'
             valueFrom:
-              path: /tmp/cogify/cover-title
+              path: '/tmp/cogify/cover-title'
 
         artifacts:
-          - name: tiles
-            path: /tmp/cogify/cover-items.json
+          - name: 'tiles'
+            path: '/tmp/cogify/cover-items.json'
 
     # Actually create COGs using gdal_translate on a large spot instances
-    - name: create-cog
+    - name: 'create-cog'
       nodeSelector:
-        karpenter.sh/capacity-type: spot
+        karpenter.sh/capacity-type: 'spot'
       inputs:
         artifacts:
-          - name: covering_grouped
-            path: /tmp/cogify/covering_grouped/
+          - name: 'covering_grouped'
+            path: '/tmp/cogify/covering_grouped/'
         parameters:
-          - name: covering_grouped_id
+          - name: 'covering_grouped_id'
       container:
         resources:
           requests:
-            memory: 30Gi
-            cpu: 15000m # AWS gives 2x cpu cores = memory for most instances
-            ephemeral-storage: 98Gi # 2 pods per 200GB of storage
-        image: ghcr.io/linz/basemaps/cli:{{ workflow.parameters.version_basemaps_cli }}
+            memory: '30Gi'
+            cpu: '15000m' # AWS gives 2x cpu cores = memory for most instances
+            ephemeral-storage: '98Gi' # 2 pods per 200GB of storage
+        image: 'ghcr.io/linz/basemaps/cli:{{ workflow.parameters.version_basemaps_cli }}'
         command:
-          - node
-          - /app/node_modules/@basemaps/cogify/dist/index.cjs
+          - 'node'
+          - '/app/node_modules/@basemaps/cogify/dist/index.cjs'
         env:
-          - name: AWS_ROLE_CONFIG_PATH
-            value: s3://linz-bucket-config/config.basemaps.json
+          - name: 'AWS_ROLE_CONFIG_PATH'
+            value: 's3://linz-bucket-config/config.basemaps.json'
         args:
-          - create
+          - 'create'
           - '--from-file={{= inputs.artifacts.covering_grouped.path }}{{inputs.parameters.covering_grouped_id}}.json'
-          - --concurrency=2
+          - '--concurrency=2'
 
     # Create a basemaps configuration file to view the imagery
-    - name: create-config
+    - name: 'create-config'
       inputs:
         parameters:
-          - name: path
-            description: Location of the imagery to create config for
+          - name: 'path'
+            description: 'Location of the imagery to create config for'
       container:
-        image: ghcr.io/linz/basemaps/cli:{{ workflow.parameters.version_basemaps_cli }}
+        image: 'ghcr.io/linz/basemaps/cli:{{ workflow.parameters.version_basemaps_cli }}'
         command:
-          - node
-          - /app/node_modules/@basemaps/cogify/dist/index.cjs
+          - 'node'
+          - '/app/node_modules/@basemaps/cogify/dist/index.cjs'
         env:
-          - name: AWS_ROLE_CONFIG_PATH
-            value: s3://linz-bucket-config/config.basemaps.json
+          - name: 'AWS_ROLE_CONFIG_PATH'
+            value: 's3://linz-bucket-config/config.basemaps.json'
         args:
-          - config
+          - 'config'
           - '{{ inputs.parameters.path }}'
       outputs:
         parameters:
-          - name: url
-            description: Basemaps URL to view the imagery
+          - name: 'url'
+            description: 'Basemaps URL to view the imagery'
             valueFrom:
-              path: /tmp/cogify/config-url
-          - name: config
-            description: Location of the config file
+              path: '/tmp/cogify/config-url'
+          - name: 'config'
+            description: 'Location of the config file'
             valueFrom:
-              path: /tmp/cogify/config-path
+              path: '/tmp/cogify/config-path'
 
     # create additional overviews for any COGs found in the path
-    - name: create-overview
+    - name: 'create-overview'
       nodeSelector:
-        karpenter.sh/capacity-type: spot
+        karpenter.sh/capacity-type: 'spot'
       inputs:
         parameters:
-          - name: path
-            description: Location of the imagery to create overviews for
+          - name: 'path'
+            description: 'Location of the imagery to create overviews for'
       container:
         resources:
           requests:
-            memory: 7.8Gi
-            cpu: 15000m
-        image: ghcr.io/linz/basemaps/cli:v6
+            memory: '7.8Gi'
+            cpu: '15000m'
+        image: 'ghcr.io/linz/basemaps/cli:v6'
         command:
-          - node
-          - index.cjs
+          - 'node'
+          - 'index.cjs'
         env:
-          - name: AWS_ROLE_CONFIG_PATH
-            value: s3://linz-bucket-config/config.basemaps.json
+          - name: 'AWS_ROLE_CONFIG_PATH'
+            value: 's3://linz-bucket-config/config.basemaps.json'
         args:
-          - -V
-          - create-overview
+          - '-V'
+          - 'create-overview'
           - '--source={{= sprig.trim(inputs.parameters.path) }}'
           - '--output={{= sprig.trim(inputs.parameters.path) }}'
 
-    - name: create-pull-request
+    - name: 'create-pull-request'
       inputs:
         parameters:
-          - name: target
+          - name: 'target'
       container:
-        image: 019359803926.dkr.ecr.ap-southeast-2.amazonaws.com/argo-tasks:{{workflow.parameters.version_argo_tasks}}
+        image: '019359803926.dkr.ecr.ap-southeast-2.amazonaws.com/argo-tasks:{{workflow.parameters.version_argo_tasks}}'
         env:
-          - name: AWS_ROLE_CONFIG_PATH
-            value: s3://linz-bucket-config/config.basemaps.json
-          - name: GITHUB_API_TOKEN
+          - name: 'AWS_ROLE_CONFIG_PATH'
+            value: 's3://linz-bucket-config/config.basemaps.json'
+          - name: 'GITHUB_API_TOKEN'
             valueFrom:
               secretKeyRef:
-                name: github-linz-li-bot-pat
-                key: pat
+                name: 'github-linz-li-bot-pat'
+                key: 'pat'
         args:
-          - bmc
-          - create-pr
+          - 'bmc'
+          - 'create-pr'
           - '--target={{inputs.parameters.target}}'
           - '--ticket={{workflow.parameters.ticket}}'
           - '--config-type={{workflow.parameters.config_type}}'
           - "--individual={{= workflow.parameters.individual == 'individual'? 'true' : 'false' }}"
           - '--category={{workflow.parameters.category}}'
 
-    - name: exit-handler
+    - name: 'exit-handler'
       retryStrategy:
         limit: '0' # `tpl-exit-handler` retries itself
       steps:
-        - - name: exit
+        - - name: 'exit'
             templateRef:
-              name: tpl-exit-handler
-              template: main
+              name: 'tpl-exit-handler'
+              template: 'main'
             arguments:
               parameters:
-                - name: workflow_status
+                - name: 'workflow_status'
                   value: '{{workflow.status}}'
-                - name: workflow_parameters
+                - name: 'workflow_parameters'
                   value: '{{workflow.parameters}}'

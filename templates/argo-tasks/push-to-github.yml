@@ -1,59 +1,59 @@
 # yaml-language-server: $schema=https://raw.githubusercontent.com/argoproj/argo-workflows/v3.5.5/api/jsonschema/schema.json
-apiVersion: argoproj.io/v1alpha1
-kind: WorkflowTemplate
+apiVersion: 'argoproj.io/v1alpha1'
+kind: 'WorkflowTemplate'
 metadata:
   # Template for Formatting and Pushing STAC Collections to Github
   # See https://github.com/linz/argo-tasks#stac-github-import
-  name: tpl-push-to-github
+  name: 'tpl-push-to-github'
 spec:
   templateDefaults:
     container:
-      imagePullPolicy: Always
+      imagePullPolicy: 'Always'
       image: ''
-  entrypoint: main
+  entrypoint: 'main'
   templates:
-    - name: main
+    - name: 'main'
       inputs:
         parameters:
-          - name: source
-            description: location where the source collection.json file is
+          - name: 'source'
+            description: 'location where the source collection.json file is'
 
-          - name: target
-            description: location where the destination collection.json file will be
+          - name: 'target'
+            description: 'location where the destination collection.json file will be'
 
-          - name: version_argo_tasks
-            description: version of argo-tasks to use
-            default: v4
+          - name: 'version_argo_tasks'
+            description: 'version of argo-tasks to use'
+            default: 'v4'
 
-          - name: repository
-            description: Repository Name
+          - name: 'repository'
+            description: 'Repository Name'
 
-          - name: ticket
-            description: Ticket ID e.g. 'AIP-55'
+          - name: 'ticket'
+            description: "Ticket ID e.g. 'AIP-55'"
 
-          - name: copy_option
-            description: --no-clobber Skip overwriting existing files. --force Overwrite all files. --force-no-clobber Overwrite only changed files, skip unchanged files.
+          - name: 'copy_option'
+            description: '--no-clobber Skip overwriting existing files. --force Overwrite all files. --force-no-clobber Overwrite only changed files, skip unchanged files.'
 
       container:
         image: '019359803926.dkr.ecr.ap-southeast-2.amazonaws.com/argo-tasks:{{=sprig.trim(inputs.parameters.version_argo_tasks)}}'
         env:
-          - name: AWS_ROLE_CONFIG_PATH
-            value: s3://linz-bucket-config/config.json
-          - name: GITHUB_API_TOKEN
+          - name: 'AWS_ROLE_CONFIG_PATH'
+            value: 's3://linz-bucket-config/config.json'
+          - name: 'GITHUB_API_TOKEN'
             valueFrom:
               secretKeyRef:
-                name: github-linz-li-bot-pat
-                key: pat
+                name: 'github-linz-li-bot-pat'
+                key: 'pat'
         args:
-          - stac
-          - github-import
-          - --source
+          - 'stac'
+          - 'github-import'
+          - '--source'
           - '{{=sprig.trim(inputs.parameters.source)}}'
-          - --target
+          - '--target'
           - '{{inputs.parameters.target}}'
-          - --repo-name
+          - '--repo-name'
           - 'linz/{{=sprig.regexFind(inputs.parameters.repository, inputs.parameters.target)}}'
-          - --ticket
+          - '--ticket'
           - '{{inputs.parameters.ticket}}'
-          - --copy-option
+          - '--copy-option'
           - '{{inputs.parameters.copy_option}}'

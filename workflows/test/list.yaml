@@ -1,58 +1,58 @@
 # yaml-language-server: $schema=https://raw.githubusercontent.com/argoproj/argo-workflows/v3.5.5/api/jsonschema/schema.json
 
-apiVersion: argoproj.io/v1alpha1
-kind: Workflow
+apiVersion: 'argoproj.io/v1alpha1'
+kind: 'Workflow'
 metadata:
-  generateName: test-aws-list-
+  generateName: 'test-aws-list-'
   labels:
-    linz.govt.nz/category: test
+    linz.govt.nz/category: 'test'
 spec:
-  serviceAccountName: workflow-runner-sa
-  entrypoint: main
+  serviceAccountName: 'workflow-runner-sa'
+  entrypoint: 'main'
   podMetadata:
     labels:
-      linz.govt.nz/category: test
+      linz.govt.nz/category: 'test'
   arguments:
     parameters:
-      - name: version_argo_tasks
-        value: latest
-      - name: uri
+      - name: 'version_argo_tasks'
+        value: 'latest'
+      - name: 'uri'
         value: 's3://linz-imagery-staging/test/sample/'
   templateDefaults:
     container:
-      imagePullPolicy: Always
+      imagePullPolicy: 'Always'
       image: ''
   templates:
-    - name: main
+    - name: 'main'
       dag:
         tasks:
-          - name: aws-list
-            template: aws-list
+          - name: 'aws-list'
+            template: 'aws-list'
             arguments:
               parameters:
-                - name: uri
+                - name: 'uri'
                   value: '{{workflow.parameters.uri}}'
-                - name: include
-                  value: .tiff?$
-    - name: aws-list
+                - name: 'include'
+                  value: '.tiff?$'
+    - name: 'aws-list'
       inputs:
         parameters:
-          - name: uri
-          - name: include
+          - name: 'uri'
+          - name: 'include'
       container:
-        image: 019359803926.dkr.ecr.ap-southeast-2.amazonaws.com/argo-tasks:{{workflow.parameters.version_argo_tasks}}
+        image: '019359803926.dkr.ecr.ap-southeast-2.amazonaws.com/argo-tasks:{{workflow.parameters.version_argo_tasks}}'
         env:
-          - name: AWS_ROLE_CONFIG_PATH
-            value: s3://linz-bucket-config/config.json
+          - name: 'AWS_ROLE_CONFIG_PATH'
+            value: 's3://linz-bucket-config/config.json'
         args:
-          - list
-          - --verbose
+          - 'list'
+          - '--verbose'
           - '--include={{inputs.parameters.include}}'
-          - --group=2
-          - --output=/tmp/file_list.json
+          - '--group=2'
+          - '--output=/tmp/file_list.json'
           - '{{inputs.parameters.uri}}'
       outputs:
         parameters:
-          - name: files
+          - name: 'files'
             valueFrom:
-              path: /tmp/file_list.json
+              path: '/tmp/file_list.json'

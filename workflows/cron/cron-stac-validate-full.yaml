@@ -1,94 +1,94 @@
 # yaml-language-server: $schema=https://raw.githubusercontent.com/argoproj/argo-workflows/v3.5.5/api/jsonschema/schema.json
-apiVersion: argoproj.io/v1alpha1
-kind: CronWorkflow
+apiVersion: 'argoproj.io/v1alpha1'
+kind: 'CronWorkflow'
 metadata:
-  name: cron-stac-validate-full
+  name: 'cron-stac-validate-full'
   labels:
-    linz.govt.nz/category: stac
+    linz.govt.nz/category: 'stac'
 spec:
   schedule: '0 05 1 * *' # 5 AM every 1st of the month
-  timezone: NZ
+  timezone: 'NZ'
   startingDeadlineSeconds: 3600 # Allow 1 hour delay if the workflow-controller clashes during the starting time.
-  concurrencyPolicy: Allow
+  concurrencyPolicy: 'Allow'
   successfulJobsHistoryLimit: 3
   failedJobsHistoryLimit: 3
   suspend: false
   workflowSpec:
-    entrypoint: main
-    onExit: exit-handler
+    entrypoint: 'main'
+    onExit: 'exit-handler'
     podMetadata:
       labels:
-        linz.govt.nz/category: stac
+        linz.govt.nz/category: 'stac'
     arguments:
       parameters:
-        - name: version_argo_tasks
-          value: v4
-        - name: include
-          value: collection.json$
-        - name: checksum_assets
+        - name: 'version_argo_tasks'
+          value: 'v4'
+        - name: 'include'
+          value: 'collection.json$'
+        - name: 'checksum_assets'
           value: 'true'
-        - name: checksum_links
+        - name: 'checksum_links'
           value: 'true'
-        - name: recursive
+        - name: 'recursive'
           value: 'true'
-        - name: concurrency
+        - name: 'concurrency'
           value: '1'
     templates:
-      - name: main
+      - name: 'main'
         retryStrategy:
           expression: 'false'
         steps:
-          - - name: stac-validate-imagery
+          - - name: 'stac-validate-imagery'
               templateRef:
-                name: stac-validate-parallel
-                template: main
+                name: 'stac-validate-parallel'
+                template: 'main'
               arguments:
                 parameters:
-                  - name: version_argo_tasks
+                  - name: 'version_argo_tasks'
                     value: '{{workflow.parameters.version_argo_tasks}}'
-                  - name: uri
+                  - name: 'uri'
                     value: 's3://nz-imagery/'
-                  - name: include
+                  - name: 'include'
                     value: '{{workflow.parameters.include}}'
-                  - name: checksum_assets
+                  - name: 'checksum_assets'
                     value: '{{workflow.parameters.checksum_assets}}'
-                  - name: checksum_links
+                  - name: 'checksum_links'
                     value: '{{workflow.parameters.checksum_links}}'
-                  - name: recursive
+                  - name: 'recursive'
                     value: '{{workflow.parameters.recursive}}'
-                  - name: concurrency
+                  - name: 'concurrency'
                     value: '{{workflow.parameters.concurrency}}'
-            - name: stac-validate-elevation
+            - name: 'stac-validate-elevation'
               templateRef:
-                name: stac-validate-parallel
-                template: main
+                name: 'stac-validate-parallel'
+                template: 'main'
               arguments:
                 parameters:
-                  - name: version_argo_tasks
+                  - name: 'version_argo_tasks'
                     value: '{{workflow.parameters.version_argo_tasks}}'
-                  - name: uri
+                  - name: 'uri'
                     value: 's3://nz-elevation/'
-                  - name: include
+                  - name: 'include'
                     value: '{{workflow.parameters.include}}'
-                  - name: checksum_assets
+                  - name: 'checksum_assets'
                     value: '{{workflow.parameters.checksum_assets}}'
-                  - name: checksum_links
+                  - name: 'checksum_links'
                     value: '{{workflow.parameters.checksum_links}}'
-                  - name: recursive
+                  - name: 'recursive'
                     value: '{{workflow.parameters.recursive}}'
-                  - name: concurrency
+                  - name: 'concurrency'
                     value: '{{workflow.parameters.concurrency}}'
-      - name: exit-handler
+      - name: 'exit-handler'
         retryStrategy:
           limit: '0' # `tpl-exit-handler` retries itself
         steps:
-          - - name: exit
+          - - name: 'exit'
               templateRef:
-                name: tpl-exit-handler
-                template: main
+                name: 'tpl-exit-handler'
+                template: 'main'
               arguments:
                 parameters:
-                  - name: workflow_status
+                  - name: 'workflow_status'
                     value: '{{workflow.status}}'
-                  - name: workflow_parameters
+                  - name: 'workflow_parameters'
                     value: '{{workflow.parameters}}'

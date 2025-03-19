@@ -1,123 +1,123 @@
 # yaml-language-server: $schema=https://raw.githubusercontent.com/argoproj/argo-workflows/v3.5.5/api/jsonschema/schema.json
 
-apiVersion: argoproj.io/v1alpha1
-kind: WorkflowTemplate
+apiVersion: 'argoproj.io/v1alpha1'
+kind: 'WorkflowTemplate'
 metadata:
-  name: basemaps-create-mapsheet-json
+  name: 'basemaps-create-mapsheet-json'
   labels:
-    linz.govt.nz/category: basemaps
-    linz.govt.nz/data-type: raster
-    linz.govt.nz/data-sub-type: maps
+    linz.govt.nz/category: 'basemaps'
+    linz.govt.nz/data-type: 'raster'
+    linz.govt.nz/data-sub-type: 'maps'
 spec:
-  entrypoint: main
+  entrypoint: 'main'
   podMetadata:
     labels:
-      linz.govt.nz/category: basemaps
-      linz.govt.nz/data-type: raster
-      linz.govt.nz/data-sub-type: maps
+      linz.govt.nz/category: 'basemaps'
+      linz.govt.nz/data-type: 'raster'
+      linz.govt.nz/data-sub-type: 'maps'
   arguments:
     parameters:
-      - name: version_argo_tasks
-        value: v4
-      - name: layer
+      - name: 'version_argo_tasks'
+        value: 'v4'
+      - name: 'layer'
         value: '104687'
-      - name: config
+      - name: 'config'
         value: 's3://linz-basemaps/config/config-latest.json.gz'
-      - name: include
+      - name: 'include'
         value: ''
-      - name: exclude
-        value: new-zealand
+      - name: 'exclude'
+        value: 'new-zealand'
   templateDefaults:
     container:
-      imagePullPolicy: Always
+      imagePullPolicy: 'Always'
       image: ''
   templates:
-    - name: main
+    - name: 'main'
       retryStrategy:
         expression: 'false'
       dag:
         tasks:
-          - name: fetch-layer
-            template: fetch-layer
+          - name: 'fetch-layer'
+            template: 'fetch-layer'
             arguments:
               parameters:
-                - name: layer
+                - name: 'layer'
                   value: '{{workflow.parameters.layer}}'
-          - name: transform
-            template: transform
+          - name: 'transform'
+            template: 'transform'
             arguments:
               artifacts:
-                - name: geopackage
+                - name: 'geopackage'
                   from: '{{tasks.fetch-layer.outputs.artifacts.geopackage}}'
-            depends: fetch-layer
-          - name: create-mapsheet
-            template: create-mapsheet
+            depends: 'fetch-layer'
+          - name: 'create-mapsheet'
+            template: 'create-mapsheet'
             arguments:
               artifacts:
-                - name: flatGeobuf
+                - name: 'flatGeobuf'
                   from: '{{tasks.transform.outputs.artifacts.flatGeobuf}}'
-            depends: transform
+            depends: 'transform'
 
-    - name: fetch-layer
+    - name: 'fetch-layer'
       inputs:
         parameters:
-          - name: layer
+          - name: 'layer'
       container:
-        image: 019359803926.dkr.ecr.ap-southeast-2.amazonaws.com/argo-tasks:{{=sprig.trim(workflow.parameters.version_argo_tasks)}}
+        image: '019359803926.dkr.ecr.ap-southeast-2.amazonaws.com/argo-tasks:{{=sprig.trim(workflow.parameters.version_argo_tasks)}}'
         env:
-          - name: AWS_ROLE_CONFIG_PATH
-            value: s3://linz-bucket-config/config.json
+          - name: 'AWS_ROLE_CONFIG_PATH'
+            value: 's3://linz-bucket-config/config.json'
         args:
-          - lds-fetch-layer
+          - 'lds-fetch-layer'
           - '{{=sprig.trim(inputs.parameters.layer)}}'
-          - --target=/tmp/lds-layer
+          - '--target=/tmp/lds-layer'
       outputs:
         artifacts:
-          - name: geopackage
-            path: /tmp/lds-layer/
+          - name: 'geopackage'
+            path: '/tmp/lds-layer/'
 
-    - name: transform
+    - name: 'transform'
       inputs:
         artifacts:
-          - name: geopackage
-            path: /tmp/
+          - name: 'geopackage'
+            path: '/tmp/'
       container:
-        image: ghcr.io/osgeo/gdal:alpine-small-3.7.0
-        imagePullPolicy: IfNotPresent
+        image: 'ghcr.io/osgeo/gdal:alpine-small-3.7.0'
+        imagePullPolicy: 'IfNotPresent'
         command:
-          - sh
+          - 'sh'
         args:
-          - -c
+          - '-c'
           - 'ogr2ogr -f FlatGeobuf tmp/flatGeobuf.fgb tmp/*.gpkg'
       outputs:
         artifacts:
-          - name: flatGeobuf
-            path: /tmp/flatGeobuf.fgb
+          - name: 'flatGeobuf'
+            path: '/tmp/flatGeobuf.fgb'
 
-    - name: create-mapsheet
+    - name: 'create-mapsheet'
       inputs:
         artifacts:
-          - name: flatGeobuf
-            path: /tmp/flatGeobuf.fgb
+          - name: 'flatGeobuf'
+            path: '/tmp/flatGeobuf.fgb'
       container:
-        image: 019359803926.dkr.ecr.ap-southeast-2.amazonaws.com/argo-tasks:{{=sprig.trim(workflow.parameters.version_argo_tasks)}}
+        image: '019359803926.dkr.ecr.ap-southeast-2.amazonaws.com/argo-tasks:{{=sprig.trim(workflow.parameters.version_argo_tasks)}}'
         env:
-          - name: AWS_ROLE_CONFIG_PATH
-            value: s3://linz-bucket-config/config.json
+          - name: 'AWS_ROLE_CONFIG_PATH'
+            value: 's3://linz-bucket-config/config.json'
         args:
-          - bmc
-          - create-mapsheet
-          - --path=/tmp/flatGeobuf.fgb
+          - 'bmc'
+          - 'create-mapsheet'
+          - '--path=/tmp/flatGeobuf.fgb'
           - '--bm-config={{=sprig.trim(workflow.parameters.config)}}'
-          - --output=/tmp/mapsheet.json
+          - '--output=/tmp/mapsheet.json'
           - '--include={{=sprig.trim(workflow.parameters.include)}}'
           - '--exclude={{=sprig.trim(workflow.parameters.exclude)}}'
 
       outputs:
         artifacts:
-          - name: mapsheet
-            path: /tmp/mapsheet.json
+          - name: 'mapsheet'
+            path: '/tmp/mapsheet.json'
             archive: {}
   volumes:
-    - name: ephemeral
+    - name: 'ephemeral'
       emptyDir: {}

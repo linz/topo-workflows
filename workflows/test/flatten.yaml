@@ -1,95 +1,95 @@
 # yaml-language-server: $schema=https://raw.githubusercontent.com/argoproj/argo-workflows/v3.5.5/api/jsonschema/schema.json
 
-apiVersion: argoproj.io/v1alpha1
-kind: WorkflowTemplate
+apiVersion: 'argoproj.io/v1alpha1'
+kind: 'WorkflowTemplate'
 metadata:
-  name: test-flatten
+  name: 'test-flatten'
   labels:
-    linz.govt.nz/category: test
+    linz.govt.nz/category: 'test'
 spec:
   nodeSelector:
-    karpenter.sh/capacity-type: spot
-  entrypoint: main
+    karpenter.sh/capacity-type: 'spot'
+  entrypoint: 'main'
   podMetadata:
     labels:
-      linz.govt.nz/category: test
+      linz.govt.nz/category: 'test'
   arguments:
     parameters:
-      - name: version_argo_tasks
-        value: latest
-      - name: uri
+      - name: 'version_argo_tasks'
+        value: 'latest'
+      - name: 'uri'
         value: ''
-      - name: filter
+      - name: 'filter'
         value: '\.tiff?$|\.json$'
-      - name: copy_option
-        value: --no-clobber
+      - name: 'copy_option'
+        value: '--no-clobber'
         enum:
-          - --no-clobber
-          - --force
-          - --force-no-clobber
+          - '--no-clobber'
+          - '--force'
+          - '--force-no-clobber'
   templateDefaults:
     container:
-      imagePullPolicy: Always
+      imagePullPolicy: 'Always'
       image: ''
   templates:
-    - name: main
+    - name: 'main'
       dag:
         tasks:
-          - name: flatten
-            template: flatten
+          - name: 'flatten'
+            template: 'flatten'
             arguments:
               parameters:
-                - name: uri
+                - name: 'uri'
                   value: '{{workflow.parameters.uri}}'
-                - name: filter
+                - name: 'filter'
                   value: '{{workflow.parameters.filter}}'
-          - name: flatten-copy
-            template: flatten-copy
+          - name: 'flatten-copy'
+            template: 'flatten-copy'
             arguments:
               parameters:
-                - name: file
+                - name: 'file'
                   value: '{{item}}'
-            depends: flatten
+            depends: 'flatten'
             withParam: '{{tasks.flatten.outputs.parameters.files}}'
-    - name: flatten
+    - name: 'flatten'
       inputs:
         parameters:
-          - name: uri
-          - name: filter
+          - name: 'uri'
+          - name: 'filter'
       container:
-        image: 019359803926.dkr.ecr.ap-southeast-2.amazonaws.com/argo-tasks:{{=sprig.trim(workflow.parameters.version_argo_tasks)}}
+        image: '019359803926.dkr.ecr.ap-southeast-2.amazonaws.com/argo-tasks:{{=sprig.trim(workflow.parameters.version_argo_tasks)}}'
         env:
-          - name: AWS_ROLE_CONFIG_PATH
-            value: s3://linz-bucket-config/config.json
+          - name: 'AWS_ROLE_CONFIG_PATH'
+            value: 's3://linz-bucket-config/config.json'
         args:
-          - flatten
-          - --verbose
-          - --include
+          - 'flatten'
+          - '--verbose'
+          - '--include'
           - '{{=sprig.trim(inputs.parameters.filter)}}'
-          - --group
+          - '--group'
           - '1000'
-          - --group-size
-          - 100Gi
-          - --output
-          - /tmp/file_list.json
+          - '--group-size'
+          - '100Gi'
+          - '--output'
+          - '/tmp/file_list.json'
           - '{{=sprig.trim(inputs.parameters.uri)}}'
 
       outputs:
         parameters:
-          - name: files
+          - name: 'files'
             valueFrom:
-              path: /tmp/file_list.json
-    - name: flatten-copy
+              path: '/tmp/file_list.json'
+    - name: 'flatten-copy'
       inputs:
         parameters:
-          - name: file
+          - name: 'file'
       container:
-        image: 019359803926.dkr.ecr.ap-southeast-2.amazonaws.com/argo-tasks:{{=sprig.trim(workflow.parameters.version_argo_tasks)}}
+        image: '019359803926.dkr.ecr.ap-southeast-2.amazonaws.com/argo-tasks:{{=sprig.trim(workflow.parameters.version_argo_tasks)}}'
         resources:
           requests:
-            memory: 7.8Gi
-            cpu: 2000m
+            memory: '7.8Gi'
+            cpu: '2000m'
         args:
-          - copy
+          - 'copy'
           - '{{workflow.parameters.copy_option}}'
           - '{{inputs.parameters.file}}'
