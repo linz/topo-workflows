@@ -1,30 +1,31 @@
 # yaml-language-server: $schema=https://raw.githubusercontent.com/argoproj/argo-workflows/v3.5.5/api/jsonschema/schema.json
 
-apiVersion: argoproj.io/v1alpha1
-kind: WorkflowTemplate
+apiVersion: 'argoproj.io/v1alpha1'
+kind: 'WorkflowTemplate'
 metadata:
   # Template to log the workflow status and its parameters.
-  name: tpl-exit-handler
+  name: 'tpl-exit-handler'
 spec:
   templateDefaults:
     container:
-      imagePullPolicy: Always
+      imagePullPolicy: 'Always'
       image: ''
-  entrypoint: main
+  entrypoint: 'main'
   templates:
-    - name: main
+    - name: 'main'
       inputs:
         parameters:
-          - name: workflow_status
-            description: Status of the workflow
-          - name: workflow_parameters
-            description: Parameters of the workflow
-          - name: version_argo_tasks
-            description: Version of argo-tasks to use
+          - name: 'workflow_status'
+            description: 'Status of the workflow'
+          - name: 'workflow_parameters'
+            description: 'Parameters of the workflow'
+          - name: 'version_argo_tasks'
+            description: 'Version of argo-tasks to use'
             default: 'v4'
       script:
         image: '019359803926.dkr.ecr.ap-southeast-2.amazonaws.com/argo-tasks:{{=sprig.trim(inputs.parameters.version_argo_tasks)}}'
-        command: [node]
+        command:
+          - 'node'
         source: |
           let parameters = {};
           {{= inputs.parameters.workflow_parameters }}.forEach((pair) => (parameters[pair.name] = pair.value));

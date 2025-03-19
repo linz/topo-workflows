@@ -1,100 +1,100 @@
 # yaml-language-server: $schema=https://raw.githubusercontent.com/argoproj/argo-workflows/v3.5.5/api/jsonschema/schema.json
 
-apiVersion: argoproj.io/v1alpha1
-kind: WorkflowTemplate
+apiVersion: 'argoproj.io/v1alpha1'
+kind: 'WorkflowTemplate'
 metadata:
   # Template from https://github.com/linz/topo-imagery
   # see https://github.com/linz/topo-imagery/blob/master/scripts/collection_from_items.py
-  name: tpl-ti-create-collection
+  name: 'tpl-ti-create-collection'
 spec:
   templateDefaults:
     container:
-      imagePullPolicy: Always
+      imagePullPolicy: 'Always'
       image: ''
-  entrypoint: main
+  entrypoint: 'main'
   templates:
-    - name: main
+    - name: 'main'
       inputs:
         parameters:
-          - name: version_topo_imagery
+          - name: 'version_topo_imagery'
             description: 'Specify a version of the topo-imagery image to use, e.g. "v4.8" or "latest"'
             default: 'v7'
 
-          - name: collection_id
+          - name: 'collection_id'
             description: 'Collection ID of existing dataset, or else a generated collection ID'
             default: ''
 
-          - name: linz_slug
+          - name: 'linz_slug'
             description: 'Dataset identifying slug'
             default: ''
 
-          - name: odr_url
+          - name: 'odr_url'
             description: '(Optional) If an existing dataset add the S3 path to the dataset here to load existing metadata e.g. "s3://nz-imagery/taranaki/new-plymouth_2017_0.1m/rgb/2193/"'
             default: ''
 
-          - name: location
+          - name: 'location'
             description: 'Location for output files'
             default: ''
 
-          - name: current_datetime
+          - name: 'current_datetime'
             description: 'Current date and time of the workflow'
             default: ''
 
-          - name: category
+          - name: 'category'
             description: 'Geospatial category of the dataset'
             default: ''
 
-          - name: region
+          - name: 'region'
             description: 'Region of the dataset'
             default: ''
 
-          - name: gsd
+          - name: 'gsd'
             description: 'Dataset GSD in metres, e.g., "0.3" for 30 centimetres'
             default: ''
 
-          - name: geographic_description
+          - name: 'geographic_description'
             description: '(Optional) Additional dataset description, to be used in the title in place of the Region, e.g. "Hamilton"'
             default: ''
 
-          - name: event
+          - name: 'event'
             description: '(Optional) Event name if dataset has been captured in association with an event, e.g. "Top of the South Floods"'
             default: ''
 
-          - name: historic_survey_number
+          - name: 'historic_survey_number'
             description: '(Optional) Survey Number associated with historical datasets, e.g. "SN8844"'
             default: ''
 
-          - name: lifecycle
+          - name: 'lifecycle'
             description: 'The release lifecycle status of the dataset, e.g. "completed or "ongoing"'
             default: ''
 
-          - name: add_title_suffix
+          - name: 'add_title_suffix'
             description: 'Add a title suffix to the collection title based on the lifecycle. For example, "[TITLE] - Preview"'
             default: 'false'
 
-          - name: producer
+          - name: 'producer'
             description: 'The producer of the source dataset, e.g. aerial or bathymetric survey company'
             default: ''
 
-          - name: producer_list
+          - name: 'producer_list'
             description: '(Optional) List of imagery producers, separated by semicolon (;). Has no effect unless a semicolon delimited list is entered.'
             default: ''
 
-          - name: licensor
+          - name: 'licensor'
             description: 'The licensor of the dataset, e.g. local or regional council, government agency, satellite provider'
             default: ''
 
-          - name: licensor_list
+          - name: 'licensor_list'
             description: '(Optional) List of imagery licensors, separated by semicolon (;). Has no effect unless a semicolon delimited list is entered.'
             default: ''
 
-          - name: create_capture_dates
+          - name: 'create_capture_dates'
             description: 'Add a capture-dates.geojson.gz file to the collection assets'
             default: 'false'
 
       outputs:
         artifacts:
-          - name: capture-area
+          - name: 'capture-area'
             path: '/tmp/capture-area.geojson'
             optional: true
             archive:
@@ -103,7 +103,7 @@ spec:
       container:
         image: '019359803926.dkr.ecr.ap-southeast-2.amazonaws.com/topo-imagery:{{=sprig.trim(inputs.parameters.version_topo_imagery)}}'
         args:
-          - python
+          - 'python'
           - '/app/scripts/collection_from_items.py'
           - '--uri'
           - '{{=sprig.trimSuffix("/", inputs.parameters.location)}}'
@@ -145,5 +145,5 @@ spec:
           - '{{inputs.parameters.current_datetime}}'
         resources:
           requests:
-            memory: 7.8Gi
-            cpu: 15000m
+            memory: '7.8Gi'
+            cpu: '15000m'

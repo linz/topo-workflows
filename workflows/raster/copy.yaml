@@ -1,54 +1,54 @@
 # yaml-language-server: $schema=https://raw.githubusercontent.com/argoproj/argo-workflows/v3.5.5/api/jsonschema/schema.json
 
-apiVersion: argoproj.io/v1alpha1
-kind: WorkflowTemplate
+apiVersion: 'argoproj.io/v1alpha1'
+kind: 'WorkflowTemplate'
 metadata:
-  name: copy
+  name: 'copy'
   labels:
-    linz.govt.nz/category: raster
-    linz.govt.nz/data-type: raster
+    linz.govt.nz/category: 'raster'
+    linz.govt.nz/data-type: 'raster'
 spec:
   parallelism: 50
   nodeSelector:
     karpenter.sh/capacity-type: 'spot'
-  entrypoint: main
-  onExit: exit-handler
+  entrypoint: 'main'
+  onExit: 'exit-handler'
   synchronization:
     semaphore:
       configMapKeyRef:
-        name: semaphores
-        key: bulkcopy
+        name: 'semaphores'
+        key: 'bulkcopy'
   workflowMetadata:
     labelsFrom:
       linz.govt.nz/user-group:
-        expression: workflow.parameters.user_group
+        expression: 'workflow.parameters.user_group'
       linz.govt.nz/ticket:
-        expression: workflow.parameters.ticket
+        expression: 'workflow.parameters.ticket'
       linz.govt.nz/region:
-        expression: workflow.parameters.region
+        expression: 'workflow.parameters.region'
   podMetadata:
     labels:
       linz.govt.nz/user-group: '{{workflow.parameters.user_group}}'
-      linz.govt.nz/category: raster
-      linz.govt.nz/data-type: raster
+      linz.govt.nz/category: 'raster'
+      linz.govt.nz/data-type: 'raster'
       linz.govt.nz/ticket: '{{workflow.parameters.ticket}}'
       linz.govt.nz/region: '{{workflow.parameters.region}}'
   arguments:
     parameters:
-      - name: version_argo_tasks
+      - name: 'version_argo_tasks'
         value: 'v4'
-      - name: user_group
-        description: Group of users running the workflow
+      - name: 'user_group'
+        description: 'Group of users running the workflow'
         value: 'none'
         enum:
           - 'land'
           - 'sea'
           - 'none'
-      - name: ticket
-        description: Ticket ID e.g. 'AIP-55'
+      - name: 'ticket'
+        description: "Ticket ID e.g. 'AIP-55'"
         value: ''
-      - name: region
-        description: Region of the dataset
+      - name: 'region'
+        description: 'Region of the dataset'
         value: 'new-zealand'
         enum:
           - 'antarctica'
@@ -71,106 +71,106 @@ spec:
           - 'waikato'
           - 'wellington'
           - 'west-coast'
-      - name: source
+      - name: 'source'
         value: 's3://linz-imagery-staging/test/sample/'
-      - name: target
+      - name: 'target'
         value: 's3://linz-imagery-staging/test/sample_target/'
-      - name: include
+      - name: 'include'
         value: '\.tiff?$|\.json$|\.tfw$|/capture-area\.geojson$|/capture-dates\.geojson$'
-      - name: exclude
+      - name: 'exclude'
         value: ''
-      - name: copy_option
+      - name: 'copy_option'
         value: '--no-clobber'
         enum:
           - '--no-clobber'
           - '--force'
           - '--force-no-clobber'
-      - name: flatten
-        description: Flatten the files in the target location
+      - name: 'flatten'
+        description: 'Flatten the files in the target location'
         value: 'false'
         enum:
           - 'true'
           - 'false'
-      - name: group
+      - name: 'group'
         value: '1000'
-      - name: group_size
+      - name: 'group_size'
         value: '100Gi'
-      - name: transform
+      - name: 'transform'
         value: 'f'
-      - name: aws_role_config_path
-        description: s3 URL or comma-separated list of s3 URLs allowing the workflow to write to a target(s)
+      - name: 'aws_role_config_path'
+        description: 's3 URL or comma-separated list of s3 URLs allowing the workflow to write to a target(s)'
         value: 's3://linz-bucket-config/config-write.elevation.json,s3://linz-bucket-config/config-write.imagery.json,s3://linz-bucket-config/config-write.topographic.json'
   templateDefaults:
     container:
-      imagePullPolicy: Always
+      imagePullPolicy: 'Always'
       image: ''
 
   templates:
-    - name: main
+    - name: 'main'
       retryStrategy:
         expression: 'false'
       inputs:
         parameters:
-          - name: source
-          - name: target
-          - name: include
-          - name: exclude
-          - name: flatten
-          - name: group
-          - name: group_size
+          - name: 'source'
+          - name: 'target'
+          - name: 'include'
+          - name: 'exclude'
+          - name: 'flatten'
+          - name: 'group'
+          - name: 'group_size'
       dag:
         tasks:
-          - name: create-manifest
+          - name: 'create-manifest'
             templateRef:
-              name: tpl-create-manifest
-              template: main
+              name: 'tpl-create-manifest'
+              template: 'main'
             arguments:
               parameters:
-                - name: source
+                - name: 'source'
                   value: '{{inputs.parameters.source}}'
-                - name: target
+                - name: 'target'
                   value: '{{inputs.parameters.target}}'
-                - name: include
+                - name: 'include'
                   value: '{{inputs.parameters.include}}'
-                - name: exclude
+                - name: 'exclude'
                   value: '{{inputs.parameters.exclude}}'
-                - name: flatten
+                - name: 'flatten'
                   value: '{{inputs.parameters.flatten}}'
-                - name: group
+                - name: 'group'
                   value: '{{inputs.parameters.group}}'
-                - name: group_size
+                - name: 'group_size'
                   value: '{{inputs.parameters.group_size}}'
-                - name: version_argo_tasks
+                - name: 'version_argo_tasks'
                   value: '{{workflow.parameters.version_argo_tasks}}'
 
-          - name: copy
+          - name: 'copy'
             templateRef:
-              name: tpl-copy
-              template: main
+              name: 'tpl-copy'
+              template: 'main'
             arguments:
               parameters:
-                - name: copy_option
+                - name: 'copy_option'
                   value: '{{workflow.parameters.copy_option}}'
-                - name: file
+                - name: 'file'
                   value: '{{item}}'
-                - name: version_argo_tasks
+                - name: 'version_argo_tasks'
                   value: '{{workflow.parameters.version_argo_tasks}}'
-                - name: aws_role_config_path
+                - name: 'aws_role_config_path'
                   value: '{{workflow.parameters.aws_role_config_path}}'
             depends: 'create-manifest'
             withParam: '{{tasks.create-manifest.outputs.parameters.files}}'
 
-    - name: exit-handler
+    - name: 'exit-handler'
       retryStrategy:
         limit: '0' # `tpl-exit-handler` retries itself
       steps:
-        - - name: exit
+        - - name: 'exit'
             templateRef:
-              name: tpl-exit-handler
-              template: main
+              name: 'tpl-exit-handler'
+              template: 'main'
             arguments:
               parameters:
-                - name: workflow_status
+                - name: 'workflow_status'
                   value: '{{workflow.status}}'
-                - name: workflow_parameters
+                - name: 'workflow_parameters'
                   value: '{{workflow.parameters}}'

@@ -1,34 +1,34 @@
 # yaml-language-server: $schema=https://raw.githubusercontent.com/argoproj/argo-workflows/v3.5.5/api/jsonschema/schema.json
 
-apiVersion: argoproj.io/v1alpha1
-kind: WorkflowTemplate
+apiVersion: 'argoproj.io/v1alpha1'
+kind: 'WorkflowTemplate'
 metadata:
   # Template from linz/argo-tasks
   # see https://github.com/linz/argo-tasks#generate-path
-  name: tpl-at-generate-path
+  name: 'tpl-at-generate-path'
 spec:
   templateDefaults:
     container:
-      imagePullPolicy: Always
+      imagePullPolicy: 'Always'
       image: ''
-  entrypoint: main
+  entrypoint: 'main'
   templates:
-    - name: main
+    - name: 'main'
       inputs:
         parameters:
-          - name: source
-            description: s3 path of source data
-          - name: target_bucket_name
-            description: target bucket name e.g. 'nz-imagery'
-          - name: version
-            description: argo-task Container version to use
+          - name: 'source'
+            description: 's3 path of source data'
+          - name: 'target_bucket_name'
+            description: "target bucket name e.g. 'nz-imagery'"
+          - name: 'version'
+            description: 'argo-task Container version to use'
             default: 'v4'
 
       container:
         image: '019359803926.dkr.ecr.ap-southeast-2.amazonaws.com/argo-tasks:{{= inputs.parameters.version }}'
         env:
-          - name: AWS_ROLE_CONFIG_PATH
-            value: s3://linz-bucket-config/config.json
+          - name: 'AWS_ROLE_CONFIG_PATH'
+            value: 's3://linz-bucket-config/config.json'
         args:
           - 'generate-path'
           - '--target-bucket-name'
@@ -37,7 +37,7 @@ spec:
 
       outputs:
         parameters:
-          - name: target
-            description: ODR target path
+          - name: 'target'
+            description: 'ODR target path'
             valueFrom:
               path: '/tmp/generate-path/target'

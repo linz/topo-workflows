@@ -1,10 +1,10 @@
 # yaml-language-server: $schema=https://raw.githubusercontent.com/argoproj/argo-workflows/v3.5.5/api/jsonschema/schema.json
-apiVersion: argoproj.io/v1alpha1
-kind: CronWorkflow
+apiVersion: 'argoproj.io/v1alpha1'
+kind: 'CronWorkflow'
 metadata:
-  name: cron-stac-validate-fast
+  name: 'cron-stac-validate-fast'
   labels:
-    linz.govt.nz/category: stac
+    linz.govt.nz/category: 'stac'
 spec:
   schedule: '0 05 * * *' # 5 AM every day
   timezone: 'NZ'
@@ -14,26 +14,26 @@ spec:
   failedJobsHistoryLimit: 3
   suspend: false
   workflowSpec:
-    entrypoint: main
-    onExit: exit-handler
+    entrypoint: 'main'
+    onExit: 'exit-handler'
     podMetadata:
       labels:
-        linz.govt.nz/category: stac
+        linz.govt.nz/category: 'stac'
     arguments:
       parameters:
-        - name: checksum_assets
+        - name: 'checksum_assets'
           value: 'false'
         - name: 'checksum_links'
           value: 'true'
     templates:
-      - name: main
+      - name: 'main'
         retryStrategy:
           expression: 'false'
         steps:
-          - - name: stac-validate-imagery
+          - - name: 'stac-validate-imagery'
               templateRef:
-                name: tpl-at-stac-validate
-                template: main
+                name: 'tpl-at-stac-validate'
+                template: 'main'
               arguments:
                 parameters:
                   - name: 'uri'
@@ -42,10 +42,10 @@ spec:
                     value: '{{workflow.parameters.checksum_assets}}'
                   - name: 'checksum_links'
                     value: '{{workflow.parameters.checksum_links}}'
-            - name: stac-validate-elevation
+            - name: 'stac-validate-elevation'
               templateRef:
-                name: tpl-at-stac-validate
-                template: main
+                name: 'tpl-at-stac-validate'
+                template: 'main'
               arguments:
                 parameters:
                   - name: 'uri'
@@ -54,17 +54,17 @@ spec:
                     value: '{{workflow.parameters.checksum_assets}}'
                   - name: 'checksum_links'
                     value: '{{workflow.parameters.checksum_links}}'
-      - name: exit-handler
+      - name: 'exit-handler'
         retryStrategy:
           limit: '0' # `tpl-exit-handler` retries itself
         steps:
-          - - name: exit
+          - - name: 'exit'
               templateRef:
-                name: tpl-exit-handler
-                template: main
+                name: 'tpl-exit-handler'
+                template: 'main'
               arguments:
                 parameters:
-                  - name: workflow_status
+                  - name: 'workflow_status'
                     value: '{{workflow.status}}'
-                  - name: workflow_parameters
+                  - name: 'workflow_parameters'
                     value: '{{workflow.parameters}}'

@@ -1,101 +1,103 @@
 # yaml-language-server: $schema=https://raw.githubusercontent.com/argoproj/argo-workflows/v3.5.5/api/jsonschema/schema.json
 
-apiVersion: argoproj.io/v1alpha1
-kind: WorkflowTemplate
+apiVersion: 'argoproj.io/v1alpha1'
+kind: 'WorkflowTemplate'
 metadata:
-  name: basemaps-vector-etl
+  name: 'basemaps-vector-etl'
   labels:
-    linz.govt.nz/category: basemaps
-    linz.govt.nz/data-type: vector
+    linz.govt.nz/category: 'basemaps'
+    linz.govt.nz/data-type: 'vector'
 spec:
-  entrypoint: main
-  onExit: exit-handler
+  entrypoint: 'main'
+  onExit: 'exit-handler'
   podMetadata:
     labels:
-      linz.govt.nz/category: basemaps
-      linz.govt.nz/data-type: vector
+      linz.govt.nz/category: 'basemaps'
+      linz.govt.nz/data-type: 'vector'
   arguments:
     parameters:
-      - name: version_argo_tasks
-        description: Version of the Argo Tasks CLI docker container to use
+      - name: 'version_argo_tasks'
+        description: 'Version of the Argo Tasks CLI docker container to use'
         value: 'v4'
 
-      - name: version_basemaps_etl
-        description: Version of the Basemaps ETL eks container to use
+      - name: 'version_basemaps_etl'
+        description: 'Version of the Basemaps ETL eks container to use'
         value: 'v1'
 
-      - name: target
-        description: S3 Bucket to use for storing the output
+      - name: 'target'
+        description: 'S3 Bucket to use for storing the output'
         value: 'linz-basemaps'
         enum:
           - 'linz-basemaps'
           - 'linz-basemaps-staging'
 
-      - name: filename
-        description: output filename in s3
+      - name: 'filename'
+        description: 'output filename in s3'
         value: 'topographic'
 
-      - name: title
-        description: title for the output data, which will populate in stac file
+      - name: 'title'
+        description: 'title for the output data, which will populate in stac file'
         value: 'Topographic'
 
-      - name: create_pull_request
-        description: Should a pull request be created in linz/basemaps-config
+      - name: 'create_pull_request'
+        description: 'Should a pull request be created in linz/basemaps-config'
         value: 'true'
         enum:
           - 'true'
           - 'false'
 
-      - name: individual
+      - name: 'individual'
         description: 'Individual Config or Combined Config'
         value: 'combined'
         enum:
           - 'individual'
           - 'combined'
 
-      - name: retry
-        description: Number of retry on failure vector-etl task
+      - name: 'retry'
+        description: 'Number of retry on failure vector-etl task'
         value: '1'
 
-      - name: config
+      - name: 'config'
         description: 'Config file that etl importing to compare'
         value: 's3://linz-basemaps/config/config-latest.json.gz'
 
   templateDefaults:
     container:
-      imagePullPolicy: Always
+      imagePullPolicy: 'Always'
       image: ''
 
   templates:
-    - name: main
+    - name: 'main'
       retryStrategy:
         expression: 'false'
       dag:
         tasks:
-          - name: check-updates
-            template: check-updates
+          - name: 'check-updates'
+            template: 'check-updates'
 
-          - name: vector-etl
-            template: vector-etl
+          - name: 'vector-etl'
+            template: 'vector-etl'
             depends: 'check-updates'
             when: '{{tasks.check-updates.outputs.parameters.updatesRequired}} == true'
 
-          - name: create-pull-request
-            template: create-pull-request
+          - name: 'create-pull-request'
+            template: 'create-pull-request'
             arguments:
               parameters:
-                - name: target
+                - name: 'target'
                   value: '{{ tasks.vector-etl.outputs.parameters.target }}'
             when: '{{ workflow.parameters.create_pull_request }} == true && {{tasks.check-updates.outputs.parameters.updatesRequired}} == true'
             depends: 'vector-etl'
 
-    - name: check-updates
+    - name: 'check-updates'
       container:
-        image: 019359803926.dkr.ecr.ap-southeast-2.amazonaws.com/eks:bm-etl-{{ workflow.parameters.version_basemaps_etl }}
-        command: [node, /app/index.js]
+        image: '019359803926.dkr.ecr.ap-southeast-2.amazonaws.com/eks:bm-etl-{{ workflow.parameters.version_basemaps_etl }}'
+        command:
+          - 'node'
+          - '/app/index.js'
         env:
-          - name: AWS_ROLE_CONFIG_PATH
-            value: s3://linz-bucket-config/config.json
+          - name: 'AWS_ROLE_CONFIG_PATH'
+            value: 's3://linz-bucket-config/config.json'
         args:
           - 'check-updates'
           - '--filename={{ workflow.parameters.filename }}'
@@ -103,29 +105,31 @@ spec:
           - '--output=/tmp/'
       outputs:
         parameters:
-          - name: updates
+          - name: 'updates'
             valueFrom:
               path: '/tmp/updates.json'
-          - name: updatesRequired
+          - name: 'updatesRequired'
             valueFrom:
               path: '/tmp/updatesRequired'
 
-    - name: vector-etl
+    - name: 'vector-etl'
       retryStrategy:
         limit: '{{workflow.parameters.retry}}'
         retryPolicy: 'Always'
       nodeSelector:
         karpenter.sh/capacity-type: 'spot'
       container:
-        image: 019359803926.dkr.ecr.ap-southeast-2.amazonaws.com/eks:bm-etl-{{ workflow.parameters.version_basemaps_etl }}
+        image: '019359803926.dkr.ecr.ap-southeast-2.amazonaws.com/eks:bm-etl-{{ workflow.parameters.version_basemaps_etl }}'
         resources:
           requests:
-            memory: 7.8Gi
-            cpu: 15000m
-        command: [node, /app/index.js]
+            memory: '7.8Gi'
+            cpu: '15000m'
+        command:
+          - 'node'
+          - '/app/index.js'
         env:
-          - name: AWS_ROLE_CONFIG_PATH
-            value: s3://linz-bucket-config/config.basemaps.json
+          - name: 'AWS_ROLE_CONFIG_PATH'
+            value: 's3://linz-bucket-config/config.basemaps.json'
         args:
           - 'etl'
           - "{{= workflow.parameters.filename == 'topographic'? '--all' : '--layer=' + workflow.parameters.filename }}"
@@ -136,24 +140,24 @@ spec:
           - '--commit'
       outputs:
         parameters:
-          - name: target
+          - name: 'target'
             valueFrom:
               path: '/tmp/target'
 
-    - name: create-pull-request
+    - name: 'create-pull-request'
       inputs:
         parameters:
-          - name: target
+          - name: 'target'
       container:
-        image: 019359803926.dkr.ecr.ap-southeast-2.amazonaws.com/argo-tasks:{{ workflow.parameters.version_argo_tasks }}
+        image: '019359803926.dkr.ecr.ap-southeast-2.amazonaws.com/argo-tasks:{{ workflow.parameters.version_argo_tasks }}'
         env:
-          - name: AWS_ROLE_CONFIG_PATH
-            value: s3://linz-bucket-config/config.basemaps.json
-          - name: GITHUB_API_TOKEN
+          - name: 'AWS_ROLE_CONFIG_PATH'
+            value: 's3://linz-bucket-config/config.basemaps.json'
+          - name: 'GITHUB_API_TOKEN'
             valueFrom:
               secretKeyRef:
-                name: github-linz-li-bot-pat
-                key: pat
+                name: 'github-linz-li-bot-pat'
+                key: 'pat'
         args:
           - 'bmc'
           - 'create-pr'
@@ -161,17 +165,17 @@ spec:
           - '--config-type=vector'
           - "--individual={{= workflow.parameters.individual == 'individual'? 'true' : 'false' }}"
 
-    - name: exit-handler
+    - name: 'exit-handler'
       retryStrategy:
         limit: '0' # `tpl-exit-handler` retries itself
       steps:
-        - - name: exit
+        - - name: 'exit'
             templateRef:
-              name: tpl-exit-handler
-              template: main
+              name: 'tpl-exit-handler'
+              template: 'main'
             arguments:
               parameters:
-                - name: workflow_status
+                - name: 'workflow_status'
                   value: '{{workflow.status}}'
-                - name: workflow_parameters
+                - name: 'workflow_parameters'
                   value: '{{workflow.parameters}}'

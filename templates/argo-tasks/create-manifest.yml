@@ -1,96 +1,96 @@
 # yaml-language-server: $schema=https://raw.githubusercontent.com/argoproj/argo-workflows/v3.5.5/api/jsonschema/schema.json
 
-apiVersion: argoproj.io/v1alpha1
-kind: WorkflowTemplate
+apiVersion: 'argoproj.io/v1alpha1'
+kind: 'WorkflowTemplate'
 metadata:
   # Template for creating a manifest to be copied and their target path
   # See https://github.com/linz/argo-tasks#create-manifest
-  name: tpl-create-manifest
+  name: 'tpl-create-manifest'
 spec:
   templateDefaults:
     container:
-      imagePullPolicy: Always
+      imagePullPolicy: 'Always'
       image: ''
-  entrypoint: main
+  entrypoint: 'main'
   templates:
-    - name: main
+    - name: 'main'
       inputs:
         parameters:
-          - name: source
-            description: location of data to publish
+          - name: 'source'
+            description: 'location of data to publish'
 
-          - name: target
-            description: location to publish data to
+          - name: 'target'
+            description: 'location to publish data to'
 
-          - name: version_argo_tasks
-            description: version of argo-tasks to use
+          - name: 'version_argo_tasks'
+            description: 'version of argo-tasks to use'
             default: 'v4'
 
-          - name: include
-            description: A regular expression to match object path(s) or name(s) from within the source path to include in the copy
+          - name: 'include'
+            description: 'A regular expression to match object path(s) or name(s) from within the source path to include in the copy'
             default: '\.tiff?$|\.json$|\.tfw$'
 
-          - name: exclude
-            description: A regular expression to match object path(s) or name(s) from within the source path to exclude in the copy
+          - name: 'exclude'
+            description: 'A regular expression to match object path(s) or name(s) from within the source path to exclude in the copy'
             default: ''
 
-          - name: copy_option
-            description: --no-clobber Skip overwriting existing files. --force Overwrite all files. --force-no-clobber Overwrite only changed files, skip unchanged files.
+          - name: 'copy_option'
+            description: '--no-clobber Skip overwriting existing files. --force Overwrite all files. --force-no-clobber Overwrite only changed files, skip unchanged files.'
             default: '--no-clobber'
             enum:
               - '--no-clobber'
               - '--force'
               - '--force-no-clobber'
 
-          - name: flatten
-            description: Flatten the files in the target location
+          - name: 'flatten'
+            description: 'Flatten the files in the target location'
             default: 'false'
             enum:
               - 'true'
               - 'false'
 
-          - name: group
-            description: The maximum number of files for each pod to copy (will use the value of `group` or `group_size` that is reached first)
+          - name: 'group'
+            description: 'The maximum number of files for each pod to copy (will use the value of `group` or `group_size` that is reached first)'
             default: '1000'
 
-          - name: group_size
-            description: The maximum group size of files for each pod to copy (will use the value of `group` or `group_size` that is reached first)
+          - name: 'group_size'
+            description: 'The maximum group size of files for each pod to copy (will use the value of `group` or `group_size` that is reached first)'
             default: '100Gi'
 
-          - name: transform
-            description: String to be transformed from source to target to renamed filenames, e.g. `f.replace("text to replace", "new_text_to_use")`. Leave as `f` for no transformation.
+          - name: 'transform'
+            description: 'String to be transformed from source to target to renamed filenames, e.g. `f.replace("text to replace", "new_text_to_use")`. Leave as `f` for no transformation.'
             default: 'f'
 
       outputs:
         parameters:
-          - name: files
+          - name: 'files'
             valueFrom:
-              path: /tmp/file_list.json
+              path: '/tmp/file_list.json'
 
       container:
         image: '019359803926.dkr.ecr.ap-southeast-2.amazonaws.com/argo-tasks:{{=sprig.trim(inputs.parameters.version_argo_tasks)}}'
-        command: [node, /app/index.js]
+        command:
+          - 'node'
+          - '/app/index.js'
         env:
-          - name: AWS_ROLE_CONFIG_PATH
-            value: s3://linz-bucket-config/config.json
+          - name: 'AWS_ROLE_CONFIG_PATH'
+            value: 's3://linz-bucket-config/config.json'
         args:
-          [
-            'create-manifest',
-            '--verbose',
-            '--include',
-            '{{=sprig.trim(inputs.parameters.include)}}',
-            '--exclude',
-            '{{inputs.parameters.exclude}}',
-            '--flatten={{=sprig.trim(inputs.parameters.flatten)}}',
-            '--group',
-            '{{=sprig.trim(inputs.parameters.group)}}',
-            '--group-size',
-            '{{=sprig.trim(inputs.parameters.group_size)}}',
-            '--output',
-            '/tmp/file_list.json',
-            '--target',
-            '{{=sprig.trim(inputs.parameters.target)}}',
-            '{{=sprig.trim(inputs.parameters.source)}}',
-            '--transform',
-            '{{=sprig.trim(inputs.parameters.transform)}}',
-          ]
+          - 'create-manifest'
+          - '--verbose'
+          - '--include'
+          - '{{=sprig.trim(inputs.parameters.include)}}'
+          - '--exclude'
+          - '{{inputs.parameters.exclude}}'
+          - '--flatten={{=sprig.trim(inputs.parameters.flatten)}}'
+          - '--group'
+          - '{{=sprig.trim(inputs.parameters.group)}}'
+          - '--group-size'
+          - '{{=sprig.trim(inputs.parameters.group_size)}}'
+          - '--output'
+          - '/tmp/file_list.json'
+          - '--target'
+          - '{{=sprig.trim(inputs.parameters.target)}}'
+          - '{{=sprig.trim(inputs.parameters.source)}}'
+          - '--transform'
+          - '{{=sprig.trim(inputs.parameters.transform)}}'

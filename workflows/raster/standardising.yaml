@@ -1,60 +1,60 @@
 # yaml-language-server: $schema=https://raw.githubusercontent.com/argoproj/argo-workflows/v3.5.5/api/jsonschema/schema.json
 
-apiVersion: argoproj.io/v1alpha1
-kind: WorkflowTemplate
+apiVersion: 'argoproj.io/v1alpha1'
+kind: 'WorkflowTemplate'
 metadata:
-  name: imagery-standardising
+  name: 'imagery-standardising'
   labels:
-    linz.govt.nz/category: raster
-    linz.govt.nz/data-type: raster
+    linz.govt.nz/category: 'raster'
+    linz.govt.nz/data-type: 'raster'
 spec:
   parallelism: 50
   nodeSelector:
     karpenter.sh/capacity-type: 'spot'
-  entrypoint: main
-  onExit: exit-handler
+  entrypoint: 'main'
+  onExit: 'exit-handler'
   synchronization:
     semaphore:
       configMapKeyRef:
-        name: semaphores
-        key: standardising
+        name: 'semaphores'
+        key: 'standardising'
   workflowMetadata:
     labelsFrom:
       linz.govt.nz/user-group:
-        expression: workflow.parameters.user_group
+        expression: 'workflow.parameters.user_group'
       linz.govt.nz/ticket:
-        expression: workflow.parameters.ticket
+        expression: 'workflow.parameters.ticket'
       linz.govt.nz/region:
-        expression: workflow.parameters.region
+        expression: 'workflow.parameters.region'
   podMetadata:
     labels:
       linz.govt.nz/user-group: '{{workflow.parameters.user_group}}'
-      linz.govt.nz/category: raster
-      linz.govt.nz/data-type: raster
+      linz.govt.nz/category: 'raster'
+      linz.govt.nz/data-type: 'raster'
       linz.govt.nz/ticket: '{{workflow.parameters.ticket}}'
       linz.govt.nz/region: '{{workflow.parameters.region}}'
   arguments:
     parameters:
-      - name: version_argo_tasks
+      - name: 'version_argo_tasks'
         description: 'Specify a version of the argo-tasks image to use, e.g. "v4.1" or "latest"'
         value: 'v4'
-      - name: version_basemaps_cli
+      - name: 'version_basemaps_cli'
         description: 'Specify a version of the basemaps-cli image to use, e.g. "v7.1" or "latest"'
         value: 'v7'
-      - name: version_topo_imagery
+      - name: 'version_topo_imagery'
         description: 'Specify a version of the topo-imagery image to use, e.g. "v4.8" or "latest"'
         value: 'v7'
-      - name: user_group
-        description: Group of users running the workflow
+      - name: 'user_group'
+        description: 'Group of users running the workflow'
         value: 'none'
         enum:
           - 'land'
           - 'sea'
           - 'none'
-      - name: ticket
+      - name: 'ticket'
         description: 'Ticket ID, e.g. "LI-1570"'
         value: ''
-      - name: region
+      - name: 'region'
         description: 'Region of the dataset from the list below'
         value: 'new-zealand'
         enum:
@@ -78,13 +78,13 @@ spec:
           - 'waikato'
           - 'wellington'
           - 'west-coast'
-      - name: source
+      - name: 'source'
         description: 'S3 location of the source dataset(s). Separate multiple sources with a semicolon (;) for merging. Target imagery will be layered (bottom to top) in order specified (left to right)'
         value: 's3://linz-imagery-staging/test/sample/'
-      - name: include
+      - name: 'include'
         description: 'Regular expression pattern match for paths/files to include e.g ".tiff?$"'
         value: '.tiff?$'
-      - name: scale
+      - name: 'scale'
         description: 'Scale of the standardised output imagery'
         value: '500'
         enum:
@@ -95,47 +95,47 @@ spec:
           - '10000'
           - '50000'
           - 'None'
-      - name: validate
+      - name: 'validate'
         description: 'Validate the tiles match LINZ map sheet tile index and there are no duplicate tiles'
         value: 'true'
         enum:
           - 'false'
           - 'true'
-      - name: retile
+      - name: 'retile'
         description: 'Retile the dataset to the output scale specified in the "scale" parameter'
         value: 'false'
         enum:
           - 'true'
           - 'false'
-      - name: source_epsg
+      - name: 'source_epsg'
         description: 'EPSG of the source files'
         value: '2193'
-      - name: target_epsg
+      - name: 'target_epsg'
         description: 'EPSG of the standardised output files'
         value: '2193'
-      - name: group
+      - name: 'group'
         description: 'How many output tiles to process in each standardise-validate task "pod". Change if you have resource or performance issues when standardising a dataset.'
         value: '50'
-      - name: compression
+      - name: 'compression'
         description: 'Compression type to use when standardising TIFFs, e.g. "webp" for imagery or "dem_lerc" for elevation data'
         value: 'webp'
         enum:
           - 'webp'
           - 'lzw'
           - 'dem_lerc'
-      - name: create_capture_area
+      - name: 'create_capture_area'
         description: 'Create a capture area GeoJSON file for the standardised dataset'
         value: 'true'
         enum:
           - 'false'
           - 'true'
-      - name: cutline
+      - name: 'cutline'
         description: '(Optional) location of a cutline file to cut the imagery to .fgb or .geojson'
         value: ''
-      - name: odr_url
+      - name: 'odr_url'
         description: '(Optional) If an existing dataset add the S3 path to the dataset here to load existing metadata e.g. "s3://nz-imagery/taranaki/new-plymouth_2017_0.1m/rgb/2193/"'
         value: ''
-      - name: category
+      - name: 'category'
         description: 'Geospatial category of the dataset'
         value: 'urban-aerial-photos'
         enum:
@@ -146,156 +146,154 @@ spec:
           - 'dem'
           - 'dsm'
           - 'satellite-imagery'
-      - name: gsd
+      - name: 'gsd'
         description: 'Dataset GSD in metres, e.g., "0.3" for 30 centimetres'
-      - name: producer
+      - name: 'producer'
         description: 'The producer of the source dataset, e.g. aerial or bathymetric survey company'
         value: 'Unknown'
         enum:
-          [
-            'Unknown',
-            'AAM NZ',
-            'Aerial Surveys',
-            'Beca',
-            'Chang Guang Satellite Technology',
-            'Christchurch Helicopters',
-            'Dimap',
-            'European Space Agency',
-            'GeoSmart',
-            'Landpro',
-            'Maxar',
-            'NZ Aerial Mapping',
-            'Ocean Infinity',
-            'Recon',
-            'RPS',
-            'SKYCAN',
-            'SKYVUW',
-            'Terralink International',
-            'UAV Mapping NZ',
-            'University of Canterbury',
-            'Woolpert',
-          ]
-      - name: producer_list
+          - 'Unknown'
+          - 'AAM NZ'
+          - 'Aerial Surveys'
+          - 'Beca'
+          - 'Chang Guang Satellite Technology'
+          - 'Christchurch Helicopters'
+          - 'Dimap'
+          - 'European Space Agency'
+          - 'GeoSmart'
+          - 'Landpro'
+          - 'Maxar'
+          - 'NZ Aerial Mapping'
+          - 'Ocean Infinity'
+          - 'Recon'
+          - 'RPS'
+          - 'SKYCAN'
+          - 'SKYVUW'
+          - 'Terralink International'
+          - 'UAV Mapping NZ'
+          - 'University of Canterbury'
+          - 'Woolpert'
+
+      - name: 'producer_list'
         description: '(Optional) List of imagery producers, separated by semicolon (;). Has no effect unless a semicolon delimited list is entered.'
         value: ''
-      - name: licensor
+      - name: 'licensor'
         description: 'The licensor of the dataset, e.g. local or regional council, government agency, satellite provider'
         value: 'Unknown'
         enum:
-          [
-            'Unknown',
-            'Ashburton District Council',
-            'Auckland Council',
-            'BOPLASS',
-            'Bay of Plenty Regional Council',
-            'Buller District Council',
-            'Canterbury Aerial Imagery Consortium (CAI)',
-            'Carterton District Council',
-            "Central Hawke's Bay District Council",
-            'Central Otago District Council',
-            'Chang Guang Satellite Technology',
-            'Chatham Islands Council',
-            'Christchurch City Council',
-            'Clutha District Council',
-            'CoLAB',
-            'Department of Conservation',
-            'Dunedin City Council',
-            'Environment Canterbury',
-            'Environment Southland',
-            'Far North District Council',
-            'Gisborne District Council',
-            'Gore District Council',
-            'Greater Wellington Regional Council',
-            'Grey District Council',
-            'Hamilton City Council',
-            'Hastings District Council',
-            'Hauraki District Council',
-            "Hawke's Bay Local Authority Shared Services (HB LASS)",
-            "Hawke's Bay Regional Council",
-            'Horizons Regional Council',
-            'Horowhenua District Council',
-            'Hurunui District Council',
-            'Hutt City Council',
-            'Invercargill City Council',
-            'Kaikōura District Council',
-            'Kaipara District Council',
-            'Kawerau District Council',
-            'Kāpiti Coast District Council',
-            'Mackenzie District Council',
-            'Manawatū District Council',
-            'Manawatū-Whanganui LASS',
-            'Marlborough District Council',
-            'Masterton District Council',
-            'Matamata-Piako District Council',
-            'Maxar Technologies',
-            'Ministry of Business, Innovation and Employment',
-            'Ministry of Primary Industries',
-            'NZ Aerial Mapping',
-            'Napier City Council',
-            'National Emergency Management Agency',
-            'National Institute of Water and Atmospheric Research',
-            'Nelson City Council',
-            'New Plymouth District Council',
-            'Northland Regional Council',
-            'Ōpōtiki District Council',
-            'Ōtorohanga District Council',
-            'Otago Regional Council',
-            'Palmerston North City Council',
-            'Planet',
-            'Porirua City Council',
-            'Queenstown-Lakes District Council',
-            'Rangitīkei District Council',
-            'Regional Software Holdings Limited',
-            'Rotorua District Council',
-            'Ruapehu District Council',
-            'Selwyn District Council',
-            'Sinergise',
-            'South Taranaki District Council',
-            'South Waikato District Council',
-            'South Wairarapa District Council',
-            'Southland District Council',
-            'Stratford District Council',
-            'Taranaki Regional Council',
-            'Tararua District Council',
-            'Tasman District Council',
-            'Taupō District Council',
-            'Tauranga City Council',
-            'Terralink International',
-            'Thames-Coromandel District Council',
-            'Timaru District Council',
-            'Toitū Te Whenua Land Information New Zealand',
-            'Upper Hutt City Council',
-            'Waikato District Council',
-            'Waikato Regional Aerial Photography Service (WRAPS)',
-            'Waikato Regional Council',
-            'Waimakariri District Council',
-            'Waimate District Council',
-            'Waipā District Council',
-            'Wairoa District Council',
-            'Waitaki District Council',
-            'Waitomo District Council',
-            'Waka Kotahi',
-            'Wellington City Council',
-            'West Coast Regional Council',
-            'Western Bay of Plenty District Council',
-            'Westland District Council',
-            'Whakatāne District Council',
-            'Whanganui District Council',
-            'Whangārei District Council',
-          ]
-      - name: licensor_list
+          - 'Unknown'
+          - 'Ashburton District Council'
+          - 'Auckland Council'
+          - 'BOPLASS'
+          - 'Bay of Plenty Regional Council'
+          - 'Buller District Council'
+          - 'Canterbury Aerial Imagery Consortium (CAI)'
+          - 'Carterton District Council'
+          - "Central Hawke's Bay District Council"
+          - 'Central Otago District Council'
+          - 'Chang Guang Satellite Technology'
+          - 'Chatham Islands Council'
+          - 'Christchurch City Council'
+          - 'Clutha District Council'
+          - 'CoLAB'
+          - 'Department of Conservation'
+          - 'Dunedin City Council'
+          - 'Environment Canterbury'
+          - 'Environment Southland'
+          - 'Far North District Council'
+          - 'Gisborne District Council'
+          - 'Gore District Council'
+          - 'Greater Wellington Regional Council'
+          - 'Grey District Council'
+          - 'Hamilton City Council'
+          - 'Hastings District Council'
+          - 'Hauraki District Council'
+          - "Hawke's Bay Local Authority Shared Services (HB LASS)"
+          - "Hawke's Bay Regional Council"
+          - 'Horizons Regional Council'
+          - 'Horowhenua District Council'
+          - 'Hurunui District Council'
+          - 'Hutt City Council'
+          - 'Invercargill City Council'
+          - 'Kaikōura District Council'
+          - 'Kaipara District Council'
+          - 'Kawerau District Council'
+          - 'Kāpiti Coast District Council'
+          - 'Mackenzie District Council'
+          - 'Manawatū District Council'
+          - 'Manawatū-Whanganui LASS'
+          - 'Marlborough District Council'
+          - 'Masterton District Council'
+          - 'Matamata-Piako District Council'
+          - 'Maxar Technologies'
+          - 'Ministry of Business, Innovation and Employment'
+          - 'Ministry of Primary Industries'
+          - 'NZ Aerial Mapping'
+          - 'Napier City Council'
+          - 'National Emergency Management Agency'
+          - 'National Institute of Water and Atmospheric Research'
+          - 'Nelson City Council'
+          - 'New Plymouth District Council'
+          - 'Northland Regional Council'
+          - 'Ōpōtiki District Council'
+          - 'Ōtorohanga District Council'
+          - 'Otago Regional Council'
+          - 'Palmerston North City Council'
+          - 'Planet'
+          - 'Porirua City Council'
+          - 'Queenstown-Lakes District Council'
+          - 'Rangitīkei District Council'
+          - 'Regional Software Holdings Limited'
+          - 'Rotorua District Council'
+          - 'Ruapehu District Council'
+          - 'Selwyn District Council'
+          - 'Sinergise'
+          - 'South Taranaki District Council'
+          - 'South Waikato District Council'
+          - 'South Wairarapa District Council'
+          - 'Southland District Council'
+          - 'Stratford District Council'
+          - 'Taranaki Regional Council'
+          - 'Tararua District Council'
+          - 'Tasman District Council'
+          - 'Taupō District Council'
+          - 'Tauranga City Council'
+          - 'Terralink International'
+          - 'Thames-Coromandel District Council'
+          - 'Timaru District Council'
+          - 'Toitū Te Whenua Land Information New Zealand'
+          - 'Upper Hutt City Council'
+          - 'Waikato District Council'
+          - 'Waikato Regional Aerial Photography Service (WRAPS)'
+          - 'Waikato Regional Council'
+          - 'Waimakariri District Council'
+          - 'Waimate District Council'
+          - 'Waipā District Council'
+          - 'Wairoa District Council'
+          - 'Waitaki District Council'
+          - 'Waitomo District Council'
+          - 'Waka Kotahi'
+          - 'Wellington City Council'
+          - 'West Coast Regional Council'
+          - 'Western Bay of Plenty District Council'
+          - 'Westland District Council'
+          - 'Whakatāne District Council'
+          - 'Whanganui District Council'
+          - 'Whangārei District Council'
+
+      - name: 'licensor_list'
         description: '(Optional) List of imagery licensors, separated by semicolon (;). Has no effect unless a semicolon delimited list is entered.'
         value: ''
-      - name: start_datetime
+      - name: 'start_datetime'
         description: 'Dataset capture start date in numeric format YYYY-MM-DD, e.g. "2024-01-14"'
         value: 'YYYY-MM-DD'
-      - name: end_datetime
+      - name: 'end_datetime'
         description: 'Dataset capture end date in numeric format YYYY-MM-DD, e.g. "2024-02-23"'
         value: 'YYYY-MM-DD'
-      - name: geographic_description
+      - name: 'geographic_description'
         description: '(Optional) Additional dataset description, to be used in the title in place of the Region, e.g. "Hamilton"'
         value: ''
-      - name: lifecycle
+      - name: 'lifecycle'
         description: 'The release lifecycle status of the dataset, e.g. "completed or "ongoing"'
         value: 'completed'
         enum:
@@ -304,19 +302,19 @@ spec:
           - 'ongoing'
           - 'completed'
           - 'deprecated'
-      - name: event
+      - name: 'event'
         description: '(Optional) Event name if dataset has been captured in association with an event, e.g. "Top of the South Floods"'
         value: ''
-      - name: historic_survey_number
+      - name: 'historic_survey_number'
         description: '(Optional) Survey Number associated with historical datasets, e.g. "SN8844"'
         value: ''
-      - name: publish_to_odr
+      - name: 'publish_to_odr'
         description: 'Create a Pull Request for publishing to imagery or elevation ODR bucket'
         value: 'false'
         enum:
           - 'false'
           - 'true'
-      - name: target_bucket_name
+      - name: 'target_bucket_name'
         description: 'The ODR bucket name to publish to'
         value: ''
         enum:
@@ -324,7 +322,7 @@ spec:
           - 'nz-imagery'
           - 'nz-elevation'
           - ''
-      - name: copy_option
+      - name: 'copy_option'
         description: 'Do not overwrite existing files with "no-clobber", "force" overwriting files in the target location, or "force-no-clobber" overwriting only changed files, skipping unchanged files'
         value: '--no-clobber'
         enum:
@@ -333,302 +331,304 @@ spec:
           - '--force-no-clobber'
   templateDefaults:
     container:
-      imagePullPolicy: Always
+      imagePullPolicy: 'Always'
       image: ''
   templates:
-    - name: main
+    - name: 'main'
       retryStrategy:
         expression: 'false'
       inputs:
         parameters:
-          - name: source
+          - name: 'source'
       dag:
         tasks:
-          - name: stac-setup
+          - name: 'stac-setup'
             templateRef:
-              name: tpl-at-stac-setup
-              template: main
+              name: 'tpl-at-stac-setup'
+              template: 'main'
             arguments:
               parameters:
-                - name: start_datetime
+                - name: 'start_datetime'
                   value: '{{=sprig.trim(workflow.parameters.start_datetime)}}'
-                - name: end_datetime
+                - name: 'end_datetime'
                   value: '{{=sprig.trim(workflow.parameters.end_datetime)}}'
-                - name: gsd
+                - name: 'gsd'
                   value: '{{=sprig.trim(workflow.parameters.gsd)}}'
-                - name: region
+                - name: 'region'
                   value: '{{=sprig.trim(workflow.parameters.region)}}'
-                - name: geographic_description
+                - name: 'geographic_description'
                   value: '{{=sprig.trim(workflow.parameters.geographic_description)}}'
-                - name: geospatial_category
+                - name: 'geospatial_category'
                   value: '{{=sprig.trim(workflow.parameters.category)}}'
-                - name: odr_url
+                - name: 'odr_url'
                   value: '{{=sprig.trim(workflow.parameters.odr_url)}}'
-                - name: version
+                - name: 'version'
                   value: '{{=sprig.trim(workflow.parameters.version_argo_tasks)}}'
 
-          - name: tile-index-validate
+          - name: 'tile-index-validate'
             templateRef:
-              name: tpl-at-tile-index-validate
-              template: main
+              name: 'tpl-at-tile-index-validate'
+              template: 'main'
             arguments:
               parameters:
-                - name: scale
+                - name: 'scale'
                   value: '{{workflow.parameters.scale}}'
-                - name: include
+                - name: 'include'
                   value: '{{workflow.parameters.include}}'
-                - name: source
+                - name: 'source'
                   value: '{{=sprig.trim(inputs.parameters.source)}}'
-                - name: source_epsg
+                - name: 'source_epsg'
                   value: '{{=sprig.trim(workflow.parameters.source_epsg)}}'
-                - name: validate
+                - name: 'validate'
                   value: '{{= workflow.parameters.validate}}'
-                - name: retile
+                - name: 'retile'
                   value: '{{= workflow.parameters.retile}}'
-                - name: preset
+                - name: 'preset'
                   value: '{{= workflow.parameters.compression}}'
-                - name: version
+                - name: 'version'
                   value: '{{= workflow.parameters.version_argo_tasks}}'
 
-          - name: group
+          - name: 'group'
             templateRef:
-              name: tpl-at-group
-              template: main
+              name: 'tpl-at-group'
+              template: 'main'
             arguments:
               artifacts:
-                - name: input
+                - name: 'input'
                   from: '{{ tasks.tile-index-validate.outputs.artifacts.files }}'
               parameters:
-                - name: size
+                - name: 'size'
                   value: '{{workflow.parameters.group}}'
-                - name: version
+                - name: 'version'
                   value: '{{= workflow.parameters.version_argo_tasks}}'
             depends: 'tile-index-validate'
 
-          - name: standardise-validate
+          - name: 'standardise-validate'
             templateRef:
-              name: tpl-ti-standardise-validate
-              template: main
+              name: 'tpl-ti-standardise-validate'
+              template: 'main'
             arguments:
               parameters:
-                - name: group_id
+                - name: 'group_id'
                   value: '{{item}}'
-                - name: collection_id
+                - name: 'collection_id'
                   value: '{{tasks.stac-setup.outputs.parameters.collection_id}}'
-                - name: current_datetime
+                - name: 'current_datetime'
                   value: '{{tasks.stac-setup.finishedAt}}'
-                - name: target
+                - name: 'target'
                   value: '{{=sprig.trimSuffix("/", tasks["get-location"].outputs.parameters.location)}}/flat/'
-                - name: odr_url
+                - name: 'odr_url'
                   value: '{{=sprig.trim(workflow.parameters.odr_url)}}'
-                - name: compression
+                - name: 'compression'
                   value: '{{= workflow.parameters.compression}}'
-                - name: start_datetime
+                - name: 'start_datetime'
                   value: '{{=sprig.trim(workflow.parameters.start_datetime)}}'
-                - name: end_datetime
+                - name: 'end_datetime'
                   value: '{{=sprig.trim(workflow.parameters.end_datetime)}}'
-                - name: create_capture_area
+                - name: 'create_capture_area'
                   value: '{{=sprig.trim(workflow.parameters.create_capture_area)}}'
-                - name: cutline
+                - name: 'cutline'
                   value: '{{=sprig.trim(workflow.parameters.cutline)}}'
-                - name: gsd
+                - name: 'gsd'
                   value: '{{=sprig.trim(workflow.parameters.gsd)}}'
-                - name: source_epsg
+                - name: 'source_epsg'
                   value: '{{=sprig.trim(workflow.parameters.source_epsg)}}'
-                - name: target_epsg
+                - name: 'target_epsg'
                   value: '{{=sprig.trim(workflow.parameters.target_epsg)}}'
-                - name: version_topo_imagery
+                - name: 'version_topo_imagery'
                   value: '{{= workflow.parameters.version_topo_imagery}}'
               artifacts:
-                - name: group_data
+                - name: 'group_data'
                   from: '{{ tasks.group.outputs.artifacts.output }}'
             depends: 'group && stac-setup && get-location'
             withParam: '{{ tasks.group.outputs.parameters.output }}'
 
-          - name: create-collection
+          - name: 'create-collection'
             templateRef:
-              name: tpl-ti-create-collection
-              template: main
+              name: 'tpl-ti-create-collection'
+              template: 'main'
             arguments:
               parameters:
-                - name: collection_id
+                - name: 'collection_id'
                   value: '{{tasks.stac-setup.outputs.parameters.collection_id}}'
-                - name: linz_slug
+                - name: 'linz_slug'
                   value: '{{tasks.stac-setup.outputs.parameters.linz_slug}}'
-                - name: location
+                - name: 'location'
                   value: '{{=sprig.trimSuffix("/", tasks["get-location"].outputs.parameters.location)}}/flat/'
-                - name: current_datetime
+                - name: 'current_datetime'
                   value: '{{tasks.stac-setup.finishedAt}}'
-                - name: odr_url
+                - name: 'odr_url'
                   value: '{{=sprig.trim(workflow.parameters.odr_url)}}'
-                - name: category
+                - name: 'category'
                   value: '{{=sprig.trim(workflow.parameters.category)}}'
-                - name: region
+                - name: 'region'
                   value: '{{=sprig.trim(workflow.parameters.region)}}'
-                - name: gsd
+                - name: 'gsd'
                   value: '{{=sprig.trim(workflow.parameters.gsd)}}'
-                - name: geographic_description
+                - name: 'geographic_description'
                   value: '{{=sprig.trim(workflow.parameters.geographic_description)}}'
-                - name: event
+                - name: 'event'
                   value: '{{=sprig.trim(workflow.parameters.event)}}'
-                - name: historic_survey_number
+                - name: 'historic_survey_number'
                   value: '{{=sprig.trim(workflow.parameters.historic_survey_number)}}'
-                - name: lifecycle
+                - name: 'lifecycle'
                   value: '{{=sprig.trim(workflow.parameters.lifecycle)}}'
-                - name: add_title_suffix
+                - name: 'add_title_suffix'
                   value: 'true'
-                - name: producer
+                - name: 'producer'
                   value: '{{workflow.parameters.producer}}'
-                - name: producer_list
+                - name: 'producer_list'
                   value: '{{=sprig.trim(workflow.parameters.producer_list)}}'
-                - name: licensor
+                - name: 'licensor'
                   value: '{{workflow.parameters.licensor}}'
-                - name: licensor_list
+                - name: 'licensor_list'
                   value: '{{=sprig.trim(workflow.parameters.licensor_list)}}'
-                - name: version_topo_imagery
+                - name: 'version_topo_imagery'
                   value: '{{= workflow.parameters.version_topo_imagery}}'
             depends: 'standardise-validate'
 
-          - name: stac-validate-all
+          - name: 'stac-validate-all'
             templateRef:
-              name: tpl-at-stac-validate
-              template: main
+              name: 'tpl-at-stac-validate'
+              template: 'main'
             arguments:
               parameters:
-                - name: uri
+                - name: 'uri'
                   value: '{{=sprig.trimSuffix("/", tasks["get-location"].outputs.parameters.location)}}/flat/collection.json'
               artifacts:
-                - name: stac-result
+                - name: 'stac-result'
                   raw:
                     data: '{{tasks.stac-validate-all.outputs.result}}'
             depends: 'create-collection.Succeeded'
             when: "'{{workflow.parameters.odr_url}}' == ''"
 
-          - name: stac-validate-only-updated
+          - name: 'stac-validate-only-updated'
             templateRef:
-              name: stac-validate-parallel # Needs to validate a list of STAC documents
-              template: main
+              name: 'stac-validate-parallel' # Needs to validate a list of STAC documents
+              template: 'main'
             arguments:
               parameters:
-                - name: uri
+                - name: 'uri'
                   value: '{{=sprig.trimSuffix("/", tasks["get-location"].outputs.parameters.location)}}/flat/'
-                - name: recursive
+                - name: 'recursive'
                   value: 'false' # The Collection might have some Items that are only in the published location
-                - name: checksum_links
+                - name: 'checksum_links'
                   value: 'false'
-                - name: checksum_assets
+                - name: 'checksum_assets'
                   value: 'true'
-                - name: include
+                - name: 'include'
                   value: '\.json$' # FIXME: For now, assuming we have only STAC as JSON files in the scratch location
-                - name: concurrency
+                - name: 'concurrency'
                   value: '50'
             depends: 'create-collection.Succeeded'
             when: "'{{workflow.parameters.odr_url}}' != ''"
 
-          - name: get-location
+          - name: 'get-location'
             templateRef:
-              name: tpl-get-location
-              template: main
+              name: 'tpl-get-location'
+              template: 'main'
 
-          - name: create-overview
+          - name: 'create-overview'
             when: "'{{workflow.parameters.target_epsg}}' =~ '2193|3857' && '{{workflow.parameters.compression}}' != 'dem_lerc'"
             arguments:
               parameters:
-                - name: location
+                - name: 'location'
                   value: '{{tasks.get-location.outputs.parameters.location}}'
-            template: create-overview
+            template: 'create-overview'
             depends: 'standardise-validate'
 
-          - name: create-config
+          - name: 'create-config'
             when: "'{{workflow.parameters.target_epsg}}' =~ '2193|3857'"
             arguments:
               parameters:
-                - name: location
+                - name: 'location'
                   value: '{{tasks.get-location.outputs.parameters.location}}'
-                - name: bucket
+                - name: 'bucket'
                   value: '{{tasks.get-location.outputs.parameters.bucket}}'
-                - name: key
+                - name: 'key'
                   value: '{{tasks.get-location.outputs.parameters.key}}'
-            template: create-config
+            template: 'create-config'
             depends: 'create-overview'
 
-          - name: publish-odr
+          - name: 'publish-odr'
             templateRef:
-              name: publish-odr
-              template: main
+              name: 'publish-odr'
+              template: 'main'
             when: "'{{workflow.parameters.publish_to_odr}}' == 'true'"
             arguments:
               parameters:
-                - name: source
+                - name: 'source'
                   value: '{{=sprig.trimSuffix("/", tasks["get-location"].outputs.parameters.location)}}/flat/'
-                - name: target_bucket_name
+                - name: 'target_bucket_name'
                   value: '{{workflow.parameters.target_bucket_name}}'
-                - name: copy_option
+                - name: 'copy_option'
                   value: '{{workflow.parameters.copy_option}}'
-                - name: ticket
+                - name: 'ticket'
                   value: '{{=sprig.trim(workflow.parameters.ticket)}}'
             depends: '(stac-validate-all || stac-validate-only-updated) && create-config'
 
       outputs:
         parameters:
-          - name: target
+          - name: 'target'
             valueFrom:
               parameter: '{{tasks.get-location.outputs.parameters.location}}'
       # END TEMPLATE `main`
 
-    - name: create-overview
+    - name: 'create-overview'
       inputs:
         parameters:
-          - name: location
+          - name: 'location'
       container:
         # Basemaps v7+ has removed overview creation
         image: 'ghcr.io/linz/basemaps/cli:v6'
         resources:
           requests:
-            cpu: 3000m
-            memory: 7.8Gi
-        command: [node, index.cjs]
+            cpu: '3000m'
+            memory: '7.8Gi'
+        command:
+          - 'node'
+          - 'index.cjs'
         env:
-          - name: AWS_ROLE_CONFIG_PATH
-            value: s3://linz-bucket-config/config.json
+          - name: 'AWS_ROLE_CONFIG_PATH'
+            value: 's3://linz-bucket-config/config.json'
         args:
-          [
-            '-V',
-            'create-overview',
-            '--source',
-            '{{=sprig.trimSuffix("/", inputs.parameters.location)}}/flat/',
-            '--output',
-            '{{=sprig.trimSuffix("/", inputs.parameters.location)}}/flat/',
-          ]
+          - '-V'
+          - 'create-overview'
+          - '--source'
+          - '{{=sprig.trimSuffix("/", inputs.parameters.location)}}/flat/'
+          - '--output'
+          - '{{=sprig.trimSuffix("/", inputs.parameters.location)}}/flat/'
 
-    - name: create-config
+    - name: 'create-config'
       inputs:
         parameters:
-          - name: location
+          - name: 'location'
             description: 'Location of the imagery to create config for'
-          - name: bucket
-          - name: key
+          - name: 'bucket'
+          - name: 'key'
       container:
         image: 'ghcr.io/linz/basemaps/cli:{{=sprig.trim(workflow.parameters.version_basemaps_cli)}}'
-        command: [node, /app/node_modules/@basemaps/cogify/dist/index.cjs]
+        command:
+          - 'node'
+          - '/app/node_modules/@basemaps/cogify/dist/index.cjs'
         env:
-          - name: AWS_ROLE_CONFIG_PATH
-            value: s3://linz-bucket-config/config.basemaps.json
+          - name: 'AWS_ROLE_CONFIG_PATH'
+            value: 's3://linz-bucket-config/config.basemaps.json'
         args:
           - 'config'
           - '{{=sprig.trimSuffix("/", inputs.parameters.location)}}/flat/'
       outputs:
         parameters:
-          - name: url
+          - name: 'url'
             description: 'Basemaps URL to view the imagery'
             valueFrom:
               path: '/tmp/cogify/config-url'
-          - name: config
+          - name: 'config'
             description: 'Location of the config file'
             valueFrom:
               path: '/tmp/cogify/config-path'
         artifacts:
-          - name: url
+          - name: 'url'
             path: '/tmp/cogify/config-url'
             s3:
               bucket: '{{inputs.parameters.bucket}}'
@@ -636,21 +636,21 @@ spec:
             archive:
               none: {}
 
-    - name: exit-handler
+    - name: 'exit-handler'
       retryStrategy:
         limit: '0' # `tpl-exit-handler` retries itself
       steps:
-        - - name: exit
+        - - name: 'exit'
             templateRef:
-              name: tpl-exit-handler
-              template: main
+              name: 'tpl-exit-handler'
+              template: 'main'
             arguments:
               parameters:
-                - name: workflow_status
+                - name: 'workflow_status'
                   value: '{{workflow.status}}'
-                - name: workflow_parameters
+                - name: 'workflow_parameters'
                   value: '{{workflow.parameters}}'
 
   volumes:
-    - name: ephemeral
+    - name: 'ephemeral'
       emptyDir: {}

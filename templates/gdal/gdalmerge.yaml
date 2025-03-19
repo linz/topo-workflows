@@ -1,59 +1,59 @@
 # yaml-language-server: $schema=https://raw.githubusercontent.com/argoproj/argo-workflows/v3.5.5/api/jsonschema/schema.json
 
-apiVersion: argoproj.io/v1alpha1
-kind: WorkflowTemplate
+apiVersion: 'argoproj.io/v1alpha1'
+kind: 'WorkflowTemplate'
 metadata:
-  name: tpl-gdalmerge
+  name: 'tpl-gdalmerge'
   labels:
-    linz.govt.nz/category: util
+    linz.govt.nz/category: 'util'
 spec:
   nodeSelector:
     karpenter.sh/capacity-type: 'spot'
-  entrypoint: main
+  entrypoint: 'main'
   templates:
-    - name: main
+    - name: 'main'
       retryStrategy:
         expression: 'false'
       container:
-        image: 019359803926.dkr.ecr.ap-southeast-2.amazonaws.com/topo-imagery:{{=sprig.trim(inputs.parameters.version_topo_imagery)}}
-        imagePullPolicy: Always
-        command: [gdal_merge.py]
+        image: '019359803926.dkr.ecr.ap-southeast-2.amazonaws.com/topo-imagery:{{=sprig.trim(inputs.parameters.version_topo_imagery)}}'
+        imagePullPolicy: 'Always'
+        command:
+          - 'gdal_merge.py'
         args:
-          [
-            '-of',
-            'GTiff',
-            '-ps',
-            '1',
-            '-1',
-            '-co',
-            'COMPRESS=lerc',
-            '-co',
-            'MAX_Z_ERROR=0',
-            '-co',
-            'NUM_THREADS=ALL_CPUS',
-            '-o',
-            '{{inputs.parameters.merged_filename}}',
-            '{{= sprig.replace("s3://", "/vsis3_streaming/", inputs.parameters.base_filename)}}',
-            '{{= sprig.replace("s3://", "/vsis3_streaming/", inputs.parameters.additional_filename)}}',
-          ]
+          - '-of'
+          - 'GTiff'
+          - '-ps'
+          - '1'
+          - '-1'
+          - '-co'
+          - 'COMPRESS=lerc'
+          - '-co'
+          - 'MAX_Z_ERROR=0'
+          - '-co'
+          - 'NUM_THREADS=ALL_CPUS'
+          - '-o'
+          - '{{inputs.parameters.merged_filename}}'
+          - '{{= sprig.replace("s3://", "/vsis3_streaming/", inputs.parameters.base_filename)}}'
+          - '{{= sprig.replace("s3://", "/vsis3_streaming/", inputs.parameters.additional_filename)}}'
+
         resources:
           requests:
-            memory: 12.0Gi
+            memory: '12.0Gi'
       inputs:
         parameters:
-          - name: base_filename
+          - name: 'base_filename'
             description: 'File to use as base layer, e.g. "s3://bucket/8m/CB13.tiff"'
-          - name: additional_filename
+          - name: 'additional_filename'
             description: 'File to use as top layer, e.g. "s3://bucket/1m/CB13.tiff". Use VRT files to layer multiple files. Note: VRT files must contain /vsis3/ or /vsis3_streaming/ paths instead of s3://.'
-          - name: version_topo_imagery
+          - name: 'version_topo_imagery'
             description: 'Specify a version of the topo-imagery image to use, e.g. "v7" or "latest"'
             default: 'v7'
-          - name: merged_filename
+          - name: 'merged_filename'
             description: 'Optional file name for output file, e.g. "CB13.tiff". Defaults to base_filename basename.'
             default: '{{= sprig.last(sprig.splitList("/", inputs.parameters.base_filename))}}'
       outputs:
         artifacts:
-          - name: merged_tiff
+          - name: 'merged_tiff'
             archive:
               none: {}
             path: '{{inputs.parameters.merged_filename}}'

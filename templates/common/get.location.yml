@@ -1,37 +1,38 @@
 # yaml-language-server: $schema=https://raw.githubusercontent.com/argoproj/argo-workflows/v3.5.5/api/jsonschema/schema.json
 
-apiVersion: argoproj.io/v1alpha1
-kind: WorkflowTemplate
+apiVersion: 'argoproj.io/v1alpha1'
+kind: 'WorkflowTemplate'
 metadata:
   # Template to output the locaton of the workflow S3 artifact root directory.
-  name: tpl-get-location
+  name: 'tpl-get-location'
 spec:
   templateDefaults:
     container:
-      imagePullPolicy: Always
+      imagePullPolicy: 'Always'
       image: ''
-  entrypoint: main
+  entrypoint: 'main'
   templates:
-    - name: main
+    - name: 'main'
       inputs:
         parameters:
-          - name: version_argo_tasks
-            description: Version of argo-tasks to use
+          - name: 'version_argo_tasks'
+            description: 'Version of argo-tasks to use'
             default: 'v4'
       outputs:
         parameters:
-          - name: location
+          - name: 'location'
             valueFrom:
               path: '/tmp/location'
-          - name: bucket
+          - name: 'bucket'
             valueFrom:
               path: '/tmp/bucket'
-          - name: key
+          - name: 'key'
             valueFrom:
               path: '/tmp/key'
       script:
         image: '019359803926.dkr.ecr.ap-southeast-2.amazonaws.com/argo-tasks:{{=sprig.trim(inputs.parameters.version_argo_tasks)}}'
-        command: [node]
+        command:
+          - 'node'
         source: |
           const fs = require('node:fs');
 
