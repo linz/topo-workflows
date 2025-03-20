@@ -140,8 +140,8 @@ See [generate_hillshade.py](https://github.com/linz/topo-imagery/pull/1253)
         value: '{{=sprig.trim(workflow.parameters.hillshade_preset)}}'
       - name: version_topo_imagery
         value: '{{= workflow.parameters.version_topo_imagery}}'
-      - name: target
-        value: '{{=sprig.trimSuffix("/", tasks["get-location"].outputs.parameters.location)}}/flat/'
+      - name: target # not using flat/ here, but {{workflow.parameters.hillshade_preset}}/ to keep temporary HS output separate
+        value: '{{=sprig.trimSuffix("/", tasks["get-location"].outputs.parameters.location)}}/{{workflow.parameters.hillshade_preset}}/flat/'
       - name: collection_id
         value: '{{tasks.stac-setup-hillshade.outputs.parameters.collection_id}}'
       - name: gsd
