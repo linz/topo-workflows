@@ -4,7 +4,7 @@
 - [copy](#copy)
 - [publish-odr](#Publish-odr)
 - [National DEM](#national-dem)
-- [National Hillshade 1m](#national-hillshade-1m)
+- [Hillshade](#national-hillshade-1m)
 - [tests](#Tests)
 
 # Standardising
@@ -312,9 +312,9 @@ Publishing to the AWS Registry of Open Data is an optional step [publish-odr](#P
 | publish_to_odr | str  | false                                                                                       | Run [publish-odr](#Publish-odr) after standardising has completed successfully                                                                                                                                                                                    |
 | copy_option    | enum | --force-no-clobber                                                                          | Used only if `publish_to_odr` is true.<dl><dt>`--no-clobber` </dt><dd> Skip overwriting existing files.</dd><dt> `--force` </dt><dd> Overwrite all files. </dd><dt> `--force-no-clobber` </dt><dd> Overwrite only changed files, skip unchanged files. </dd></dl> |
 
-# national-hillshade-1m
+# hillshade
 
-This workflow uses the National DEM dataset to create national 1m hillshades composed of 1:50k tiles.
+This workflow can use a DEM dataset source (such as a National DEM dataset, for example) to create hillshades.
 
 Upon completion all hillshade TIFF and STAC files will be located in the .`{{workflow.parameters.hillshade_preset}}`/flat/ directory of the workflow in the artifacts scratch bucket. In addition, a Basemaps link is produced enabling visual QA.
 
@@ -326,6 +326,7 @@ Publishing to the AWS Registry of Open Data is an optional step [publish-odr](#P
 | ---------------- | ---- | ------------------------------------------------------ | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | ticket           | str  |                                                        | Ticket ID e.g. 'TDE-1130'                                                                                                                                                                                                                                         |
 | source           | str  | s3://nz-elevation/new-zealand/new-zealand/dem_1m/2193/ | Location of the input elevation data to create hillshade.                                                                                                                                                                                                         |
+| gsd              | str  | 1                                                      | Dataset GSD in metres, e.g., "1" for 1 metre                                                                                                                                                                                                                      |
 | odr_url          | str  |                                                        | (Optional) If an existing dataset add the S3 path to the dataset here to load existing metadata e.g. "s3://nz-elevation/new-zealand/new-zealand/dem-hillshade_1m/2193/"                                                                                           |
 | hillshade-preset | str  | hillshade                                              | Hillshade preset to use, must be one of "hillshade" or "hillshade-igor"                                                                                                                                                                                           |
 | group            | int  | 4                                                      | How many output tiles to process in each standardising task "pod". Change if you have resource or performance issues when standardising a dataset.                                                                                                                |

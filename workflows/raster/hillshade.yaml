@@ -3,7 +3,7 @@
 apiVersion: argoproj.io/v1alpha1
 kind: WorkflowTemplate
 metadata:
-  name: national-hillshade-1m
+  name: hillshade
   labels:
     linz.govt.nz/category: raster
     linz.govt.nz/data-type: raster
@@ -41,12 +41,18 @@ spec:
       - name: source
         description: 'Location of the input elevation data to create hillshade.'
         value: 's3://nz-elevation/new-zealand/new-zealand/dem_1m/2193/'
+      - name: gsd
+        description: 'Dataset GSD in metres, e.g., "1" for 1 metre'
+        default: '1'
       - name: odr_url
         description: '(Optional) If an existing dataset add the S3 path to the dataset here to load existing metadata e.g. "s3://nz-elevation/new-zealand/new-zealand/dem_1m/2193/"'
         value: ''
       - name: hillshade_preset
         description: 'Hillshade preset to use, must be one of "hillshade" or "hillshade-igor"'
         value: 'hillshade'
+        enum:
+          - 'hillshade-igor'
+          - 'hillshade'
       - name: group
         description: 'How many output tiles to process in each standardise-validate task "pod". Change if you have resource or performance issues when standardising a dataset.'
         value: '4'
@@ -85,7 +91,7 @@ spec:
             arguments:
               parameters:
                 - name: gsd
-                  value: '1'
+                  value: '{{=sprig.trim(workflow.parameters.gsd)}}'
                 - name: region
                   value: 'new-zealand'
                 - name: geospatial_category
@@ -152,7 +158,7 @@ spec:
                 - name: collection_id
                   value: '{{tasks.stac-setup-hillshade.outputs.parameters.collection_id}}'
                 - name: gsd
-                  value: '1'
+                  value: '{{=sprig.trim(workflow.parameters.gsd)}}'
                 - name: current_datetime
                   value: '{{tasks.stac-setup-hillshade.finishedAt}}'
               artifacts:
@@ -182,7 +188,7 @@ spec:
                 - name: region
                   value: 'new-zealand'
                 - name: gsd
-                  value: '1'
+                  value: '{{=sprig.trim(workflow.parameters.gsd)}}'
                 - name: lifecycle
                   value: 'ongoing'
                 - name: producer
