@@ -4,7 +4,7 @@
 - [copy](#copy)
 - [publish-odr](#Publish-odr)
 - [National DEM](#national-dem)
-- [Hillshade](#national-hillshade-1m)
+- [Hillshade](#hillshade)
 - [tests](#Tests)
 
 # Standardising
