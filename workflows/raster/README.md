@@ -297,7 +297,7 @@ See the [copy template](#copy) for more information.
 
 This workflow combines a set of DEM datasets in order to create a single national dataset composed of 1:50k tiles.
 
-Upon completion all standardised TIFF and STAC files will be located in the ./flat/ directory of the workflow in the artifacts scratch bucket. In addition, a Basemaps link is produced enabling visual QA.
+Upon completion all standardised TIFF and STAC files will be located in the ./{{hillshade_preset}}/flat/ directory of the workflow in the artifacts scratch bucket. In addition, a Basemaps link is produced enabling visual QA.
 
 Publishing to the AWS Registry of Open Data is an optional step [publish-odr](#Publish-odr) that can be run automatically after standardisation.
 
