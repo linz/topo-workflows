@@ -1,0 +1,78 @@
+# yaml-language-server: $schema=https://raw.githubusercontent.com/argoproj/argo-workflows/v3.5.5/api/jsonschema/schema.json
+
+apiVersion: argoproj.io/v1alpha1
+kind: WorkflowTemplate
+metadata:
+  # Template calling linz/topo-imagery for its main task (generate-hillshade)
+  # see https://github.com/linz/topo-imagery/pull/1253
+  name: tpl-ti-generate-hillshade
+  labels:
+    linz.govt.nz/category: raster
+spec:
+  templateDefaults:
+    container:
+      imagePullPolicy: Always
+      image: ''
+  entrypoint: main
+  templates:
+    - name: main
+      inputs:
+        parameters:
+          - name: version_topo_imagery
+            description: 'Specify a version of the topo-imagery image to use, e.g. "v4.8" or "latest"'
+            default: 'v7'
+
+          - name: group_id
+            description: 'The ID of the group of files to use as the input.'
+            default: ''
+
+          - name: target
+            description: 'Location for output files'
+            default: ''
+
+          - name: hillshade_preset
+            description: 'Hillshade preset to use, must be one of "hillshade" or "hillshade-igor"'
+            default: ''
+
+          - name: gsd
+            description: 'Dataset GSD in metres, e.g., "0.3" for 30 centimetres'
+            default: '1'
+
+          - name: collection_id
+            description: 'Collection ID of existing dataset, or else a generated collection ID'
+            default: ''
+
+          - name: current_datetime
+            description: 'Current date and time of the workflow'
+            default: ''
+
+        artifacts:
+          - name: group_data
+            path: /tmp/input/
+
+      container:
+        image: '019359803926.dkr.ecr.ap-southeast-2.amazonaws.com/topo-imagery:{{=sprig.trim(inputs.parameters.version_topo_imagery)}}'
+        resources:
+          requests:
+            memory: 7.8Gi
+            cpu: 15000m
+            ephemeral-storage: 29.5Gi
+        volumeMounts:
+          # This volume must be defined in the workflow calling this workflowTemplate
+          - name: ephemeral
+            mountPath: '/tmp'
+        args:
+          - python
+          - '/app/scripts/generate_hillshade.py'
+          - '--from-file'
+          - '/tmp/input/{{inputs.parameters.group_id}}.json'
+          - '--target'
+          - '{{=sprig.trimSuffix("/", inputs.parameters.target)}}/'
+          - '--preset'
+          - '{{inputs.parameters.hillshade_preset}}'
+          - '--collection-id'
+          - '{{inputs.parameters.collection_id}}'
+          - '--gsd'
+          - '{{inputs.parameters.gsd}}'
+          - '--current-datetime'
+          - '{{inputs.parameters.current_datetime}}'
