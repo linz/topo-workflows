@@ -4,6 +4,7 @@
 - [copy](#copy)
 - [publish-odr](#Publish-odr)
 - [National DEM](#national-dem)
+- [Merge Layers](#merge-layers)
 - [Hillshade](#hillshade)
 - [tests](#Tests)
 
@@ -309,8 +310,69 @@ Publishing to the AWS Registry of Open Data is an optional step [publish-odr](#P
 | config_file    | str  | https://raw.githubusercontent.com/linz/basemaps-config/master/config/tileset/elevation.json | Location of the configuration file listing the source datasets to merge.                                                                                                                                                                                          |
 | odr_url        | str  |                                                                                             | (Optional) If an existing dataset add the S3 path to the dataset here to load existing metadata e.g. "s3://nz-elevation/new-zealand/new-zealand/dem_1m/2193/"                                                                                                     |
 | group          | int  | 2                                                                                           | How many output tiles to process in each standardising task "pod". Change if you have resource or performance issues when standardising a dataset.                                                                                                                |
+| group          | int  | 2                                                                                           | How many output tiles to process in each standardising task "pod". Change if you have resource or performance issues when standardising a dataset.                                                                                                                |
 | publish_to_odr | str  | false                                                                                       | Run [publish-odr](#Publish-odr) after standardising has completed successfully                                                                                                                                                                                    |
 | copy_option    | enum | --force-no-clobber                                                                          | Used only if `publish_to_odr` is true.<dl><dt>`--no-clobber` </dt><dd> Skip overwriting existing files.</dd><dt> `--force` </dt><dd> Overwrite all files. </dd><dt> `--force-no-clobber` </dt><dd> Overwrite only changed files, skip unchanged files. </dd></dl> |
+
+# merge-layers
+
+This workflow passes multiple sources to `tpl-at-tile-index-validate` to layer datasets over each other, and then proceeds to create matching STAC files (see below). Currently, the use case for this is back-filling the 1m hillshade of a preset with the respective 8m hillshade to create a gap-less national dataset composed of 1:50k tiles.
+
+Upon completion all standardised TIFF and STAC files will be located in the ./`geospatial_category`/flat/ directory of the workflow in the artifacts scratch bucket. In addition, a Basemaps link is produced enabling visual QA.
+
+Publishing to the AWS Registry of Open Data is an optional step [publish-odr](#Publish-odr) that can be run automatically after standardisation.
+
+1. `get-location`
+2. `stac-setup`
+3. `tile-index-validate` to create a list of output tiles with (both) their source TIFF files
+4. `group` to split the list created into grouped tiles for parallel processing
+5. `standardise-validate` to standardise TIFF files and create the STAC items
+6. `create-collection` to create the STAC collection
+7. `stac-validate` to validate the STAC collection
+8. `create-config` to create a basemaps config for visual QA
+9. `publish-odr`
+
+```mermaid
+graph TD
+  A[stac-setup] --> C[tile-index-validate]
+  B[get-location] --> C
+  C --> D[group]
+  D --> |1..n|E[standardise-validate]
+  E --> F[create-config]
+  E --> G[create-collection]
+  G --> H[stac-validate]
+  F --> I[publish-odr]
+  H --> I[publish-odr]
+```
+
+## Workflow Input Parameters
+
+Default values for this workflow should be sufficient for most use cases. However, the following parameters can be adjusted if necessary:
+
+| Parameter               | Type    | Default                                                                         | Description                                                                                                                                                                                                                                                       |
+| ----------------------- | ------- | ------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| version_argo_tasks      | str     | v4                                                                              | Version of the Argo tasks to use.                                                                                                                                                                                                                                 |
+| version_basemaps_cli    | str     | v7                                                                              | Version of the Basemaps CLI to use.                                                                                                                                                                                                                               |
+| version_topo_imagery    | str     | v7                                                                              | Version of the Topo Imagery scripts to use.                                                                                                                                                                                                                       |
+| ticket                  | str     |                                                                                 | Ticket ID e.g. 'TDE-1130'                                                                                                                                                                                                                                         |
+| top_layer_source        | str     | `s3://nz-elevation/new-zealand/new-zealand/dem-hillshade-igor_1m/2193/`         | Top layer (1m hillshade) to add.                                                                                                                                                                                                                                  |
+| base_layer_source       | str     | `s3://nz-elevation/new-zealand/new-zealand-contour/dem-hillshade-igor_8m/2193/` | Base layer (8m hillshade) to use.                                                                                                                                                                                                                                 |
+| odr_url                 | str     | `s3://nz-elevation/new-zealand/new-zealand/dem-hillshade-igor/2193/`            | S3 path to the existing dataset to load existing metadata.                                                                                                                                                                                                        |
+| group                   | int     | 4                                                                               | How many output tiles to process in each standardising task "pod". Change if you have resource or performance issues when standardising a dataset.                                                                                                                |
+| publish_to_odr          | enum    | false                                                                           | Run [publish-odr](#Publish-odr) after standardising has completed successfully (`true` / `false`)                                                                                                                                                                 |
+| copy_option             | enum    | --force-no-clobber                                                              | Used only if `publish_to_odr` is true.<dl><dt>`--no-clobber` </dt><dd> Skip overwriting existing files.</dd><dt> `--force` </dt><dd> Overwrite all files. </dd><dt> `--force-no-clobber` </dt><dd> Overwrite only changed files, skip unchanged files. </dd></dl> |
+| geospatial_category     | enum    | `dem-hillshade-igor`                                                            | Geospatial category of the dataset.                                                                                                                                                                                                                               |
+| create_capture_area     | enum    | true                                                                            | Create a GeoJSON capture area for the dataset.                                                                                                                                                                                                                    |
+| create_capture_dates    | enum    | false                                                                           | Create capture dates for the dataset.                                                                                                                                                                                                                             |
+| gsd                     | decimal | 1                                                                               | Dataset GSD in metres for collection metadata, also used to build dataset title.                                                                                                                                                                                  |
+| scale_to_resolution     | str     | 1,1                                                                             | Target x,y resolution to scale the output hillshade to. Leave blank for no scaling.                                                                                                                                                                               |
+| source_epsg             | str     | 2193                                                                            | The EPSG code of the source imagery.                                                                                                                                                                                                                              |
+| target_epsg             | str     | 2193                                                                            | The target EPSG code - if different to source the imagery will be reprojected.                                                                                                                                                                                    |
+| include                 | regex   | \.tiff?$                                                                        | A regular expression to match object path(s) or name(s) from within the source path to include in the standardising.                                                                                                                                              |
+| scale                   | enum    | 50000                                                                           | The scale of the standardised output TIFFs.                                                                                                                                                                                                                       |
+| target_bucket_name      | enum    | nz-elevation                                                                    | Used only if `publish_to_odr` is true. The bucket name of the target ODR location. (`nz-elevation` / `nz-imagery`)                                                                                                                                                |
+| region                  | str     | new-zealand                                                                     | Region of the dataset.                                                                                                                                                                                                                                            |
+| gdal_compression_preset | str     | dem_lerc                                                                        | The GDAL compression preset to use for the output TIFFs.                                                                                                                                                                                                          |
 
 # hillshade
 
