@@ -352,6 +352,8 @@ spec:
                   value: '{{inputs.parameters.copy_option}}'
                 - name: ticket
                   value: '{{=sprig.trim(inputs.parameters.ticket)}}'
+                - name: odr_url
+                  value: '{{=sprig.trim(inputs.parameters.odr_url)}}'
             depends: 'stac-validate.Succeeded && create-config.Succeeded'
 
       outputs:
