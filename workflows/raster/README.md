@@ -269,18 +269,22 @@ This workflow creates a GitHub pull request to be reviewed for publishing to `s3
 
 ```mermaid
 graph TD;
-  generate-path-->push-to-github;
+  subgraph "if **odr_url == &quot;&quot;**"
+    generate-path
+  end
+  generate-path --> push-to-github;
 ```
 
 ## Workflow Input Parameters
 
 | Parameter          | Type | Default                                | Description                                                                                                                                                                                                                 |
-| ------------------ | ---- | -------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | --- |
+| ------------------ | ---- | -------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | ticket             | str  |                                        | Ticket ID e.g. 'AIP-55'                                                                                                                                                                                                     |
 | region             | enum |                                        | Region of the dataset                                                                                                                                                                                                       |
 | source             | str  | s3://linz-imagery-staging/test/sample/ | The URIs (paths) to the s3 source location                                                                                                                                                                                  |
-| target_bucket_name | enum |                                        | The bucket name of the target location                                                                                                                                                                                      |     |
+| target_bucket_name | enum |                                        | The bucket name of the target location                                                                                                                                                                                      |
 | copy_option        | enum | --no-clobber                           | <dl><dt>`--no-clobber` </dt><dd> Skip overwriting existing files.</dd><dt> `--force` </dt><dd> Overwrite all files. </dd><dt> `--force-no-clobber` </dt><dd> Overwrite only changed files, skip unchanged files. </dd></dl> |
+| odr_url            | str  |                                        | s3 path to the existing dataset, if updating. Providing this will skip `generate_path` (i.e. ignore `target_bucket_name` etc) and publish to the provided location instead.                                                 |
 
 ## Examples
 
