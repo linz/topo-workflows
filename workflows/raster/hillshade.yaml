@@ -264,6 +264,8 @@ spec:
                   value: '{{=sprig.trim(workflow.parameters.copy_option)}}'
                 - name: ticket
                   value: '{{=sprig.trim(workflow.parameters.ticket)}}'
+                - name: odr_url
+                  value: '{{=sprig.trim(workflow.parameters.odr_url)}}'
             depends: '(stac-validate-all.Succeeded || stac-validate-only-updated.Succeeded) && create-config.Succeeded'
 
       outputs:
