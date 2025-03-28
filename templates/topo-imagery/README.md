@@ -148,6 +148,8 @@ See [generate_hillshade.py](https://github.com/linz/topo-imagery/pull/1253)
         value: '{{=sprig.trim(workflow.parameters.gsd)}}'
       - name: current_datetime
         value: '{{tasks.stac-setup-hillshade.finishedAt}}'
+      - name: odr_url
+        value: '{{=sprig.trim(workflow.parameters.odr_url)}}'
     artifacts:
       - name: group_data
         from: '{{tasks.group.outputs.artifacts.output}}'
