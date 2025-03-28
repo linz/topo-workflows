@@ -161,6 +161,8 @@ spec:
                   value: '{{=sprig.trim(workflow.parameters.gsd)}}'
                 - name: current_datetime
                   value: '{{tasks.stac-setup-hillshade.finishedAt}}'
+                - name: odr_url
+                  value: '{{=sprig.trim(workflow.parameters.odr_url)}}'
               artifacts:
                 - name: group_data
                   from: '{{tasks.group.outputs.artifacts.output}}'
