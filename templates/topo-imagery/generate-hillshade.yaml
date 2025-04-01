@@ -26,6 +26,10 @@ spec:
             description: 'The ID of the group of files to use as the input.'
             default: ''
 
+          - name: odr_url
+            description: '(Optional) The path of the published dataset. Example: "s3://nz-elevation/new-zealand/new-zealand/dem-hillshade_1m/2193/"'
+            default: ''
+
           - name: target
             description: 'Location for output files'
             default: ''
@@ -76,3 +80,5 @@ spec:
           - '{{inputs.parameters.gsd}}'
           - '--current-datetime'
           - '{{inputs.parameters.current_datetime}}'
+          - '--odr-url'
+          - '{{inputs.parameters.odr_url}}'
