@@ -83,6 +83,10 @@ spec:
             templateRef:
               name: tpl-get-location
               template: main
+            arguments:
+              parameters:
+                - name: version_argo_tasks
+                  value: '{{=sprig.trim(workflow.parameters.version_argo_tasks)}}'
 
           - name: stac-setup-hillshade
             templateRef:
@@ -101,30 +105,18 @@ spec:
                 - name: version
                   value: '{{= workflow.parameters.version_argo_tasks}}'
 
-          - name: tile-index-validate
+          - name: identify-updated-items
             templateRef:
-              name: tpl-at-tile-index-validate
+              name: tpl-at-identify-updated-items
               template: main
             arguments:
               parameters:
-                - name: scale
-                  value: '50000'
-                - name: include
-                  value: '.tiff?$'
-                - name: source
-                  value: '{{=sprig.trim(workflow.parameters.source)}}'
-                - name: source_epsg
-                  value: '2193'
-                - name: validate
-                  value: 'false'
-                - name: retile
-                  value: 'true'
-                - name: preset
-                  value: 'dem_lerc'
+                - name: targetCollection
+                  value: '{{= workflow.parameters.odr_url == "" ? "" : sprig.trimSuffix("/", workflow.parameters.odr_url) + "/collection.json" }}'
+                - name: sourceCollections
+                  value: '{{=sprig.trimSuffix("/", workflow.parameters.source)}}/collection.json'
                 - name: version
                   value: '{{= workflow.parameters.version_argo_tasks}}'
-                - name: includeDerived
-                  value: 'true'
 
           - name: group
             templateRef:
@@ -133,13 +125,13 @@ spec:
             arguments:
               artifacts:
                 - name: input
-                  from: '{{ tasks.tile-index-validate.outputs.artifacts.files }}'
+                  from: '{{ tasks.identify-updated-items.outputs.artifacts.files }}'
               parameters:
                 - name: size
                   value: '{{=sprig.trim(workflow.parameters.group)}}'
                 - name: version
                   value: '{{= workflow.parameters.version_argo_tasks}}'
-            depends: 'tile-index-validate.Succeeded'
+            depends: 'identify-updated-items.Succeeded'
 
           - name: generate-hillshade
             templateRef:
