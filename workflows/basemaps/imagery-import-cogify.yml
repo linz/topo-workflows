@@ -170,7 +170,7 @@ spec:
       - name: background
         description: 'Background RGBA hexstring to fill empty space in the COG. Format: "#rrggbbaa"'
         value: ''
-      
+
       - name: base_zoom_offset
         description: 'Adjust the base zoom level of the output COGS, "-1" reduce the target output resolution by one zoom level'
         value: ''
