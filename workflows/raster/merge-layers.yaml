@@ -197,31 +197,18 @@ spec:
                 - name: version
                   value: '{{=sprig.trim(inputs.parameters.version_argo_tasks)}}'
 
-          - name: tile-index-validate
+          - name: identify-updated-items
             templateRef:
-              name: tpl-at-tile-index-validate
+              name: tpl-at-identify-updated-items
               template: main
             arguments:
               parameters:
-                - name: scale
-                  value: '{{inputs.parameters.scale}}'
-                - name: include
-                  value: '{{inputs.parameters.include}}'
-                - name: source # combine both base_layer_source and top_layer_source
-                  value: '{{= inputs.parameters.base_layer_source == "" ? "" : sprig.trimSuffix("/", inputs.parameters.base_layer_source) + "/;" }}{{=sprig.trimSuffix("/", inputs.parameters.top_layer_source)}}/'
-                - name: source_epsg
-                  value: '{{=sprig.trim(inputs.parameters.source_epsg)}}'
-                - name: validate
-                  value: 'false'
-                - name: retile
-                  value: 'true'
-                - name: preset
-                  value: '{{inputs.parameters.gdal_compression_preset}}'
+                - name: targetCollection
+                  value: '{{= inputs.parameters.odr_url == "" ? "" : sprig.trimSuffix("/", inputs.parameters.odr_url) + "/collection.json" }}'
+                - name: sourceCollections
+                  value: '{{= inputs.parameters.base_layer_source == "" ? "" : sprig.trimSuffix("/", inputs.parameters.base_layer_source) + "/collection.json;" }}{{=sprig.trimSuffix("/", inputs.parameters.top_layer_source)}}/collection.json'
                 - name: version
                   value: '{{= inputs.parameters.version_argo_tasks}}'
-                - name: includeDerived
-                  value: 'true'
-            depends: 'get-location.Succeeded && stac-setup.Succeeded'
 
           - name: group
             templateRef:
@@ -230,13 +217,13 @@ spec:
             arguments:
               artifacts:
                 - name: input
-                  from: '{{ tasks.tile-index-validate.outputs.artifacts.files }}'
+                  from: '{{ tasks.identify-updated-items.outputs.artifacts.files }}'
               parameters:
                 - name: size
                   value: '{{inputs.parameters.group}}'
                 - name: version
                   value: '{{= inputs.parameters.version_argo_tasks}}'
-            depends: 'tile-index-validate.Succeeded'
+            depends: 'identify-updated-items.Succeeded'
 
           - name: standardise-validate
             templateRef:
@@ -273,7 +260,7 @@ spec:
               artifacts:
                 - name: group_data
                   from: '{{ tasks.group.outputs.artifacts.output }}'
-            depends: 'group.Succeeded'
+            depends: 'group.Succeeded && get-location.Succeeded && stac-setup.Succeeded'
             withParam: '{{ tasks.group.outputs.parameters.output }}'
 
           - name: create-collection
