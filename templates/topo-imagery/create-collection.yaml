@@ -92,6 +92,10 @@ spec:
             description: 'Add a capture-dates.geojson.gz file to the collection assets'
             default: 'false'
 
+          - name: keep_title
+            description: 'Keep the title of the existing Collection'
+            default: 'false'
+
       outputs:
         artifacts:
           - name: capture-area
@@ -129,6 +133,8 @@ spec:
           - '{{=sprig.trim(inputs.parameters.lifecycle)}}'
           - '--add-title-suffix'
           - '{{inputs.parameters.add_title_suffix}}'
+          - '--keep-title'
+          - '{{inputs.parameters.keep_title}}'
           - '--capture-dates'
           - '{{inputs.parameters.create_capture_dates}}'
           - '--producer'

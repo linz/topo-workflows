@@ -190,6 +190,8 @@ spec:
                   value: 'Toitū Te Whenua Land Information New Zealand'
                 - name: create_capture_dates
                   value: 'true'
+                - name: keep_title
+                  value: 'true'
                 - name: version_topo_imagery
                   value: '{{= workflow.parameters.version_topo_imagery}}'
             depends: 'standardise-validate.Succeeded'
