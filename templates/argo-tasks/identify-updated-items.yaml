@@ -4,7 +4,7 @@ apiVersion: argoproj.io/v1alpha1
 kind: WorkflowTemplate
 metadata:
   # Template from linz/argo-tasks
-  # see https://github.com/linz/argo-tasks#tileindex-validate
+  # see https://github.com/linz/argo-tasks?tab=readme-ov-file#identify-updated-items
   name: tpl-at-identify-updated-items
 spec:
   templateDefaults:
