@@ -3,7 +3,7 @@
 apiVersion: argoproj.io/v1alpha1
 kind: WorkflowTemplate
 metadata:
-  name: national-dem
+  name: national-elevation
   labels:
     linz.govt.nz/category: raster
     linz.govt.nz/data-type: raster
@@ -38,6 +38,12 @@ spec:
       - name: ticket
         description: 'Ticket ID, e.g. "TDE-1130"'
         value: ''
+      - name: geospatial_category
+        description: 'Geospatial category of the elevation dataset'
+        value: 'dem'
+        enum:
+          - 'dem'
+          - 'dsm'
       - name: config_file
         description: 'Location of the configuration file listing the source datasets to merge.'
         value: 'https://raw.githubusercontent.com/linz/basemaps-config/master/config/tileset/elevation.json'
@@ -117,7 +123,7 @@ spec:
                 - name: region
                   value: 'new zealand'
                 - name: geospatial_category
-                  value: 'dem'
+                  value: '{{workflow.parameters.geospatial_category}}'
                 - name: odr_url
                   value: '{{=sprig.trim(workflow.parameters.odr_url)}}'
                 - name: version
@@ -177,7 +183,7 @@ spec:
                 - name: odr_url
                   value: '{{=sprig.trim(workflow.parameters.odr_url)}}'
                 - name: category
-                  value: 'dem'
+                  value: '{{workflow.parameters.geospatial_category}}'
                 - name: region
                   value: 'new-zealand'
                 - name: gsd
