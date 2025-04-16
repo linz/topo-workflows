@@ -76,6 +76,8 @@ spec:
           - 'satellite-imagery'
           - 'dem-hillshade'
           - 'dem-hillshade-igor'
+          - 'dsm-hillshade'
+          - 'dsm-hillshade-igor'
       - name: create_capture_area
         value: 'true'
         enum:

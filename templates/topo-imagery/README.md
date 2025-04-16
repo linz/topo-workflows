@@ -124,7 +124,7 @@ See [collection_from_items.py](https://github.com/linz/topo-imagery/blob/master/
 
 ## topo-imagery/generate-hillshade - `tpl-create-hillshade`
 
-Template for creating hillshades from TIFFs (DEM).
+Template for creating hillshades from elevation TIFFs (DEM / DSM).
 See [generate_hillshade.py](https://github.com/linz/topo-imagery/pull/1253)
 
 ### Template usage
