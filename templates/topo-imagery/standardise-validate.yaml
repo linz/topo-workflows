@@ -65,8 +65,12 @@ spec:
             default: ''
 
           - name: scale_to_resolution
-            description: 'Scale output TIFFs to x,y resolution (e.g. 1,1 - leave blank for no scaling)'
+            description: '(Optional) Scale output TIFFs to x,y resolution (e.g. 1,1 - leave blank for no scaling)'
             default: ''
+
+          - name: keep_derived_from_links
+            description: '(Optional) whether to keep derived_from links from source/parent file. Defaults to "false".'
+            default: 'false'
 
           - name: source_epsg
             description: 'EPSG of the source files'
@@ -116,6 +120,8 @@ spec:
           - '{{inputs.parameters.current_datetime}}'
           - '--scale-to-resolution'
           - '{{=sprig.trim(inputs.parameters.scale_to_resolution)}}'
+          - '--keep-derived-from-links'
+          - '{{=sprig.trim(inputs.parameters.keep_derived_from_links)}}'
         resources:
           requests:
             memory: 7.8Gi
