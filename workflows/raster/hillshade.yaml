@@ -41,6 +41,12 @@ spec:
       - name: source
         description: 'Location of the input elevation data to create hillshade.'
         value: 's3://nz-elevation/new-zealand/new-zealand/dem_1m/2193/'
+      - name: source_geospatial_category
+        description: 'Geospatial category of the source elevation data, e.g. "dem" or "dsm"'
+        value: 'dem'
+        enum:
+          - 'dem'
+          - 'dsm'
       - name: gsd
         description: 'Dataset GSD in metres, e.g., "1" for 1 metre'
         default: '1'
@@ -99,7 +105,7 @@ spec:
                 - name: region
                   value: 'new-zealand'
                 - name: geospatial_category
-                  value: 'dem-{{=sprig.trim(workflow.parameters.hillshade_preset)}}'
+                  value: '{{workflow.parameters.source_geospatial_category}}-{{workflow.parameters.hillshade_preset}}'
                 - name: odr_url
                   value: '{{=sprig.trim(workflow.parameters.odr_url)}}'
                 - name: version
