@@ -135,6 +135,12 @@ spec:
       - name: odr_url
         description: '(Optional) If an existing dataset add the S3 path to the dataset here to load existing metadata e.g. "s3://nz-imagery/taranaki/new-plymouth_2017_0.1m/rgb/2193/"'
         value: ''
+      - name: delete_all_existing_items
+        description: 'Delete all existing items in the collection before adding new items. Only when re-supplying existing datasets.'
+        value: 'false'
+        enum:
+          - 'true'
+          - 'false'
       - name: category
         description: 'Geospatial category of the dataset'
         value: 'urban-aerial-photos'
@@ -461,6 +467,8 @@ spec:
                   value: '{{tasks.stac-setup.finishedAt}}'
                 - name: odr_url
                   value: '{{=sprig.trim(workflow.parameters.odr_url)}}'
+                - name: delete_all_existing_items
+                  value: '{{=sprig.trim(workflow.parameters.delete_all_existing_items)}}'
                 - name: category
                   value: '{{=sprig.trim(workflow.parameters.category)}}'
                 - name: region

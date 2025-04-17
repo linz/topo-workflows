@@ -32,6 +32,13 @@ spec:
             description: '(Optional) If an existing dataset add the S3 path to the dataset here to load existing metadata e.g. "s3://nz-imagery/taranaki/new-plymouth_2017_0.1m/rgb/2193/"'
             default: ''
 
+          - name: delete_all_existing_items
+            description: 'Delete all existing items in the collection before adding new items'
+            default: 'false'
+            enum:
+              - 'true'
+              - 'false'
+
           - name: location
             description: 'Location for output files'
             default: ''
@@ -117,6 +124,8 @@ spec:
           - '{{inputs.parameters.linz_slug}}'
           - '--odr-url'
           - '{{=sprig.trim(inputs.parameters.odr_url)}}'
+          - '--delete-all-existing-items'
+          - '{{=sprig.trim(inputs.parameters.delete_all_existing_items)}}'
           - '--category'
           - '{{=sprig.trim(inputs.parameters.category)}}'
           - '--region'
