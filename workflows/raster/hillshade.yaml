@@ -81,6 +81,20 @@ spec:
       image: ''
   templates:
     - name: main
+      inputs:
+        parameters:
+          - name: source_geospatial_category
+            description: 'Geospatial category of the source elevation data, e.g. "dem" or "dsm"'
+            value: '{{workflow.parameters.source_geospatial_category}}'
+          - name: hillshade_preset
+            description: 'Hillshade preset to use, must be one of "hillshade" or "hillshade-igor"'
+            value: '{{workflow.parameters.hillshade_preset}}'
+          - name: source
+            description: 'Location of the input elevation data to create hillshade.'
+            value: '{{workflow.parameters.source}}'
+          - name: odr_url
+            description: '(Optional) If an existing dataset add the S3 path to the dataset here to load existing metadata e.g. "s3://nz-elevation/new-zealand/new-zealand/dem_1m/2193/"'
+            value: '{{workflow.parameters.odr_url}}'
       retryStrategy:
         expression: 'false'
       dag:
@@ -105,9 +119,9 @@ spec:
                 - name: region
                   value: 'new-zealand'
                 - name: geospatial_category
-                  value: '{{workflow.parameters.source_geospatial_category}}-{{workflow.parameters.hillshade_preset}}'
+                  value: '{{inputs.parameters.source_geospatial_category}}-{{inputs.parameters.hillshade_preset}}'
                 - name: odr_url
-                  value: '{{=sprig.trim(workflow.parameters.odr_url)}}'
+                  value: '{{inputs.parameters.odr_url}}'
                 - name: version
                   value: '{{= workflow.parameters.version_argo_tasks}}'
 
@@ -118,9 +132,9 @@ spec:
             arguments:
               parameters:
                 - name: targetCollection
-                  value: '{{= workflow.parameters.odr_url == "" ? "" : sprig.trimSuffix("/", workflow.parameters.odr_url) + "/collection.json" }}'
+                  value: '{{= inputs.parameters.odr_url == "" ? "" : sprig.trimSuffix("/", inputs.parameters.odr_url) + "/collection.json" }}'
                 - name: sourceCollections
-                  value: '{{=sprig.trimSuffix("/", workflow.parameters.source)}}/collection.json'
+                  value: '{{=sprig.trimSuffix("/", inputs.parameters.source)}}/collection.json'
                 - name: version
                   value: '{{= workflow.parameters.version_argo_tasks}}'
 
@@ -137,7 +151,7 @@ spec:
                   value: '{{=sprig.trim(workflow.parameters.group)}}'
                 - name: version
                   value: '{{= workflow.parameters.version_argo_tasks}}'
-            depends: 'identify-updated-items.Succeeded'
+            depends: 'identify-updated-items.Succeeded && stac-setup-hillshade.Succeeded && get-location.Succeeded'
 
           - name: generate-hillshade
             templateRef:
@@ -148,11 +162,11 @@ spec:
                 - name: group_id
                   value: '{{item}}'
                 - name: hillshade_preset
-                  value: '{{=sprig.trim(workflow.parameters.hillshade_preset)}}'
+                  value: '{{inputs.parameters.hillshade_preset}}'
                 - name: version_topo_imagery
                   value: '{{= workflow.parameters.version_topo_imagery}}'
                 - name: target # not using flat/ here, but {{workflow.parameters.hillshade_preset}}/ to keep temporary HS output separate
-                  value: '{{=sprig.trimSuffix("/", tasks["get-location"].outputs.parameters.location)}}/{{workflow.parameters.hillshade_preset}}/flat/'
+                  value: '{{=sprig.trimSuffix("/", tasks["get-location"].outputs.parameters.location)}}/{{inputs.parameters.source_geospatial_category}}-{{inputs.parameters.hillshade_preset}}/flat/'
                 - name: collection_id
                   value: '{{tasks.stac-setup-hillshade.outputs.parameters.collection_id}}'
                 - name: gsd
@@ -160,7 +174,7 @@ spec:
                 - name: current_datetime
                   value: '{{tasks.stac-setup-hillshade.finishedAt}}'
                 - name: odr_url
-                  value: '{{=sprig.trim(workflow.parameters.odr_url)}}'
+                  value: '{{inputs.parameters.odr_url}}'
               artifacts:
                 - name: group_data
                   from: '{{tasks.group.outputs.artifacts.output}}'
@@ -178,13 +192,13 @@ spec:
                 - name: linz_slug
                   value: '{{tasks.stac-setup-hillshade.outputs.parameters.linz_slug}}'
                 - name: location
-                  value: '{{=sprig.trimSuffix("/", tasks["get-location"].outputs.parameters.location)}}/{{=sprig.trim(workflow.parameters.hillshade_preset)}}/flat/'
+                  value: '{{=sprig.trimSuffix("/", tasks["get-location"].outputs.parameters.location)}}/{{inputs.parameters.source_geospatial_category}}-{{inputs.parameters.hillshade_preset}}/flat/'
                 - name: current_datetime
                   value: '{{tasks.stac-setup-hillshade.finishedAt}}' # not stac-setup
                 - name: odr_url
-                  value: '{{=sprig.trim(workflow.parameters.odr_url)}}'
+                  value: '{{inputs.parameters.odr_url}}'
                 - name: category
-                  value: 'dem-{{=sprig.trim(workflow.parameters.hillshade_preset)}}'
+                  value: '{{inputs.parameters.source_geospatial_category}}-{{inputs.parameters.hillshade_preset}}'
                 - name: region
                   value: 'new-zealand'
                 - name: gsd
@@ -210,13 +224,13 @@ spec:
             arguments:
               parameters:
                 - name: uri
-                  value: '{{=sprig.trimSuffix("/", tasks["get-location"].outputs.parameters.location)}}/{{=sprig.trim(workflow.parameters.hillshade_preset)}}/flat/collection.json'
+                  value: '{{=sprig.trimSuffix("/", tasks["get-location"].outputs.parameters.location)}}/{{inputs.parameters.source_geospatial_category}}-{{inputs.parameters.hillshade_preset}}/flat/collection.json'
               artifacts:
                 - name: stac-result
                   raw:
                     data: '{{tasks.stac-validate-all.outputs.result}}'
             depends: 'create-collection.Succeeded'
-            when: "'{{workflow.parameters.odr_url}}' == ''"
+            when: "'{{inputs.parameters.odr_url}}' == ''"
 
           - name: stac-validate-only-updated
             templateRef:
@@ -225,7 +239,7 @@ spec:
             arguments:
               parameters:
                 - name: uri
-                  value: '{{=sprig.trimSuffix("/", tasks["get-location"].outputs.parameters.location)}}/{{=sprig.trim(workflow.parameters.hillshade_preset)}}/flat/'
+                  value: '{{=sprig.trimSuffix("/", tasks["get-location"].outputs.parameters.location)}}/{{inputs.parameters.source_geospatial_category}}-{{inputs.parameters.hillshade_preset}}/flat/'
                 - name: recursive
                   value: 'false' # The Collection might have some Items that are only in the published location
                 - name: checksum_links
@@ -237,17 +251,17 @@ spec:
                 - name: concurrency
                   value: '50'
             depends: 'create-collection.Succeeded'
-            when: "'{{workflow.parameters.odr_url}}' != ''"
+            when: "'{{inputs.parameters.odr_url}}' != ''"
 
           - name: create-config
             arguments:
               parameters:
                 - name: location
-                  value: '{{=sprig.trimSuffix("/", tasks["get-location"].outputs.parameters.location)}}/{{=sprig.trim(workflow.parameters.hillshade_preset)}}/flat/'
+                  value: '{{=sprig.trimSuffix("/", tasks["get-location"].outputs.parameters.location)}}/{{inputs.parameters.source_geospatial_category}}-{{inputs.parameters.hillshade_preset}}/flat/'
                 - name: bucket
                   value: '{{tasks.get-location.outputs.parameters.bucket}}'
                 - name: key
-                  value: '{{tasks.get-location.outputs.parameters.key}}/{{=sprig.trim(workflow.parameters.hillshade_preset)}}/flat/'
+                  value: '{{tasks.get-location.outputs.parameters.key}}/{{inputs.parameters.source_geospatial_category}}-{{inputs.parameters.hillshade_preset}}/flat/'
             template: create-config
             depends: 'generate-hillshade.Succeeded'
 
@@ -259,7 +273,7 @@ spec:
             arguments:
               parameters:
                 - name: source
-                  value: '{{=sprig.trimSuffix("/", tasks["get-location"].outputs.parameters.location)}}/{{=sprig.trim(workflow.parameters.hillshade_preset)}}/flat/'
+                  value: '{{=sprig.trimSuffix("/", tasks["get-location"].outputs.parameters.location)}}/{{inputs.parameters.source_geospatial_category}}-{{inputs.parameters.hillshade_preset}}/flat/'
                 - name: target_bucket_name
                   value: 'nz-elevation'
                 - name: copy_option
@@ -267,7 +281,7 @@ spec:
                 - name: ticket
                   value: '{{=sprig.trim(workflow.parameters.ticket)}}'
                 - name: odr_url
-                  value: '{{=sprig.trim(workflow.parameters.odr_url)}}'
+                  value: '{{inputs.parameters.odr_url}}'
             depends: '(stac-validate-all.Succeeded || stac-validate-only-updated.Succeeded) && create-config.Succeeded'
 
       outputs:
