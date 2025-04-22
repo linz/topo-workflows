@@ -401,6 +401,18 @@ Publishing to the AWS Registry of Open Data is an optional step [publish-odr](#P
 | publish_to_odr   | str  | false                                                  | Run [publish-odr](#Publish-odr) after standardising has completed successfully                                                                                                                                                                                    |
 | copy_option      | enum | --force-no-clobber                                     | Used only if `publish_to_odr` is true.<dl><dt>`--no-clobber` </dt><dd> Skip overwriting existing files.</dd><dt> `--force` </dt><dd> Overwrite all files. </dd><dt> `--force-no-clobber` </dt><dd> Overwrite only changed files, skip unchanged files. </dd></dl> |
 
+# hillshade-combinations
+
+This workflow calls `hillshade` to iterate over a provided list of geospatial elevation categories (DEM / DSM) and hillshade presets (hillshade / hillshade-igor) to easily create hillshades using Cron Workflows.
+
+Key parameters that differ from the `hillshade` workflow are `source_geospatial_categories` and `hillshade_presets`, which be iterated over to create multiple hillshades using each corresponding geospatial category and hillshade preset in the `hillshade` workflow.
+All other parameters will be passed through to the `hillshade` workflow without modification.
+
+| Parameter                    | Type | Default                         | Description                                                                          |
+| ---------------------------- | ---- | ------------------------------- | ------------------------------------------------------------------------------------ |
+| source_geospatial_categories | str  | ["dem", "dsm"]                  | Geospatial categories of the source elevation data as stringified json, e.g. ["dem"] |
+| hillshade_presets            | str  | ["hillshade-igor", "hillshade"] | Hillshade presets to use, as stringified json, e.g. ["hillshade"]                    |
+
 # Tests
 
 ## How To Use the Test Workflow
