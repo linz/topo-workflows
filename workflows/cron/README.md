@@ -27,7 +27,7 @@ It also validate that the [STAC assets](https://github.com/radiantearth/stac-spe
 
 > **_NOTE:_** Due to the parallelism design, this workflow does not validate the root parent `catalog.json` in order to validate each `collection.json` separately. This is not an issue as the `catalog.json` does not contain any `asset` and is already validated by the [cron-stac-validata-fast](#cron-stac-validate-fast) job.
 
-- schedule: **every 1st of the month**
+- schedule: **every 1st of the month at 5am**
 
 ## National Elevation
 
@@ -35,8 +35,8 @@ The two cron workflows `cron-national-dem` and `cron-national-dsm` trigger the `
 
 - [New Zealand LiDAR 1m DEM](https://github.com/linz/elevation/blob/master/stac/new-zealand/new-zealand/dem_1m/2193/collection.json)
 - [New Zealand LiDAR 1m DSM](https://github.com/linz/elevation/blob/master/stac/new-zealand/new-zealand/dsm_1m/2193/collection.json)
-
-Schedule: **every day at 6am**
+-
+- schedule: **Monday to Friday at 6am**
 
 ## National Hillshades
 
@@ -47,4 +47,4 @@ The two cron workflows `cron-national-dem-hillshades` and `cron-national-dsm-hil
 - [New Zealand LiDAR 1m DSM Hillshade](https://github.com/linz/elevation/blob/master/stac/new-zealand/new-zealand/dsm-hillshade_1m/2193/collection.json)
 - [New Zealand LiDAR 1m DSM Hillshade - Igor](https://github.com/linz/elevation/blob/master/stac/new-zealand/new-zealand/dsm-hillshade-igor_1m/2193/collection.json)
 
-Schedule: **every day at 12:30pm**
+- schedule: **Monday to Friday at 12:30pm**
