@@ -1,0 +1,98 @@
+# yaml-language-server: $schema=https://raw.githubusercontent.com/argoproj/argo-workflows/v3.5.5/api/jsonschema/schema.json
+apiVersion: argoproj.io/v1alpha1
+kind: CronWorkflow
+metadata:
+  name: cron-national-merged-dsm-hillshades
+  labels:
+    linz.govt.nz/category: raster
+    linz.govt.nz/data-type: raster
+spec:
+  schedule: '0 15 * * 1-5' # At 3:00 PM, Monday through Friday
+  timezone: 'NZ'
+  concurrencyPolicy: 'Allow'
+  successfulJobsHistoryLimit: 3
+  failedJobsHistoryLimit: 3
+  workflowMetadata:
+    labels:
+      linz.govt.nz/ticket: 'TDE-1428'
+  workflowSpec:
+    entrypoint: main
+    onExit: exit-handler
+    podMetadata:
+      labels:
+        linz.govt.nz/category: raster
+        linz.govt.nz/data-type: raster
+        linz.govt.nz/region: 'new-zealand'
+    arguments:
+      parameters:
+        - name: version_argo_tasks
+          value: 'v4'
+        - name: version_basemaps_cli
+          value: 'v7'
+        - name: version_topo_imagery
+          value: 'v7'
+        - name: ticket
+          value: 'TDE-1428'
+        - name: group
+          value: '4'
+        - name: publish_to_odr
+          value: 'true'
+        - name: copy_option
+          value: '--force-no-clobber'
+        - name: create_capture_area
+          value: 'true'
+        - name: capture_area_dates
+          value: 'false'
+        - name: gsd
+          value: '1'
+        - name: scale_to_resolution
+          value: '1,1'
+        - name: source_epsg
+          value: '2193'
+        - name: target_epsg
+          value: '2193'
+        - name: include
+          value: '.tiff?$'
+        - name: scale
+          value: '50000'
+        - name: target_bucket_name
+          value: 'nz-elevation'
+        - name: region
+          value: 'new-zealand'
+        - name: gdal_compression_preset
+          value: 'dem_lerc'
+    templates:
+      - name: main
+        retryStrategy:
+          expression: 'false'
+        steps:
+          - - name: hillshade
+              templateRef:
+                name: merge-layers
+                template: main
+              arguments:
+                parameters:
+                  - name: top_layer_source
+                    value: 's3://nz-elevation/new-zealand/new-zealand/{{item}}_1m/2193/'
+                  - name: base_layer_source
+                    value: '' # No base layer for DSM hillshades
+                  - name: odr_url
+                    value: 's3://nz-elevation/new-zealand/new-zealand/{{item}}/2193/'
+                  - name: geospatial_category
+                    value: '{{item}}'
+              withParam: '["dsm-hillshade", "dsm-hillshade-igor"]'
+
+      - name: exit-handler
+        retryStrategy:
+          limit: '0' # `tpl-exit-handler` retries itself
+        steps:
+          - - name: exit
+              templateRef:
+                name: tpl-exit-handler
+                template: main
+              arguments:
+                parameters:
+                  - name: workflow_status
+                    value: '{{workflow.status}}'
+                  - name: workflow_parameters
+                    value: '{{workflow.parameters}}'

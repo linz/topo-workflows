@@ -27,6 +27,10 @@ spec:
             default: 'v4'
 
       outputs:
+        parameters:
+          - name: file-list-content
+            valueFrom:
+              path: /tmp/identify-updated-items/file-list.json
         artifacts:
           # List of tiff files that need to be processed
           - name: files
