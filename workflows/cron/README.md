@@ -3,6 +3,7 @@
 - [cron-stac-validate-fast](#cron-stac-validate-fast)
 - [cron-stac-validate-full](#cron-stac-validate-full)
 - [National Elevation](#national-elevation)
+- [National Hillshades](#national-hillshades)
 
 ## STAC validation
 
@@ -26,7 +27,7 @@ It also validate that the [STAC assets](https://github.com/radiantearth/stac-spe
 
 > **_NOTE:_** Due to the parallelism design, this workflow does not validate the root parent `catalog.json` in order to validate each `collection.json` separately. This is not an issue as the `catalog.json` does not contain any `asset` and is already validated by the [cron-stac-validata-fast](#cron-stac-validate-fast) job.
 
-- schedule: **every 1st of the month**
+- schedule: **every 1st of the month at 5am**
 
 ## National Elevation
 
@@ -34,3 +35,16 @@ The two cron workflows `cron-national-dem` and `cron-national-dsm` trigger the `
 
 - [New Zealand LiDAR 1m DEM](https://github.com/linz/elevation/blob/master/stac/new-zealand/new-zealand/dem_1m/2193/collection.json)
 - [New Zealand LiDAR 1m DSM](https://github.com/linz/elevation/blob/master/stac/new-zealand/new-zealand/dsm_1m/2193/collection.json)
+-
+- schedule: **Monday to Friday at 6am**
+
+## National Hillshades
+
+The two cron workflows `cron-national-dem-hillshades` and `cron-national-dsm-hillshades` trigger the `hillshade-combinations` workflow on a daily (Mon-Fri) basis to amke sure that any update to the national 1m DEM/DSM datasets will be reflected in the respective 1m hillshade datasets:
+
+- [New Zealand LiDAR 1m DEM Hillshade](https://github.com/linz/elevation/blob/master/stac/new-zealand/new-zealand/dem-hillshade_1m/2193/collection.json)
+- [New Zealand LiDAR 1m DEM Hillshade - Igor](https://github.com/linz/elevation/blob/master/stac/new-zealand/new-zealand/dem-hillshade-igor_1m/2193/collection.json)
+- [New Zealand LiDAR 1m DSM Hillshade](https://github.com/linz/elevation/blob/master/stac/new-zealand/new-zealand/dsm-hillshade_1m/2193/collection.json)
+- [New Zealand LiDAR 1m DSM Hillshade - Igor](https://github.com/linz/elevation/blob/master/stac/new-zealand/new-zealand/dsm-hillshade-igor_1m/2193/collection.json)
+
+- schedule: **Monday to Friday at 12:30pm**

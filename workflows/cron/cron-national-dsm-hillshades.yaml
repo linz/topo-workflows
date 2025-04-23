@@ -2,19 +2,19 @@
 apiVersion: argoproj.io/v1alpha1
 kind: CronWorkflow
 metadata:
-  name: cron-national-dsm
+  name: cron-national-dsm-hillshades
   labels:
     linz.govt.nz/category: raster
     linz.govt.nz/data-type: raster
 spec:
-  schedule: '0 6 * * 1-5' # At 06:00 AM, Monday through Friday
+  schedule: '30 12 * * 1-5' # At 12:30 PM, Monday through Friday
   timezone: 'NZ'
   concurrencyPolicy: 'Allow'
   successfulJobsHistoryLimit: 3
   failedJobsHistoryLimit: 3
   workflowMetadata:
     labels:
-      linz.govt.nz/ticket: 'TDE-1454'
+      linz.govt.nz/ticket: 'TDE-1455'
   workflowSpec:
     podMetadata:
       labels:
@@ -22,18 +22,24 @@ spec:
         linz.govt.nz/data-type: raster
         linz.govt.nz/region: 'new-zealand'
     workflowTemplateRef:
-      name: national-elevation
+      name: hillshade-combinations
     arguments:
       parameters:
-        - name: 'config_file'
-          value: 'https://raw.githubusercontent.com/linz/basemaps-config/master/config/tileset/elevation.dsm.json'
-        - name: 'odr_url'
-          value: 's3://nz-elevation/new-zealand/new-zealand/dsm_1m/2193/'
-        - name: geospatial_category
-          value: 'dsm'
+        - name: version_argo_tasks
+          value: 'v4'
+        - name: version_basemaps_cli
+          value: 'v7'
+        - name: version_topo_imagery
+          value: 'v7'
+        - name: ticket
+          value: 'TDE-1455'
+        - name: source_geospatial_categories
+          value: '["dsm"]'
+        - name: gsd
+          value: '1'
+        - name: hillshade_presets
+          value: '["hillshade", "hillshade-igor"]'
         - name: publish_to_odr
           value: 'true'
-        - name: 'copy_option'
+        - name: copy_option
           value: '--force-no-clobber'
-        - name: 'ticket'
-          value: 'TDE-1454'
