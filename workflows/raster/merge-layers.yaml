@@ -213,6 +213,7 @@ spec:
                   value: '{{= inputs.parameters.version_argo_tasks}}'
 
           - name: group
+            when: "'{{tasks.identify-updated-items.outputs.parameters.file-list-content}}' == '[]'"
             templateRef:
               name: tpl-at-group
               template: main
