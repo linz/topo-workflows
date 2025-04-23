@@ -2,7 +2,7 @@
 apiVersion: argoproj.io/v1alpha1
 kind: CronWorkflow
 metadata:
-  name: cron-national-merged-dsm-hillshade-igor
+  name: cron-national-merged-dsm-hillshades
   labels:
     linz.govt.nz/category: raster
     linz.govt.nz/data-type: raster
@@ -16,13 +16,13 @@ spec:
     labels:
       linz.govt.nz/ticket: 'TDE-1428'
   workflowSpec:
+    entrypoint: main
+    onExit: exit-handler
     podMetadata:
       labels:
         linz.govt.nz/category: raster
         linz.govt.nz/data-type: raster
         linz.govt.nz/region: 'new-zealand'
-    workflowTemplateRef:
-      name: merge-layers
     arguments:
       parameters:
         - name: version_argo_tasks
@@ -33,20 +33,12 @@ spec:
           value: 'v7'
         - name: ticket
           value: 'TDE-1428'
-        - name: top_layer_source
-          value: 's3://nz-elevation/new-zealand/new-zealand/dsm-hillshade-igor_1m/2193/'
-        - name: base_layer_source
-          value: ''
-        - name: odr_url
-          value: 's3://nz-elevation/new-zealand/new-zealand/dsm-hillshade-igor/2193/'
         - name: group
           value: '4'
         - name: publish_to_odr
           value: 'true'
         - name: copy_option
           value: '--force-no-clobber'
-        - name: geospatial_category
-          value: 'dsm-hillshade-igor'
         - name: create_capture_area
           value: 'true'
         - name: capture_area_dates
@@ -69,3 +61,38 @@ spec:
           value: 'new-zealand'
         - name: gdal_compression_preset
           value: 'dem_lerc'
+    templates:
+      - name: main
+        retryStrategy:
+          expression: 'false'
+        steps:
+          - - name: hillshade
+              templateRef:
+                name: merge-layers
+                template: main
+              arguments:
+                parameters:
+                  - name: top_layer_source
+                    value: 's3://nz-elevation/new-zealand/new-zealand/{{item}}_1m/2193/'
+                  - name: base_layer_source
+                    value: '' # No base layer for DSM hillshades
+                  - name: odr_url
+                    value: 's3://nz-elevation/new-zealand/new-zealand/{{item}}/2193/'
+                  - name: geospatial_category
+                    value: '{{item}}'
+              withParam: '["dsm-hillshade", "dsm-hillshade-igor"]'
+
+      - name: exit-handler
+        retryStrategy:
+          limit: '0' # `tpl-exit-handler` retries itself
+        steps:
+          - - name: exit
+              templateRef:
+                name: tpl-exit-handler
+                template: main
+              arguments:
+                parameters:
+                  - name: workflow_status
+                    value: '{{workflow.status}}'
+                  - name: workflow_parameters
+                    value: '{{workflow.parameters}}'

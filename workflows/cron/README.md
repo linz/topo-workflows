@@ -51,7 +51,7 @@ The two cron workflows `cron-national-dem-hillshades` and `cron-national-dsm-hil
 
 ## National Merged Hillshades
 
-The four cron workflows `cron-national-merged-[dem/dsm]-[hillshade/hillshade-igor]` run on a daily (Mon-Fri) basis to update the below listed merged hillshade datasets after the respective 1m hillshade datasets have been updated:
+The two cron workflows `cron-national-merged-[dem/dsm]-hillshades` run on a daily (Mon-Fri) basis to update the below listed merged hillshade datasets after the respective 1m hillshade datasets have been updated:
 
 - [New Zealand DEM Hillshade](https://github.com/linz/elevation/blob/master/stac/new-zealand/new-zealand/dem-hillshade/2193/collection.json)
 - [New Zealand 1m DEM Hillshade - Igor](https://github.com/linz/elevation/blob/master/stac/new-zealand/new-zealand/dem-hillshade-igor/2193/collection.json)
