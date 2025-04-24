@@ -330,7 +330,7 @@ Publishing to the AWS Registry of Open Data is an optional step [publish-odr](#P
 
 1. `get-location`
 2. `stac-setup`
-3. `tile-index-validate` to create a list of output tiles with (both) their source TIFF files
+3. `identify-update-items` to create a list of output tiles with (both) their source TIFF files
 4. `group` to split the list created into grouped tiles for parallel processing
 5. `standardise-validate` to standardise TIFF files and create the STAC items
 6. `create-collection` to create the STAC collection
@@ -340,9 +340,9 @@ Publishing to the AWS Registry of Open Data is an optional step [publish-odr](#P
 
 ```mermaid
 graph TD
-  A[stac-setup] --> C[tile-index-validate]
+  A[stac-setup] --> C[identify-update-items]
   B[get-location] --> C
-  C --> D[group]
+  C --> |if file-list length > 0|D[group]
   D --> |1..n|E[standardise-validate]
   E --> F[create-config]
   E --> G[create-collection]
