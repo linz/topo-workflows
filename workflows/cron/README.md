@@ -17,7 +17,7 @@ Workflow that validates the STAC metadata by calling the [`stac-validate` argo-t
 
 It does verify that the [STAC links](https://github.com/radiantearth/stac-spec/blob/master/collection-spec/collection-spec.md#link-object) are valid.
 
-- schedule: **every day at 5am**
+- schedule: **Monday to Friday at 3pm**
 
 ### cron-stac-validate-full
 
