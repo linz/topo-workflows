@@ -83,11 +83,6 @@ spec:
         enum:
           - 'false'
           - 'true'
-      - name: create_capture_dates
-        value: 'false'
-        enum:
-          - 'false'
-          - 'true'
       - name: gsd
         value: '1'
       - name: scale_to_resolution
@@ -155,8 +150,6 @@ spec:
             default: '{{workflow.parameters.geospatial_category}}'
           - name: create_capture_area
             default: '{{workflow.parameters.create_capture_area}}'
-          - name: create_capture_dates
-            default: '{{workflow.parameters.create_capture_dates}}'
           - name: gsd
             default: '{{workflow.parameters.gsd}}'
           - name: scale_to_resolution
@@ -256,8 +249,6 @@ spec:
                   value: '{{= inputs.parameters.version_topo_imagery}}'
                 - name: create_capture_area
                   value: '{{inputs.parameters.create_capture_area}}'
-                - name: create_capture_dates
-                  value: '{{inputs.parameters.create_capture_dates}}'
                 - name: gsd
                   value: '{{=sprig.trim(inputs.parameters.gsd)}}'
               artifacts:
@@ -292,10 +283,8 @@ spec:
                   value: 'Toitū Te Whenua Land Information New Zealand'
                 - name: licensor
                   value: 'Toitū Te Whenua Land Information New Zealand'
-                - name: create_capture_area
-                  value: '{{inputs.parameters.create_capture_area}}'
                 - name: create_capture_dates
-                  value: '{{inputs.parameters.create_capture_dates}}'
+                  value: 'false'
                 - name: version_topo_imagery
                   value: '{{= inputs.parameters.version_topo_imagery}}'
             depends: 'standardise-validate.Succeeded'

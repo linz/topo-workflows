@@ -41,8 +41,6 @@ spec:
           value: '--force-no-clobber'
         - name: create_capture_area
           value: 'true'
-        - name: capture_area_dates
-          value: 'false'
         - name: gsd
           value: '1'
         - name: scale_to_resolution
@@ -96,3 +94,6 @@ spec:
                     value: '{{workflow.status}}'
                   - name: workflow_parameters
                     value: '{{workflow.parameters}}'
+    volumes:
+      - name: ephemeral
+        emptyDir: {}
