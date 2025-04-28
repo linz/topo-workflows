@@ -47,7 +47,7 @@ The two cron workflows `cron-national-dem-hillshades` and `cron-national-dsm-hil
 - [New Zealand LiDAR 1m DSM Hillshade](https://github.com/linz/elevation/blob/master/stac/new-zealand/new-zealand/dsm-hillshade_1m/2193/collection.json)
 - [New Zealand LiDAR 1m DSM Hillshade - Igor](https://github.com/linz/elevation/blob/master/stac/new-zealand/new-zealand/dsm-hillshade-igor_1m/2193/collection.json)
 
-- schedule: **Monday to Friday at 12:30pm**
+- schedule: **Monday to Friday at 9:30am**
 
 ## National Merged Hillshades
 
@@ -58,4 +58,4 @@ The two cron workflows `cron-national-merged-[dem/dsm]-hillshades` run on a dail
 - [New Zealand DSM Hillshade](https://github.com/linz/elevation/blob/master/stac/new-zealand/new-zealand/dsm-hillshade/2193/collection.json)
 - [New Zealand DSM Hillshade - Igor](https://github.com/linz/elevation/blob/master/stac/new-zealand/new-zealand/dsm-hillshade-igor/2193/collection.json)
 
-- schedule: **Monday to Friday at 3:00pm**
+- schedule: **Monday to Friday at 12:30pm**
