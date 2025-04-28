@@ -41,8 +41,6 @@ spec:
           value: '--force-no-clobber'
         - name: create_capture_area
           value: 'true'
-        - name: create_capture_dates
-          value: 'false'
         - name: gsd
           value: '1'
         - name: scale_to_resolution
