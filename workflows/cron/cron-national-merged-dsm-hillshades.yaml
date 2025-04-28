@@ -41,7 +41,7 @@ spec:
           value: '--force-no-clobber'
         - name: create_capture_area
           value: 'true'
-        - name: capture_area_dates
+        - name: create_capture_dates
           value: 'false'
         - name: gsd
           value: '1'
