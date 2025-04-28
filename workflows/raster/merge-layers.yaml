@@ -271,6 +271,8 @@ spec:
                   value: '{{=sprig.trimSuffix("/", tasks["get-location"].outputs.parameters.location)}}/{{inputs.parameters.geospatial_category}}/flat/'
                 - name: current_datetime
                   value: '{{tasks.stac-setup.finishedAt}}'
+                - name: odr_url
+                  value: '{{=sprig.trim(inputs.parameters.odr_url)}}'
                 - name: category
                   value: '{{inputs.parameters.geospatial_category}}'
                 - name: region
@@ -285,6 +287,8 @@ spec:
                   value: 'Toitū Te Whenua Land Information New Zealand'
                 - name: create_capture_dates
                   value: 'false'
+                - name: keep_title
+                  value: 'true'
                 - name: version_topo_imagery
                   value: '{{= inputs.parameters.version_topo_imagery}}'
             depends: 'standardise-validate.Succeeded'
