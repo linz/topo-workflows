@@ -294,9 +294,9 @@ export class LinzEksCluster extends Stack {
      * While those are public buckets, we still need to give permission to Argo
      * as the `--no-sign-request` is not handled in the code.
      */
-    Bucket.fromBucketName(this, 'OdrNzImagery', 'nz-imagery').grantRead(argoRunnerSa.role);
-    Bucket.fromBucketName(this, 'OdrNzElevation', 'nz-elevation').grantRead(argoRunnerSa.role);
     Bucket.fromBucketName(this, 'OdrNzCoastal', 'nz-coastal').grantRead(argoRunnerSa.role);
+    Bucket.fromBucketName(this, 'OdrNzElevation', 'nz-elevation').grantRead(argoRunnerSa.role);
+    Bucket.fromBucketName(this, 'OdrNzImagery', 'nz-imagery').grantRead(argoRunnerSa.role);
     Bucket.fromBucketName(this, 'OdrNzTopography', 'nz-topography').grantRead(argoRunnerSa.role);
   }
 }
