@@ -296,5 +296,7 @@ export class LinzEksCluster extends Stack {
      */
     Bucket.fromBucketName(this, 'OdrNzImagery', 'nz-imagery').grantRead(argoRunnerSa.role);
     Bucket.fromBucketName(this, 'OdrNzElevation', 'nz-elevation').grantRead(argoRunnerSa.role);
+    Bucket.fromBucketName(this, 'OdrNzCoastal', 'nz-coastal').grantRead(argoRunnerSa.role);
+    Bucket.fromBucketName(this, 'OdrNzTopography', 'nz-topography').grantRead(argoRunnerSa.role);
   }
 }
