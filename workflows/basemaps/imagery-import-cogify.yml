@@ -150,7 +150,7 @@ spec:
 
       - name: cutline
         description: Path to cutline to apply
-        value: 's3://linz-basemaps-source/cutline/2020-05-07-cutline-nz-coasts-rural-and-urban.geojson'
+        value: 's3://linz-basemaps-source/cutline/2025-04-30-cutline-nz-coasts-rural-and-urban.geojson'
 
       - name: cutline_blend
         description: Blending to use for cutline see gdal_translate#cblend
