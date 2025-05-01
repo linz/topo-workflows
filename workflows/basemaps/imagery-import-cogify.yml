@@ -347,11 +347,12 @@ spec:
         resources:
           requests:
             memory: 2Gi
-        command: [node, /app/node_modules/@basemaps/cogify/dist/index.cjs]
+        command: [node, index.cjs]
         env:
           - name: AWS_ROLE_CONFIG_PATH
             value: s3://linz-bucket-config/config.basemaps.json
         args:
+          - 'cogify'
           - 'cover'
           - '--preset={{ inputs.parameters.preset }}'
           - '--tile-matrix={{ inputs.parameters.tile_matrix }}'
@@ -395,11 +396,12 @@ spec:
             cpu: 15000m # AWS gives 2x cpu cores = memory for most instances
             ephemeral-storage: 98Gi # 2 pods per 200GB of storage
         image: ghcr.io/linz/basemaps/cli:{{ workflow.parameters.version_basemaps_cli }}
-        command: [node, /app/node_modules/@basemaps/cogify/dist/index.cjs]
+        command: [node, index.cjs]
         env:
           - name: AWS_ROLE_CONFIG_PATH
             value: s3://linz-bucket-config/config.basemaps.json
         args:
+          - 'cogify'
           - 'create'
           - '--from-file={{= inputs.artifacts.covering_grouped.path }}{{inputs.parameters.covering_grouped_id}}.json'
           - '--concurrency=2'
@@ -412,12 +414,13 @@ spec:
             description: Location of the imagery to create config for
       container:
         image: ghcr.io/linz/basemaps/cli:{{ workflow.parameters.version_basemaps_cli }}
-        command: [node, /app/node_modules/@basemaps/cogify/dist/index.cjs]
+        command: [node, index.cjs]
         env:
           - name: AWS_ROLE_CONFIG_PATH
             value: s3://linz-bucket-config/config.basemaps.json
         args:
           - 'config'
+          - 'create-config'
           - '{{ inputs.parameters.path }}'
       outputs:
         parameters:
