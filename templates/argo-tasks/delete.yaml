@@ -32,7 +32,7 @@ spec:
 
           - name: aws_role_config_path
             description: s3 URL or comma-separated list of s3 URLs allowing the workflow to write to a target(s)
-            default: 's3://linz-bucket-config/config-write.imagery.json,s3://linz-bucket-config/config-write.elevation.json,s3://linz-bucket-config/config-write.topographic.json'
+            default: ''
 
       container:
         image: '019359803926.dkr.ecr.ap-southeast-2.amazonaws.com/argo-tasks:{{=sprig.trim(workflow.parameters.version_argo_tasks)}}'
@@ -42,7 +42,7 @@ spec:
             cpu: 2000m # TODO: to review
         env:
           - name: AWS_ROLE_CONFIG_PATH
-            value: '{{inputs.parameters.aws_role_config_path}},s3://linz-bucket-config/config.json'
+            value: '{{inputs.parameters.aws_role_config_path}}'
         args:
           - 'delete'
           - '--dry-run={{inputs.parameters.dry_run}}'
