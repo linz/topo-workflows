@@ -170,6 +170,8 @@ Delete the `source` entries in a manifest file.
         value: 'false'
       - name: file
         value: '{{item}}'
+      - name: aws_role_config_path
+        value: 's3://linz-bucket-config/config-write.topographic.json'
       - name: version_argo_tasks
         value: '{{workflow.parameters.version_argo_tasks}}'
   depends: 'create-manifest'
