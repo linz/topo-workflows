@@ -1,5 +1,6 @@
 # Contents:
 
+- [archive](#archive)
 - [Standardising](#Standardising)
 - [copy](#copy)
 - [publish-odr](#Publish-odr)
@@ -7,6 +8,73 @@
 - [Merge Layers](#merge-layers)
 - [Hillshade](#hillshade)
 - [tests](#Tests)
+
+# Archive
+
+## Workflow Description
+
+Archive files from one of the S3 buckets (for example `linz-*-upload`) to a long term archive bucket (S3 Glacier Deep Archive). This workflow is intended to be used after files in a source folder have been processed and not needed for any future update.
+
+### Options of archives location
+
+A.
+
+- source:`s3://linz-topographic-upload/[PROVIDER]/[SURVEY]/[PRODUCT]/`
+
+  target: `s3://linz-topographic-archive/[PROVIDER]/[SURVEY]/[PRODUCT]/[VERSION]/`
+
+Example: `s3://linz-topographic-upload/[PROVIDER]/[SURVEY]/`
+
+```text
+s3://linz-topographic-archive/[PROVIDER]/[SURVEY]/[PRODUCT_A]/[VERSION_1]/
+                                                 /[PRODUCT_B]/[VERSION_1]/
+                                                             /[VERSION_2]/
+```
+
+This option allows a better browsing experience to see what data exists under the survey but makes it more difficult for restoring everything for a specific version as the user (or system) has to determine each path of the version.
+
+B.
+
+- source: `s3://linz-topographic-upload/[PROVIDER]/[SURVEY]/[PRODUCT]/`
+
+  target: `s3://linz-topographic-archive/[PROVIDER]/[SURVEY]/[VERSION]/[PRODUCT]/`
+
+- source: `s3://linz-topographic-upload/[PROVIDER]/[SURVEY]/`
+
+  target: `s3://linz-topographic-archive/[PROVIDER]/[SURVEY]/[VERSION]/`
+
+Example: `s3://linz-topographic-upload/[PROVIDER]/[SURVEY]/`
+
+```text
+s3://linz-topographic-archive/[PROVIDER]/[SURVEY]/[VERSION_1]/[PRODUCT_A]/
+                                                             /[PRODUCT_B]/
+                                                 /[VERSION_2]/[PRODUCT_B]/
+```
+
+This option allows the user to see what data exists at a certain point in time (version) to restore everything under a specific version folder in a single "restore" workflow. Or a specific sub-folder of a specific version.
+
+```mermaid
+graph TD;
+  create-manifest-->archive;
+```
+
+This is a workflow that uses the [argo-tasks](https://github.com/linz/argo-tasks#create-manifest) container `create-manifest` (list of source and target file paths) and `copy` (the actual file copy) commands with `--compress` and `--delete-source` options.
+
+Access permissions are controlled by the [Bucket Sharing Config](https://github.com/linz/topo-aws-infrastructure/blob/master/src/stacks/bucket.sharing.ts) which gives Argo Workflows access to the S3 buckets we use.
+
+## Workflow Input Parameters
+
+| Parameter            | Type  | Default                                                                                                                                                       | Description                                                                                                                                                      |
+| -------------------- | ----- | ------------------------------------------------------------------------------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| user_group           | enum  | none                                                                                                                                                          | Group of users running the workflow                                                                                                                              |
+| ticket               | str   |                                                                                                                                                               | Ticket ID e.g. 'AIP-55'                                                                                                                                          |
+| source               | str   | s3://linz-imagery-staging/test/sample/                                                                                                                        | The URIs (paths) to the s3 source location. Separate multiple source paths with `;`                                                                              |
+| include              | regex | \\.tiff?\$\|\\.json\$\|\\.tfw\$\|/capture-area\\.geojson\$\|/capture-area\\.geojson\$                                                                         | A regular expression to match object path(s) or name(s) from within the source path to include in the copy.                                                      |
+| exclude              | regex |                                                                                                                                                               | A regular expression to match object path(s) or name(s) from within the source path to exclude from the copy.                                                    |
+| group                | int   | 1000                                                                                                                                                          | The maximum number of files for each pod to copy (will use the value of `group` or `group_size` that is reached first).                                          |
+| group_size           | str   | 100Gi                                                                                                                                                         | The maximum group size of files for each pod to copy (will use the value of `group` or `group_size` that is reached first).                                      |
+| transform            | str   | `f`                                                                                                                                                           | String to be transformed from source to target to renamed filenames, e.g. `f.replace("text to replace", "new_text_to_use")`. Leave as `f` for no transformation. |
+| aws_role_config_path | str   | `s3://linz-bucket-config/config-write.elevation.json,s3://linz-bucket-config/config-write.imagery.json,s3://linz-bucket-config/config-write.topographic.json` | s3 URL or comma-separated list of s3 URLs allowing the workflow to write to a target(s).                                                                         |
 
 # Standardising
 
