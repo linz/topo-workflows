@@ -31,7 +31,7 @@ s3://linz-topographic-archive/[PROVIDER]/[SURVEY]/[PRODUCT_A]/[VERSION_1]/
                                                              /[VERSION_2]/
 ```
 
-This option allows a better browsing experience to see what data exists under the survey but makes it more difficult for restoring everything for a specific version as the user (or system) has to determine each path of the version.
+This option allows the user to see what data exists under the survey but makes it more difficult for restoring everything for a specific version as the user (or system) has to determine each path of the version.
 
 B.
 
