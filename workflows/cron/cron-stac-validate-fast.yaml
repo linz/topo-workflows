@@ -54,6 +54,7 @@ spec:
                     value: '{{workflow.parameters.checksum_assets}}'
                   - name: 'checksum_links'
                     value: '{{workflow.parameters.checksum_links}}'
+            # TODO: add STAC validation and update STAC validation README for nz-coastal datasets when bucket contains data
       - name: exit-handler
         retryStrategy:
           limit: '0' # `tpl-exit-handler` retries itself
