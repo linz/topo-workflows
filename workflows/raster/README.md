@@ -15,47 +15,17 @@
 
 Archive files from one of the S3 buckets (for example `linz-*-upload`) to a long term archive bucket (S3 Glacier Deep Archive). This workflow is intended to be used after files in a source folder have been processed and not needed for any future update.
 
-### Options of archives location
+1. Create a manifest of file to be archived from the source location (example: `s3://linz-topographic-upload/[PROVIDER]/[SURVEY]/`)
+2. Compress each file listed in the manifest and check if the compression is worthwhile (very small files may have a bigger size after compression)
+3. Copy the compressed (or original if smaller) file to the archive bucket (example: `s3://topographic-archive/[PROVIDER]/[SURVEY]/`)
+4. Ensure a new version is stored if a file already exists in the archive (this is managed by AWS S3 versioning)
+5. Delete the original files that have been archived
 
-A.
-
-- source:`s3://linz-topographic-upload/[PROVIDER]/[SURVEY]/[PRODUCT]/`
-
-  target: `s3://linz-topographic-archive/[PROVIDER]/[SURVEY]/[PRODUCT]/[VERSION]/`
-
-Example: `s3://linz-topographic-upload/[PROVIDER]/[SURVEY]/`
-
-```text
-s3://linz-topographic-archive/[PROVIDER]/[SURVEY]/[PRODUCT_A]/[VERSION_1]/
-                                                 /[PRODUCT_B]/[VERSION_1]/
-                                                             /[VERSION_2]/
-```
-
-This option allows the user to see what data exists under the survey but makes it more difficult for restoring everything for a specific version as the user (or system) has to determine each path of the version.
-
-B.
-
-- source: `s3://linz-topographic-upload/[PROVIDER]/[SURVEY]/[PRODUCT]/`
-
-  target: `s3://linz-topographic-archive/[PROVIDER]/[SURVEY]/[VERSION]/[PRODUCT]/`
-
-- source: `s3://linz-topographic-upload/[PROVIDER]/[SURVEY]/`
-
-  target: `s3://linz-topographic-archive/[PROVIDER]/[SURVEY]/[VERSION]/`
-
-Example: `s3://linz-topographic-upload/[PROVIDER]/[SURVEY]/`
-
-```text
-s3://linz-topographic-archive/[PROVIDER]/[SURVEY]/[VERSION_1]/[PRODUCT_A]/
-                                                             /[PRODUCT_B]/
-                                                 /[VERSION_2]/[PRODUCT_B]/
-```
-
-This option allows the user to see what data exists at a certain point in time (version) to restore everything under a specific version folder in a single "restore" workflow. Or a specific sub-folder of a specific version.
+##
 
 ```mermaid
 graph TD;
-  create-manifest-->archive;
+  create-manifest-->copy;
 ```
 
 This is a workflow that uses the [argo-tasks](https://github.com/linz/argo-tasks#create-manifest) container `create-manifest` (list of source and target file paths) and `copy` (the actual file copy) commands with `--compress` and `--delete-source` options.
