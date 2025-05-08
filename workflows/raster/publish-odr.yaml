@@ -69,8 +69,9 @@ spec:
         description: 'The ODR bucket name to publish to'
         value: ''
         enum:
-          - 'nz-elevation'
+          - ''
           - 'nz-imagery'
+          - 'nz-elevation'
           - 'nz-coastal'
           - ''
       - name: copy_option
