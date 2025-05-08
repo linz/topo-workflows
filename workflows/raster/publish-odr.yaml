@@ -71,6 +71,7 @@ spec:
         enum:
           - 'nz-elevation'
           - 'nz-imagery'
+          - 'nz-coastal'
           - ''
       - name: copy_option
         description: 'Do not overwrite existing files with "no-clobber", or "force" overwriting files in the target location'
