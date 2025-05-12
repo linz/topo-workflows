@@ -31,6 +31,20 @@ spec:
               - '--force'
               - '--force-no-clobber'
 
+          - name: compress
+            description: Compress the files in their target location
+            default: 'false'
+            enum:
+              - 'true'
+              - 'false'
+
+          - name: delete_source
+            description: Delete the source files after copying
+            default: 'false'
+            enum:
+              - 'true'
+              - 'false'
+
           - name: aws_role_config_path
             description: s3 URL or comma-separated list of s3 URLs allowing the workflow to write to a target(s)
             default: 's3://linz-bucket-config/config-write.imagery.json,s3://linz-bucket-config/config-write.elevation.json,s3://linz-bucket-config/config-write.topographic.json'
@@ -44,4 +58,9 @@ spec:
         env:
           - name: AWS_ROLE_CONFIG_PATH
             value: '{{inputs.parameters.aws_role_config_path}},s3://linz-bucket-config/config.json'
-        args: ['copy', '{{inputs.parameters.copy_option}}', '{{inputs.parameters.file}}']
+        args: 
+         - 'copy'
+         - '{{inputs.parameters.copy_option}}'
+         - '{{inputs.parameters.file}}'
+         - '--compress={{inputs.parameters.compress}}'
+         - '--delete-source={{inputs.parameters.delete_source}}'

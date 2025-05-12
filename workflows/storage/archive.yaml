@@ -1,0 +1,138 @@
+# yaml-language-server: $schema=https://raw.githubusercontent.com/argoproj/argo-workflows/v3.5.5/api/jsonschema/schema.json
+
+apiVersion: argoproj.io/v1alpha1
+kind: WorkflowTemplate
+metadata:
+  name: archive
+
+spec:
+  parallelism: 50
+  nodeSelector:
+    karpenter.sh/capacity-type: 'spot'
+  entrypoint: main
+  onExit: exit-handler
+  workflowMetadata:
+    labelsFrom:
+      linz.govt.nz/user-group:
+        expression: workflow.parameters.user_group
+      linz.govt.nz/ticket:
+        expression: workflow.parameters.ticket
+  podMetadata:
+    labels:
+      linz.govt.nz/user-group: '{{workflow.parameters.user_group}}'
+      linz.govt.nz/category: storage
+      linz.govt.nz/ticket: '{{workflow.parameters.ticket}}'
+  arguments:
+    parameters:
+      - name: version_argo_tasks
+        value: 'v4'
+      - name: user_group
+        description: Group of users running the workflow
+        value: 'none'
+        enum:
+          - 'land'
+          - 'sea'
+          - 'none'
+      - name: ticket
+        description: Ticket ID e.g. 'AIP-55'
+        value: ''
+      - name: source
+        value: 's3://linz-imagery-staging/test/sample/'
+      - name: target
+        value: 's3://linz-imagery-staging/test/sample_target/'
+      - name: include
+        value: '\.tiff?$|\.json$|\.tfw$|/capture-area\.geojson$|/capture-dates\.geojson$'
+      - name: exclude
+        value: ''
+      - name: copy_option
+        value: '--no-clobber'
+        enum:
+          - '--no-clobber'
+          - '--force'
+          - '--force-no-clobber'
+      - name: group
+        value: '1000'
+      - name: group_size
+        value: '100Gi'
+      - name: transform
+        value: 'f'
+      - name: aws_role_config_path
+        description: s3 URL or comma-separated list of s3 URLs allowing the workflow to write to a target(s)
+        value: 's3://linz-bucket-config/config-write.topographic.json, s3://linz-bucket-config/config-write.hydrographic.json'
+  templateDefaults:
+    container:
+      imagePullPolicy: Always
+      image: ''
+
+  templates:
+    - name: main
+      retryStrategy:
+        expression: 'false'
+      inputs:
+        parameters:
+          - name: source
+          - name: target
+          - name: include
+          - name: exclude
+          - name: group
+          - name: group_size
+      dag:
+        tasks:
+          - name: create-manifest
+            templateRef:
+              name: tpl-create-manifest
+              template: main
+            arguments:
+              parameters:
+                - name: source
+                  value: '{{inputs.parameters.source}}'
+                - name: target
+                  value: '{{inputs.parameters.target}}'
+                - name: include
+                  value: '{{inputs.parameters.include}}'
+                - name: exclude
+                  value: '{{inputs.parameters.exclude}}'
+                - name: flatten
+                  value: '{{inputs.parameters.flatten}}'
+                - name: group
+                  value: '{{inputs.parameters.group}}'
+                - name: group_size
+                  value: '{{inputs.parameters.group_size}}'
+                - name: version_argo_tasks
+                  value: '{{workflow.parameters.version_argo_tasks}}'
+
+          - name: archive
+            templateRef:
+              name: tpl-copy
+              template: main
+            arguments:
+              parameters:
+                - name: copy_option
+                  value: '{{workflow.parameters.copy_option}}'
+                - name: file
+                  value: '{{item}}'
+                - name: compress
+                  value: 'true'
+                - name: delete_source
+                  value: 'true
+                - name: version_argo_tasks
+                  value: '{{workflow.parameters.version_argo_tasks}}'
+                - name: aws_role_config_path
+                  value: '{{workflow.parameters.aws_role_config_path}}'
+            depends: 'create-manifest'
+            withParam: '{{tasks.create-manifest.outputs.parameters.files}}'
+
+    - name: exit-handler
+      retryStrategy:
+        limit: '0' # `tpl-exit-handler` retries itself
+      steps:
+        - - name: exit
+            templateRef:
+              name: tpl-exit-handler
+              template: main
+            arguments:
+              parameters:
+                - name: workflow_status
+                  value: '{{workflow.status}}'
+                - name: workflow_parameters
+                  value: '{{workflow.parameters}}'
