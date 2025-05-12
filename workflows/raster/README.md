@@ -19,7 +19,7 @@ Archive files from one of the S3 buckets (for example `linz-*-upload`) to a long
 2. Compress each file listed in the manifest and check if the compression is worthwhile (very small files may have a bigger size after compression)
 3. Copy the compressed (or original if smaller) file to the archive bucket (example: `s3://topographic-archive/[PROVIDER]/[SURVEY]/`)
 4. Ensure a new version is stored if a file already exists in the archive (this is managed by AWS S3 versioning)
-5. Delete the original files that have been archived
+5. Delete the original files that have been archived. The original files will be still available for retrieval for the next 90 days after deletion.
 
 ##
 
