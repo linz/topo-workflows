@@ -78,6 +78,7 @@ spec:
                     value: '{{workflow.parameters.recursive}}'
                   - name: 'concurrency'
                     value: '{{workflow.parameters.concurrency}}'
+      # TODO: add STAC validation and update STAC validation README for nz-coastal datasets when bucket contains data
       - name: exit-handler
         retryStrategy:
           limit: '0' # `tpl-exit-handler` retries itself
