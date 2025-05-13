@@ -30,8 +30,8 @@ spec:
         description: 'Specify a version of the argo-tasks image to use, e.g. "v4.1" or "latest"'
         value: 'v4'
       - name: version_basemaps_cli
-        description: 'Specify a version of the basemaps-cli image to use, e.g. "v7.1" or "latest"'
-        value: 'v7'
+        description: 'Specify a version of the basemaps-cli image to use, e.g. "v8" or "latest"'
+        value: 'v8'
       - name: version_topo_imagery
         description: 'Specify a version of the topo-imagery image to use, e.g. "v4.8" or "latest"'
         value: 'v7'
@@ -343,12 +343,13 @@ spec:
           - name: key
       container:
         image: 'ghcr.io/linz/basemaps/cli:{{=sprig.trim(workflow.parameters.version_basemaps_cli)}}'
-        command: [node, /app/node_modules/@basemaps/cogify/dist/index.cjs]
+        command: [node, index.cjs]
         env:
           - name: AWS_ROLE_CONFIG_PATH
             value: s3://linz-bucket-config/config.basemaps.json
         args:
           - 'config'
+          - 'create-config'
           - '{{=sprig.trimSuffix("/", inputs.parameters.location)}}/flat/'
       outputs:
         parameters:
