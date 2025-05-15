@@ -1,4 +1,4 @@
-# Contents:
+# Contents
 
 - [Standardising](#Standardising)
 - [publish-odr](#Publish-odr)
