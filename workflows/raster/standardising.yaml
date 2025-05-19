@@ -3,7 +3,7 @@
 apiVersion: argoproj.io/v1alpha1
 kind: WorkflowTemplate
 metadata:
-  name: imagery-standardising
+  name: test-historical-is
   labels:
     linz.govt.nz/category: raster
     linz.govt.nz/data-type: raster
@@ -368,6 +368,8 @@ spec:
                   value: '{{=sprig.trim(workflow.parameters.geographic_description)}}'
                 - name: geospatial_category
                   value: '{{=sprig.trim(workflow.parameters.category)}}'
+                - name: survey_id
+                  value: '{{=sprig.trim(workflow.parameters.historic_survey_number)}}'
                 - name: odr_url
                   value: '{{=sprig.trim(workflow.parameters.odr_url)}}'
                 - name: version
