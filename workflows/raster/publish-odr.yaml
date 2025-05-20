@@ -73,7 +73,6 @@ spec:
           - 'nz-imagery'
           - 'nz-elevation'
           - 'nz-coastal'
-          - ''
       - name: copy_option
         description: 'Do not overwrite existing files with "no-clobber", or "force" overwriting files in the target location'
         value: '--no-clobber'
