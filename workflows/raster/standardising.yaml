@@ -3,7 +3,7 @@
 apiVersion: argoproj.io/v1alpha1
 kind: WorkflowTemplate
 metadata:
-  name: test-historical-is
+  name: imagery-standardising
   labels:
     linz.govt.nz/category: raster
     linz.govt.nz/data-type: raster
