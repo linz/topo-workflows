@@ -53,10 +53,10 @@ spec:
           - '--end-year={{=sprig.trunc(4, inputs.parameters.end_datetime)}}'
           - '--region={{inputs.parameters.region}}'
           - '--geographic-description={{inputs.parameters.geographic_description}}'
+          - '--survey-id={{inputs.parameters.survey_id}}'
           - '--odr-url={{inputs.parameters.odr_url}}'
           - '--geospatial-category={{inputs.parameters.geospatial_category}}'
           - '--gsd={{inputs.parameters.gsd}}'
-          - '--survey-id={{inputs.parameters.survey_id}}'
       outputs:
         parameters:
           - name: collection_id
