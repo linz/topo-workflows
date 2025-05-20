@@ -31,6 +31,9 @@ spec:
             default: ''
           - name: geospatial_category
             description: 'Geospatial category of the dataset'
+          - name: survey_id
+            description: '(Optional) Survey Number associated with historical datasets, e.g. "SN8844"'
+            default: ''
           - name: odr_url
             description: '(Optional) S3 path to existing dataset collection.json'
             default: ''
@@ -53,6 +56,7 @@ spec:
           - '--odr-url={{inputs.parameters.odr_url}}'
           - '--geospatial-category={{inputs.parameters.geospatial_category}}'
           - '--gsd={{inputs.parameters.gsd}}'
+          - '--survey-id={{inputs.parameters.survey_id}}'
       outputs:
         parameters:
           - name: collection_id
