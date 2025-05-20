@@ -54,7 +54,18 @@ spec:
                     value: '{{workflow.parameters.checksum_assets}}'
                   - name: 'checksum_links'
                     value: '{{workflow.parameters.checksum_links}}'
-            # TODO: add STAC validation and update STAC validation README for nz-coastal datasets when bucket contains data
+            - name: stac-validate-coastal
+              templateRef:
+                name: tpl-at-stac-validate
+                template: main
+              arguments:
+                parameters:
+                  - name: 'uri'
+                    value: 's3://nz-coastal/catalog.json'
+                  - name: 'checksum_assets'
+                    value: '{{workflow.parameters.checksum_assets}}'
+                  - name: 'checksum_links'
+                    value: '{{workflow.parameters.checksum_links}}'
       - name: exit-handler
         retryStrategy:
           limit: '0' # `tpl-exit-handler` retries itself
