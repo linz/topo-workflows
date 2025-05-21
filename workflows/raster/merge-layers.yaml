@@ -112,6 +112,7 @@ spec:
         enum:
           - 'nz-imagery'
           - 'nz-elevation'
+          - 'nz-coastal'
       - name: region
         value: 'new-zealand'
       - name: gdal_compression_preset

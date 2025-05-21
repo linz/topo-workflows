@@ -170,6 +170,7 @@ spec:
             'GeoSmart',
             'Landpro',
             'Maxar',
+            'NV5',
             'NZ Aerial Mapping',
             'Ocean Infinity',
             'Recon',
@@ -329,7 +330,7 @@ spec:
           - ''
           - 'nz-imagery'
           - 'nz-elevation'
-          - ''
+          - 'nz-coastal'
       - name: copy_option
         description: 'Do not overwrite existing files with "no-clobber", "force" overwriting files in the target location, or "force-no-clobber" overwriting only changed files, skipping unchanged files'
         value: '--no-clobber'
