@@ -13,7 +13,7 @@ args:
   - "{{= sprig.empty(inputs.parameters.start_datetime) ? '' : '--start-year=' + sprig.trunc(4, inputs.parameters.start_datetime) }}"
 ```
 
-Will result to not passing `--start-year` at all if `inputs.parameters.start_datetime` is empty
+Will result to not passing `--start-year` at all if `inputs.parameters.start_datetime` is empty.
 
 #### Bad
 
