@@ -1,0 +1,39 @@
+# yaml-language-server: $schema=https://raw.githubusercontent.com/argoproj/argo-workflows/v3.5.5/api/jsonschema/schema.json
+
+apiVersion: argoproj.io/v1alpha1
+kind: WorkflowTemplate
+metadata:
+  # Template from linz/argo-tasks
+  # see https://github.com/linz/argo-tasks#archive-setup
+  name: tpl-at-archive-setup
+spec:
+  templateDefaults:
+    container:
+      imagePullPolicy: Always
+      image: ''
+  entrypoint: main
+  templates:
+    - name: main
+      inputs:
+        parameters:
+          - name: source
+            description: 'S3 path to the files to be archived'
+            default: ''
+          - name: version
+            description: 'argo-task Container version to use'
+            default: 'v4'
+
+      container:
+        image: '019359803926.dkr.ecr.ap-southeast-2.amazonaws.com/argo-tasks:{{=inputs.parameters.version}}'
+        env:
+          - name: AWS_ROLE_CONFIG_PATH
+            value: s3://linz-bucket-config/config.json
+        args:
+          - 'archive-setup'
+          - '{{inputs.parameters.source}}'
+      outputs:
+        parameters:
+          - name: archive_location
+            description: Location to use to archive the source files
+            valueFrom:
+              path: '/tmp/archive-setup/archive-location'
