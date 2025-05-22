@@ -148,6 +148,28 @@ Unless a different location is specified within the workflow code, output files 
 
 Note: This bucket has a 90 day expiration lifecycle.
 
+## Running a pod on a specific node
+
+### List the nodes
+
+```shell
+kubectl get node -n argo
+ip-12-345-67-890.ap-southeast-2.compute.internal    Ready    <none>   227d   v1.30.1-eks-e564799
+ip-98-765-43-210.ap-southeast-2.compute.internal    Ready    <none>   227d   v1.30.1-eks-e564799
+```
+
+### Force pod to run on the node
+
+In the template, use the nodeSelector to specify a node to run in:
+
+```yaml
+- name: my-template
+  nodeSelector:
+    kubernetes.io/hostname: ip-98-765-43-210.ap-southeast-2.compute.internal
+```
+
+See the `workflows/test/sleep.yml` workflow for an example.
+
 ## Connecting to a Container
 
 List pods:

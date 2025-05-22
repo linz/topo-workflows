@@ -15,6 +15,8 @@ spec:
     - name: sleep
       nodeSelector:
         karpenter.sh/capacity-type: 'on-demand'
+        # if needing to run pod on a specific node, use the following
+        # kubernetes.io/hostname: example.ap-southeast-2.compute.internal
       tolerations:
         - key: 'karpenter.sh/capacity-type'
           operator: 'Equal'
