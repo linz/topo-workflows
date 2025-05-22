@@ -134,12 +134,12 @@ data.title : "Wellington Urban Aerial Photos (1987-1988) SN8790" and data.url : 
 
 ### Workflow Artifacts
 
-All workflow outputs and logs are stored in the artifacts bucket, in the `linz-workflow-artifacts` bucket on the `li-topo-prod` account.
+All workflow outputs and logs are stored in the artifacts bucket, in the `linz-workflows-scratch` bucket on the `li-topo-prod` account.
 
 All outputs follow the same naming convention:
 
 ```
-s3://linz-workflow-artifacts/YYYY-mm/dd-workflow.name/pod.name/
+s3://linz-workflows-scratch/YYYY-mm/dd-workflow.name/pod.name/
 ```
 
 For each pod the logs are saved as a `main.log` file within the related `pod.name` prefix.
@@ -197,7 +197,7 @@ Once inside the container you can run a number of commands.
 For example, if trouble shooting network issues, you could run the following:
 
 ```bash
-mtr linz-workflow-artifacts.s3.ap-southeast-2.amazonaws.com
+mtr linz-workflows-scratch.s3.ap-southeast-2.amazonaws.com
 ```
 
 ```bash
@@ -205,7 +205,7 @@ mtr sts.ap-southeast-2.amazonaws.com
 ```
 
 ```bash
-watch --errexit nslookup linz-workflow-artifacts.s3.ap-southeast-2.amazonaws.com
+watch --errexit nslookup linz-workflows-scratch.s3.ap-southeast-2.amazonaws.com
 ```
 
 ## Concurrency

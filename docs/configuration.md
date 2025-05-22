@@ -25,7 +25,7 @@ This document describes the settings that can be applied to Argo Workflows in ge
 
 Argo Workflows allows users to define a series of tasks to be carried out, where each task specifies code to be run, often in parallel. Tasks have inputs and outputs which are managed by Argo so that information can be passed along a workflow between tasks.
 
-Each task runs inside a container, which runs on an Argo “pod”. The Topo Argo Workflows is installed on the AWS Elastic Kubernetes Service (EKS), and pods run on AWS Elastic Computer Cloud (EC2) Spot Instances (providing the best value for money). Multiple pods can run on each EC2 instance at the same time. Output “artifacts” (e.g. processed files, configuration to be used later) and logs are stored in the S3 bucket: `linz-workflow-artifacts`.
+Each task runs inside a container, which runs on an Argo “pod”. The Topo Argo Workflows is installed on the AWS Elastic Kubernetes Service (EKS), and pods run on AWS Elastic Computer Cloud (EC2) Spot Instances (providing the best value for money). Multiple pods can run on each EC2 instance at the same time. Output “artifacts” (e.g. processed files, configuration to be used later) and logs are stored in the S3 bucket: `linz-workflows-scratch`.
 
 Requesting EC2 instances is done by the Karpenter Autoscaler, based on the resource requirements of the workflow.
 
