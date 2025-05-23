@@ -7,6 +7,10 @@ metadata:
   labels:
     linz.govt.nz/category: test
 spec:
+  templateDefaults:
+    container:
+      imagePullPolicy: Always
+      image: ''
   entrypoint: sleep
   podMetadata:
     labels:
@@ -14,16 +18,18 @@ spec:
   templates:
     - name: sleep
       nodeSelector:
-        karpenter.sh/capacity-type: 'on-demand'
-      tolerations:
-        - key: 'karpenter.sh/capacity-type'
-          operator: 'Equal'
-          value: 'on-demand'
-          effect: 'NoSchedule'
+        kubernetes.io/hostname: ip-10-161-39-85.ap-southeast-2.compute.internal
+      # nodeSelector:
+      #   karpenter.sh/capacity-type: 'on-demand'
+      # tolerations:
+      #   - key: 'karpenter.sh/capacity-type'
+      #     operator: 'Equal'
+      #     value: 'on-demand'
+      #     effect: 'NoSchedule'
       container:
         resources:
           requests:
-            memory: 3.9Gi
-            cpu: 2000m
-        image: 019359803926.dkr.ecr.ap-southeast-2.amazonaws.com/argo-tasks:latest
+            memory: 100Mi
+            cpu: 10m
+        image: 019359803926.dkr.ecr.ap-southeast-2.amazonaws.com/argo-tasks:v4
         command: ['sleep', '3600']

@@ -8,16 +8,19 @@ import { FluentBit } from './charts/fluentbit.js';
 import { Karpenter, KarpenterProvisioner } from './charts/karpenter.js';
 import { CoreDns } from './charts/kube-system.coredns.js';
 import { NodeLocalDns } from './charts/kube-system.node.local.dns.js';
-import { CfnOutputKeys, ClusterName, ScratchBucketName, UseNodeLocalDns, validateKeys } from './constants.js';
+import { CfnOutputKeys, getClusterName, validateKeys } from './constants.js';
 import { describeCluster, getCfnOutputs } from './util/cloud.formation.js';
 import { fetchSsmParameters } from './util/ssm.js';
 
 const app = new App();
 
 async function main(): Promise<void> {
+  const noNodeLocalDns = app.node.tryGetContext('no-node-local-dns') === 'true';
+  const clusterName = getClusterName(app.node.tryGetContext('cluster-suffix'));
+
   // Get cloudformation outputs
   const [cfnOutputs, ssmConfig, clusterConfig] = await Promise.all([
-    getCfnOutputs(ClusterName),
+    getCfnOutputs(clusterName),
     fetchSsmParameters({
       // Config for Cloudflared to access argo-server
       tunnelId: '/eks/cloudflared/argo/tunnelId',
@@ -31,7 +34,7 @@ async function main(): Promise<void> {
       // Argo Database connection password
       argoDbPassword: '/eks/argo/postgres/password',
     }),
-    describeCluster(ClusterName),
+    describeCluster(clusterName),
   ]);
   validateKeys(cfnOutputs);
 
@@ -39,7 +42,8 @@ async function main(): Promise<void> {
 
   // Node localDNS is very expermential in this cluster, it can and will break DNS resolution
   // If there are any issues with DNS, NodeLocalDNS should be disabled first.
-  if (UseNodeLocalDns) {
+  // `--context=no-node-local-dns=true`
+  if (noNodeLocalDns === false) {
     const ipv6Cidr = clusterConfig.kubernetesNetworkConfig?.serviceIpv6Cidr;
     if (ipv6Cidr == null) throw new Error('Unable to use node-local-dns without ipv6Cidr');
     const nodeLocal = new NodeLocalDns(app, 'node-local-dns', { serviceIpv6Cidr: ipv6Cidr });
@@ -48,12 +52,12 @@ async function main(): Promise<void> {
 
   const fluentbit = new FluentBit(app, 'fluentbit', {
     saName: cfnOutputs[CfnOutputKeys.FluentBitServiceAccountName],
-    clusterName: ClusterName,
+    clusterName: clusterName,
   });
   fluentbit.addDependency(coredns);
 
   const karpenter = new Karpenter(app, 'karpenter', {
-    clusterName: ClusterName,
+    clusterName: clusterName,
     clusterEndpoint: cfnOutputs[CfnOutputKeys.ClusterEndpoint],
     saName: cfnOutputs[CfnOutputKeys.KarpenterServiceAccountName],
     saRoleArn: cfnOutputs[CfnOutputKeys.KarpenterServiceAccountRoleArn],
@@ -61,7 +65,7 @@ async function main(): Promise<void> {
   });
 
   const karpenterProvisioner = new KarpenterProvisioner(app, 'karpenter-provisioner', {
-    clusterName: ClusterName,
+    clusterName: clusterName,
     clusterEndpoint: cfnOutputs[CfnOutputKeys.ClusterEndpoint],
     saName: cfnOutputs[CfnOutputKeys.KarpenterServiceAccountName],
     saRoleArn: cfnOutputs[CfnOutputKeys.KarpenterServiceAccountRoleArn],
@@ -72,9 +76,11 @@ async function main(): Promise<void> {
 
   new ArgoWorkflows(app, 'argo-workflows', {
     namespace: 'argo',
-    clusterName: ClusterName,
+    clusterName: clusterName,
     saName: cfnOutputs[CfnOutputKeys.ArgoRunnerServiceAccountName],
-    tempBucketName: ScratchBucketName,
+    tempBucketName: cfnOutputs[CfnOutputKeys.ScratchBucketName],
+    argoDbUsername: cfnOutputs[CfnOutputKeys.ArgoDbUsername],
+    argoDbName: cfnOutputs[CfnOutputKeys.ArgoDbName],
     argoDbEndpoint: cfnOutputs[CfnOutputKeys.ArgoDbEndpoint],
     argoDbPassword: ssmConfig.argoDbPassword,
   });

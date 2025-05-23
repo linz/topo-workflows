@@ -2,7 +2,7 @@ import { Chart, ChartProps, Duration, Helm } from 'cdk8s';
 import { Secret } from 'cdk8s-plus-30';
 import { Construct } from 'constructs';
 
-import { ArgoDbName, ArgoDbUser, DefaultRegion } from '../constants.js';
+import { DefaultRegion } from '../constants.js';
 import { applyDefaultLabels } from '../util/labels.js';
 
 export interface ArgoWorkflowsProps {
@@ -12,30 +12,48 @@ export interface ArgoWorkflowsProps {
    * @example "linz-workflows-scratch"
    */
   tempBucketName: string;
+
   /**
    * Name of the Service Account used to run workflows
    *
    * @example "workflow-runner-sa"
    */
   saName: string;
+
   /**
    * Name of the EKS cluster
    *
    * @example "Workflows"
    */
   clusterName: string;
+
   /**
    * The Argo database endpoint
    *
    * @example "argodb-argodb4be14fa2-p8yjinijwbro.cmpyjhgv78aj.ap-southeast-2.rds.amazonaws.com"
    */
-  argoDbEndpoint: string;
+  argoDbEndpoint?: string;
+
   /**
    * The Argo database password
    *
    * @example "eighoo5room0aeM^ahz0Otoh4aakiipo"
    */
   argoDbPassword: string;
+
+  /**
+   * Username to connect to the database
+   *
+   * @example "argo_user"
+   */
+  argoDbUsername: string;
+
+  /**
+   * Database name
+   *
+   * @example "argo"
+   */
+  argoDbName: string;
 }
 
 /**
@@ -72,29 +90,32 @@ export class ArgoWorkflows extends Chart {
       },
     };
 
-    const argoDbSecret = new Secret(this, 'argo-postgres-config', {});
-    argoDbSecret.addStringData('username', ArgoDbUser);
-    argoDbSecret.addStringData('password', props.argoDbPassword);
+    let persistence = undefined;
+    if (props.argoDbEndpoint) {
+      const argoDbSecret = new Secret(this, 'argo-postgres-config', {});
+      argoDbSecret.addStringData('username', props.argoDbUsername);
+      argoDbSecret.addStringData('password', props.argoDbPassword);
 
-    const persistence = {
-      connectionPool: {
-        maxIdleConns: 100,
-        maxOpenConns: 0,
-      },
-      nodeStatusOffLoad: true,
-      archive: true,
-      archiveTTL: '', // never expire archived workflows
-      postgresql: {
-        host: props.argoDbEndpoint,
-        port: 5432,
-        database: ArgoDbName,
-        tableName: 'argo_workflows',
-        userNameSecret: { name: argoDbSecret.name, key: 'username' },
-        passwordSecret: { name: argoDbSecret.name, key: 'password' },
-        ssl: true,
-        sslMode: 'require',
-      },
-    };
+      persistence = {
+        connectionPool: {
+          maxIdleConns: 100,
+          maxOpenConns: 0,
+        },
+        nodeStatusOffLoad: true,
+        archive: true,
+        archiveTTL: '', // never expire archived workflows
+        postgresql: {
+          host: props.argoDbEndpoint,
+          port: 5432,
+          database: props.argoDbName,
+          tableName: 'argo_workflows',
+          userNameSecret: { name: argoDbSecret.name, key: 'username' },
+          passwordSecret: { name: argoDbSecret.name, key: 'password' },
+          ssl: true,
+          sslMode: 'require',
+        },
+      };
+    }
 
     const DefaultNodeSelector = {
       'eks.amazonaws.com/capacityType': 'ON_DEMAND',

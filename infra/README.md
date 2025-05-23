@@ -48,8 +48,17 @@ Then a deployment can be made with `cdk`:
 ci_role="$(aws iam list-roles | jq --raw-output '.Roles[] | select(.RoleName | contains("CiTopo")) | select(.RoleName | contains("-CiRole")).Arn')"
 admin_role="arn:aws:iam::$(aws sts get-caller-identity --query Account --output text):role/AccountAdminRole"
 workflow_maintainer_role="$(aws cloudformation describe-stacks --stack-name=TopographicSharedResourcesProd | jq --raw-output .Stacks[0].Outputs[0].OutputValue)"
+
 npx cdk deploy --context=maintainer-arns="${ci_role},${admin_role},${workflow_maintainer_role}" Workflows
 ```
+
+### Testing Clusters
+
+Sometimes a simpler cluster can be useful for testing, some deployment steps can be turned off
+
+- `cluster-suffix` - EKS cluster names are unique, use a specific cluster
+- `no-database` - Turn off creating RDS database
+- `no-slack` - Turn off creating slack monitoring alerts for RDS
 
 ### Deploy CDK8s
 
