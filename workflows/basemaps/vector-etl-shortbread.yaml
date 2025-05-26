@@ -8,6 +8,7 @@ metadata:
     linz.govt.nz/category: basemaps
     linz.govt.nz/data-type: vector
 spec:
+  parallelism: 20
   entrypoint: main
   onExit: exit-handler
   podMetadata:
@@ -48,7 +49,7 @@ spec:
 
       - name: group_size
         description: Number of layers grouped together, default to 100
-        value: '100'
+        value: '50'
 
       - name: concurrency
         description: Number of layers process in concurrency, default to 20
@@ -84,9 +85,9 @@ spec:
                 - name: input
                   from: '{{ tasks.extract.outputs.artifacts.smallLayers }}'
 
-          - name: create-smallLayers
+          - name: create-small-layers
             depends: 'group'
-            template: create-smallLayers
+            template: create-small-layers
             withParam: '{{ tasks.group.outputs.parameters.output }}'
             arguments:
               parameters:
@@ -96,11 +97,11 @@ spec:
                 - name: grouped
                   from: '{{ tasks.group.outputs.artifacts.output }}'
 
-          - name: create-largeLayers
+          - name: create-large-layers
             depends: 'extract'
             when: '{{tasks.extract.outputs.parameters.updateRequired}} == true'
-            template: create-largeLayers
-            withParam: '{{ tasks.extract.outputs.artifacts.largeLayers }}'
+            template: create-large-layers
+            withParam: '{{ tasks.extract.outputs.parameters.largeLayers }}'
             arguments:
               parameters:
                 - name: path
@@ -123,15 +124,16 @@ spec:
           - name: updateRequired
             valueFrom:
               path: '/tmp/extract/updateRequired'
-        artifacts:
           - name: largeLayers
-            path: '/tmp/extract/largeLayers.json'
+            valueFrom:
+              path: '/tmp/extract/largeLayers.json'
+        artifacts:
           - name: smallLayers
             path: '/tmp/extract/smallLayers.json'
           - name: allCaches
             path: '/tmp/extract/allCaches.json'
 
-    - name: create-smallLayers
+    - name: create-small-layers
       retryStrategy:
         limit: '{{workflow.parameters.retry}}'
         retryPolicy: 'Always'
@@ -159,7 +161,7 @@ spec:
           - '--from-file={{= inputs.artifacts.grouped.path }}{{inputs.parameters.grouped_id}}.json'
           - '--concurrency={{ workflow.parameters.concurrency }}'
 
-    - name: create-largeLayers
+    - name: create-large-layers
       retryStrategy:
         limit: '{{workflow.parameters.retry}}'
         retryPolicy: 'Always'
