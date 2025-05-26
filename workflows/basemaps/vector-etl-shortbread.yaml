@@ -1,0 +1,199 @@
+# yaml-language-server: $schema=https://raw.githubusercontent.com/argoproj/argo-workflows/v3.5.5/api/jsonschema/schema.json
+
+apiVersion: argoproj.io/v1alpha1
+kind: WorkflowTemplate
+metadata:
+  name: test-basemaps-vector-etl-shortbread
+  labels:
+    linz.govt.nz/category: basemaps
+    linz.govt.nz/data-type: vector
+spec:
+  entrypoint: main
+  onExit: exit-handler
+  podMetadata:
+    labels:
+      linz.govt.nz/category: basemaps
+      linz.govt.nz/data-type: vector
+  arguments:
+    parameters:
+      - name: version_basemaps_cli
+        description: Version of the basemaps CLI docker container to use
+        value: pr-3435
+
+      - name: version_argo_tasks
+        description: Version of the Argo Tasks CLI docker container to use
+        value: 'v4'
+
+      - name: target
+        description: S3 Bucket to use for storing the output
+        value: 'linz-basemaps-staging'
+        enum:
+          - 'linz-basemaps'
+          - 'linz-basemaps-staging'
+
+      - name: cache
+        description: mbtiles cache location
+        value: 's3://linz-basemaps-staging/mbtiles-cache/'
+
+      - name: tile_matrix
+        description: Output tile matrix, ";" separated list
+        value: 'WebMercatorQuad'
+        enum:
+          - 'NZTM2000Quad'
+          - 'WebMercatorQuad'
+
+      - name: retry
+        description: Number of retry on failure vector-etl task
+        value: '1'
+
+      - name: group_size
+        description: Number of layers grouped together, default to 100
+        value: '100'
+
+      - name: concurrency
+        description: Number of layers process in concurrency, default to 20
+        value: '20'
+
+  templateDefaults:
+    container:
+      imagePullPolicy: Always
+      image: ''
+
+  templates:
+    - name: main
+      retryStrategy:
+        expression: 'false'
+      dag:
+        tasks:
+          - name: extract
+            template: extract
+
+          - name: group
+            depends: extract
+            when: '{{tasks.extract.outputs.parameters.updateRequired}} == true'
+            templateRef:
+              name: tpl-at-group
+              template: main
+            arguments:
+              parameters:
+                - name: size
+                  value: '{{ workflow.parameters.group_size }}'
+                - name: version
+                  value: '{{= workflow.parameters.version_argo_tasks }}'
+              artifacts:
+                - name: input
+                  from: '{{ tasks.extract.outputs.artifacts.smallLayers }}'
+
+          - name: create-smallLayers
+            depends: 'group'
+            template: create-smallLayers
+            withParam: '{{ tasks.group.outputs.parameters.output }}'
+            arguments:
+              parameters:
+                - name: grouped_id
+                  value: '{{ item }}'
+              artifacts:
+                - name: grouped
+                  from: '{{ tasks.group.outputs.artifacts.output }}'
+
+          - name: create-largeLayers
+            depends: 'extract'
+            when: '{{tasks.extract.outputs.parameters.updateRequired}} == true'
+            template: create-largeLayers
+            withParam: '{{ tasks.extract.outputs.artifacts.largeLayers }}'
+            arguments:
+              parameters:
+                - name: path
+                  value: '{{ item.path }}'
+
+    - name: extract
+      container:
+        image: ghcr.io/linz/basemaps/cli:{{ workflow.parameters.version_basemaps_cli }}
+        command: [node, index.cjs]
+        env:
+          - name: AWS_ROLE_CONFIG_PATH
+            value: s3://linz-bucket-config/config.basemaps.json
+        args:
+          - 'vector'
+          - 'extract'
+          - '--cache={{ workflow.parameters.cache }}'
+          - '--tile-matrix={{ workflow.parameters.tile_matrix }}'
+      outputs:
+        parameters:
+          - name: updateRequired
+            valueFrom:
+              path: '/tmp/extract/updateRequired'
+        artifacts:
+          - name: largeLayers
+            path: '/tmp/extract/largeLayers.json'
+          - name: smallLayers
+            path: '/tmp/extract/smallLayers.json'
+          - name: allCaches
+            path: '/tmp/extract/allCaches.json'
+
+    - name: create-smallLayers
+      retryStrategy:
+        limit: '{{workflow.parameters.retry}}'
+        retryPolicy: 'Always'
+      nodeSelector:
+        karpenter.sh/capacity-type: 'spot'
+      inputs:
+        artifacts:
+          - name: grouped
+            path: /tmp/group/grouped/
+        parameters:
+          - name: grouped_id
+      container:
+        image: ghcr.io/linz/basemaps/cli:{{ workflow.parameters.version_basemaps_cli }}
+        resources:
+          requests:
+            memory: 7.8Gi
+            cpu: 15000m
+        command: [node, index.cjs]
+        env:
+          - name: AWS_ROLE_CONFIG_PATH
+            value: s3://linz-bucket-config/config.basemaps.json
+        args:
+          - 'vector'
+          - 'create'
+          - '--from-file={{= inputs.artifacts.grouped.path }}{{inputs.parameters.grouped_id}}.json'
+          - '--concurrency={{ workflow.parameters.concurrency }}'
+
+    - name: create-largeLayers
+      retryStrategy:
+        limit: '{{workflow.parameters.retry}}'
+        retryPolicy: 'Always'
+      nodeSelector:
+        karpenter.sh/capacity-type: 'spot'
+      inputs:
+        parameters:
+          - name: path
+      container:
+        image: ghcr.io/linz/basemaps/cli:{{ workflow.parameters.version_basemaps_cli }}
+        resources:
+          requests:
+            memory: 7.8Gi
+            cpu: 15000m
+        command: [node, index.cjs]
+        env:
+          - name: AWS_ROLE_CONFIG_PATH
+            value: s3://linz-bucket-config/config.basemaps.json
+        args:
+          - 'vector'
+          - 'create'
+          - '{{inputs.parameters.path}}'
+
+    - name: exit-handler
+      retryStrategy:
+        limit: '0' # `tpl-exit-handler` retries itself
+      steps:
+        - - name: exit
+            templateRef:
+              name: tpl-exit-handler
+              template: main
+            arguments:
+              parameters:
+                - name: workflow_status
+                  value: '{{workflow.status}}'
+                - name: workflow_parameters
+                  value: '{{workflow.parameters}}'
