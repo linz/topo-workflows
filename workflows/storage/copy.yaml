@@ -117,6 +117,7 @@ spec:
           - name: group
           - name: group_size
           - name: version_argo_tasks
+            default: 'v4'
           - name: compress # This should not be exposed to the user (as a workflow parameter)
             default: 'false'
           - name: delete_source # This should not be exposed to the user (as a workflow parameter)
