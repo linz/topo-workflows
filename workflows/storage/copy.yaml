@@ -112,6 +112,7 @@ spec:
           - name: exclude
           - name: copy_option
           - name: aws_role_config_path
+            default: 's3://linz-bucket-config/config-write.elevation.json,s3://linz-bucket-config/config-write.imagery.json,s3://linz-bucket-config/config-write.topographic.json'
           - name: flatten
           - name: group
           - name: group_size
