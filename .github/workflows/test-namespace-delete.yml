@@ -40,7 +40,7 @@ jobs:
       - name: Delete Test namespace
         run: |
           # Delete the test namespace
-            TEST_NAMESPACE=pr-${{ github.event.pull_request.number }}
+          TEST_NAMESPACE=pr-${{ github.event.pull_request.number }}
           stderr_tmp="$(mktemp --directory)/stderr"
           if ! kubectl delete namespaces "$TEST_NAMESPACE" 2> >(tee "$stderr_tmp" >&2)
           then 
