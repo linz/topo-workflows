@@ -11,6 +11,10 @@ jobs:
         github.event.label.name == 'workflows' && github.event.action == 'unlabeled'
       )
     runs-on: ubuntu-latest
+    permissions:
+      id-token: write
+      contents: read
+      packages: write
     env:
       CLUSTER_NAME: Workflows
 
