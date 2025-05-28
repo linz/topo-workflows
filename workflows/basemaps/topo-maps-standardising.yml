@@ -160,8 +160,6 @@ spec:
                   value: '\.tiff?$|\.json$'
                 - name: exclude
                   value: ''
-                - name: copy_option
-                  value: '{{ workflow.parameters.copy_option }}'
                 - name: flatten
                   value: 'false'
                 - name: group
