@@ -112,7 +112,7 @@ The S3 path to the processed TIFFs and the Basemaps visualisation URL can be fou
 for example:
 
 ```
-location: s3://linz-workflow-artifacts/2022-10/31-imagery-standardising-v0.02-58-df4gf
+location: s3://linz-workflows-scratch/2022-10/31-imagery-standardising-v0.02-58-df4gf
 ```
 
 ```
@@ -205,7 +205,7 @@ Creates a config of the imagery files within the `flat` directory and outputs a 
 
 ## Workflow Description
 
-This workflow creates a GitHub pull request to be reviewed for publishing to `s3://nz-imagery` and `s3://nz-elevation` (the two AWS Registry of Open Data public S3 buckets). When the pull request is approved and merged, the files will be copied.
+This workflow creates a GitHub pull request to be reviewed for publishing to `s3://nz-coastal`, `s3://nz-elevation` and `s3://nz-imagery` (the AWS Registry of Open Data public S3 buckets). When the pull request is approved and merged, the files will be copied.
 
 ```mermaid
 graph TD;
@@ -230,7 +230,7 @@ graph TD;
 
 ### Publish:
 
-**source:** `s3://linz-workflow-artifacts/2022-11/15-imagery-standardising-v0.2.0-56-x7699/flat/`
+**source:** `s3://linz-workflows-scratch/2022-11/15-imagery-standardising-v0.2.0-56-x7699/flat/`
 
 **target_bucket_name:** `nz-imagery`
 
@@ -297,7 +297,7 @@ Default values for this workflow should be sufficient for most use cases. Howeve
 | Parameter               | Type    | Default                                                                         | Description                                                                                                                                                                                                                                                       |
 | ----------------------- | ------- | ------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | version_argo_tasks      | str     | v4                                                                              | Version of the Argo tasks to use.                                                                                                                                                                                                                                 |
-| version_basemaps_cli    | str     | v7                                                                              | Version of the Basemaps CLI to use.                                                                                                                                                                                                                               |
+| version_basemaps_cli    | str     | v8                                                                              | Version of the Basemaps CLI to use.                                                                                                                                                                                                                               |
 | version_topo_imagery    | str     | v7                                                                              | Version of the Topo Imagery scripts to use.                                                                                                                                                                                                                       |
 | ticket                  | str     |                                                                                 | Ticket ID e.g. 'TDE-1130'                                                                                                                                                                                                                                         |
 | top_layer_source        | str     | `s3://nz-elevation/new-zealand/new-zealand/dem-hillshade-igor_1m/2193/`         | Top layer (1m hillshade) to add.                                                                                                                                                                                                                                  |

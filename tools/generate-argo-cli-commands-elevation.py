@@ -63,7 +63,7 @@ def _valid_params(params: Dict[str, str]) -> Tuple[bool, str]:
     return (True, "")
 
 def _tmp_target_edit(target: str) -> str:
-    return target.replace("s3://linz-elevation/", "s3://linz-workflow-artifacts/linz-elevation/")
+    return target.replace("s3://linz-elevation/", "s3://linz-workflows-scratch/linz-elevation/")
 
 
 with open(PARAMETERS_CSV, "r") as csv_file:

@@ -43,7 +43,7 @@ Access permissions are controlled by the [Bucket Sharing Config](https://github.
 
 Copy files from one S3 location to another. This workflow is intended to be used after standardising and QA to copy:
 
-- from `linz-workflow-artifacts` "flattened" directory to `linz-imagery`
+- from `linz-workflows-scratch` "flattened" directory to `linz-imagery`
 - from `linz-imagery-upload` to `linz-imagery-staging` to store a copy of the uploaded RGBI imagery.
 
 ```mermaid
@@ -77,7 +77,7 @@ Access permissions are controlled by the [Bucket Sharing Config](https://github.
 
 #### Publish
 
-**source:** `s3://linz-workflow-artifacts/2022-11/15-imagery-standardising-v0.2.0-56-x7699/flat/`
+**source:** `s3://linz-workflows-scratch/2022-11/15-imagery-standardising-v0.2.0-56-x7699/flat/`
 
 **target:** `s3://linz-imagery/southland/invercargill_2022_0.1m/rgb/2193/`
 
