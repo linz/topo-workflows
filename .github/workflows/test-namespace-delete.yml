@@ -2,9 +2,7 @@ name: Delete PR namespace
 
 on:
   pull_request:
-    types: [closed]
-  pull_request_target:
-    types: [unlabeled]
+    types: [closed, unlabeled]
 
 jobs:
   cleanup:
