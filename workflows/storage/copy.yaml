@@ -111,6 +111,7 @@ spec:
           - name: include
           - name: exclude
           - name: copy_option
+            default: '--no-clobber'
           - name: aws_role_config_path
             default: 's3://linz-bucket-config/config-write.elevation.json,s3://linz-bucket-config/config-write.imagery.json,s3://linz-bucket-config/config-write.topographic.json'
           - name: flatten
