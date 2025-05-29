@@ -27,10 +27,10 @@ spec:
 
       - name: target
         description: S3 Bucket to use for storing the output
-        value: 'linz-basemaps-staging'
+        value: 's3://linz-basemaps-staging'
         enum:
-          - 'linz-basemaps'
-          - 'linz-basemaps-staging'
+          - 's3://linz-basemaps'
+          - 's3://linz-basemaps-staging'
 
       - name: cache
         description: mbtiles cache location
@@ -45,15 +45,22 @@ spec:
 
       - name: retry
         description: Number of retry on failure vector-etl task
-        value: '1'
+        value: '2'
 
       - name: group_size
         description: Number of layers grouped together, default to 100
-        value: '50'
+        value: '100'
 
       - name: concurrency
         description: Number of layers process in concurrency, default to 20
         value: '20'
+
+      - name: create_pull_request
+        description: Should a pull request be created in linz/basemaps-config
+        value: 'true'
+        enum:
+          - 'true'
+          - 'false'
 
   templateDefaults:
     container:
@@ -87,6 +94,7 @@ spec:
 
           - name: create-small-layers
             depends: 'group'
+            when: '{{tasks.extract.outputs.parameters.updateRequired}} == true'
             template: create-small-layers
             withParam: '{{ tasks.group.outputs.parameters.output }}'
             arguments:
@@ -106,6 +114,24 @@ spec:
               parameters:
                 - name: path
                   value: '{{ item.path }}'
+
+          - name: tile-join
+            depends: 'create-large-layers && create-small-layers'
+            when: '{{tasks.extract.outputs.parameters.updateRequired}} == true'
+            template: tile-join
+            arguments:
+              artifacts:
+                - name: input
+                  from: '{{ tasks.extract.outputs.artifacts.allCaches }}'
+
+          - name: create-pull-request
+            template: create-pull-request
+            arguments:
+              parameters:
+                - name: target
+                  value: '{{ tasks.tile-join.outputs.parameters.target }}'
+            when: '{{ workflow.parameters.create_pull_request }} == true && {{tasks.extract.outputs.parameters.updateRequired}} == true'
+            depends: 'tile-join'
 
     - name: extract
       container:
@@ -184,6 +210,53 @@ spec:
           - 'vector'
           - 'create'
           - '{{inputs.parameters.path}}'
+
+    - name: tile-join
+      inputs:
+        artifacts:
+          - name: input
+            path: /tmp/extract/allCaches.json
+      container:
+        image: ghcr.io/linz/basemaps/cli:{{ workflow.parameters.version_basemaps_cli }}
+        resources:
+          requests:
+            memory: 7.8Gi
+            cpu: 15000m
+        command: [node, index.cjs]
+        env:
+          - name: AWS_ROLE_CONFIG_PATH
+            value: s3://linz-bucket-config/config.basemaps.json
+        args:
+          - 'vector'
+          - 'join'
+          - '--from-file={{= inputs.artifacts.input.path }}'
+          - '--target={{ workflow.parameters.target }}'
+          - '--tile-matrix={{ workflow.parameters.tile_matrix }}'
+      outputs:
+        parameters:
+          - name: target
+            valueFrom:
+              path: '/tmp/target'
+
+    - name: create-pull-request
+      inputs:
+        parameters:
+          - name: target
+      container:
+        image: 019359803926.dkr.ecr.ap-southeast-2.amazonaws.com/argo-tasks:{{ workflow.parameters.version_argo_tasks }}
+        env:
+          - name: AWS_ROLE_CONFIG_PATH
+            value: s3://linz-bucket-config/config.basemaps.json
+          - name: GITHUB_API_TOKEN
+            valueFrom:
+              secretKeyRef:
+                name: github-linz-li-bot-pat
+                key: pat
+        args:
+          - 'bmc'
+          - 'create-pr'
+          - '--target={{ inputs.parameters.target }}'
+          - '--config-type=vector'
 
     - name: exit-handler
       retryStrategy:
