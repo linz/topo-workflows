@@ -54,6 +54,7 @@ spec:
       inputs:
         parameters:
           - name: source
+            value: '{{workflow.parameters.source}}'
           - name: group
           - name: group_size
           - name: version_argo_tasks

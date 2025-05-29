@@ -107,17 +107,33 @@ spec:
       inputs:
         parameters:
           - name: source
+            value: '{{workflow.parameters.source}}'
           - name: target
+            value: '{{workflow.parameters.target}}'
           - name: include
+            value: '{{workflow.parameters.include}}'
           - name: exclude
+            value: '{{workflow.parameters.exclude}}'
           - name: copy_option
+            value: '{{workflow.parameters.copy_option}}'
             default: '--no-clobber'
           - name: aws_role_config_path
+            value: '{{workflow.parameters.aws_role_config_path}}'
             default: 's3://linz-bucket-config/config-write.elevation.json,s3://linz-bucket-config/config-write.imagery.json,s3://linz-bucket-config/config-write.topographic.json'
           - name: flatten
+            value: '{{workflow.parameters.flatten}}'
+            default: 'false'
+          - name: transform
+            value: '{{workflow.parameters.transform}}'
+            default: 'f'
           - name: group
+            value: '{{workflow.parameters.group}}'
+            default: '1000'
           - name: group_size
+            value: '{{workflow.parameters.group_size}}'
+            default: '100Gi'
           - name: version_argo_tasks
+            value: '{{workflow.parameters.version_argo_tasks}}'
             default: 'v4'
           - name: compress # This should not be exposed to the user (as a workflow parameter)
             default: 'false'
