@@ -157,6 +157,8 @@ spec:
                   value: '{{inputs.parameters.exclude}}'
                 - name: flatten
                   value: '{{inputs.parameters.flatten}}'
+                - name: transform
+                  value: '{{inputs.parameters.transform}}'
                 - name: group
                   value: '{{inputs.parameters.group}}'
                 - name: group_size
