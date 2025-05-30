@@ -23,3 +23,11 @@ args:
 ```
 
 Will result to pass `--start-year=` (empty value). **This can cause an issue with some CLI tools.**
+
+### Testing
+
+To deploy the workflow changes in a test namespace inside the production Argo Workflows system, after making a Pull Request (can be draft), add the GitHub label `workflows` to the PR. A GitHub action will be triggered that will deploy the workflows of the current changes to the cluster using a new temporary namespace called `pr-[pullrequest_number]`.
+
+Use the workflows within this temporary namespace to test them.
+
+The namespace will be deleted on merge (or if the label get removed).
