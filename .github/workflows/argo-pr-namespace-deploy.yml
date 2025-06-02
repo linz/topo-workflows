@@ -1,0 +1,55 @@
+name: Deploy workflows in PR namespace
+on:
+  pull_request:
+    types: labeled
+jobs:
+  deploy-workflows:
+    runs-on: ubuntu-latest
+    if: github.event.label.name == 'workflows'
+    permissions:
+      id-token: write
+      contents: read
+      packages: write
+    env:
+      AWS_CI_ROLE: ${{ secrets.AWS_CI_ROLE }}
+      CLUSTER_NAME: Workflows
+    steps:
+      - uses: linz/action-typescript@9bf69b0f313b3525d3ba3116f26b1aff7eb7a6c0 # v3.1.0
+        with:
+          node-version: 20.x
+      # Configure access to AWS / EKS
+      - name: Setup kubectl
+        uses: azure/setup-kubectl@3e0aec4d80787158d308d7b364cb1b702e7feb7f # v3
+        with:
+          version: 'latest'
+      - name: AWS Configure
+        uses: aws-actions/configure-aws-credentials@010d0da01d0b5a38af31e9c3470dbfdabdecca3a # v4
+        with:
+          aws-region: ap-southeast-2
+          mask-aws-account-id: true
+          role-to-assume: ${{ secrets.AWS_CI_ROLE }}
+      - name: Login to EKS
+        run: |
+          aws eks update-kubeconfig --name ${{ env.CLUSTER_NAME }} --region ap-southeast-2
+      - name: Check EKS connection
+        run: |
+          kubectl get nodes
+      - name: Deploy workflows
+        run: |
+          # Create test namespace
+          TEST_NAMESPACE=pr-${{ github.event.number }}
+          kubectl create namespace "$TEST_NAMESPACE"
+          # Create copy of Workflows files to change their namespaces
+          mkdir test
+          cp -r workflows/ test/workflows/ 
+          # Deploy templates in the test namespace
+          # Note: the templates have no default namespace so no need to modify them
+          kubectl apply -f templates/argo-tasks/ --namespace "$TEST_NAMESPACE"
+          # Find all workflows that have kind "WorkflowTemplate"
+          WORKFLOWS=$(grep -R -H '^kind: WorkflowTemplate$' test/workflows/ | cut -d ':' -f1)
+          # For each workflow attempt to deploy it using kubectl
+          for wf in $WORKFLOWS; do
+              # Change namespace in files
+              sed -i "/^\([[:space:]]*namespace: \).*/s//\1$TEST_NAMESPACE/" "$wf"
+              kubectl apply -f "$wf" --namespace "$TEST_NAMESPACE"
+          done
