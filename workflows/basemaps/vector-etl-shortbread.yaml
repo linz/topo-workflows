@@ -124,6 +124,15 @@ spec:
                 - name: input
                   from: '{{ tasks.extract.outputs.artifacts.allCaches }}'
 
+          - name: analyse
+            depends: 'tile-join'
+            when: '{{tasks.extract.outputs.parameters.updateRequired}} == true'
+            template: analyse
+            arguments:
+              parameters:
+                - name: mbTilesTarget
+                  value: '{{ tasks.tile-join.outputs.parameters.mbTilesTarget }}'
+
           - name: create-pull-request
             template: create-pull-request
             arguments:
@@ -237,6 +246,28 @@ spec:
           - name: target
             valueFrom:
               path: '/tmp/target'
+          - name: mbTilesTarget
+            valueFrom:
+              path: '/tmp/mbTilesTarget'
+
+    - name: analyse
+      inputs:
+        parameters:
+          - name: mbTilesTarget
+      container:
+        image: ghcr.io/linz/basemaps/cli:{{ workflow.parameters.version_basemaps_cli }}
+        resources:
+          requests:
+            memory: 7.8Gi
+            cpu: 15000m
+        command: [node, index.cjs]
+        env:
+          - name: AWS_ROLE_CONFIG_PATH
+            value: s3://linz-bucket-config/config.basemaps.json
+        args:
+          - 'analyse'
+          - '{{ inputs.parameters.mbTilesTarget }}'
+          - '--target==/tmp'
 
     - name: create-pull-request
       inputs:
