@@ -42,9 +42,16 @@ jobs:
           # Create copy of Workflows files to change their namespaces
           mkdir test
           cp -r workflows/ test/workflows/ 
+
           # Deploy templates in the test namespace
           # Note: the templates have no default namespace so no need to modify them
-          kubectl apply -f templates/argo-tasks/ --namespace "$TEST_NAMESPACE"
+          # Find all templates that have kind "WorkflowTemplate"
+          TEMPLATES=$(grep '^kind: WorkflowTemplate$' -R templates/ -H | cut -d ':' -f1)
+          # For each template attempt to deploy it using kubectl
+          for tpl in $TEMPLATES; do
+              kubectl apply -f "$tpl" --namespace "$TEST_NAMESPACE"
+          done
+
           # Find all workflows that have kind "WorkflowTemplate"
           WORKFLOWS=$(grep -R -H '^kind: WorkflowTemplate$' test/workflows/ | cut -d ':' -f1)
           # For each workflow attempt to deploy it using kubectl
