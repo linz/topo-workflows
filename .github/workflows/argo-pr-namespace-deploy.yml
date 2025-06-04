@@ -13,6 +13,7 @@ jobs:
     env:
       AWS_CI_ROLE: ${{ secrets.AWS_CI_ROLE }}
       CLUSTER_NAME: Workflows
+      NAMESPACE: pr-${{ github.event.number }}
     steps:
       - uses: linz/action-typescript@9bf69b0f313b3525d3ba3116f26b1aff7eb7a6c0 # v3.1.0
         with:
@@ -34,11 +35,86 @@ jobs:
       - name: Check EKS connection
         run: |
           kubectl get nodes
+      - name: Create namespace
+        run: |
+          # Create the namespace for the PR
+          kubectl create namespace "${{ env.NAMESPACE }}""
+
+      - name: Create ServiceAccount
+        run: |
+          NS="${{ env.NAMESPACE }}"
+
+          cat <<EOF | kubectl apply -f -
+          apiVersion: v1
+          kind: ServiceAccount
+          metadata:
+            name: workflow-runner-sa
+            namespace: ${NS}
+          ---
+          apiVersion: rbac.authorization.k8s.io/v1
+          kind: Role
+          metadata:
+            name: argo-workflows-workflow
+            namespace: ${NS}
+          rules:
+            - apiGroups: [""]
+              resources: ["pods"]
+              verbs: ["get", "watch", "list", "create", "delete", "patch"]
+            - apiGroups: [""]
+              resources: ["pods/log"]
+              verbs: ["get", "watch"]
+            - apiGroups: [""]
+              resources: ["pods/exec"]
+              verbs: ["create"]
+            - apiGroups: [""]
+              resources: ["configmaps"]
+              verbs: ["get", "watch", "list"]
+            - apiGroups: ["argoproj.io"]
+              resources: ["workflows"]
+              verbs: ["get", "watch", "list", "create", "delete", "update"]
+            - apiGroups: ["argoproj.io"]
+              resources: ["workflowtaskresults"]
+              verbs: ["create", "patch"]
+            - apiGroups: ["argoproj.io"]
+              resources: ["workflowtasksets", "workflowartifactgctasks"]
+              verbs: ["list", "watch"]
+            - apiGroups: ["argoproj.io"]
+              resources: ["workflowtasksets/status", "workflowartifactgctasks/status"]
+              verbs: ["patch"]
+          ---
+          apiVersion: rbac.authorization.k8s.io/v1
+          kind: RoleBinding
+          metadata:
+            name: argo-workflows-workflow
+            namespace: ${NS}
+          roleRef:
+            kind: Role
+            name: argo-workflows-workflow
+            apiGroup: rbac.authorization.k8s.io
+          subjects:
+            - kind: ServiceAccount
+              name: workflow-runner-sa
+              namespace: ${NS}
+          EOF
+
+      - name: Deploy Semaphore config
+        run: |
+          cat <<EOF | kubectl apply -f -
+          apiVersion: v1
+          kind: ConfigMap
+          metadata:
+            name: semaphores
+            namespace: ${{ env.NAMESPACE }}
+          data:
+            basemaps_import: "10"
+            bulk: "4"
+            bulkcopy: "8"
+            standardising: "2"
+          immutable: false
+          EOF
+
       - name: Deploy workflows
         run: |
-          # Create test namespace
-          TEST_NAMESPACE=pr-${{ github.event.number }}
-          kubectl create namespace "$TEST_NAMESPACE"
           # Create copy of Workflows files to change their namespaces
           mkdir test
           cp -r workflows/ test/workflows/ 
