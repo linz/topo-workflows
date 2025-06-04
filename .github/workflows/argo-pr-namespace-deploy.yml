@@ -38,7 +38,7 @@ jobs:
       - name: Create namespace
         run: |
           # Create the namespace for the PR
-          kubectl create namespace "${{ env.NAMESPACE }}""
+          kubectl create namespace "${{ env.NAMESPACE }}"
 
       - name: Create ServiceAccount
         run: |
