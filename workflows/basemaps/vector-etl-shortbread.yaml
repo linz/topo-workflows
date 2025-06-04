@@ -140,7 +140,7 @@ spec:
                 - name: target
                   value: '{{ tasks.tile-join.outputs.parameters.target }}'
             when: '{{ workflow.parameters.create_pull_request }} == true && {{tasks.extract.outputs.parameters.updateRequired}} == true'
-            depends: 'tile-join'
+            depends: 'analyse'
 
     - name: extract
       container:
