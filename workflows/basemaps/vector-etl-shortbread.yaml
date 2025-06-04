@@ -19,11 +19,11 @@ spec:
     parameters:
       - name: version_basemaps_cli
         description: Version of the basemaps CLI docker container to use
-        value: pr-3435
+        value: pr-3444
 
       - name: version_argo_tasks
         description: Version of the Argo Tasks CLI docker container to use
-        value: 'v4'
+        value: 'pr-1228'
 
       - name: target
         description: S3 Bucket to use for storing the output
