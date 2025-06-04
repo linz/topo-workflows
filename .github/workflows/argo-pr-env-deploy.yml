@@ -41,10 +41,10 @@ jobs:
           kubectl create namespace "${{ env.NAMESPACE }}"
       - name: Create ServiceAccount
         run: |
-          envsubst < .github/argo-pr-env/serviceaccount.yaml | kubectl apply -f -
+          envsubst '${NAMESPACE}' < .github/argo-pr-env/serviceaccount.yaml | kubectl apply -f -
       - name: Deploy Semaphore config
         run: |
-          envsubst < .github/argo-pr-env/semaphore.yaml | kubectl apply -f -
+          envsubst '${NAMESPACE}' < .github/argo-pr-env/semaphore.yaml | kubectl apply -f -
       - name: Deploy workflows
         run: |
           # Create copy of Workflows files to change their namespaces
