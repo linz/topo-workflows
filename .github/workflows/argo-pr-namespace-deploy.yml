@@ -115,6 +115,7 @@ jobs:
 
       - name: Deploy workflows
         run: |
+          NS="${{ env.NAMESPACE }}"
           # Create copy of Workflows files to change their namespaces
           mkdir test
           cp -r workflows/ test/workflows/ 
@@ -125,7 +126,7 @@ jobs:
           TEMPLATES=$(grep '^kind: WorkflowTemplate$' -R templates/ -H | cut -d ':' -f1)
           # For each template attempt to deploy it using kubectl
           for tpl in $TEMPLATES; do
-              kubectl apply -f "$tpl" --namespace "$TEST_NAMESPACE"
+              kubectl apply -f "$tpl" --namespace "$NS"
           done
 
           # Find all workflows that have kind "WorkflowTemplate"
@@ -133,6 +134,6 @@ jobs:
           # For each workflow attempt to deploy it using kubectl
           for wf in $WORKFLOWS; do
               # Change namespace in files
-              sed -i "/^\([[:space:]]*namespace: \).*/s//\1$TEST_NAMESPACE/" "$wf"
-              kubectl apply -f "$wf" --namespace "$TEST_NAMESPACE"
+              sed -i "/^\([[:space:]]*namespace: \).*/s//\1$NS/" "$wf"
+              kubectl apply -f "$wf" --namespace "$NS"
           done
