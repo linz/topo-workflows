@@ -41,9 +41,11 @@ jobs:
           kubectl create namespace "${{ env.NAMESPACE }}"
       - name: Create ServiceAccount
         run: |
+          # shellcheck disable=SC2016
           envsubst '${NAMESPACE}' < .github/argo-pr-env/serviceaccount.yaml | kubectl apply -f -
       - name: Deploy Semaphore config
         run: |
+          # shellcheck disable=SC2016
           envsubst '${NAMESPACE}' < .github/argo-pr-env/semaphore.yaml | kubectl apply -f -
       - name: Deploy workflows
         run: |
