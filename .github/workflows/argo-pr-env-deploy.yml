@@ -43,7 +43,7 @@ jobs:
       - name: Create ServiceAccount
         run: |
           # shellcheck disable=SC2016
-          envsubst '${NAMESPACE}', '${AWS_IRSA_ROLE_ARN}' < .github/argo-pr-env/serviceaccount.yaml | kubectl apply -f -
+          envsubst '${NAMESPACE},${AWS_IRSA_ROLE_ARN}' < .github/argo-pr-env/serviceaccount.yaml | kubectl apply -f -
       - name: Deploy Semaphore config
         run: |
           # shellcheck disable=SC2016
