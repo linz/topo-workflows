@@ -1,5 +1,5 @@
 import { KubectlV30Layer } from '@aws-cdk/lambda-layer-kubectl-v30';
-import { Aws, CfnOutput, Duration, RemovalPolicy, SecretValue, Size, Stack, StackProps } from 'aws-cdk-lib';
+import { Aws, CfnJson, CfnOutput, Duration, RemovalPolicy, SecretValue, Size, Stack, StackProps } from 'aws-cdk-lib';
 import * as chatbot from 'aws-cdk-lib/aws-chatbot';
 import * as cloudwatch from 'aws-cdk-lib/aws-cloudwatch';
 import * as actions from 'aws-cdk-lib/aws-cloudwatch-actions';
@@ -278,6 +278,8 @@ export class LinzEksCluster extends Stack {
       kind: 'Namespace',
       metadata: { name: 'argo' },
     });
+
+    // SA for the `argo` namespace (production) - IRSA is also created by `addServiceAccount()`
     const argoRunnerSa = this.cluster.addServiceAccount('ArgoRunnerServiceAccount', {
       name: 'workflow-runner-sa',
       namespace: 'argo',
@@ -285,18 +287,40 @@ export class LinzEksCluster extends Stack {
     argoRunnerSa.node.addDependency(argoNs);
     new CfnOutput(this, CfnOutputKeys.ArgoRunnerServiceAccountName, { value: argoRunnerSa.serviceAccountName });
 
-    // give read/write on the temporary (scratch) bucket
-    this.tempBucket.grantReadWrite(argoRunnerSa.role);
-    // give permission to the sa to assume a role
-    argoRunnerSa.role.addToPrincipalPolicy(new PolicyStatement({ actions: ['sts:AssumeRole'], resources: ['*'] }));
+    // IRSA for the `pr-*` namespaces (development)
+    const oidcProvider = this.cluster.openIdConnectProvider;
+    const condition = new CfnJson(this, 'OIDCCondition', {
+      value: {
+        [`${oidcProvider.openIdConnectProviderIssuer}:aud`]: 'sts.amazonaws.com',
+        [`${oidcProvider.openIdConnectProviderIssuer}:sub`]: `system:serviceaccount:pr-*:workflow-runner-sa`,
+      },
+    });
 
-    /* Gives read access on ODR public buckets.
-     * While those are public buckets, we still need to give permission to Argo
-     * as the `--no-sign-request` is not handled in the code.
-     */
-    Bucket.fromBucketName(this, 'OdrNzCoastal', 'nz-coastal').grantRead(argoRunnerSa.role);
-    Bucket.fromBucketName(this, 'OdrNzElevation', 'nz-elevation').grantRead(argoRunnerSa.role);
-    Bucket.fromBucketName(this, 'OdrNzImagery', 'nz-imagery').grantRead(argoRunnerSa.role);
-    Bucket.fromBucketName(this, 'OdrNzTopography', 'nz-topography').grantRead(argoRunnerSa.role);
+    const prIRSA = new iam.Role(this, 'PRWildcardRole', {
+      assumedBy: new iam.FederatedPrincipal(
+        oidcProvider.openIdConnectProviderArn,
+        {
+          StringLike: condition, // we want to allow all `pr-*` (pr-1234, pr-2345, etc.) namespaces
+        },
+        'sts:AssumeRoleWithWebIdentity',
+      ),
+    });
+
+    // Set the permissions for the IRSA
+    for (const role of [argoRunnerSa.role, prIRSA]) {
+      // give read/write on the temporary (scratch) bucket
+      this.tempBucket.grantReadWrite(role);
+      // give permission to the sa to assume a role
+      role.addToPrincipalPolicy(new PolicyStatement({ actions: ['sts:AssumeRole'], resources: ['*'] }));
+
+      /* Gives read access on ODR public buckets.
+       * While those are public buckets, we still need to give permission to Argo
+       * as the `--no-sign-request` is not handled in the code.
+       */
+      Bucket.fromBucketName(this, `OdrNzCoastal-${role.roleName}`, 'nz-coastal').grantRead(role);
+      Bucket.fromBucketName(this, `OdrNzElevation-${role.roleName}`, 'nz-elevation').grantRead(role);
+      Bucket.fromBucketName(this, `OdrNzImagery-${role.roleName}`, 'nz-imagery').grantRead(role);
+      Bucket.fromBucketName(this, `OdrNzTopography-${role.roleName}`, 'nz-topography').grantRead(role);
+    }
   }
 }
