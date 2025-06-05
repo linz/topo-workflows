@@ -13,6 +13,7 @@ jobs:
     env:
       AWS_CI_ROLE: ${{ secrets.AWS_CI_ROLE }}
       CLUSTER_NAME: Workflows
+      NAMESPACE: pr-${{ github.event.number }}
     steps:
       - uses: linz/action-typescript@9bf69b0f313b3525d3ba3116f26b1aff7eb7a6c0 # v3.1.0
         with:
@@ -34,11 +35,20 @@ jobs:
       - name: Check EKS connection
         run: |
           kubectl get nodes
+      - name: Create namespace
+        run: |
+          # Create the namespace for the PR
+          kubectl create namespace "${{ env.NAMESPACE }}"
+      - name: Create ServiceAccount
+        run: |
+          # shellcheck disable=SC2016
+          envsubst '${NAMESPACE}' < .github/argo-pr-env/serviceaccount.yaml | kubectl apply -f -
+      - name: Deploy Semaphore config
+        run: |
+          # shellcheck disable=SC2016
+          envsubst '${NAMESPACE}' < .github/argo-pr-env/semaphore.yaml | kubectl apply -f -
       - name: Deploy workflows
         run: |
-          # Create test namespace
-          TEST_NAMESPACE=pr-${{ github.event.number }}
-          kubectl create namespace "$TEST_NAMESPACE"
           # Create copy of Workflows files to change their namespaces
           mkdir test
           cp -r workflows/ test/workflows/ 
@@ -49,7 +59,7 @@ jobs:
           TEMPLATES=$(grep '^kind: WorkflowTemplate$' -R templates/ -H | cut -d ':' -f1)
           # For each template attempt to deploy it using kubectl
           for tpl in $TEMPLATES; do
-              kubectl apply -f "$tpl" --namespace "$TEST_NAMESPACE"
+              kubectl apply -f "$tpl" --namespace "${{ env.NAMESPACE }}"
           done
 
           # Find all workflows that have kind "WorkflowTemplate"
@@ -57,6 +67,6 @@ jobs:
           # For each workflow attempt to deploy it using kubectl
           for wf in $WORKFLOWS; do
               # Change namespace in files
-              sed -i "/^\([[:space:]]*namespace: \).*/s//\1$TEST_NAMESPACE/" "$wf"
-              kubectl apply -f "$wf" --namespace "$TEST_NAMESPACE"
+              sed -i "/^\([[:space:]]*namespace: \).*/s//\1${{ env.NAMESPACE }}/" "$wf"
+              kubectl apply -f "$wf" --namespace "${{ env.NAMESPACE }}"
           done
