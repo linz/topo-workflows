@@ -12,6 +12,7 @@ jobs:
       packages: write
     env:
       AWS_CI_ROLE: ${{ secrets.AWS_CI_ROLE }}
+      AWS_IRSA_ROLE_ARN: ${{ secrets.AWS_IRSA_ROLE_ARN }}
       CLUSTER_NAME: Workflows
       NAMESPACE: pr-${{ github.event.number }}
     steps:
@@ -42,7 +43,7 @@ jobs:
       - name: Create ServiceAccount
         run: |
           # shellcheck disable=SC2016
-          envsubst '${NAMESPACE}' < .github/argo-pr-env/serviceaccount.yaml | kubectl apply -f -
+          envsubst '${NAMESPACE},${AWS_IRSA_ROLE_ARN}' < .github/argo-pr-env/serviceaccount.yaml | kubectl apply -f -
       - name: Deploy Semaphore config
         run: |
           # shellcheck disable=SC2016
