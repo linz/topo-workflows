@@ -2,7 +2,7 @@
 apiVersion: argoproj.io/v1alpha1
 kind: CronWorkflow
 metadata:
-  name: cron-national-coastal-dem
+  name: test-national-coastal-dem
   labels:
     linz.govt.nz/category: raster
     linz.govt.nz/data-type: raster
@@ -29,11 +29,13 @@ spec:
         - name: 'config_file'
           value: 's3://linz-workflows-scratch/pfo/coastal-test.json'
         - name: 'odr_url'
-          value: 's3://nz-coastal/new-zealand/new-zealand/dem_1m/2193/'
+          value: ''
         - name: geospatial_category
           value: 'dem'
         - name: publish_to_odr
           value: 'true'
+        - name: 'target_bucket_name'
+          value: 'nz-coastal'
         - name: 'copy_option'
           value: '--force-no-clobber'
         - name: 'ticket'
