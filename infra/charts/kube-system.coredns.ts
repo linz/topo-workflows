@@ -1,5 +1,5 @@
 import { Chart, ChartProps } from 'cdk8s';
-import * as kplus from 'cdk8s-plus-30';
+import * as kplus from 'cdk8s-plus-31';
 import { Construct } from 'constructs';
 
 import { applyDefaultLabels } from '../util/labels.js';
