@@ -44,7 +44,6 @@ export class LinzEksCluster extends Stack {
   /* Cluster ID */
   id: string;
   /** Version of EKS to use, this must be aligned to the `kubectlLayer` */
-  // version = KubernetesVersion.of('1.32'); // leaving this here for now in case people ctrl+f this based on outdated docs.
   version = KubernetesVersion.V1_32;
   /** Argo needs a database for workflow archive */
   argoDb: DatabaseInstance;
