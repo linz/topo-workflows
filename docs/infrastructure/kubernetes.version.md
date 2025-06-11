@@ -45,7 +45,8 @@ Below is an example of upgrading from v1.27 to v1.28
 2. Set the new Kubernetes version in `LinzEksCluster`
 
    ```typescript
-   version = KubernetesVersion.of('1.28');
+   // version = KubernetesVersion.of('1.28'); // if the KubernetesVersion.V1_28 constant is not yet available
+   version = KubernetesVersion.V1_28;
    ```
 
 3. Modify layer version
