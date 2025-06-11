@@ -51,6 +51,13 @@ spec:
             description: 'Geospatial category of the dataset'
             default: ''
 
+          - name: subtype
+            description: 'Subtype of the dataset, e.g. "land", "coastal"'
+            default: 'land'
+            enum:
+              - 'land'
+              - 'coastal'
+
           - name: region
             description: 'Region of the dataset'
             default: ''
@@ -128,6 +135,8 @@ spec:
           - '{{=sprig.trim(inputs.parameters.delete_all_existing_items)}}'
           - '--category'
           - '{{=sprig.trim(inputs.parameters.category)}}'
+          - '--subtype'
+          - '{{=sprig.trim(inputs.parameters.subtype)}}'
           - '--region'
           - '{{=sprig.trim(inputs.parameters.region)}}'
           - '--gsd'

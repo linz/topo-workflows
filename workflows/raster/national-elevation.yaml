@@ -44,6 +44,12 @@ spec:
         enum:
           - 'dem'
           - 'dsm'
+      - name: subtype
+        description: 'Subtype of the dataset, e.g. "land", "coastal"'
+        value: 'land'
+        enum:
+          - 'land'
+          - 'coastal'
       - name: config_file
         description: 'Location of the configuration file listing the source datasets to merge.'
         value: 'https://raw.githubusercontent.com/linz/basemaps-config/master/config/tileset/elevation.json'
@@ -184,6 +190,8 @@ spec:
                   value: '{{=sprig.trim(workflow.parameters.odr_url)}}'
                 - name: category
                   value: '{{workflow.parameters.geospatial_category}}'
+                - name: subtype
+                  value: '{{workflow.parameters.subtype}}'
                 - name: region
                   value: 'new-zealand'
                 - name: gsd

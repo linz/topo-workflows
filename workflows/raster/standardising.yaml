@@ -152,6 +152,12 @@ spec:
           - 'dem'
           - 'dsm'
           - 'satellite-imagery'
+      - name: subtype
+        description: 'Subtype of the dataset, e.g. "land", "coastal"'
+        value: 'land'
+        enum:
+          - 'land'
+          - 'coastal'
       - name: gsd
         description: 'Dataset GSD in metres, e.g., "0.3" for 30 centimetres'
       - name: producer
