@@ -44,8 +44,8 @@ spec:
         enum:
           - 'dem'
           - 'dsm'
-      - name: subtype
-        description: 'Subtype of the dataset, e.g. "land", "coastal"'
+      - name: domain
+        description: 'domain of the dataset, e.g. "land", "coastal"'
         value: 'land'
         enum:
           - 'land'
@@ -190,8 +190,8 @@ spec:
                   value: '{{=sprig.trim(workflow.parameters.odr_url)}}'
                 - name: category
                   value: '{{workflow.parameters.geospatial_category}}'
-                - name: subtype
-                  value: '{{workflow.parameters.subtype}}'
+                - name: domain
+                  value: '{{workflow.parameters.domain}}'
                 - name: region
                   value: 'new-zealand'
                 - name: gsd

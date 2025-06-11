@@ -3,7 +3,7 @@
 apiVersion: argoproj.io/v1alpha1
 kind: WorkflowTemplate
 metadata:
-  name: imagery-standardising
+  name: test-domain-imagery-standardising
   labels:
     linz.govt.nz/category: raster
     linz.govt.nz/data-type: raster
@@ -152,8 +152,8 @@ spec:
           - 'dem'
           - 'dsm'
           - 'satellite-imagery'
-      - name: subtype
-        description: 'Subtype of the dataset, e.g. "land", "coastal"'
+      - name: domain
+        description: 'domain of the dataset, e.g. "land", "coastal"'
         value: 'land'
         enum:
           - 'land'
@@ -463,7 +463,7 @@ spec:
 
           - name: create-collection
             templateRef:
-              name: tpl-ti-create-collection
+              name: test-domain-create-collection
               template: main
             arguments:
               parameters:
@@ -481,8 +481,8 @@ spec:
                   value: '{{=sprig.trim(workflow.parameters.delete_all_existing_items)}}'
                 - name: category
                   value: '{{=sprig.trim(workflow.parameters.category)}}'
-                - name: subtype
-                  value: '{{=sprig.trim(workflow.parameters.subtype)}}'
+                - name: domain
+                  value: '{{=sprig.trim(workflow.parameters.domain)}}'
                 - name: region
                   value: '{{=sprig.trim(workflow.parameters.region)}}'
                 - name: gsd
