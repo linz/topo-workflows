@@ -3,7 +3,7 @@
 apiVersion: argoproj.io/v1alpha1
 kind: WorkflowTemplate
 metadata:
-  name: test-domain-imagery-standardising
+  name: imagery-standardising
   labels:
     linz.govt.nz/category: raster
     linz.govt.nz/data-type: raster
@@ -463,7 +463,7 @@ spec:
 
           - name: create-collection
             templateRef:
-              name: test-domain-create-collection
+              name: tpl-ti-create-collection
               template: main
             arguments:
               parameters:
