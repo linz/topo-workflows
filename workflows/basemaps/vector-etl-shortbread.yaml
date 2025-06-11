@@ -19,11 +19,11 @@ spec:
     parameters:
       - name: version_basemaps_cli
         description: Version of the basemaps CLI docker container to use
-        value: pr-3444
+        value: pr-3452
 
       - name: version_argo_tasks
         description: Version of the Argo Tasks CLI docker container to use
-        value: 'pr-1228'
+        value: 'v4'
 
       - name: target
         description: S3 Bucket to use for storing the output
@@ -38,10 +38,11 @@ spec:
 
       - name: tile_matrix
         description: Output tile matrix, ";" separated list
-        value: 'WebMercatorQuad'
+        value: 'NZTM2000Quad;WebMercatorQuad'
         enum:
           - 'NZTM2000Quad'
           - 'WebMercatorQuad'
+          - 'NZTM2000Quad;WebMercatorQuad'
 
       - name: retry
         description: Number of retry on failure vector-etl task
@@ -62,6 +63,13 @@ spec:
           - 'true'
           - 'false'
 
+      - name: analyse
+        description: Should generate an analyse report for the output mbtiles
+        value: 'false'
+        enum:
+          - 'true'
+          - 'false'
+
   templateDefaults:
     container:
       imagePullPolicy: Always
@@ -73,8 +81,35 @@ spec:
         expression: 'false'
       dag:
         tasks:
+          - name: etl
+            template: etl
+            arguments:
+              parameters:
+                - name: tile_matrix
+                  value: '{{ item }}'
+            withParam: "{{= toJson(sprig.splitList(';', workflow.parameters.tile_matrix)) }}"
+
+          - name: create-pull-request
+            template: create-pull-request
+            arguments:
+              parameters:
+                - name: target
+                  value: '{{ tasks.etl.outputs.parameters.target }}'
+            when: '{{ workflow.parameters.create_pull_request }} == true'
+            depends: 'etl'
+
+    - name: etl
+      inputs:
+        parameters:
+          - name: tile_matrix
+      dag:
+        tasks:
           - name: extract
             template: extract
+            arguments:
+              parameters:
+                - name: tile_matrix
+                  value: '{{ inputs.parameters.tile_matrix }}'
 
           - name: group
             depends: extract
@@ -120,13 +155,16 @@ spec:
             when: '{{tasks.extract.outputs.parameters.updateRequired}} == true'
             template: tile-join
             arguments:
+              parameters:
+                - name: tile_matrix
+                  value: '{{ inputs.parameters.tile_matrix }}'
               artifacts:
                 - name: input
                   from: '{{ tasks.extract.outputs.artifacts.allCaches }}'
 
           - name: analyse
             depends: 'tile-join'
-            when: '{{tasks.extract.outputs.parameters.updateRequired}} == true'
+            when: '{{tasks.extract.outputs.parameters.updateRequired}} == true && {{ workflow.parameters.analyse }} == true'
             template: analyse
             arguments:
               parameters:
@@ -135,16 +173,17 @@ spec:
                 - name: analyseTarget
                   value: '{{ tasks.tile-join.outputs.parameters.analyseTarget }}'
 
-          - name: create-pull-request
-            template: create-pull-request
-            arguments:
-              parameters:
-                - name: target
-                  value: '{{ tasks.tile-join.outputs.parameters.target }}'
-            when: '{{ workflow.parameters.create_pull_request }} == true && {{tasks.extract.outputs.parameters.updateRequired}} == true'
-            depends: 'analyse'
+      outputs:
+        parameters:
+          - name: target
+            description: location of where the output mbtiles are stored
+            valueFrom:
+              parameter: '{{ tasks.tile-join.outputs.parameters.target }}'
 
     - name: extract
+      inputs:
+        parameters:
+          - name: tile_matrix
       container:
         image: ghcr.io/linz/basemaps/cli:{{ workflow.parameters.version_basemaps_cli }}
         command: [node, index.cjs]
@@ -155,7 +194,7 @@ spec:
           - 'vector'
           - 'extract'
           - '--cache={{ workflow.parameters.cache }}'
-          - '--tile-matrix={{ workflow.parameters.tile_matrix }}'
+          - '--tile-matrix={{ inputs.parameters.tile_matrix }}'
       outputs:
         parameters:
           - name: updateRequired
@@ -224,6 +263,8 @@ spec:
 
     - name: tile-join
       inputs:
+        parameters:
+          - name: tile_matrix
         artifacts:
           - name: input
             path: /tmp/extract/allCaches.json
@@ -231,9 +272,9 @@ spec:
         image: ghcr.io/linz/basemaps/cli:{{ workflow.parameters.version_basemaps_cli }}
         resources:
           requests:
-            memory: 7.8Gi
+            memory: 12Gi
             cpu: 15000m
-        command: [node, index.cjs]
+        command: [node, --max-old-space-size=8192, index.cjs]
         env:
           - name: AWS_ROLE_CONFIG_PATH
             value: s3://linz-bucket-config/config.basemaps.json
@@ -242,7 +283,7 @@ spec:
           - 'join'
           - '--from-file={{= inputs.artifacts.input.path }}'
           - '--target={{ workflow.parameters.target }}'
-          - '--tile-matrix={{ workflow.parameters.tile_matrix }}'
+          - '--tile-matrix={{ inputs.parameters.tile_matrix }}'
       outputs:
         parameters:
           - name: target
@@ -273,8 +314,8 @@ spec:
         args:
           - 'vector'
           - 'analyse'
-          - '{{ inputs.parameters.mbTilesTarget }}'
-          - '--target=={{ inputs.parameters.analyseTarget }}'
+          - '--path={{ inputs.parameters.mbTilesTarget }}'
+          - '--target={{ inputs.parameters.analyseTarget }}'
 
     - name: create-pull-request
       inputs:
