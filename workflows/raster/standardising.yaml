@@ -480,6 +480,8 @@ spec:
                   value: '{{=sprig.trim(workflow.parameters.delete_all_existing_items)}}'
                 - name: category
                   value: '{{=sprig.trim(workflow.parameters.category)}}'
+                - name: subtype
+                  value: '{{=sprig.trim(workflow.parameters.subtype)}}'
                 - name: region
                   value: '{{=sprig.trim(workflow.parameters.region)}}'
                 - name: gsd
