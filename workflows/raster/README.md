@@ -5,6 +5,7 @@
 - [National Elevation](#national-elevation)
 - [Merge Layers](#merge-layers)
 - [Hillshade](#hillshade)
+- [Hillshade Combinations](#hillshade-combinations)
 - [tests](#Tests)
 
 # Standardising
@@ -321,7 +322,7 @@ Default values for this workflow should be sufficient for most use cases. Howeve
 
 # hillshade
 
-This workflow can use a DEM dataset source (such as a National DEM dataset, for example) to create hillshades.
+This workflow can use a DEM or DSM dataset source (such as a National DEM dataset, for example) to create hillshades.
 
 Upon completion all hillshade TIFF and STAC files will be located in the .`{{workflow.parameters.hillshade_preset}}`/flat/ directory of the workflow in the artifacts scratch bucket. In addition, a Basemaps link is produced enabling visual QA.
 
@@ -345,12 +346,14 @@ Publishing to the AWS Registry of Open Data is an optional step [publish-odr](#P
 This workflow calls `hillshade` to iterate over a provided list of geospatial elevation categories (DEM / DSM) and hillshade presets (hillshade / hillshade-igor) to easily create hillshades using Cron Workflows.
 
 Key parameters that differ from the `hillshade` workflow are `source_geospatial_categories` and `hillshade_presets`, which be iterated over to create multiple hillshades using each corresponding geospatial category and hillshade preset in the `hillshade` workflow.
+The `bucket_name` parameter is used to determine the correct source and output paths for the hillshade creation.
 All other parameters will be passed through to the `hillshade` workflow without modification.
 
-| Parameter                    | Type | Default                         | Description                                                                          |
-| ---------------------------- | ---- | ------------------------------- | ------------------------------------------------------------------------------------ |
-| source_geospatial_categories | str  | ["dem", "dsm"]                  | Geospatial categories of the source elevation data as stringified json, e.g. ["dem"] |
-| hillshade_presets            | str  | ["hillshade-igor", "hillshade"] | Hillshade presets to use, as stringified json, e.g. ["hillshade"]                    |
+| Parameter                    | Type | Default                         | Description                                                                              |
+| ---------------------------- | ---- | ------------------------------- | ---------------------------------------------------------------------------------------- |
+| bucket_name                  | enum | nz-elevation                    | Source and target bucket of the respective dataset, e.g. `nz-elevation` or `nz-coastal`. |
+| source_geospatial_categories | str  | ["dem", "dsm"]                  | Geospatial categories of the source elevation data as stringified json, e.g. ["dem"]     |
+| hillshade_presets            | str  | ["hillshade-igor", "hillshade"] | Hillshade presets to use, as stringified json, e.g. ["hillshade"]                        |
 
 # Tests
 
