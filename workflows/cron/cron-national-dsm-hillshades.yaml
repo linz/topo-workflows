@@ -35,6 +35,8 @@ spec:
           value: 'TDE-1455'
         - name: source_geospatial_categories
           value: '["dsm"]'
+        - name: bucket_name
+          value: 'nz-elevation'
         - name: gsd
           value: '1'
         - name: hillshade_presets

@@ -47,6 +47,12 @@ spec:
       - name: hillshade_presets
         description: 'Hillshade presets to use, as stringified json, e.g. ["hillshade"] or ["hillshade-igor", "hillshade"]'
         value: '["hillshade-igor", "hillshade"]'
+      - name: bucket_name
+        description: 'Name of the bucket to use, e.g. "nz-elevation" or "nz-coastal"'
+        value: 'nz-elevation'
+        enum:
+          - 'nz-elevation'
+          - 'nz-coastal'
       - name: group
         description: 'How many output tiles to process in each standardise-validate task "pod". Change if you have resource or performance issues when standardising a dataset.'
         value: '4'
@@ -100,13 +106,13 @@ spec:
                 - name: ticket
                   value: '{{workflow.parameters.ticket}}'
                 - name: source
-                  value: 's3://nz-elevation/new-zealand/new-zealand/{{inputs.parameters.source_geospatial_category}}_{{workflow.parameters.gsd}}m/2193/'
+                  value: 's3://{{workflow.parameters.bucket_name}}/new-zealand/new-zealand/{{inputs.parameters.source_geospatial_category}}_{{workflow.parameters.gsd}}m/2193/'
                 - name: source_geospatial_category
                   value: '{{inputs.parameters.source_geospatial_category}}'
                 - name: gsd
                   value: '{{workflow.parameters.gsd}}'
                 - name: odr_url
-                  value: 's3://nz-elevation/new-zealand/new-zealand/{{inputs.parameters.source_geospatial_category}}-{{item}}_{{workflow.parameters.gsd}}m/2193/'
+                  value: 's3://{{workflow.parameters.bucket_name}}/new-zealand/new-zealand/{{inputs.parameters.source_geospatial_category}}-{{item}}_{{workflow.parameters.gsd}}m/2193/'
                 - name: hillshade_preset
                   value: '{{item}}'
                 - name: publish_to_odr
