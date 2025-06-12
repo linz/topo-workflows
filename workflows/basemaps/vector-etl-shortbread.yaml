@@ -3,7 +3,7 @@
 apiVersion: argoproj.io/v1alpha1
 kind: WorkflowTemplate
 metadata:
-  name: test-basemaps-vector-etl-shortbread
+  name: basemaps-vector-etl-shortbread
   labels:
     linz.govt.nz/category: basemaps
     linz.govt.nz/data-type: vector
@@ -19,7 +19,7 @@ spec:
     parameters:
       - name: version_basemaps_cli
         description: Version of the basemaps CLI docker container to use
-        value: pr-3452
+        value: 'v8'
 
       - name: version_argo_tasks
         description: Version of the Argo Tasks CLI docker container to use
@@ -272,9 +272,9 @@ spec:
         image: ghcr.io/linz/basemaps/cli:{{ workflow.parameters.version_basemaps_cli }}
         resources:
           requests:
-            memory: 12Gi
+            memory: 7.8Gi
             cpu: 15000m
-        command: [node, --max-old-space-size=8192, index.cjs]
+        command: [node, index.cjs]
         env:
           - name: AWS_ROLE_CONFIG_PATH
             value: s3://linz-bucket-config/config.basemaps.json
