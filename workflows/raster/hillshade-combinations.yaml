@@ -47,6 +47,12 @@ spec:
       - name: hillshade_presets
         description: 'Hillshade presets to use, as stringified json, e.g. ["hillshade"] or ["hillshade-igor", "hillshade"]'
         value: '["hillshade-igor", "hillshade"]'
+      - name: domain
+        description: 'Data domain of the dataset, e.g. "land", "coastal"'
+        value: 'land'
+        enum:
+          - 'land'
+          - 'coastal'
       - name: bucket_name
         description: 'Name of the bucket to use, e.g. "nz-elevation" or "nz-coastal"'
         value: 'nz-elevation'
@@ -107,6 +113,8 @@ spec:
                   value: '{{workflow.parameters.ticket}}'
                 - name: source
                   value: 's3://{{workflow.parameters.bucket_name}}/new-zealand/new-zealand/{{inputs.parameters.source_geospatial_category}}_{{workflow.parameters.gsd}}m/2193/'
+                - name: domain
+                  value: '{{workflow.parameters.domain}}'
                 - name: source_geospatial_category
                   value: '{{inputs.parameters.source_geospatial_category}}'
                 - name: gsd
