@@ -65,6 +65,12 @@ spec:
         enum:
           - 'false'
           - 'true'
+      - name: target_bucket_name
+        description: 'Target bucket name for publishing to ODR, e.g. "nz-elevation"'
+        value: 'nz-elevation'
+        enum:
+          - 'nz-elevation'
+          - 'nz-coastal'
       - name: copy_option
         description: 'Do not overwrite existing files with "no-clobber", "force" overwriting files in the target location, or "force-no-clobber" overwriting only changed files, skipping unchanged files'
         value: '--force-no-clobber'
@@ -268,7 +274,7 @@ spec:
                 - name: source
                   value: '{{=sprig.trimSuffix("/", tasks["get-location"].outputs.parameters.location)}}/flat/'
                 - name: target_bucket_name
-                  value: 'nz-elevation'
+                  value: '{{=sprig.trim(workflow.parameters.target_bucket_name)}}'
                 - name: copy_option
                   value: '{{workflow.parameters.copy_option}}'
                 - name: ticket
