@@ -152,6 +152,12 @@ spec:
           - 'dem'
           - 'dsm'
           - 'satellite-imagery'
+      - name: domain
+        description: 'domain of the dataset, e.g. "land", "coastal"'
+        value: 'land'
+        enum:
+          - 'land'
+          - 'coastal'
       - name: gsd
         description: 'Dataset GSD in metres, e.g., "0.3" for 30 centimetres'
       - name: producer
@@ -243,6 +249,7 @@ spec:
             'National Institute of Water and Atmospheric Research',
             'Nelson City Council',
             'New Plymouth District Council',
+            'Ngā Tāngata Tiaki o Whanganui',
             'Northland Regional Council',
             'Ōpōtiki District Council',
             'Ōtorohanga District Council',
@@ -474,6 +481,8 @@ spec:
                   value: '{{=sprig.trim(workflow.parameters.delete_all_existing_items)}}'
                 - name: category
                   value: '{{=sprig.trim(workflow.parameters.category)}}'
+                - name: domain
+                  value: '{{=sprig.trim(workflow.parameters.domain)}}'
                 - name: region
                   value: '{{=sprig.trim(workflow.parameters.region)}}'
                 - name: gsd

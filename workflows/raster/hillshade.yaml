@@ -47,6 +47,12 @@ spec:
         enum:
           - 'dem'
           - 'dsm'
+      - name: domain
+        description: 'domain of the dataset, e.g. "land", "coastal"'
+        value: 'land'
+        enum:
+          - 'land'
+          - 'coastal'
       - name: gsd
         description: 'Dataset GSD in metres, e.g., "1" for 1 metre'
         default: '1'
@@ -86,6 +92,10 @@ spec:
           - name: source_geospatial_category
             description: 'Geospatial category of the source elevation data, e.g. "dem" or "dsm"'
             value: '{{workflow.parameters.source_geospatial_category}}'
+          - name: domain
+            description: 'domain of the dataset, e.g. "land", "coastal"'
+            default: 'land'
+            value: '{{workflow.parameters.domain}}'
           - name: hillshade_preset
             description: 'Hillshade preset to use, must be one of "hillshade" or "hillshade-igor"'
             value: '{{workflow.parameters.hillshade_preset}}'
@@ -200,6 +210,8 @@ spec:
                   value: '{{inputs.parameters.odr_url}}'
                 - name: category
                   value: '{{inputs.parameters.source_geospatial_category}}-{{inputs.parameters.hillshade_preset}}'
+                - name: domain
+                  value: '{{inputs.parameters.domain}}'
                 - name: region
                   value: 'new-zealand'
                 - name: gsd
