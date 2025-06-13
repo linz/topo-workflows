@@ -37,7 +37,7 @@ The following cron workflows:
 - `cron-national-dsm`
 - `cron-national-coastal-dem`
 
-trigger the `national-elevation` workflow on a daily (Mon-Fri) basis to make sure that any update to those 1m DEM and 1m DSM datasets (`s3://nz-elevation`, only DEM in `s3://nz-coastal`) that are listed in the configuration ([DEM](https://github.com/linz/basemaps-config/blob/master/config/tileset/elevation.json) / [DSM](https://github.com/linz/basemaps-config/blob/master/config/tileset/elevation.dsm.json)), or any update to the configuration itself, are propagated to the respective dataset:
+trigger the `national-elevation` workflow on a daily (Mon-Fri) basis to make sure that any update to those 1m DEM and 1m DSM datasets (`s3://nz-elevation`, only DEM in `s3://nz-coastal`) that are listed in the configuration ([DEM](https://github.com/linz/basemaps-config/blob/master/config/tileset/elevation.json) / [DSM](https://github.com/linz/basemaps-config/blob/master/config/tileset/elevation.dsm.json) / [Coastal DEM](https://github.com/linz/basemaps-config/blob/master/config/tileset/elevation.coastal.json)), or any update to the configuration itself, are propagated to the respective dataset:
 
 - [New Zealand LiDAR 1m DEM](https://github.com/linz/elevation/blob/master/stac/new-zealand/new-zealand/dem_1m/2193/collection.json)
 - [New Zealand LiDAR 1m DSM](https://github.com/linz/elevation/blob/master/stac/new-zealand/new-zealand/dsm_1m/2193/collection.json)
