@@ -22,7 +22,7 @@ spec:
         linz.govt.nz/data-type: raster
         linz.govt.nz/region: 'new-zealand'
     workflowTemplateRef:
-      name: test-trs-hillshade-combinations
+      name: hillshade-combinations
     arguments:
       parameters:
         - name: version_argo_tasks
