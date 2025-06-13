@@ -1,0 +1,214 @@
+# yaml-language-server: $schema=https://raw.githubusercontent.com/argoproj/argo-workflows/v3.5.5/api/jsonschema/schema.json
+
+apiVersion: argoproj.io/v1alpha1
+kind: WorkflowTemplate
+metadata:
+  name: test-custom-gdal
+  labels:
+    linz.govt.nz/category: raster
+    linz.govt.nz/data-type: raster
+spec:
+  parallelism: 50
+  nodeSelector:
+    karpenter.sh/capacity-type: 'spot'
+  entrypoint: main
+  onExit: exit-handler
+  workflowMetadata:
+    labelsFrom:
+      linz.govt.nz/user-group:
+        expression: workflow.parameters.user_group
+      linz.govt.nz/ticket:
+        expression: workflow.parameters.ticket
+      linz.govt.nz/region:
+        expression: workflow.parameters.region
+  podMetadata:
+    labels:
+      linz.govt.nz/user-group: '{{workflow.parameters.user_group}}'
+      linz.govt.nz/category: raster
+      linz.govt.nz/data-type: raster
+      linz.govt.nz/ticket: '{{workflow.parameters.ticket}}'
+      linz.govt.nz/region: '{{workflow.parameters.region}}'
+  arguments:
+    parameters:
+      - name: version_argo_tasks
+        description: 'Specify a version of the argo-tasks image to use, e.g. "v4.1" or "latest"'
+        value: 'v4'
+      - name: version_basemaps_cli
+        description: 'Specify a version of the basemaps-cli image to use, e.g. "v8" or "latest"'
+        value: 'v8'
+      - name: version_topo_imagery
+        description: 'Specify a version of the topo-imagery image to use, e.g. "v4.8" or "latest"'
+        value: 'v7'
+      - name: user_group
+        description: Group of users running the workflow
+        value: 'none'
+        enum:
+          - 'land'
+          - 'sea'
+          - 'none'
+      - name: ticket
+        description: 'Ticket ID, e.g. "LI-1570"'
+        value: ''
+      - name: region
+        description: 'Region of the dataset from the list below'
+        value: 'new-zealand'
+        enum:
+          - 'antarctica'
+          - 'auckland'
+          - 'bay-of-plenty'
+          - 'canterbury'
+          - 'gisborne'
+          - 'global'
+          - 'hawkes-bay'
+          - 'manawatu-whanganui'
+          - 'marlborough'
+          - 'nelson'
+          - 'new-zealand'
+          - 'northland'
+          - 'otago'
+          - 'pacific-islands'
+          - 'southland'
+          - 'taranaki'
+          - 'tasman'
+          - 'waikato'
+          - 'wellington'
+          - 'west-coast'
+      - name: source
+        description: 'S3 location of the source dataset(s). Separate multiple sources with a semicolon (;) for merging. Target imagery will be layered (bottom to top) in order specified (left to right)'
+        value: 's3://linz-imagery-staging/test/sample/'
+      - name: include
+        description: 'Regular expression pattern match for paths/files to include e.g ".tiff?$"'
+        value: '.tiff?$'
+      - name: gdal_command
+        description: 'GDAL command to run, e.g. "gdal_translate [arguments]". Do not specify the input or output files, these will be set automatically.'
+        value: 'gdal_translate -co COMPRESS=WEBP -co WEBP_LOSSLESS=YES'
+      - name: group
+        description: 'How many output tiles to process in each standardise-validate task "pod". Change if you have resource or performance issues when standardising a dataset.'
+        value: '50'
+  templateDefaults:
+    container:
+      imagePullPolicy: Always
+      image: ''
+  templates:
+    - name: main
+      retryStrategy:
+        expression: 'false'
+      inputs:
+        parameters:
+          - name: source
+      dag:
+        tasks:
+          - name: tile-index-validate
+            templateRef:
+              name: tpl-at-tile-index-validate
+              template: main
+            arguments:
+              parameters:
+                - name: scale
+                  value: '{{workflow.parameters.scale}}'
+                - name: include
+                  value: '{{workflow.parameters.include}}'
+                - name: source
+                  value: '{{=sprig.trim(inputs.parameters.source)}}'
+                - name: source_epsg
+                  value: '{{=sprig.trim(workflow.parameters.source_epsg)}}'
+                - name: validate
+                  value: 'false'
+                - name: retile
+                  value: 'false'
+                - name: preset
+                  value: '{{= workflow.parameters.compression}}'
+                - name: version
+                  value: '{{= workflow.parameters.version_argo_tasks}}'
+
+          - name: group
+            templateRef:
+              name: tpl-at-group
+              template: main
+            arguments:
+              artifacts:
+                - name: input
+                  from: '{{ tasks.tile-index-validate.outputs.artifacts.files }}'
+              parameters:
+                - name: size
+                  value: '{{workflow.parameters.group}}'
+                - name: version
+                  value: '{{= workflow.parameters.version_argo_tasks}}'
+            depends: 'tile-index-validate'
+
+          - name: custom-gdal
+            template: custom-gdal
+            arguments:
+              parameters:
+                - name: group_id
+                  value: '{{item}}'
+                - name: target
+                  value: '{{=sprig.trimSuffix("/", tasks["get-location"].outputs.parameters.location)}}/flat/'
+                - name: gdal_command
+                  value: '{{= workflow.parameters.gdal_command}}'
+                - name: version_topo_imagery
+                  value: '{{= workflow.parameters.version_topo_imagery}}'
+              artifacts:
+                - name: group_data
+                  from: '{{ tasks.group.outputs.artifacts.output }}'
+            depends: 'group && stac-setup && get-location'
+            withParam: '{{ tasks.group.outputs.parameters.output }}'
+
+          - name: get-location
+            templateRef:
+              name: tpl-get-location
+              template: main
+      outputs:
+        parameters:
+          - name: target
+            valueFrom:
+              parameter: '{{tasks.get-location.outputs.parameters.location}}'
+      # END TEMPLATE `main`
+
+    - name: custom-gdal
+      inputs:
+        parameters:
+          - name: group_id
+            description: 'Group ID for the current group of tiles'
+          - name: target
+            description: 'Target S3 location for the output files'
+          - name: gdal_command
+            description: 'GDAL command to run, e.g. "gdal_translate [arguments]". Do not specify the input or output files, these will be set automatically.'
+          - name: version_topo_imagery
+            description: 'Version of the topo-imagery image to use'
+        artifacts:
+          - name: group_data
+            path: /tmp/input/
+      container:
+        image: '019359803926.dkr.ecr.ap-southeast-2.amazonaws.com/topo-imagery:{{=sprig.trim(inputs.parameters.version_topo_imagery)}}'
+        env:
+          - name: AWS_ROLE_CONFIG_PATH
+            value: s3://linz-bucket-config/config.json
+        args:
+          - python
+          - '/app/scripts/gdal_custom.py'
+          - '--from-file'
+          - '/tmp/input/{{inputs.parameters.group_id}}.json'
+          - '--target'
+          - '{{inputs.parameters.target}}'
+          - '--gdal-command'
+          - '{{inputs.parameters.gdal_command}}'
+
+    - name: exit-handler
+      retryStrategy:
+        limit: '0' # `tpl-exit-handler` retries itself
+      steps:
+        - - name: exit
+            templateRef:
+              name: tpl-exit-handler
+              template: main
+            arguments:
+              parameters:
+                - name: workflow_status
+                  value: '{{workflow.status}}'
+                - name: workflow_parameters
+                  value: '{{workflow.parameters}}'
+
+  volumes:
+    - name: ephemeral
+      emptyDir: {}
