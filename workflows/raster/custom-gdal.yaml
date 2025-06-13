@@ -3,7 +3,7 @@
 apiVersion: argoproj.io/v1alpha1
 kind: WorkflowTemplate
 metadata:
-  name: test-custom-gdal
+  name: custom-gdal
   labels:
     linz.govt.nz/category: raster
     linz.govt.nz/data-type: raster
@@ -151,7 +151,7 @@ spec:
               artifacts:
                 - name: group_data
                   from: '{{ tasks.group.outputs.artifacts.output }}'
-            depends: 'group && stac-setup && get-location'
+            depends: 'group && get-location'
             withParam: '{{ tasks.group.outputs.parameters.output }}'
 
           - name: get-location
