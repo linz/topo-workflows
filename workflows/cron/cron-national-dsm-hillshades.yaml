@@ -37,6 +37,8 @@ spec:
           value: '["dsm"]'
         - name: bucket_name
           value: 'nz-elevation'
+        - name: domain
+          value: 'land'
         - name: gsd
           value: '1'
         - name: hillshade_presets
