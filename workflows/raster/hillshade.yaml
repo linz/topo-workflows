@@ -288,7 +288,7 @@ spec:
                 - name: source
                   value: '{{=sprig.trimSuffix("/", tasks["get-location"].outputs.parameters.location)}}/{{inputs.parameters.source_geospatial_category}}-{{inputs.parameters.hillshade_preset}}/flat/'
                 - name: target_bucket_name
-                  value: 'nz-elevation'
+                  value: '{{= workflow.parameters.domain == "coastal" ? "nz-coastal" : "nz-elevation" }}'
                 - name: copy_option
                   value: '{{=sprig.trim(workflow.parameters.copy_option)}}'
                 - name: ticket
