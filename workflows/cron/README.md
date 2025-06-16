@@ -47,7 +47,7 @@ trigger the `national-elevation` workflow on a daily (Mon-Fri) basis to make sur
 
 ## National Hillshades
 
-The three cron workflows `cron-coastal-dem-hillshades`, `cron-national-dem-hillshades` and `cron-national-dsm-hillshades` trigger the `hillshade-combinations` workflow on a daily (Mon-Fri) basis to make sure that any update to the coastal and national 1m DEM/DSM datasets will be reflected in the respective 1m hillshade datasets:
+The three cron workflows `cron-national-dem-hillshades-coastal`, `cron-national-dem-hillshades` and `cron-national-dsm-hillshades` trigger the `hillshade-combinations` workflow on a daily (Mon-Fri) basis to make sure that any update to the coastal and national 1m DEM/DSM datasets will be reflected in the respective 1m hillshade datasets:
 
 - [New Zealand Coastal LiDAR 1m DEM Hillshade](https://github.com/linz/coastal/blob/master/stac/new-zealand/new-zealand/dem-hillshade_1m/2193/collection.json)
 - [New Zealand Coastal LiDAR 1m DEM Hillshade - Igor](https://github.com/linz/coastal/blob/master/stac/new-zealand/new-zealand/dem-hillshade-igor_1m/2193/collection.json)
@@ -60,7 +60,7 @@ The three cron workflows `cron-coastal-dem-hillshades`, `cron-national-dem-hills
 
 ## National Merged Hillshades
 
-The three cron workflows `cron-coastal-merged-dem-hillshades` and `cron-national-merged-[dem/dsm]-hillshades` run on a daily (Mon-Fri) basis to update the below listed merged hillshade datasets after the respective 1m hillshade datasets have been updated:
+The three cron workflows `cron-national-merged-dem-hillshades-coastal` and `cron-national-merged-[dem/dsm]-hillshades` run on a daily (Mon-Fri) basis to update the below listed merged hillshade datasets after the respective 1m hillshade datasets have been updated:
 
 - [New Zealand Coastal DEM Hillshade](https://github.com/linz/coastal/blob/master/stac/new-zealand/new-zealand/dem-hillshade/2193/collection.json)
 - [New Zealand Coastal DEM Hillshade - Igor](https://github.com/linz/coastal/blob/master/stac/new-zealand/new-zealand/dem-hillshade-igor/2193/collection.json)
