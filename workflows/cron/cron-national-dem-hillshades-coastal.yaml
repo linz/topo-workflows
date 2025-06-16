@@ -2,7 +2,7 @@
 apiVersion: argoproj.io/v1alpha1
 kind: CronWorkflow
 metadata:
-  name: cron-coastal-dem-hillshades
+  name: cron-national-dem-hillshades-coastal
   labels:
     linz.govt.nz/category: raster
     linz.govt.nz/data-type: raster
@@ -32,7 +32,7 @@ spec:
         - name: version_topo_imagery
           value: 'v7'
         - name: ticket
-          value: 'TDE-1455'
+          value: 'TDE-1479'
         - name: source_geospatial_categories
           value: '["dem"]'
         - name: bucket_name
