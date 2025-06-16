@@ -2,7 +2,7 @@
 apiVersion: argoproj.io/v1alpha1
 kind: CronWorkflow
 metadata:
-  name: cron-national-dem-hillshades
+  name: cron-national-dem-hillshades-coastal
   labels:
     linz.govt.nz/category: raster
     linz.govt.nz/data-type: raster
@@ -14,7 +14,7 @@ spec:
   failedJobsHistoryLimit: 3
   workflowMetadata:
     labels:
-      linz.govt.nz/ticket: 'TDE-1279'
+      linz.govt.nz/ticket: 'TDE-1525'
   workflowSpec:
     podMetadata:
       labels:
@@ -32,17 +32,19 @@ spec:
         - name: version_topo_imagery
           value: 'v7'
         - name: ticket
-          value: 'TDE-1279'
+          value: 'TDE-1479'
         - name: source_geospatial_categories
           value: '["dem"]'
         - name: bucket_name
-          value: 'nz-elevation'
+          value: 'nz-coastal'
         - name: domain
-          value: 'land'
+          value: 'coastal'
         - name: gsd
           value: '1'
         - name: hillshade_presets
           value: '["hillshade", "hillshade-igor"]'
+        - name: bucket_name
+          value: 'nz-coastal'
         - name: publish_to_odr
           value: 'true'
         - name: copy_option
