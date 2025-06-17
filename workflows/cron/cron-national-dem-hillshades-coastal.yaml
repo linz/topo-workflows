@@ -32,7 +32,7 @@ spec:
         - name: version_topo_imagery
           value: 'v7'
         - name: ticket
-          value: 'TDE-1479'
+          value: 'TDE-1525'
         - name: source_geospatial_categories
           value: '["dem"]'
         - name: bucket_name

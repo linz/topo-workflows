@@ -41,4 +41,4 @@ spec:
         - name: 'copy_option'
           value: '--force-no-clobber'
         - name: 'ticket'
-          value: ''
+          value: 'TDE-1524'
