@@ -65,7 +65,7 @@ spec:
 
       - name: analyse
         description: Should generate an analyse report for the output mbtiles
-        value: 'false'
+        value: 'true'
         enum:
           - 'true'
           - 'false'
