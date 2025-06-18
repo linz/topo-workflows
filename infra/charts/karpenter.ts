@@ -1,8 +1,8 @@
 import { Chart, ChartProps, Duration, Helm } from 'cdk8s';
 import { Construct } from 'constructs';
 
-import { AwsNodeTemplate, AwsNodeTemplateSpecBlockDeviceMappingsEbsVolumeSize } from '../imports/karpenter.k8s.aws.js';
-import { Provisioner, ProvisionerSpecLimitsResources } from '../imports/karpenter.sh.js';
+import { Ec2NodeClass, Ec2NodeClassSpecBlockDeviceMappingsEbsVolumeType } from '../imports/karpenter.k8s.aws.js';
+import { NodePool } from '../imports/karpenter.sh.js';
 import { applyDefaultLabels } from '../util/labels.js';
 
 export interface KarpenterProps {
@@ -100,21 +100,23 @@ export class KarpenterProvisioner extends Chart {
     super(scope, id, applyDefaultLabels(props, 'karpenter', version, 'karpenter', 'workflows'));
 
     const templateName = `karpenter-template`;
-    const template = new AwsNodeTemplate(this, 'template', {
+    const template = new Ec2NodeClass(this, 'template', {
       metadata: { name: templateName },
       spec: {
-        amiFamily: 'Bottlerocket',
+        amiSelectorTerms: [{ alias: 'bottlerocket' }],
         // Subnets need to be opted into, ideally a tag on subnets would be the best bet here
         // but CDK does not easily allow us to tag Subnets that are not created by us
-        subnetSelector: { Name: '*' },
-        securityGroupSelector: { [`kubernetes.io/cluster/${props.clusterName}`]: 'owned' },
+        subnetSelectorTerms: [{ tags: { Name: '*' } }],
+        //subnetSelector: { Name: '*' },
+        securityGroupSelectorTerms: [{ tags: { [`kubernetes.io/cluster/${props.clusterName}`]: 'owned' } }],
+        // securityGroupSelector: { [`kubernetes.io/cluster/${props.clusterName}`]: 'owned' },
         instanceProfile: props.instanceProfile,
         blockDeviceMappings: [
           {
             deviceName: '/dev/xvdb',
             ebs: {
-              volumeType: 'gp3',
-              volumeSize: AwsNodeTemplateSpecBlockDeviceMappingsEbsVolumeSize.fromString('200Gi'),
+              volumeType: Ec2NodeClassSpecBlockDeviceMappingsEbsVolumeType.GP3,
+              volumeSize: '200Gi',
               deleteOnTermination: true,
             },
           },
@@ -122,7 +124,7 @@ export class KarpenterProvisioner extends Chart {
       },
     });
 
-    const provisionAmd64Spot = new Provisioner(this, 'ClusterAmd64WorkerNodesSpot', {
+    const provisionAmd64Spot = new NodePool(this, 'ClusterAmd64WorkerNodesSpot', {
       metadata: { name: `karpenter-amd64-spot`, namespace: 'karpenter' },
       spec: {
         // Ensure only pods that tolerate spot run on spot instance types
@@ -133,7 +135,8 @@ export class KarpenterProvisioner extends Chart {
           { key: 'kubernetes.io/arch', operator: 'In', values: ['amd64'] },
           { key: 'karpenter.k8s.aws/instance-family', operator: 'In', values: ['c5', 'c6i', 'c6a'] },
         ],
-        limits: { resources: { cpu: ProvisionerSpecLimitsResources.fromNumber(2000) } },
+        limits: { }
+        //limits: { resources: { cpu: ProvisionerSpecLimitsResources.fromNumber(2000) } },
         providerRef: { ...AwsNodeTemplate.GVK, name: templateName },
         ttlSecondsAfterEmpty: Duration.minutes(1).toSeconds(), // optional, but never scales down if not set
       },
