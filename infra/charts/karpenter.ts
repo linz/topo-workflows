@@ -1,9 +1,15 @@
-import { Chart, ChartProps, Duration, Helm } from 'cdk8s';
+import { Chart, ChartProps, Helm } from 'cdk8s';
 import { Construct } from 'constructs';
 
 import { Ec2NodeClass, Ec2NodeClassSpecBlockDeviceMappingsEbsVolumeType } from '../imports/karpenter.k8s.aws.js';
-import { NodePool } from '../imports/karpenter.sh.js';
+import {
+  NodePool,
+  NodePoolSpecLimits,
+  NodePoolSpecTemplateSpecRequirementsOperator,
+  NodePoolSpecTemplateSpecTaintsEffect,
+} from '../imports/karpenter.sh.js';
 import { applyDefaultLabels } from '../util/labels.js';
+// import * as kplus from 'cdk8s-plus-32';
 
 export interface KarpenterProps {
   /**
@@ -125,61 +131,141 @@ export class KarpenterProvisioner extends Chart {
     });
 
     const provisionAmd64Spot = new NodePool(this, 'ClusterAmd64WorkerNodesSpot', {
-      metadata: { name: `karpenter-amd64-spot`, namespace: 'karpenter' },
       spec: {
+        template: {
+          metadata: {
+            labels: {
+              'karpenter.sh/capacity-type': 'spot',
+              name: `karpenter-amd64-spot`,
+              namespace: 'karpenter',
+            },
+          },
+          spec: {
+            nodeClassRef: { ...Ec2NodeClass.GVK, name: templateName, group: 'karpenter.k8s.aws' },
+            requirements: [
+              {
+                key: 'karpenter.sh/capacity-type',
+                operator: NodePoolSpecTemplateSpecRequirementsOperator.IN,
+                values: ['spot'],
+              },
+              {
+                key: 'kubernetes.io/arch',
+                operator: NodePoolSpecTemplateSpecRequirementsOperator.IN,
+                values: ['amd64'],
+              },
+              {
+                key: 'karpenter.k8s.aws/instance-family',
+                operator: NodePoolSpecTemplateSpecRequirementsOperator.IN,
+                values: ['c5', 'c6i', 'c6a'],
+              },
+            ],
+            taints: [
+              {
+                key: 'karpenter.sh/capacity-type',
+                value: 'spot',
+                effect: NodePoolSpecTemplateSpecTaintsEffect.NO_SCHEDULE,
+              },
+            ],
+          },
+        },
         // Ensure only pods that tolerate spot run on spot instance types
         // to prevent long running pods (eg kube-dns) being moved.
-        taints: [{ key: 'karpenter.sh/capacity-type', value: 'spot', effect: 'NoSchedule' }],
-        requirements: [
-          { key: 'karpenter.sh/capacity-type', operator: 'In', values: ['spot'] },
-          { key: 'kubernetes.io/arch', operator: 'In', values: ['amd64'] },
-          { key: 'karpenter.k8s.aws/instance-family', operator: 'In', values: ['c5', 'c6i', 'c6a'] },
-        ],
-        limits: { }
+        limits: {},
         //limits: { resources: { cpu: ProvisionerSpecLimitsResources.fromNumber(2000) } },
-        providerRef: { ...AwsNodeTemplate.GVK, name: templateName },
-        ttlSecondsAfterEmpty: Duration.minutes(1).toSeconds(), // optional, but never scales down if not set
+        // ttlSecondsAfterEmpty: Duration.minutes(1).toSeconds(), // optional, but never scales down if not set
       },
     });
 
-    const provisionAmd64OnDemand = new Provisioner(this, 'ClusterAmd64WorkerNodesOnDemand', {
-      metadata: { name: `karpenter-amd64-on-demand`, namespace: 'karpenter' },
+    const provisionAmd64OnDemand = new NodePool(this, 'ClusterAmd64WorkerNodesOnDemand', {
       spec: {
-        taints: [
-          // Ensure only pods that tolerate karpenter's capacity run on this node
-          // to prevent long running pods (eg kube-dns) being moved.
-          { key: 'karpenter.sh/capacity-type', value: 'on-demand', effect: 'NoSchedule' },
-        ],
-        requirements: [
-          { key: 'karpenter.sh/capacity-type', operator: 'In', values: ['on-demand'] },
-          { key: 'kubernetes.io/arch', operator: 'In', values: ['amd64'] },
-          { key: 'karpenter.k8s.aws/instance-family', operator: 'In', values: ['c5', 'c6i', 'c6a'] },
-        ],
-        limits: { resources: { cpu: ProvisionerSpecLimitsResources.fromNumber(2000) } },
-        providerRef: { ...AwsNodeTemplate.GVK, name: templateName },
-        ttlSecondsAfterEmpty: Duration.minutes(1).toSeconds(), // optional, but never scales down if not set
+        template: {
+          metadata: {
+            labels: {
+              'karpenter.sh/capacity-type': 'on-demand',
+              name: `karpenter-amd64-on-demand`,
+              namespace: 'karpenter',
+            },
+          },
+          spec: {
+            nodeClassRef: { ...Ec2NodeClass.GVK, name: templateName, group: 'karpenter.k8s.aws' },
+            requirements: [
+              {
+                key: 'karpenter.sh/capacity-type',
+                operator: NodePoolSpecTemplateSpecRequirementsOperator.IN,
+                values: ['on-demand'],
+              },
+              {
+                key: 'kubernetes.io/arch',
+                operator: NodePoolSpecTemplateSpecRequirementsOperator.IN,
+                values: ['amd64'],
+              },
+              {
+                key: 'karpenter.k8s.aws/instance-family',
+                operator: NodePoolSpecTemplateSpecRequirementsOperator.IN,
+                values: ['c5', 'c6i', 'c6a'],
+              },
+            ],
+            taints: [
+              // Ensure only pods that tolerate karpenter's capacity run on this node
+              // to prevent long running pods (eg kube-dns) being moved.
+              {
+                key: 'karpenter.sh/capacity-type',
+                value: 'on-demand',
+                effect: NodePoolSpecTemplateSpecTaintsEffect.NO_SCHEDULE,
+              },
+            ],
+          },
+        },
+        // ttlSecondsAfterEmpty: Duration.minutes(1).toSeconds(), // optional, but never scales down if not set
+        limits: { cpu: NodePoolSpecLimits.fromNumber(2000) },
       },
     });
 
-    const provisionArm64 = new Provisioner(this, 'ClusterArmWorkerNodes', {
-      metadata: { name: `karpenter-arm64-spot`, namespace: 'karpenter' },
+    const provisionArm64 = new NodePool(this, 'ClusterArmWorkerNodes', {
       spec: {
-        taints: [
-          // Instances that want ARM have to tolerate the arm taint
-          // This prevents some pods from accidentally trying to start on ARM
-          { key: 'kubernetes.io/arch', value: 'arm64', effect: 'NoSchedule' },
-          // Ensure only pods that tolerate spot run on spot instance types
-          // to prevent long running pods (eg kube-dns) being moved.
-          { key: 'karpenter.sh/capacity-type', value: 'spot', effect: 'NoSchedule' },
-        ],
-        requirements: [
-          { key: 'karpenter.sh/capacity-type', operator: 'In', values: ['spot'] },
-          { key: 'kubernetes.io/arch', operator: 'In', values: ['arm64'] },
-          { key: 'karpenter.k8s.aws/instance-family', operator: 'In', values: ['c7g', 'c6g'] },
-        ],
-        limits: { resources: { cpu: ProvisionerSpecLimitsResources.fromNumber(2000) } },
-        providerRef: { ...AwsNodeTemplate.GVK, name: templateName },
-        ttlSecondsAfterEmpty: Duration.minutes(1).toSeconds(), // optional, but never scales down if not set
+        template: {
+          metadata: {
+            labels: {
+              'karpenter.sh/capacity-type': 'spot',
+              name: `karpenter-arm64-spot`,
+              namespace: 'karpenter',
+            },
+          },
+          spec: {
+            nodeClassRef: { ...Ec2NodeClass.GVK, name: templateName, group: 'karpenter.k8s.aws' },
+            requirements: [
+              {
+                key: 'karpenter.sh/capacity-type',
+                operator: NodePoolSpecTemplateSpecRequirementsOperator.IN,
+                values: ['spot'],
+              },
+              {
+                key: 'kubernetes.io/arch',
+                operator: NodePoolSpecTemplateSpecRequirementsOperator.IN,
+                values: ['arm64'],
+              },
+              {
+                key: 'karpenter.k8s.aws/instance-family',
+                operator: NodePoolSpecTemplateSpecRequirementsOperator.IN,
+                values: ['c7g', 'c6g'],
+              },
+            ],
+            taints: [
+              // Instances that want ARM have to tolerate the arm taint
+              // This prevents some pods from accidentally trying to start on ARM
+              { key: 'kubernetes.io/arch', value: 'arm64', effect: NodePoolSpecTemplateSpecTaintsEffect.NO_SCHEDULE },
+              // Ensure only pods that tolerate spot run on spot instance types
+              // to prevent long running pods (eg kube-dns) being moved.
+              {
+                key: 'karpenter.sh/capacity-type',
+                value: 'spot',
+                effect: NodePoolSpecTemplateSpecTaintsEffect.NO_SCHEDULE,
+              },
+            ],
+          },
+          // ttlSecondsAfterEmpty: Duration.minutes(1).toSeconds(), // optional, but never scales down if not set
+        },
+        limits: { cpu: NodePoolSpecLimits.fromNumber(2000) },
       },
     });
 

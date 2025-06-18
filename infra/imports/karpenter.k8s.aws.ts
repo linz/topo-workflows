@@ -2,7 +2,6 @@
 import { ApiObject, ApiObjectMetadata, GroupVersionKind } from 'cdk8s';
 import { Construct } from 'constructs';
 
-
 /**
  * EC2NodeClass is the Schema for the EC2NodeClass API
  *
@@ -15,7 +14,7 @@ export class Ec2NodeClass extends ApiObject {
   public static readonly GVK: GroupVersionKind = {
     apiVersion: 'karpenter.k8s.aws/v1',
     kind: 'EC2NodeClass',
-  }
+  };
 
   /**
    * Renders a Kubernetes manifest for "EC2NodeClass".
@@ -47,7 +46,7 @@ export class Ec2NodeClass extends ApiObject {
   /**
    * Renders the object to Kubernetes JSON.
    */
-  public toJson(): any {
+  public override toJson(): any {
     const resolved = super.toJson();
 
     return {
@@ -75,7 +74,6 @@ export interface Ec2NodeClassProps {
    * @schema EC2NodeClass#spec
    */
   readonly spec?: Ec2NodeClassSpec;
-
 }
 
 /**
@@ -83,13 +81,15 @@ export interface Ec2NodeClassProps {
  */
 /* eslint-disable max-len, @stylistic/max-len, quote-props, @stylistic/quote-props */
 export function toJson_Ec2NodeClassProps(obj: Ec2NodeClassProps | undefined): Record<string, any> | undefined {
-  if (obj === undefined) { return undefined; }
+  if (obj === undefined) {
+    return undefined;
+  }
   const result = {
-    'metadata': obj.metadata,
-    'spec': toJson_Ec2NodeClassSpec(obj.spec),
+    metadata: obj.metadata,
+    spec: toJson_Ec2NodeClassSpec(obj.spec),
   };
   // filter undefined values
-  return Object.entries(result).reduce((r, i) => (i[1] === undefined) ? r : ({ ...r, [i[0]]: i[1] }), {});
+  return Object.entries(result).reduce((r, i) => (i[1] === undefined ? r : { ...r, [i[0]]: i[1] }), {});
 }
 /* eslint-enable max-len, @stylistic/max-len, quote-props, @stylistic/quote-props */
 
@@ -242,7 +242,6 @@ export interface Ec2NodeClassSpec {
    * @schema Ec2NodeClassSpec#userData
    */
   readonly userData?: string;
-
 }
 
 /**
@@ -250,27 +249,36 @@ export interface Ec2NodeClassSpec {
  */
 /* eslint-disable max-len, @stylistic/max-len, quote-props, @stylistic/quote-props */
 export function toJson_Ec2NodeClassSpec(obj: Ec2NodeClassSpec | undefined): Record<string, any> | undefined {
-  if (obj === undefined) { return undefined; }
+  if (obj === undefined) {
+    return undefined;
+  }
   const result = {
-    'amiFamily': obj.amiFamily,
-    'amiSelectorTerms': obj.amiSelectorTerms?.map(y => toJson_Ec2NodeClassSpecAmiSelectorTerms(y)),
-    'associatePublicIPAddress': obj.associatePublicIpAddress,
-    'blockDeviceMappings': obj.blockDeviceMappings?.map(y => toJson_Ec2NodeClassSpecBlockDeviceMappings(y)),
-    'capacityReservationSelectorTerms': obj.capacityReservationSelectorTerms?.map(y => toJson_Ec2NodeClassSpecCapacityReservationSelectorTerms(y)),
-    'context': obj.context,
-    'detailedMonitoring': obj.detailedMonitoring,
-    'instanceProfile': obj.instanceProfile,
-    'instanceStorePolicy': obj.instanceStorePolicy,
-    'kubelet': toJson_Ec2NodeClassSpecKubelet(obj.kubelet),
-    'metadataOptions': toJson_Ec2NodeClassSpecMetadataOptions(obj.metadataOptions),
-    'role': obj.role,
-    'securityGroupSelectorTerms': obj.securityGroupSelectorTerms?.map(y => toJson_Ec2NodeClassSpecSecurityGroupSelectorTerms(y)),
-    'subnetSelectorTerms': obj.subnetSelectorTerms?.map(y => toJson_Ec2NodeClassSpecSubnetSelectorTerms(y)),
-    'tags': ((obj.tags) === undefined) ? undefined : (Object.entries(obj.tags).reduce((r, i) => (i[1] === undefined) ? r : ({ ...r, [i[0]]: i[1] }), {})),
-    'userData': obj.userData,
+    amiFamily: obj.amiFamily,
+    amiSelectorTerms: obj.amiSelectorTerms?.map((y) => toJson_Ec2NodeClassSpecAmiSelectorTerms(y)),
+    associatePublicIPAddress: obj.associatePublicIpAddress,
+    blockDeviceMappings: obj.blockDeviceMappings?.map((y) => toJson_Ec2NodeClassSpecBlockDeviceMappings(y)),
+    capacityReservationSelectorTerms: obj.capacityReservationSelectorTerms?.map((y) =>
+      toJson_Ec2NodeClassSpecCapacityReservationSelectorTerms(y),
+    ),
+    context: obj.context,
+    detailedMonitoring: obj.detailedMonitoring,
+    instanceProfile: obj.instanceProfile,
+    instanceStorePolicy: obj.instanceStorePolicy,
+    kubelet: toJson_Ec2NodeClassSpecKubelet(obj.kubelet),
+    metadataOptions: toJson_Ec2NodeClassSpecMetadataOptions(obj.metadataOptions),
+    role: obj.role,
+    securityGroupSelectorTerms: obj.securityGroupSelectorTerms?.map((y) =>
+      toJson_Ec2NodeClassSpecSecurityGroupSelectorTerms(y),
+    ),
+    subnetSelectorTerms: obj.subnetSelectorTerms?.map((y) => toJson_Ec2NodeClassSpecSubnetSelectorTerms(y)),
+    tags:
+      obj.tags === undefined
+        ? undefined
+        : Object.entries(obj.tags).reduce((r, i) => (i[1] === undefined ? r : { ...r, [i[0]]: i[1] }), {}),
+    userData: obj.userData,
   };
   // filter undefined values
-  return Object.entries(result).reduce((r, i) => (i[1] === undefined) ? r : ({ ...r, [i[0]]: i[1] }), {});
+  return Object.entries(result).reduce((r, i) => (i[1] === undefined ? r : { ...r, [i[0]]: i[1] }), {});
 }
 /* eslint-enable max-len, @stylistic/max-len, quote-props, @stylistic/quote-props */
 
@@ -286,17 +294,17 @@ export function toJson_Ec2NodeClassSpec(obj: Ec2NodeClassSpec | undefined): Reco
  */
 export enum Ec2NodeClassSpecAmiFamily {
   /** AL2 */
-  AL2 = "AL2",
+  AL2 = 'AL2',
   /** AL2023 */
-  AL2023 = "AL2023",
+  AL2023 = 'AL2023',
   /** Bottlerocket */
-  BOTTLEROCKET = "Bottlerocket",
+  BOTTLEROCKET = 'Bottlerocket',
   /** Custom */
-  CUSTOM = "Custom",
+  CUSTOM = 'Custom',
   /** Windows2019 */
-  WINDOWS2019 = "Windows2019",
+  WINDOWS2019 = 'Windows2019',
   /** Windows2022 */
-  WINDOWS2022 = "Windows2022",
+  WINDOWS2022 = 'Windows2022',
 }
 
 /**
@@ -355,25 +363,31 @@ export interface Ec2NodeClassSpecAmiSelectorTerms {
    * @schema Ec2NodeClassSpecAmiSelectorTerms#tags
    */
   readonly tags?: { [key: string]: string };
-
 }
 
 /**
  * Converts an object of type 'Ec2NodeClassSpecAmiSelectorTerms' to JSON representation.
  */
 /* eslint-disable max-len, @stylistic/max-len, quote-props, @stylistic/quote-props */
-export function toJson_Ec2NodeClassSpecAmiSelectorTerms(obj: Ec2NodeClassSpecAmiSelectorTerms | undefined): Record<string, any> | undefined {
-  if (obj === undefined) { return undefined; }
+export function toJson_Ec2NodeClassSpecAmiSelectorTerms(
+  obj: Ec2NodeClassSpecAmiSelectorTerms | undefined,
+): Record<string, any> | undefined {
+  if (obj === undefined) {
+    return undefined;
+  }
   const result = {
-    'alias': obj.alias,
-    'id': obj.id,
-    'name': obj.name,
-    'owner': obj.owner,
-    'ssmParameter': obj.ssmParameter,
-    'tags': ((obj.tags) === undefined) ? undefined : (Object.entries(obj.tags).reduce((r, i) => (i[1] === undefined) ? r : ({ ...r, [i[0]]: i[1] }), {})),
+    alias: obj.alias,
+    id: obj.id,
+    name: obj.name,
+    owner: obj.owner,
+    ssmParameter: obj.ssmParameter,
+    tags:
+      obj.tags === undefined
+        ? undefined
+        : Object.entries(obj.tags).reduce((r, i) => (i[1] === undefined ? r : { ...r, [i[0]]: i[1] }), {}),
   };
   // filter undefined values
-  return Object.entries(result).reduce((r, i) => (i[1] === undefined) ? r : ({ ...r, [i[0]]: i[1] }), {});
+  return Object.entries(result).reduce((r, i) => (i[1] === undefined ? r : { ...r, [i[0]]: i[1] }), {});
 }
 /* eslint-enable max-len, @stylistic/max-len, quote-props, @stylistic/quote-props */
 
@@ -402,22 +416,25 @@ export interface Ec2NodeClassSpecBlockDeviceMappings {
    * @schema Ec2NodeClassSpecBlockDeviceMappings#rootVolume
    */
   readonly rootVolume?: boolean;
-
 }
 
 /**
  * Converts an object of type 'Ec2NodeClassSpecBlockDeviceMappings' to JSON representation.
  */
 /* eslint-disable max-len, @stylistic/max-len, quote-props, @stylistic/quote-props */
-export function toJson_Ec2NodeClassSpecBlockDeviceMappings(obj: Ec2NodeClassSpecBlockDeviceMappings | undefined): Record<string, any> | undefined {
-  if (obj === undefined) { return undefined; }
+export function toJson_Ec2NodeClassSpecBlockDeviceMappings(
+  obj: Ec2NodeClassSpecBlockDeviceMappings | undefined,
+): Record<string, any> | undefined {
+  if (obj === undefined) {
+    return undefined;
+  }
   const result = {
-    'deviceName': obj.deviceName,
-    'ebs': toJson_Ec2NodeClassSpecBlockDeviceMappingsEbs(obj.ebs),
-    'rootVolume': obj.rootVolume,
+    deviceName: obj.deviceName,
+    ebs: toJson_Ec2NodeClassSpecBlockDeviceMappingsEbs(obj.ebs),
+    rootVolume: obj.rootVolume,
   };
   // filter undefined values
-  return Object.entries(result).reduce((r, i) => (i[1] === undefined) ? r : ({ ...r, [i[0]]: i[1] }), {});
+  return Object.entries(result).reduce((r, i) => (i[1] === undefined ? r : { ...r, [i[0]]: i[1] }), {});
 }
 /* eslint-enable max-len, @stylistic/max-len, quote-props, @stylistic/quote-props */
 
@@ -446,22 +463,28 @@ export interface Ec2NodeClassSpecCapacityReservationSelectorTerms {
    * @schema Ec2NodeClassSpecCapacityReservationSelectorTerms#tags
    */
   readonly tags?: { [key: string]: string };
-
 }
 
 /**
  * Converts an object of type 'Ec2NodeClassSpecCapacityReservationSelectorTerms' to JSON representation.
  */
 /* eslint-disable max-len, @stylistic/max-len, quote-props, @stylistic/quote-props */
-export function toJson_Ec2NodeClassSpecCapacityReservationSelectorTerms(obj: Ec2NodeClassSpecCapacityReservationSelectorTerms | undefined): Record<string, any> | undefined {
-  if (obj === undefined) { return undefined; }
+export function toJson_Ec2NodeClassSpecCapacityReservationSelectorTerms(
+  obj: Ec2NodeClassSpecCapacityReservationSelectorTerms | undefined,
+): Record<string, any> | undefined {
+  if (obj === undefined) {
+    return undefined;
+  }
   const result = {
-    'id': obj.id,
-    'ownerID': obj.ownerId,
-    'tags': ((obj.tags) === undefined) ? undefined : (Object.entries(obj.tags).reduce((r, i) => (i[1] === undefined) ? r : ({ ...r, [i[0]]: i[1] }), {})),
+    id: obj.id,
+    ownerID: obj.ownerId,
+    tags:
+      obj.tags === undefined
+        ? undefined
+        : Object.entries(obj.tags).reduce((r, i) => (i[1] === undefined ? r : { ...r, [i[0]]: i[1] }), {}),
   };
   // filter undefined values
-  return Object.entries(result).reduce((r, i) => (i[1] === undefined) ? r : ({ ...r, [i[0]]: i[1] }), {});
+  return Object.entries(result).reduce((r, i) => (i[1] === undefined ? r : { ...r, [i[0]]: i[1] }), {});
 }
 /* eslint-enable max-len, @stylistic/max-len, quote-props, @stylistic/quote-props */
 
@@ -472,7 +495,7 @@ export function toJson_Ec2NodeClassSpecCapacityReservationSelectorTerms(obj: Ec2
  */
 export enum Ec2NodeClassSpecInstanceStorePolicy {
   /** RAID0 */
-  RAID0 = "RAID0",
+  RAID0 = 'RAID0',
 }
 
 /**
@@ -578,31 +601,52 @@ export interface Ec2NodeClassSpecKubelet {
    * @schema Ec2NodeClassSpecKubelet#systemReserved
    */
   readonly systemReserved?: { [key: string]: string };
-
 }
 
 /**
  * Converts an object of type 'Ec2NodeClassSpecKubelet' to JSON representation.
  */
 /* eslint-disable max-len, @stylistic/max-len, quote-props, @stylistic/quote-props */
-export function toJson_Ec2NodeClassSpecKubelet(obj: Ec2NodeClassSpecKubelet | undefined): Record<string, any> | undefined {
-  if (obj === undefined) { return undefined; }
+export function toJson_Ec2NodeClassSpecKubelet(
+  obj: Ec2NodeClassSpecKubelet | undefined,
+): Record<string, any> | undefined {
+  if (obj === undefined) {
+    return undefined;
+  }
   const result = {
-    'clusterDNS': obj.clusterDns?.map(y => y),
-    'cpuCFSQuota': obj.cpuCfsQuota,
-    'evictionHard': ((obj.evictionHard) === undefined) ? undefined : (Object.entries(obj.evictionHard).reduce((r, i) => (i[1] === undefined) ? r : ({ ...r, [i[0]]: i[1] }), {})),
-    'evictionMaxPodGracePeriod': obj.evictionMaxPodGracePeriod,
-    'evictionSoft': ((obj.evictionSoft) === undefined) ? undefined : (Object.entries(obj.evictionSoft).reduce((r, i) => (i[1] === undefined) ? r : ({ ...r, [i[0]]: i[1] }), {})),
-    'evictionSoftGracePeriod': ((obj.evictionSoftGracePeriod) === undefined) ? undefined : (Object.entries(obj.evictionSoftGracePeriod).reduce((r, i) => (i[1] === undefined) ? r : ({ ...r, [i[0]]: i[1] }), {})),
-    'imageGCHighThresholdPercent': obj.imageGcHighThresholdPercent,
-    'imageGCLowThresholdPercent': obj.imageGcLowThresholdPercent,
-    'kubeReserved': ((obj.kubeReserved) === undefined) ? undefined : (Object.entries(obj.kubeReserved).reduce((r, i) => (i[1] === undefined) ? r : ({ ...r, [i[0]]: i[1] }), {})),
-    'maxPods': obj.maxPods,
-    'podsPerCore': obj.podsPerCore,
-    'systemReserved': ((obj.systemReserved) === undefined) ? undefined : (Object.entries(obj.systemReserved).reduce((r, i) => (i[1] === undefined) ? r : ({ ...r, [i[0]]: i[1] }), {})),
+    clusterDNS: obj.clusterDns?.map((y) => y),
+    cpuCFSQuota: obj.cpuCfsQuota,
+    evictionHard:
+      obj.evictionHard === undefined
+        ? undefined
+        : Object.entries(obj.evictionHard).reduce((r, i) => (i[1] === undefined ? r : { ...r, [i[0]]: i[1] }), {}),
+    evictionMaxPodGracePeriod: obj.evictionMaxPodGracePeriod,
+    evictionSoft:
+      obj.evictionSoft === undefined
+        ? undefined
+        : Object.entries(obj.evictionSoft).reduce((r, i) => (i[1] === undefined ? r : { ...r, [i[0]]: i[1] }), {}),
+    evictionSoftGracePeriod:
+      obj.evictionSoftGracePeriod === undefined
+        ? undefined
+        : Object.entries(obj.evictionSoftGracePeriod).reduce(
+            (r, i) => (i[1] === undefined ? r : { ...r, [i[0]]: i[1] }),
+            {},
+          ),
+    imageGCHighThresholdPercent: obj.imageGcHighThresholdPercent,
+    imageGCLowThresholdPercent: obj.imageGcLowThresholdPercent,
+    kubeReserved:
+      obj.kubeReserved === undefined
+        ? undefined
+        : Object.entries(obj.kubeReserved).reduce((r, i) => (i[1] === undefined ? r : { ...r, [i[0]]: i[1] }), {}),
+    maxPods: obj.maxPods,
+    podsPerCore: obj.podsPerCore,
+    systemReserved:
+      obj.systemReserved === undefined
+        ? undefined
+        : Object.entries(obj.systemReserved).reduce((r, i) => (i[1] === undefined ? r : { ...r, [i[0]]: i[1] }), {}),
   };
   // filter undefined values
-  return Object.entries(result).reduce((r, i) => (i[1] === undefined) ? r : ({ ...r, [i[0]]: i[1] }), {});
+  return Object.entries(result).reduce((r, i) => (i[1] === undefined ? r : { ...r, [i[0]]: i[1] }), {});
 }
 /* eslint-enable max-len, @stylistic/max-len, quote-props, @stylistic/quote-props */
 
@@ -676,23 +720,26 @@ export interface Ec2NodeClassSpecMetadataOptions {
    * @schema Ec2NodeClassSpecMetadataOptions#httpTokens
    */
   readonly httpTokens?: Ec2NodeClassSpecMetadataOptionsHttpTokens;
-
 }
 
 /**
  * Converts an object of type 'Ec2NodeClassSpecMetadataOptions' to JSON representation.
  */
 /* eslint-disable max-len, @stylistic/max-len, quote-props, @stylistic/quote-props */
-export function toJson_Ec2NodeClassSpecMetadataOptions(obj: Ec2NodeClassSpecMetadataOptions | undefined): Record<string, any> | undefined {
-  if (obj === undefined) { return undefined; }
+export function toJson_Ec2NodeClassSpecMetadataOptions(
+  obj: Ec2NodeClassSpecMetadataOptions | undefined,
+): Record<string, any> | undefined {
+  if (obj === undefined) {
+    return undefined;
+  }
   const result = {
-    'httpEndpoint': obj.httpEndpoint,
-    'httpProtocolIPv6': obj.httpProtocolIPv6,
-    'httpPutResponseHopLimit': obj.httpPutResponseHopLimit,
-    'httpTokens': obj.httpTokens,
+    httpEndpoint: obj.httpEndpoint,
+    httpProtocolIPv6: obj.httpProtocolIPv6,
+    httpPutResponseHopLimit: obj.httpPutResponseHopLimit,
+    httpTokens: obj.httpTokens,
   };
   // filter undefined values
-  return Object.entries(result).reduce((r, i) => (i[1] === undefined) ? r : ({ ...r, [i[0]]: i[1] }), {});
+  return Object.entries(result).reduce((r, i) => (i[1] === undefined ? r : { ...r, [i[0]]: i[1] }), {});
 }
 /* eslint-enable max-len, @stylistic/max-len, quote-props, @stylistic/quote-props */
 
@@ -725,22 +772,28 @@ export interface Ec2NodeClassSpecSecurityGroupSelectorTerms {
    * @schema Ec2NodeClassSpecSecurityGroupSelectorTerms#tags
    */
   readonly tags?: { [key: string]: string };
-
 }
 
 /**
  * Converts an object of type 'Ec2NodeClassSpecSecurityGroupSelectorTerms' to JSON representation.
  */
 /* eslint-disable max-len, @stylistic/max-len, quote-props, @stylistic/quote-props */
-export function toJson_Ec2NodeClassSpecSecurityGroupSelectorTerms(obj: Ec2NodeClassSpecSecurityGroupSelectorTerms | undefined): Record<string, any> | undefined {
-  if (obj === undefined) { return undefined; }
+export function toJson_Ec2NodeClassSpecSecurityGroupSelectorTerms(
+  obj: Ec2NodeClassSpecSecurityGroupSelectorTerms | undefined,
+): Record<string, any> | undefined {
+  if (obj === undefined) {
+    return undefined;
+  }
   const result = {
-    'id': obj.id,
-    'name': obj.name,
-    'tags': ((obj.tags) === undefined) ? undefined : (Object.entries(obj.tags).reduce((r, i) => (i[1] === undefined) ? r : ({ ...r, [i[0]]: i[1] }), {})),
+    id: obj.id,
+    name: obj.name,
+    tags:
+      obj.tags === undefined
+        ? undefined
+        : Object.entries(obj.tags).reduce((r, i) => (i[1] === undefined ? r : { ...r, [i[0]]: i[1] }), {}),
   };
   // filter undefined values
-  return Object.entries(result).reduce((r, i) => (i[1] === undefined) ? r : ({ ...r, [i[0]]: i[1] }), {});
+  return Object.entries(result).reduce((r, i) => (i[1] === undefined ? r : { ...r, [i[0]]: i[1] }), {});
 }
 /* eslint-enable max-len, @stylistic/max-len, quote-props, @stylistic/quote-props */
 
@@ -765,21 +818,27 @@ export interface Ec2NodeClassSpecSubnetSelectorTerms {
    * @schema Ec2NodeClassSpecSubnetSelectorTerms#tags
    */
   readonly tags?: { [key: string]: string };
-
 }
 
 /**
  * Converts an object of type 'Ec2NodeClassSpecSubnetSelectorTerms' to JSON representation.
  */
 /* eslint-disable max-len, @stylistic/max-len, quote-props, @stylistic/quote-props */
-export function toJson_Ec2NodeClassSpecSubnetSelectorTerms(obj: Ec2NodeClassSpecSubnetSelectorTerms | undefined): Record<string, any> | undefined {
-  if (obj === undefined) { return undefined; }
+export function toJson_Ec2NodeClassSpecSubnetSelectorTerms(
+  obj: Ec2NodeClassSpecSubnetSelectorTerms | undefined,
+): Record<string, any> | undefined {
+  if (obj === undefined) {
+    return undefined;
+  }
   const result = {
-    'id': obj.id,
-    'tags': ((obj.tags) === undefined) ? undefined : (Object.entries(obj.tags).reduce((r, i) => (i[1] === undefined) ? r : ({ ...r, [i[0]]: i[1] }), {})),
+    id: obj.id,
+    tags:
+      obj.tags === undefined
+        ? undefined
+        : Object.entries(obj.tags).reduce((r, i) => (i[1] === undefined ? r : { ...r, [i[0]]: i[1] }), {}),
   };
   // filter undefined values
-  return Object.entries(result).reduce((r, i) => (i[1] === undefined) ? r : ({ ...r, [i[0]]: i[1] }), {});
+  return Object.entries(result).reduce((r, i) => (i[1] === undefined ? r : { ...r, [i[0]]: i[1] }), {});
 }
 /* eslint-enable max-len, @stylistic/max-len, quote-props, @stylistic/quote-props */
 
@@ -888,28 +947,31 @@ export interface Ec2NodeClassSpecBlockDeviceMappingsEbs {
    * @schema Ec2NodeClassSpecBlockDeviceMappingsEbs#volumeType
    */
   readonly volumeType?: Ec2NodeClassSpecBlockDeviceMappingsEbsVolumeType;
-
 }
 
 /**
  * Converts an object of type 'Ec2NodeClassSpecBlockDeviceMappingsEbs' to JSON representation.
  */
 /* eslint-disable max-len, @stylistic/max-len, quote-props, @stylistic/quote-props */
-export function toJson_Ec2NodeClassSpecBlockDeviceMappingsEbs(obj: Ec2NodeClassSpecBlockDeviceMappingsEbs | undefined): Record<string, any> | undefined {
-  if (obj === undefined) { return undefined; }
+export function toJson_Ec2NodeClassSpecBlockDeviceMappingsEbs(
+  obj: Ec2NodeClassSpecBlockDeviceMappingsEbs | undefined,
+): Record<string, any> | undefined {
+  if (obj === undefined) {
+    return undefined;
+  }
   const result = {
-    'deleteOnTermination': obj.deleteOnTermination,
-    'encrypted': obj.encrypted,
-    'iops': obj.iops,
-    'kmsKeyID': obj.kmsKeyId,
-    'snapshotID': obj.snapshotId,
-    'throughput': obj.throughput,
-    'volumeInitializationRate': obj.volumeInitializationRate,
-    'volumeSize': obj.volumeSize,
-    'volumeType': obj.volumeType,
+    deleteOnTermination: obj.deleteOnTermination,
+    encrypted: obj.encrypted,
+    iops: obj.iops,
+    kmsKeyID: obj.kmsKeyId,
+    snapshotID: obj.snapshotId,
+    throughput: obj.throughput,
+    volumeInitializationRate: obj.volumeInitializationRate,
+    volumeSize: obj.volumeSize,
+    volumeType: obj.volumeType,
   };
   // filter undefined values
-  return Object.entries(result).reduce((r, i) => (i[1] === undefined) ? r : ({ ...r, [i[0]]: i[1] }), {});
+  return Object.entries(result).reduce((r, i) => (i[1] === undefined ? r : { ...r, [i[0]]: i[1] }), {});
 }
 /* eslint-enable max-len, @stylistic/max-len, quote-props, @stylistic/quote-props */
 
@@ -925,9 +987,9 @@ export function toJson_Ec2NodeClassSpecBlockDeviceMappingsEbs(obj: Ec2NodeClassS
  */
 export enum Ec2NodeClassSpecMetadataOptionsHttpEndpoint {
   /** enabled */
-  ENABLED = "enabled",
+  ENABLED = 'enabled',
   /** disabled */
-  DISABLED = "disabled",
+  DISABLED = 'disabled',
 }
 
 /**
@@ -939,9 +1001,9 @@ export enum Ec2NodeClassSpecMetadataOptionsHttpEndpoint {
  */
 export enum Ec2NodeClassSpecMetadataOptionsHttpProtocolIPv6 {
   /** enabled */
-  ENABLED = "enabled",
+  ENABLED = 'enabled',
   /** disabled */
-  DISABLED = "disabled",
+  DISABLED = 'disabled',
 }
 
 /**
@@ -964,9 +1026,9 @@ export enum Ec2NodeClassSpecMetadataOptionsHttpProtocolIPv6 {
  */
 export enum Ec2NodeClassSpecMetadataOptionsHttpTokens {
   /** required */
-  REQUIRED = "required",
+  REQUIRED = 'required',
   /** optional */
-  OPTIONAL = "optional",
+  OPTIONAL = 'optional',
 }
 
 /**
@@ -978,18 +1040,17 @@ export enum Ec2NodeClassSpecMetadataOptionsHttpTokens {
  */
 export enum Ec2NodeClassSpecBlockDeviceMappingsEbsVolumeType {
   /** standard */
-  STANDARD = "standard",
+  STANDARD = 'standard',
   /** io1 */
-  IO1 = "io1",
+  IO1 = 'io1',
   /** io2 */
-  IO2 = "io2",
+  IO2 = 'io2',
   /** gp2 */
-  GP2 = "gp2",
+  GP2 = 'gp2',
   /** sc1 */
-  SC1 = "sc1",
+  SC1 = 'sc1',
   /** st1 */
-  ST1 = "st1",
+  ST1 = 'st1',
   /** gp3 */
-  GP3 = "gp3",
+  GP3 = 'gp3',
 }
-

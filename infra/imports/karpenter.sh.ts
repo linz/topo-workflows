@@ -2,7 +2,6 @@
 import { ApiObject, ApiObjectMetadata, GroupVersionKind } from 'cdk8s';
 import { Construct } from 'constructs';
 
-
 /**
  * NodePool is the Schema for the NodePools API
  *
@@ -15,7 +14,7 @@ export class NodePool extends ApiObject {
   public static readonly GVK: GroupVersionKind = {
     apiVersion: 'karpenter.sh/v1',
     kind: 'NodePool',
-  }
+  };
 
   /**
    * Renders a Kubernetes manifest for "NodePool".
@@ -47,7 +46,7 @@ export class NodePool extends ApiObject {
   /**
    * Renders the object to Kubernetes JSON.
    */
-  public toJson(): any {
+  public override toJson(): any {
     const resolved = super.toJson();
 
     return {
@@ -77,7 +76,6 @@ export interface NodePoolProps {
    * @schema NodePool#spec
    */
   readonly spec: NodePoolSpec;
-
 }
 
 /**
@@ -85,13 +83,15 @@ export interface NodePoolProps {
  */
 /* eslint-disable max-len, @stylistic/max-len, quote-props, @stylistic/quote-props */
 export function toJson_NodePoolProps(obj: NodePoolProps | undefined): Record<string, any> | undefined {
-  if (obj === undefined) { return undefined; }
+  if (obj === undefined) {
+    return undefined;
+  }
   const result = {
-    'metadata': obj.metadata,
-    'spec': toJson_NodePoolSpec(obj.spec),
+    metadata: obj.metadata,
+    spec: toJson_NodePoolSpec(obj.spec),
   };
   // filter undefined values
-  return Object.entries(result).reduce((r, i) => (i[1] === undefined) ? r : ({ ...r, [i[0]]: i[1] }), {});
+  return Object.entries(result).reduce((r, i) => (i[1] === undefined ? r : { ...r, [i[0]]: i[1] }), {});
 }
 /* eslint-enable max-len, @stylistic/max-len, quote-props, @stylistic/quote-props */
 
@@ -135,7 +135,6 @@ export interface NodePoolSpec {
    * @schema NodePoolSpec#weight
    */
   readonly weight?: number;
-
 }
 
 /**
@@ -143,15 +142,20 @@ export interface NodePoolSpec {
  */
 /* eslint-disable max-len, @stylistic/max-len, quote-props, @stylistic/quote-props */
 export function toJson_NodePoolSpec(obj: NodePoolSpec | undefined): Record<string, any> | undefined {
-  if (obj === undefined) { return undefined; }
+  if (obj === undefined) {
+    return undefined;
+  }
   const result = {
-    'disruption': toJson_NodePoolSpecDisruption(obj.disruption),
-    'limits': ((obj.limits) === undefined) ? undefined : (Object.entries(obj.limits).reduce((r, i) => (i[1] === undefined) ? r : ({ ...r, [i[0]]: i[1]?.value }), {})),
-    'template': toJson_NodePoolSpecTemplate(obj.template),
-    'weight': obj.weight,
+    disruption: toJson_NodePoolSpecDisruption(obj.disruption),
+    limits:
+      obj.limits === undefined
+        ? undefined
+        : Object.entries(obj.limits).reduce((r, i) => (i[1] === undefined ? r : { ...r, [i[0]]: i[1]?.value }), {}),
+    template: toJson_NodePoolSpecTemplate(obj.template),
+    weight: obj.weight,
   };
   // filter undefined values
-  return Object.entries(result).reduce((r, i) => (i[1] === undefined) ? r : ({ ...r, [i[0]]: i[1] }), {});
+  return Object.entries(result).reduce((r, i) => (i[1] === undefined ? r : { ...r, [i[0]]: i[1] }), {});
 }
 /* eslint-enable max-len, @stylistic/max-len, quote-props, @stylistic/quote-props */
 
@@ -187,22 +191,25 @@ export interface NodePoolSpecDisruption {
    * @schema NodePoolSpecDisruption#consolidationPolicy
    */
   readonly consolidationPolicy?: NodePoolSpecDisruptionConsolidationPolicy;
-
 }
 
 /**
  * Converts an object of type 'NodePoolSpecDisruption' to JSON representation.
  */
 /* eslint-disable max-len, @stylistic/max-len, quote-props, @stylistic/quote-props */
-export function toJson_NodePoolSpecDisruption(obj: NodePoolSpecDisruption | undefined): Record<string, any> | undefined {
-  if (obj === undefined) { return undefined; }
+export function toJson_NodePoolSpecDisruption(
+  obj: NodePoolSpecDisruption | undefined,
+): Record<string, any> | undefined {
+  if (obj === undefined) {
+    return undefined;
+  }
   const result = {
-    'budgets': obj.budgets?.map(y => toJson_NodePoolSpecDisruptionBudgets(y)),
-    'consolidateAfter': obj.consolidateAfter,
-    'consolidationPolicy': obj.consolidationPolicy,
+    budgets: obj.budgets?.map((y) => toJson_NodePoolSpecDisruptionBudgets(y)),
+    consolidateAfter: obj.consolidateAfter,
+    consolidationPolicy: obj.consolidationPolicy,
   };
   // filter undefined values
-  return Object.entries(result).reduce((r, i) => (i[1] === undefined) ? r : ({ ...r, [i[0]]: i[1] }), {});
+  return Object.entries(result).reduce((r, i) => (i[1] === undefined ? r : { ...r, [i[0]]: i[1] }), {});
 }
 /* eslint-enable max-len, @stylistic/max-len, quote-props, @stylistic/quote-props */
 
@@ -216,8 +223,7 @@ export class NodePoolSpecLimits {
   public static fromString(value: string): NodePoolSpecLimits {
     return new NodePoolSpecLimits(value);
   }
-  private constructor(public readonly value: number | string) {
-  }
+  private constructor(public readonly value: number | string) {}
 }
 
 /**
@@ -240,7 +246,6 @@ export interface NodePoolSpecTemplate {
    * @schema NodePoolSpecTemplate#spec
    */
   readonly spec: NodePoolSpecTemplateSpec;
-
 }
 
 /**
@@ -248,13 +253,15 @@ export interface NodePoolSpecTemplate {
  */
 /* eslint-disable max-len, @stylistic/max-len, quote-props, @stylistic/quote-props */
 export function toJson_NodePoolSpecTemplate(obj: NodePoolSpecTemplate | undefined): Record<string, any> | undefined {
-  if (obj === undefined) { return undefined; }
+  if (obj === undefined) {
+    return undefined;
+  }
   const result = {
-    'metadata': toJson_NodePoolSpecTemplateMetadata(obj.metadata),
-    'spec': toJson_NodePoolSpecTemplateSpec(obj.spec),
+    metadata: toJson_NodePoolSpecTemplateMetadata(obj.metadata),
+    spec: toJson_NodePoolSpecTemplateSpec(obj.spec),
   };
   // filter undefined values
-  return Object.entries(result).reduce((r, i) => (i[1] === undefined) ? r : ({ ...r, [i[0]]: i[1] }), {});
+  return Object.entries(result).reduce((r, i) => (i[1] === undefined ? r : { ...r, [i[0]]: i[1] }), {});
 }
 /* eslint-enable max-len, @stylistic/max-len, quote-props, @stylistic/quote-props */
 
@@ -308,23 +315,26 @@ export interface NodePoolSpecDisruptionBudgets {
    * @schema NodePoolSpecDisruptionBudgets#schedule
    */
   readonly schedule?: string;
-
 }
 
 /**
  * Converts an object of type 'NodePoolSpecDisruptionBudgets' to JSON representation.
  */
 /* eslint-disable max-len, @stylistic/max-len, quote-props, @stylistic/quote-props */
-export function toJson_NodePoolSpecDisruptionBudgets(obj: NodePoolSpecDisruptionBudgets | undefined): Record<string, any> | undefined {
-  if (obj === undefined) { return undefined; }
+export function toJson_NodePoolSpecDisruptionBudgets(
+  obj: NodePoolSpecDisruptionBudgets | undefined,
+): Record<string, any> | undefined {
+  if (obj === undefined) {
+    return undefined;
+  }
   const result = {
-    'duration': obj.duration,
-    'nodes': obj.nodes,
-    'reasons': obj.reasons?.map(y => y),
-    'schedule': obj.schedule,
+    duration: obj.duration,
+    nodes: obj.nodes,
+    reasons: obj.reasons?.map((y) => y),
+    schedule: obj.schedule,
   };
   // filter undefined values
-  return Object.entries(result).reduce((r, i) => (i[1] === undefined) ? r : ({ ...r, [i[0]]: i[1] }), {});
+  return Object.entries(result).reduce((r, i) => (i[1] === undefined ? r : { ...r, [i[0]]: i[1] }), {});
 }
 /* eslint-enable max-len, @stylistic/max-len, quote-props, @stylistic/quote-props */
 
@@ -336,9 +346,9 @@ export function toJson_NodePoolSpecDisruptionBudgets(obj: NodePoolSpecDisruption
  */
 export enum NodePoolSpecDisruptionConsolidationPolicy {
   /** WhenEmpty */
-  WHEN_EMPTY = "WhenEmpty",
+  WHEN_EMPTY = 'WhenEmpty',
   /** WhenEmptyOrUnderutilized */
-  WHEN_EMPTY_OR_UNDERUTILIZED = "WhenEmptyOrUnderutilized",
+  WHEN_EMPTY_OR_UNDERUTILIZED = 'WhenEmptyOrUnderutilized',
 }
 
 /**
@@ -364,21 +374,30 @@ export interface NodePoolSpecTemplateMetadata {
    * @schema NodePoolSpecTemplateMetadata#labels
    */
   readonly labels?: { [key: string]: string };
-
 }
 
 /**
  * Converts an object of type 'NodePoolSpecTemplateMetadata' to JSON representation.
  */
 /* eslint-disable max-len, @stylistic/max-len, quote-props, @stylistic/quote-props */
-export function toJson_NodePoolSpecTemplateMetadata(obj: NodePoolSpecTemplateMetadata | undefined): Record<string, any> | undefined {
-  if (obj === undefined) { return undefined; }
+export function toJson_NodePoolSpecTemplateMetadata(
+  obj: NodePoolSpecTemplateMetadata | undefined,
+): Record<string, any> | undefined {
+  if (obj === undefined) {
+    return undefined;
+  }
   const result = {
-    'annotations': ((obj.annotations) === undefined) ? undefined : (Object.entries(obj.annotations).reduce((r, i) => (i[1] === undefined) ? r : ({ ...r, [i[0]]: i[1] }), {})),
-    'labels': ((obj.labels) === undefined) ? undefined : (Object.entries(obj.labels).reduce((r, i) => (i[1] === undefined) ? r : ({ ...r, [i[0]]: i[1] }), {})),
+    annotations:
+      obj.annotations === undefined
+        ? undefined
+        : Object.entries(obj.annotations).reduce((r, i) => (i[1] === undefined ? r : { ...r, [i[0]]: i[1] }), {}),
+    labels:
+      obj.labels === undefined
+        ? undefined
+        : Object.entries(obj.labels).reduce((r, i) => (i[1] === undefined ? r : { ...r, [i[0]]: i[1] }), {}),
   };
   // filter undefined values
-  return Object.entries(result).reduce((r, i) => (i[1] === undefined) ? r : ({ ...r, [i[0]]: i[1] }), {});
+  return Object.entries(result).reduce((r, i) => (i[1] === undefined ? r : { ...r, [i[0]]: i[1] }), {});
 }
 /* eslint-enable max-len, @stylistic/max-len, quote-props, @stylistic/quote-props */
 
@@ -449,25 +468,28 @@ export interface NodePoolSpecTemplateSpec {
    * @schema NodePoolSpecTemplateSpec#terminationGracePeriod
    */
   readonly terminationGracePeriod?: string;
-
 }
 
 /**
  * Converts an object of type 'NodePoolSpecTemplateSpec' to JSON representation.
  */
 /* eslint-disable max-len, @stylistic/max-len, quote-props, @stylistic/quote-props */
-export function toJson_NodePoolSpecTemplateSpec(obj: NodePoolSpecTemplateSpec | undefined): Record<string, any> | undefined {
-  if (obj === undefined) { return undefined; }
+export function toJson_NodePoolSpecTemplateSpec(
+  obj: NodePoolSpecTemplateSpec | undefined,
+): Record<string, any> | undefined {
+  if (obj === undefined) {
+    return undefined;
+  }
   const result = {
-    'expireAfter': obj.expireAfter,
-    'nodeClassRef': toJson_NodePoolSpecTemplateSpecNodeClassRef(obj.nodeClassRef),
-    'requirements': obj.requirements?.map(y => toJson_NodePoolSpecTemplateSpecRequirements(y)),
-    'startupTaints': obj.startupTaints?.map(y => toJson_NodePoolSpecTemplateSpecStartupTaints(y)),
-    'taints': obj.taints?.map(y => toJson_NodePoolSpecTemplateSpecTaints(y)),
-    'terminationGracePeriod': obj.terminationGracePeriod,
+    expireAfter: obj.expireAfter,
+    nodeClassRef: toJson_NodePoolSpecTemplateSpecNodeClassRef(obj.nodeClassRef),
+    requirements: obj.requirements?.map((y) => toJson_NodePoolSpecTemplateSpecRequirements(y)),
+    startupTaints: obj.startupTaints?.map((y) => toJson_NodePoolSpecTemplateSpecStartupTaints(y)),
+    taints: obj.taints?.map((y) => toJson_NodePoolSpecTemplateSpecTaints(y)),
+    terminationGracePeriod: obj.terminationGracePeriod,
   };
   // filter undefined values
-  return Object.entries(result).reduce((r, i) => (i[1] === undefined) ? r : ({ ...r, [i[0]]: i[1] }), {});
+  return Object.entries(result).reduce((r, i) => (i[1] === undefined ? r : { ...r, [i[0]]: i[1] }), {});
 }
 /* eslint-enable max-len, @stylistic/max-len, quote-props, @stylistic/quote-props */
 
@@ -478,11 +500,11 @@ export function toJson_NodePoolSpecTemplateSpec(obj: NodePoolSpecTemplateSpec | 
  */
 export enum NodePoolSpecDisruptionBudgetsReasons {
   /** Underutilized */
-  UNDERUTILIZED = "Underutilized",
+  UNDERUTILIZED = 'Underutilized',
   /** Empty */
-  EMPTY = "Empty",
+  EMPTY = 'Empty',
   /** Drifted */
-  DRIFTED = "Drifted",
+  DRIFTED = 'Drifted',
 }
 
 /**
@@ -511,22 +533,25 @@ export interface NodePoolSpecTemplateSpecNodeClassRef {
    * @schema NodePoolSpecTemplateSpecNodeClassRef#name
    */
   readonly name: string;
-
 }
 
 /**
  * Converts an object of type 'NodePoolSpecTemplateSpecNodeClassRef' to JSON representation.
  */
 /* eslint-disable max-len, @stylistic/max-len, quote-props, @stylistic/quote-props */
-export function toJson_NodePoolSpecTemplateSpecNodeClassRef(obj: NodePoolSpecTemplateSpecNodeClassRef | undefined): Record<string, any> | undefined {
-  if (obj === undefined) { return undefined; }
+export function toJson_NodePoolSpecTemplateSpecNodeClassRef(
+  obj: NodePoolSpecTemplateSpecNodeClassRef | undefined,
+): Record<string, any> | undefined {
+  if (obj === undefined) {
+    return undefined;
+  }
   const result = {
-    'group': obj.group,
-    'kind': obj.kind,
-    'name': obj.name,
+    group: obj.group,
+    kind: obj.kind,
+    name: obj.name,
   };
   // filter undefined values
-  return Object.entries(result).reduce((r, i) => (i[1] === undefined) ? r : ({ ...r, [i[0]]: i[1] }), {});
+  return Object.entries(result).reduce((r, i) => (i[1] === undefined ? r : { ...r, [i[0]]: i[1] }), {});
 }
 /* eslint-enable max-len, @stylistic/max-len, quote-props, @stylistic/quote-props */
 
@@ -570,23 +595,26 @@ export interface NodePoolSpecTemplateSpecRequirements {
    * @schema NodePoolSpecTemplateSpecRequirements#values
    */
   readonly values?: string[];
-
 }
 
 /**
  * Converts an object of type 'NodePoolSpecTemplateSpecRequirements' to JSON representation.
  */
 /* eslint-disable max-len, @stylistic/max-len, quote-props, @stylistic/quote-props */
-export function toJson_NodePoolSpecTemplateSpecRequirements(obj: NodePoolSpecTemplateSpecRequirements | undefined): Record<string, any> | undefined {
-  if (obj === undefined) { return undefined; }
+export function toJson_NodePoolSpecTemplateSpecRequirements(
+  obj: NodePoolSpecTemplateSpecRequirements | undefined,
+): Record<string, any> | undefined {
+  if (obj === undefined) {
+    return undefined;
+  }
   const result = {
-    'key': obj.key,
-    'minValues': obj.minValues,
-    'operator': obj.operator,
-    'values': obj.values?.map(y => y),
+    key: obj.key,
+    minValues: obj.minValues,
+    operator: obj.operator,
+    values: obj.values?.map((y) => y),
   };
   // filter undefined values
-  return Object.entries(result).reduce((r, i) => (i[1] === undefined) ? r : ({ ...r, [i[0]]: i[1] }), {});
+  return Object.entries(result).reduce((r, i) => (i[1] === undefined ? r : { ...r, [i[0]]: i[1] }), {});
 }
 /* eslint-enable max-len, @stylistic/max-len, quote-props, @stylistic/quote-props */
 
@@ -627,23 +655,26 @@ export interface NodePoolSpecTemplateSpecStartupTaints {
    * @schema NodePoolSpecTemplateSpecStartupTaints#value
    */
   readonly value?: string;
-
 }
 
 /**
  * Converts an object of type 'NodePoolSpecTemplateSpecStartupTaints' to JSON representation.
  */
 /* eslint-disable max-len, @stylistic/max-len, quote-props, @stylistic/quote-props */
-export function toJson_NodePoolSpecTemplateSpecStartupTaints(obj: NodePoolSpecTemplateSpecStartupTaints | undefined): Record<string, any> | undefined {
-  if (obj === undefined) { return undefined; }
+export function toJson_NodePoolSpecTemplateSpecStartupTaints(
+  obj: NodePoolSpecTemplateSpecStartupTaints | undefined,
+): Record<string, any> | undefined {
+  if (obj === undefined) {
+    return undefined;
+  }
   const result = {
-    'effect': obj.effect,
-    'key': obj.key,
-    'timeAdded': obj.timeAdded?.toISOString(),
-    'value': obj.value,
+    effect: obj.effect,
+    key: obj.key,
+    timeAdded: obj.timeAdded?.toISOString(),
+    value: obj.value,
   };
   // filter undefined values
-  return Object.entries(result).reduce((r, i) => (i[1] === undefined) ? r : ({ ...r, [i[0]]: i[1] }), {});
+  return Object.entries(result).reduce((r, i) => (i[1] === undefined ? r : { ...r, [i[0]]: i[1] }), {});
 }
 /* eslint-enable max-len, @stylistic/max-len, quote-props, @stylistic/quote-props */
 
@@ -684,23 +715,26 @@ export interface NodePoolSpecTemplateSpecTaints {
    * @schema NodePoolSpecTemplateSpecTaints#value
    */
   readonly value?: string;
-
 }
 
 /**
  * Converts an object of type 'NodePoolSpecTemplateSpecTaints' to JSON representation.
  */
 /* eslint-disable max-len, @stylistic/max-len, quote-props, @stylistic/quote-props */
-export function toJson_NodePoolSpecTemplateSpecTaints(obj: NodePoolSpecTemplateSpecTaints | undefined): Record<string, any> | undefined {
-  if (obj === undefined) { return undefined; }
+export function toJson_NodePoolSpecTemplateSpecTaints(
+  obj: NodePoolSpecTemplateSpecTaints | undefined,
+): Record<string, any> | undefined {
+  if (obj === undefined) {
+    return undefined;
+  }
   const result = {
-    'effect': obj.effect,
-    'key': obj.key,
-    'timeAdded': obj.timeAdded?.toISOString(),
-    'value': obj.value,
+    effect: obj.effect,
+    key: obj.key,
+    timeAdded: obj.timeAdded?.toISOString(),
+    value: obj.value,
   };
   // filter undefined values
-  return Object.entries(result).reduce((r, i) => (i[1] === undefined) ? r : ({ ...r, [i[0]]: i[1] }), {});
+  return Object.entries(result).reduce((r, i) => (i[1] === undefined ? r : { ...r, [i[0]]: i[1] }), {});
 }
 /* eslint-enable max-len, @stylistic/max-len, quote-props, @stylistic/quote-props */
 
@@ -712,17 +746,17 @@ export function toJson_NodePoolSpecTemplateSpecTaints(obj: NodePoolSpecTemplateS
  */
 export enum NodePoolSpecTemplateSpecRequirementsOperator {
   /** In */
-  IN = "In",
+  IN = 'In',
   /** NotIn */
-  NOT_IN = "NotIn",
+  NOT_IN = 'NotIn',
   /** Exists */
-  EXISTS = "Exists",
+  EXISTS = 'Exists',
   /** DoesNotExist */
-  DOES_NOT_EXIST = "DoesNotExist",
+  DOES_NOT_EXIST = 'DoesNotExist',
   /** Gt */
-  GT = "Gt",
+  GT = 'Gt',
   /** Lt */
-  LT = "Lt",
+  LT = 'Lt',
 }
 
 /**
@@ -734,11 +768,11 @@ export enum NodePoolSpecTemplateSpecRequirementsOperator {
  */
 export enum NodePoolSpecTemplateSpecStartupTaintsEffect {
   /** NoSchedule */
-  NO_SCHEDULE = "NoSchedule",
+  NO_SCHEDULE = 'NoSchedule',
   /** PreferNoSchedule */
-  PREFER_NO_SCHEDULE = "PreferNoSchedule",
+  PREFER_NO_SCHEDULE = 'PreferNoSchedule',
   /** NoExecute */
-  NO_EXECUTE = "NoExecute",
+  NO_EXECUTE = 'NoExecute',
 }
 
 /**
@@ -750,10 +784,9 @@ export enum NodePoolSpecTemplateSpecStartupTaintsEffect {
  */
 export enum NodePoolSpecTemplateSpecTaintsEffect {
   /** NoSchedule */
-  NO_SCHEDULE = "NoSchedule",
+  NO_SCHEDULE = 'NoSchedule',
   /** PreferNoSchedule */
-  PREFER_NO_SCHEDULE = "PreferNoSchedule",
+  PREFER_NO_SCHEDULE = 'PreferNoSchedule',
   /** NoExecute */
-  NO_EXECUTE = "NoExecute",
+  NO_EXECUTE = 'NoExecute',
 }
-
