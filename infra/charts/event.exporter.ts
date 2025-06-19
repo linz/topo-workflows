@@ -19,18 +19,6 @@ export class EventExporter extends Chart {
       metadata: { name: props.namespace },
     });
 
-    const serviceAccount = new ServiceAccount(this, 'event-exporter-sa', {
-      metadata: { name: 'event-exporter', namespace: props.namespace },
-    });
-
-    // https://cdk8s.io/docs/latest/plus/cdk8s-plus-32/rbac/#role
-    const clusterRole = new ClusterRole(this, 'event-exporter-cr', {
-      metadata: { name: 'event-exporter' },
-    });
-    clusterRole.allowRead(ApiResource.custom({ apiGroup: '*', resourceType: '*' }));
-    // create a ClusterRoleBinding
-    clusterRole.bind(serviceAccount);
-
     new Helm(this, 'kubernetes-event-exporter', {
       chart: 'oci://registry-1.docker.io/bitnamicharts/kubernetes-event-exporter',
       namespace: 'event-exporter',
@@ -41,8 +29,6 @@ export class EventExporter extends Chart {
           logFormat: 'json',
         },
         serviceAccount: {
-          create: false,
-          name: serviceAccount.name,
           automountServiceAccountToken: true,
         },
       },
