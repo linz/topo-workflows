@@ -213,6 +213,7 @@ export class LinzEksCluster extends Stack {
       statements: [
         new PolicyStatement({
           actions: [
+            'eks:DescribeCluster',
             'ec2:CreateFleet',
             'ec2:CreateLaunchTemplate',
             'ec2:CreateTags',
