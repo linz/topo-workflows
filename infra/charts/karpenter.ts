@@ -4,11 +4,13 @@ import { Construct } from 'constructs';
 import { Ec2NodeClass, Ec2NodeClassSpecBlockDeviceMappingsEbsVolumeType } from '../imports/karpenter.k8s.aws.js';
 import {
   NodePool,
+  NodePoolSpecDisruptionConsolidationPolicy,
   NodePoolSpecLimits,
   NodePoolSpecTemplateSpecRequirementsOperator,
   NodePoolSpecTemplateSpecTaintsEffect,
 } from '../imports/karpenter.sh.js';
 import { applyDefaultLabels } from '../util/labels.js';
+
 // import * as kplus from 'cdk8s-plus-32';
 
 export interface KarpenterProps {
@@ -49,7 +51,7 @@ export interface KarpenterProps {
  *
  * https://github.com/aws/karpenter/blob/7c989a2bfae43d4e73235aca0af50b8008c67b68/charts/karpenter/Chart.yaml#L5C10-L5C16
  */
-const version = 'v0.31.1';
+const version = '1.5.0';
 
 export class Karpenter extends Chart {
   constructor(scope: Construct, id: string, props: KarpenterProps & ChartProps) {
@@ -88,8 +90,8 @@ export class Karpenter extends Chart {
           annotations: { 'eks.amazonaws.com/role-arn': props.saRoleArn },
         },
         settings: {
+          clusterName: props.clusterName,
           aws: {
-            clusterName: props.clusterName,
             clusterEndpoint: props.clusterEndpoint,
             defaultInstanceProfile: props.instanceProfile,
           },
@@ -101,7 +103,7 @@ export class Karpenter extends Chart {
   }
 }
 
-export class KarpenterProvisioner extends Chart {
+export class KarpenterNodePool extends Chart {
   constructor(scope: Construct, id: string, props: KarpenterProps & ChartProps) {
     super(scope, id, applyDefaultLabels(props, 'karpenter', version, 'karpenter', 'workflows'));
 
@@ -109,7 +111,7 @@ export class KarpenterProvisioner extends Chart {
     const template = new Ec2NodeClass(this, 'template', {
       metadata: { name: templateName },
       spec: {
-        amiSelectorTerms: [{ alias: 'bottlerocket' }],
+        amiSelectorTerms: [{ alias: 'bottlerocket@latest' }],
         // Subnets need to be opted into, ideally a tag on subnets would be the best bet here
         // but CDK does not easily allow us to tag Subnets that are not created by us
         subnetSelectorTerms: [{ tags: { Name: '*' } }],
@@ -132,6 +134,10 @@ export class KarpenterProvisioner extends Chart {
 
     const provisionAmd64Spot = new NodePool(this, 'ClusterAmd64WorkerNodesSpot', {
       spec: {
+        disruption: {
+          consolidateAfter: '1m',
+          consolidationPolicy: NodePoolSpecDisruptionConsolidationPolicy.WHEN_EMPTY,
+        },
         template: {
           metadata: {
             labels: {
@@ -178,6 +184,10 @@ export class KarpenterProvisioner extends Chart {
 
     const provisionAmd64OnDemand = new NodePool(this, 'ClusterAmd64WorkerNodesOnDemand', {
       spec: {
+        disruption: {
+          consolidateAfter: '1m',
+          consolidationPolicy: NodePoolSpecDisruptionConsolidationPolicy.WHEN_EMPTY,
+        },
         template: {
           metadata: {
             labels: {
@@ -223,6 +233,10 @@ export class KarpenterProvisioner extends Chart {
 
     const provisionArm64 = new NodePool(this, 'ClusterArmWorkerNodes', {
       spec: {
+        disruption: {
+          consolidateAfter: '1m',
+          consolidationPolicy: NodePoolSpecDisruptionConsolidationPolicy.WHEN_EMPTY,
+        },
         template: {
           metadata: {
             labels: {
