@@ -82,7 +82,6 @@ export interface Ec2NodeClassProps {
 /**
  * Converts an object of type 'Ec2NodeClassProps' to JSON representation.
  */
-/* eslint-disable max-len, @stylistic/max-len, quote-props, @stylistic/quote-props */
 export function toJson_Ec2NodeClassProps(obj: Ec2NodeClassProps | undefined): Record<string, any> | undefined {
   if (obj === undefined) {
     return undefined;
@@ -94,7 +93,6 @@ export function toJson_Ec2NodeClassProps(obj: Ec2NodeClassProps | undefined): Re
   // filter undefined values
   return Object.entries(result).reduce((r, i) => (i[1] === undefined ? r : { ...r, [i[0]]: i[1] }), {});
 }
-/* eslint-enable max-len, @stylistic/max-len, quote-props, @stylistic/quote-props */
 
 /**
  * EC2NodeClassSpec is the top level specification for the AWS Karpenter Provider.
@@ -250,7 +248,6 @@ export interface Ec2NodeClassSpec {
 /**
  * Converts an object of type 'Ec2NodeClassSpec' to JSON representation.
  */
-/* eslint-disable max-len, @stylistic/max-len, quote-props, @stylistic/quote-props */
 export function toJson_Ec2NodeClassSpec(obj: Ec2NodeClassSpec | undefined): Record<string, any> | undefined {
   if (obj === undefined) {
     return undefined;
@@ -283,7 +280,6 @@ export function toJson_Ec2NodeClassSpec(obj: Ec2NodeClassSpec | undefined): Reco
   // filter undefined values
   return Object.entries(result).reduce((r, i) => (i[1] === undefined ? r : { ...r, [i[0]]: i[1] }), {});
 }
-/* eslint-enable max-len, @stylistic/max-len, quote-props, @stylistic/quote-props */
 
 /**
  * AMIFamily dictates the UserData format and default BlockDeviceMappings used when generating launch templates.
@@ -371,7 +367,6 @@ export interface Ec2NodeClassSpecAmiSelectorTerms {
 /**
  * Converts an object of type 'Ec2NodeClassSpecAmiSelectorTerms' to JSON representation.
  */
-/* eslint-disable max-len, @stylistic/max-len, quote-props, @stylistic/quote-props */
 export function toJson_Ec2NodeClassSpecAmiSelectorTerms(
   obj: Ec2NodeClassSpecAmiSelectorTerms | undefined,
 ): Record<string, any> | undefined {
@@ -392,7 +387,6 @@ export function toJson_Ec2NodeClassSpecAmiSelectorTerms(
   // filter undefined values
   return Object.entries(result).reduce((r, i) => (i[1] === undefined ? r : { ...r, [i[0]]: i[1] }), {});
 }
-/* eslint-enable max-len, @stylistic/max-len, quote-props, @stylistic/quote-props */
 
 /**
  * @schema Ec2NodeClassSpecBlockDeviceMappings
@@ -424,7 +418,6 @@ export interface Ec2NodeClassSpecBlockDeviceMappings {
 /**
  * Converts an object of type 'Ec2NodeClassSpecBlockDeviceMappings' to JSON representation.
  */
-/* eslint-disable max-len, @stylistic/max-len, quote-props, @stylistic/quote-props */
 export function toJson_Ec2NodeClassSpecBlockDeviceMappings(
   obj: Ec2NodeClassSpecBlockDeviceMappings | undefined,
 ): Record<string, any> | undefined {
@@ -439,7 +432,6 @@ export function toJson_Ec2NodeClassSpecBlockDeviceMappings(
   // filter undefined values
   return Object.entries(result).reduce((r, i) => (i[1] === undefined ? r : { ...r, [i[0]]: i[1] }), {});
 }
-/* eslint-enable max-len, @stylistic/max-len, quote-props, @stylistic/quote-props */
 
 /**
  * @schema Ec2NodeClassSpecCapacityReservationSelectorTerms
@@ -471,7 +463,6 @@ export interface Ec2NodeClassSpecCapacityReservationSelectorTerms {
 /**
  * Converts an object of type 'Ec2NodeClassSpecCapacityReservationSelectorTerms' to JSON representation.
  */
-/* eslint-disable max-len, @stylistic/max-len, quote-props, @stylistic/quote-props */
 export function toJson_Ec2NodeClassSpecCapacityReservationSelectorTerms(
   obj: Ec2NodeClassSpecCapacityReservationSelectorTerms | undefined,
 ): Record<string, any> | undefined {
@@ -489,7 +480,6 @@ export function toJson_Ec2NodeClassSpecCapacityReservationSelectorTerms(
   // filter undefined values
   return Object.entries(result).reduce((r, i) => (i[1] === undefined ? r : { ...r, [i[0]]: i[1] }), {});
 }
-/* eslint-enable max-len, @stylistic/max-len, quote-props, @stylistic/quote-props */
 
 /**
  * InstanceStorePolicy specifies how to handle instance-store disks.
@@ -609,7 +599,6 @@ export interface Ec2NodeClassSpecKubelet {
 /**
  * Converts an object of type 'Ec2NodeClassSpecKubelet' to JSON representation.
  */
-/* eslint-disable max-len, @stylistic/max-len, quote-props, @stylistic/quote-props */
 export function toJson_Ec2NodeClassSpecKubelet(
   obj: Ec2NodeClassSpecKubelet | undefined,
 ): Record<string, any> | undefined {
@@ -651,7 +640,6 @@ export function toJson_Ec2NodeClassSpecKubelet(
   // filter undefined values
   return Object.entries(result).reduce((r, i) => (i[1] === undefined ? r : { ...r, [i[0]]: i[1] }), {});
 }
-/* eslint-enable max-len, @stylistic/max-len, quote-props, @stylistic/quote-props */
 
 /**
  * MetadataOptions for the generated launch template of provisioned nodes.
@@ -728,7 +716,6 @@ export interface Ec2NodeClassSpecMetadataOptions {
 /**
  * Converts an object of type 'Ec2NodeClassSpecMetadataOptions' to JSON representation.
  */
-/* eslint-disable max-len, @stylistic/max-len, quote-props, @stylistic/quote-props */
 export function toJson_Ec2NodeClassSpecMetadataOptions(
   obj: Ec2NodeClassSpecMetadataOptions | undefined,
 ): Record<string, any> | undefined {
@@ -744,7 +731,6 @@ export function toJson_Ec2NodeClassSpecMetadataOptions(
   // filter undefined values
   return Object.entries(result).reduce((r, i) => (i[1] === undefined ? r : { ...r, [i[0]]: i[1] }), {});
 }
-/* eslint-enable max-len, @stylistic/max-len, quote-props, @stylistic/quote-props */
 
 /**
  * SecurityGroupSelectorTerm defines selection logic for a security group used by Karpenter to launch nodes.
@@ -780,7 +766,6 @@ export interface Ec2NodeClassSpecSecurityGroupSelectorTerms {
 /**
  * Converts an object of type 'Ec2NodeClassSpecSecurityGroupSelectorTerms' to JSON representation.
  */
-/* eslint-disable max-len, @stylistic/max-len, quote-props, @stylistic/quote-props */
 export function toJson_Ec2NodeClassSpecSecurityGroupSelectorTerms(
   obj: Ec2NodeClassSpecSecurityGroupSelectorTerms | undefined,
 ): Record<string, any> | undefined {
@@ -798,7 +783,6 @@ export function toJson_Ec2NodeClassSpecSecurityGroupSelectorTerms(
   // filter undefined values
   return Object.entries(result).reduce((r, i) => (i[1] === undefined ? r : { ...r, [i[0]]: i[1] }), {});
 }
-/* eslint-enable max-len, @stylistic/max-len, quote-props, @stylistic/quote-props */
 
 /**
  * SubnetSelectorTerm defines selection logic for a subnet used by Karpenter to launch nodes.
@@ -826,7 +810,6 @@ export interface Ec2NodeClassSpecSubnetSelectorTerms {
 /**
  * Converts an object of type 'Ec2NodeClassSpecSubnetSelectorTerms' to JSON representation.
  */
-/* eslint-disable max-len, @stylistic/max-len, quote-props, @stylistic/quote-props */
 export function toJson_Ec2NodeClassSpecSubnetSelectorTerms(
   obj: Ec2NodeClassSpecSubnetSelectorTerms | undefined,
 ): Record<string, any> | undefined {
@@ -843,7 +826,6 @@ export function toJson_Ec2NodeClassSpecSubnetSelectorTerms(
   // filter undefined values
   return Object.entries(result).reduce((r, i) => (i[1] === undefined ? r : { ...r, [i[0]]: i[1] }), {});
 }
-/* eslint-enable max-len, @stylistic/max-len, quote-props, @stylistic/quote-props */
 
 /**
  * EBS contains parameters used to automatically set up EBS volumes when an instance is launched.
@@ -955,7 +937,6 @@ export interface Ec2NodeClassSpecBlockDeviceMappingsEbs {
 /**
  * Converts an object of type 'Ec2NodeClassSpecBlockDeviceMappingsEbs' to JSON representation.
  */
-/* eslint-disable max-len, @stylistic/max-len, quote-props, @stylistic/quote-props */
 export function toJson_Ec2NodeClassSpecBlockDeviceMappingsEbs(
   obj: Ec2NodeClassSpecBlockDeviceMappingsEbs | undefined,
 ): Record<string, any> | undefined {
@@ -976,7 +957,6 @@ export function toJson_Ec2NodeClassSpecBlockDeviceMappingsEbs(
   // filter undefined values
   return Object.entries(result).reduce((r, i) => (i[1] === undefined ? r : { ...r, [i[0]]: i[1] }), {});
 }
-/* eslint-enable max-len, @stylistic/max-len, quote-props, @stylistic/quote-props */
 
 /**
  * HTTPEndpoint enables or disables the HTTP metadata endpoint on provisioned

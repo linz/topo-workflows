@@ -84,7 +84,6 @@ export interface NodePoolProps {
 /**
  * Converts an object of type 'NodePoolProps' to JSON representation.
  */
-/* eslint-disable max-len, @stylistic/max-len, quote-props, @stylistic/quote-props */
 export function toJson_NodePoolProps(obj: NodePoolProps | undefined): Record<string, any> | undefined {
   if (obj === undefined) {
     return undefined;
@@ -96,7 +95,6 @@ export function toJson_NodePoolProps(obj: NodePoolProps | undefined): Record<str
   // filter undefined values
   return Object.entries(result).reduce((r, i) => (i[1] === undefined ? r : { ...r, [i[0]]: i[1] }), {});
 }
-/* eslint-enable max-len, @stylistic/max-len, quote-props, @stylistic/quote-props */
 
 /**
  * NodePoolSpec is the top level nodepool specification. Nodepools
@@ -143,7 +141,6 @@ export interface NodePoolSpec {
 /**
  * Converts an object of type 'NodePoolSpec' to JSON representation.
  */
-/* eslint-disable max-len, @stylistic/max-len, quote-props, @stylistic/quote-props */
 export function toJson_NodePoolSpec(obj: NodePoolSpec | undefined): Record<string, any> | undefined {
   if (obj === undefined) {
     return undefined;
@@ -160,7 +157,6 @@ export function toJson_NodePoolSpec(obj: NodePoolSpec | undefined): Record<strin
   // filter undefined values
   return Object.entries(result).reduce((r, i) => (i[1] === undefined ? r : { ...r, [i[0]]: i[1] }), {});
 }
-/* eslint-enable max-len, @stylistic/max-len, quote-props, @stylistic/quote-props */
 
 /**
  * Disruption contains the parameters that relate to Karpenter's disruption logic
@@ -199,7 +195,6 @@ export interface NodePoolSpecDisruption {
 /**
  * Converts an object of type 'NodePoolSpecDisruption' to JSON representation.
  */
-/* eslint-disable max-len, @stylistic/max-len, quote-props, @stylistic/quote-props */
 export function toJson_NodePoolSpecDisruption(
   obj: NodePoolSpecDisruption | undefined,
 ): Record<string, any> | undefined {
@@ -214,7 +209,6 @@ export function toJson_NodePoolSpecDisruption(
   // filter undefined values
   return Object.entries(result).reduce((r, i) => (i[1] === undefined ? r : { ...r, [i[0]]: i[1] }), {});
 }
-/* eslint-enable max-len, @stylistic/max-len, quote-props, @stylistic/quote-props */
 
 /**
  * @schema NodePoolSpecLimits
@@ -254,7 +248,6 @@ export interface NodePoolSpecTemplate {
 /**
  * Converts an object of type 'NodePoolSpecTemplate' to JSON representation.
  */
-/* eslint-disable max-len, @stylistic/max-len, quote-props, @stylistic/quote-props */
 export function toJson_NodePoolSpecTemplate(obj: NodePoolSpecTemplate | undefined): Record<string, any> | undefined {
   if (obj === undefined) {
     return undefined;
@@ -266,7 +259,6 @@ export function toJson_NodePoolSpecTemplate(obj: NodePoolSpecTemplate | undefine
   // filter undefined values
   return Object.entries(result).reduce((r, i) => (i[1] === undefined ? r : { ...r, [i[0]]: i[1] }), {});
 }
-/* eslint-enable max-len, @stylistic/max-len, quote-props, @stylistic/quote-props */
 
 /**
  * Budget defines when Karpenter will restrict the
@@ -323,7 +315,6 @@ export interface NodePoolSpecDisruptionBudgets {
 /**
  * Converts an object of type 'NodePoolSpecDisruptionBudgets' to JSON representation.
  */
-/* eslint-disable max-len, @stylistic/max-len, quote-props, @stylistic/quote-props */
 export function toJson_NodePoolSpecDisruptionBudgets(
   obj: NodePoolSpecDisruptionBudgets | undefined,
 ): Record<string, any> | undefined {
@@ -339,7 +330,6 @@ export function toJson_NodePoolSpecDisruptionBudgets(
   // filter undefined values
   return Object.entries(result).reduce((r, i) => (i[1] === undefined ? r : { ...r, [i[0]]: i[1] }), {});
 }
-/* eslint-enable max-len, @stylistic/max-len, quote-props, @stylistic/quote-props */
 
 /**
  * ConsolidationPolicy describes which nodes Karpenter can disrupt through its consolidation
@@ -382,7 +372,6 @@ export interface NodePoolSpecTemplateMetadata {
 /**
  * Converts an object of type 'NodePoolSpecTemplateMetadata' to JSON representation.
  */
-/* eslint-disable max-len, @stylistic/max-len, quote-props, @stylistic/quote-props */
 export function toJson_NodePoolSpecTemplateMetadata(
   obj: NodePoolSpecTemplateMetadata | undefined,
 ): Record<string, any> | undefined {
@@ -402,7 +391,6 @@ export function toJson_NodePoolSpecTemplateMetadata(
   // filter undefined values
   return Object.entries(result).reduce((r, i) => (i[1] === undefined ? r : { ...r, [i[0]]: i[1] }), {});
 }
-/* eslint-enable max-len, @stylistic/max-len, quote-props, @stylistic/quote-props */
 
 /**
  * NodeClaimTemplateSpec describes the desired state of the NodeClaim in the Nodepool
@@ -476,7 +464,6 @@ export interface NodePoolSpecTemplateSpec {
 /**
  * Converts an object of type 'NodePoolSpecTemplateSpec' to JSON representation.
  */
-/* eslint-disable max-len, @stylistic/max-len, quote-props, @stylistic/quote-props */
 export function toJson_NodePoolSpecTemplateSpec(
   obj: NodePoolSpecTemplateSpec | undefined,
 ): Record<string, any> | undefined {
@@ -494,7 +481,6 @@ export function toJson_NodePoolSpecTemplateSpec(
   // filter undefined values
   return Object.entries(result).reduce((r, i) => (i[1] === undefined ? r : { ...r, [i[0]]: i[1] }), {});
 }
-/* eslint-enable max-len, @stylistic/max-len, quote-props, @stylistic/quote-props */
 
 /**
  * DisruptionReason defines valid reasons for disruption budgets.
@@ -541,7 +527,6 @@ export interface NodePoolSpecTemplateSpecNodeClassRef {
 /**
  * Converts an object of type 'NodePoolSpecTemplateSpecNodeClassRef' to JSON representation.
  */
-/* eslint-disable max-len, @stylistic/max-len, quote-props, @stylistic/quote-props */
 export function toJson_NodePoolSpecTemplateSpecNodeClassRef(
   obj: NodePoolSpecTemplateSpecNodeClassRef | undefined,
 ): Record<string, any> | undefined {
@@ -556,7 +541,6 @@ export function toJson_NodePoolSpecTemplateSpecNodeClassRef(
   // filter undefined values
   return Object.entries(result).reduce((r, i) => (i[1] === undefined ? r : { ...r, [i[0]]: i[1] }), {});
 }
-/* eslint-enable max-len, @stylistic/max-len, quote-props, @stylistic/quote-props */
 
 /**
  * A node selector requirement with min values is a selector that contains values, a key, an operator that relates the key and values
@@ -603,7 +587,6 @@ export interface NodePoolSpecTemplateSpecRequirements {
 /**
  * Converts an object of type 'NodePoolSpecTemplateSpecRequirements' to JSON representation.
  */
-/* eslint-disable max-len, @stylistic/max-len, quote-props, @stylistic/quote-props */
 export function toJson_NodePoolSpecTemplateSpecRequirements(
   obj: NodePoolSpecTemplateSpecRequirements | undefined,
 ): Record<string, any> | undefined {
@@ -619,7 +602,6 @@ export function toJson_NodePoolSpecTemplateSpecRequirements(
   // filter undefined values
   return Object.entries(result).reduce((r, i) => (i[1] === undefined ? r : { ...r, [i[0]]: i[1] }), {});
 }
-/* eslint-enable max-len, @stylistic/max-len, quote-props, @stylistic/quote-props */
 
 /**
  * The node this Taint is attached to has the "effect" on
@@ -663,7 +645,6 @@ export interface NodePoolSpecTemplateSpecStartupTaints {
 /**
  * Converts an object of type 'NodePoolSpecTemplateSpecStartupTaints' to JSON representation.
  */
-/* eslint-disable max-len, @stylistic/max-len, quote-props, @stylistic/quote-props */
 export function toJson_NodePoolSpecTemplateSpecStartupTaints(
   obj: NodePoolSpecTemplateSpecStartupTaints | undefined,
 ): Record<string, any> | undefined {
@@ -679,7 +660,6 @@ export function toJson_NodePoolSpecTemplateSpecStartupTaints(
   // filter undefined values
   return Object.entries(result).reduce((r, i) => (i[1] === undefined ? r : { ...r, [i[0]]: i[1] }), {});
 }
-/* eslint-enable max-len, @stylistic/max-len, quote-props, @stylistic/quote-props */
 
 /**
  * The node this Taint is attached to has the "effect" on
@@ -723,7 +703,6 @@ export interface NodePoolSpecTemplateSpecTaints {
 /**
  * Converts an object of type 'NodePoolSpecTemplateSpecTaints' to JSON representation.
  */
-/* eslint-disable max-len, @stylistic/max-len, quote-props, @stylistic/quote-props */
 export function toJson_NodePoolSpecTemplateSpecTaints(
   obj: NodePoolSpecTemplateSpecTaints | undefined,
 ): Record<string, any> | undefined {
@@ -739,7 +718,6 @@ export function toJson_NodePoolSpecTemplateSpecTaints(
   // filter undefined values
   return Object.entries(result).reduce((r, i) => (i[1] === undefined ? r : { ...r, [i[0]]: i[1] }), {});
 }
-/* eslint-enable max-len, @stylistic/max-len, quote-props, @stylistic/quote-props */
 
 /**
  * Represents a key's relationship to a set of values.
