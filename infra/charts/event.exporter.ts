@@ -1,5 +1,5 @@
 import { Chart, ChartProps, Helm } from 'cdk8s';
-import { ApiResource, ClusterRole, Namespace, ServiceAccount } from 'cdk8s-plus-32';
+import { Namespace } from 'cdk8s-plus-32';
 import { Construct } from 'constructs';
 
 import { applyDefaultLabels } from '../util/labels.js';
