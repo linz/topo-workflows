@@ -2,7 +2,7 @@
 
 ## Import Karpenter CRDs classes
 
-Karpenter uses Custom Resource Definitions (CRDs) fir resources such as `NodePool` and `EC2NodeClass`.
+Karpenter uses Custom Resource Definitions (CRDs) for resources such as `NodePool` and `EC2NodeClass`.
 As `cdk8s` does not natively know the structure of these CRDs, we need to import them in our code base.
 
 1. Import the CRDs into TypeScript classes:
