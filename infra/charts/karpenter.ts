@@ -1,15 +1,15 @@
 import { Chart, ChartProps, Helm } from 'cdk8s';
 import { Construct } from 'constructs';
 
-import { Ec2NodeClass, Ec2NodeClassSpecBlockDeviceMappingsEbsVolumeType } from '../imports/karpenter.k8s.aws.js';
+import { applyDefaultLabels } from '../util/labels.js';
+import { Ec2NodeClass, Ec2NodeClassSpecBlockDeviceMappingsEbsVolumeType } from './imports/karpenter.k8s.aws.js';
 import {
   NodePool,
   NodePoolSpecDisruptionConsolidationPolicy,
   NodePoolSpecLimits,
   NodePoolSpecTemplateSpecRequirementsOperator,
   NodePoolSpecTemplateSpecTaintsEffect,
-} from '../imports/karpenter.sh.js';
-import { applyDefaultLabels } from '../util/labels.js';
+} from './imports/karpenter.sh.js';
 
 // import * as kplus from 'cdk8s-plus-32';
 
