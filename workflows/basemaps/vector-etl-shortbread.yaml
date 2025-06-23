@@ -57,7 +57,7 @@ spec:
         value: '20'
 
       - name: create_pull_request
-        description: Should a pull request be created in linz/basemaps-config
+        description: If true, creates a linz/basemaps-config pull request
         value: 'true'
         enum:
           - 'true'
