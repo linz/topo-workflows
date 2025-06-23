@@ -9,14 +9,14 @@ import { applyDefaultLabels } from '../util/labels.js';
  *
  * https://github.com/aws/eks-charts/blob/a644fd925ca091d881b3a42aace268322f484455/stable/aws-for-fluent-bit/Chart.yaml#L4
  * */
-const chartVersion = '0.1.31';
+const chartVersion = '0.1.35';
 
 /**
  * version of the application
  *
  * https://github.com/aws/eks-charts/blob/a644fd925ca091d881b3a42aace268322f484455/stable/aws-for-fluent-bit/Chart.yaml#L5C11-L5C29
  */
-const appVersion = '2.31.12.20231011';
+const appVersion = '2.32.2.20240516';
 
 export interface FluentBitProps {
   /**
@@ -49,18 +49,18 @@ export class FluentBit extends Chart {
     `;
 
     /**
-     * FIXME: We deactivated the HTTP server to avoid getting this issue:
+     * FIXME: Listening on ipv6 [::] to avoid getting this issue:
      * https://github.com/aws/eks-charts/issues/983
      *
      */
     const extraService = `
-HTTP_Server  Off
+HTTP_Server  On
 HTTP_Listen  [::]
 HTTP_PORT    2020
-Health_Check On 
-HC_Errors_Count 5 
-HC_Retry_Failure_Count 5 
-HC_Period 5 
+Health_Check On
+HC_Errors_Count 5
+HC_Retry_Failure_Count 5
+HC_Period 5
 `;
 
     new Helm(this, 'aws-for-fluent-bit', {
@@ -107,9 +107,6 @@ HC_Period 5
            */
           keepLog: 'Off',
         },
-        // FIXME: `livenessProbe` and `readinessProbe` deactivated https://github.com/aws/eks-charts/issues/995
-        livenessProbe: false,
-        readinessProbe: false,
         tolerations: [
           { key: 'karpenter.sh/capacity-type', operator: 'Equal', value: 'spot', effect: 'NoSchedule' },
           { key: 'kubernetes.io/arch', operator: 'Equal', value: 'arm64', effect: 'NoSchedule' },
