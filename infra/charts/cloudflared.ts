@@ -1,8 +1,21 @@
-import { Chart, ChartProps, Size } from 'cdk8s';
-import * as kplus from 'cdk8s-plus-32';
+import { Chart, ChartProps, Helm } from 'cdk8s';
 import { Construct } from 'constructs';
 
 import { applyDefaultLabels } from '../util/labels.js';
+
+/**
+ * This is the version of the Helm chart for Argo Workflows https://github.com/argoproj/argo-helm/blob/25d7b519bc7fc37d2820721cd648f3a3403d0e38/charts/argo-workflows/Chart.yaml#L6
+ *
+ * (Do not mix up with Argo Workflows application version)
+ */
+const chartVersion = '0.3.2';
+
+/**
+ * This is the version of Argo Workflows for the `chartVersion` we're using
+ * https://github.com/argoproj/argo-helm/blob/2730dc24c7ad69b98d3206705a5ebf5cb34dd96b/charts/argo-workflows/Chart.yaml#L2
+ *
+ */
+const appVersion = '2024.8.3';
 
 export class Cloudflared extends Chart {
   constructor(
@@ -10,54 +23,22 @@ export class Cloudflared extends Chart {
     id: string,
     props: { tunnelId: string; tunnelSecret: string; accountId: string; tunnelName: string } & ChartProps,
   ) {
-    super(scope, id, applyDefaultLabels(props, 'cloudflared', '2023.8.2', 'tunnel', 'workflows'));
+    super(scope, id, applyDefaultLabels(props, 'cloudflared', appVersion, 'tunnel', 'workflows'));
 
-    // TODO should we create a new namespace every time
-    new kplus.Namespace(this, 'namespace', {
-      metadata: { name: props.namespace },
-    });
-
-    const cm = new kplus.ConfigMap(this, 'config', {
-      data: {
-        'config.yaml': [
-          `tunnel: ${props.tunnelName}`, // Tunnel name must match the credentials
-          'credentials-file: /etc/cloudflared/creds/credentials.json', // defined by "kplus.Secret" below
-          `metrics: "[::]:2000"`,
-          'no-autoupdate: true',
-          'protocol: http2', // quic is blocked in the LINZ network
-        ].join('\n'),
-      },
-    });
-
-    // Secret credentials for the tunnel
-    const secret = new kplus.Secret(this, 'secret');
-    secret.addStringData(
-      'credentials.json',
-      JSON.stringify({
-        AccountTag: props.accountId,
-        TunnelID: props.tunnelId,
-        TunnelSecret: props.tunnelSecret,
-      }),
-    );
-
-    new kplus.Deployment(this, 'tunnel', {
-      // Ensure two tunnels are active
-      replicas: 2,
-      containers: [
-        {
-          name: 'cloudflared',
-          image: '019359803926.dkr.ecr.ap-southeast-2.amazonaws.com/cloudflared:2023.8.2',
-          args: ['tunnel', '--loglevel', 'trace', '--config', '/etc/cloudflared/config/config.yaml', 'run'],
-          volumeMounts: [
-            { volume: kplus.Volume.fromConfigMap(this, 'mount-config', cm), path: '/etc/cloudflared/config' },
-            { volume: kplus.Volume.fromSecret(this, 'mount-secret', secret), path: '/etc/cloudflared/creds' },
-          ],
-          resources: { memory: { request: Size.mebibytes(128) } },
-          // Cloudflared runs as root
-          securityContext: { ensureNonRoot: false },
+    new Helm(this, 'cloudflared', {
+      chart: 'cloudflare-tunnel',
+      releaseName: 'cloudflare-tunnel',
+      repo: 'https://cloudflare.github.io/helm-charts',
+      namespace: 'argo',
+      version: chartVersion,
+      values: {
+        cloudflare: {
+          account: props.accountId,
+          tunnelName: props.tunnelName,
+          tunnelId: props.tunnelId,
+          secret: props.tunnelSecret,
         },
-      ],
-      securityContext: { ensureNonRoot: false },
+      },
     });
   }
 }
