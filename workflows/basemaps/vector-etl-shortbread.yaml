@@ -173,6 +173,23 @@ spec:
                 - name: analyseTarget
                   value: '{{ tasks.tile-join.outputs.parameters.analyseTarget }}'
 
+          - name: stac-validate
+            depends: 'analyse'
+            when: '{{tasks.extract.outputs.parameters.updateRequired}} == true && {{ workflow.parameters.analyse }} == true'
+            templateRef:
+              name: tpl-at-stac-validate
+              template: main
+            arguments:
+              parameters:
+                - name: uri
+                  value: '{{tasks.tile-join.outputs.parameters.analyseTarget}}collection.json'
+                - name: aws_role_config_path
+                  value: s3://linz-bucket-config/config.basemaps.json
+              artifacts:
+                - name: stac-result
+                  raw:
+                    data: '{{tasks.stac-validate.outputs.result}}'
+
       outputs:
         parameters:
           - name: target
