@@ -40,6 +40,10 @@ spec:
             description: container version to use
             default: 'v4'
 
+          - name: aws_role_config_path
+            description: s3 URL or comma-separated list of s3 URLs allowing the workflow to write to a target(s)
+            value: 's3://linz-bucket-config/config.json'
+
       container:
         image: '019359803926.dkr.ecr.ap-southeast-2.amazonaws.com/argo-tasks:{{=sprig.trim(inputs.parameters.version)}}'
         resources:
@@ -48,7 +52,7 @@ spec:
             memory: 7.8Gi
         env:
           - name: AWS_ROLE_CONFIG_PATH
-            value: s3://linz-bucket-config/config.json
+            value: '{{inputs.parameters.aws_role_config_path}}'
         args:
           - 'stac'
           - 'validate'
