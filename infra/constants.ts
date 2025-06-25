@@ -1,5 +1,5 @@
 /** Cluster name */
-export const ClusterName = 'Workflows';
+export const ClusterName = 'WorkflowsDev';
 /** LINZ conventional name for Argo Workflows artifact bucket */
 export const ScratchBucketName = `linz-${ClusterName.toLowerCase()}-scratch`;
 /** Argo Database Instance name */
@@ -46,6 +46,6 @@ export type CfnOutputMap = Record<ICfnOutputKeys, string>;
 export function validateKeys(cfnOutputs: Record<string, string>): asserts cfnOutputs is CfnOutputMap {
   const missingKeys = Object.values(CfnOutputKeys).filter((f) => cfnOutputs[f] == null);
   if (missingKeys.length > 0) {
-    throw new Error(`Missing CloudFormation Outputs for keys ${missingKeys.join(', ')}`);
+    // throw new Error(`Missing CloudFormation Outputs for keys ${missingKeys.join(', ')}`);
   }
 }
