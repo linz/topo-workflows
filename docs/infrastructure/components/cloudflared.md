@@ -8,7 +8,6 @@ All of the cloudflare configuration is managed by a web control pane [https://da
 
 The configuration for the Cloudflare Application and Tunnel is in a LINZ internal document.
 
-
 ## Resources
 
 - [Argo Tunnel Examples](https://github.com/cloudflare/argo-tunnel-examples/)
