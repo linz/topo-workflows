@@ -46,6 +46,6 @@ export type CfnOutputMap = Record<ICfnOutputKeys, string>;
 export function validateKeys(cfnOutputs: Record<string, string>): asserts cfnOutputs is CfnOutputMap {
   const missingKeys = Object.values(CfnOutputKeys).filter((f) => cfnOutputs[f] == null);
   if (missingKeys.length > 0) {
-    // throw new Error(`Missing CloudFormation Outputs for keys ${missingKeys.join(', ')}`);
+    throw new Error(`Missing CloudFormation Outputs for keys ${missingKeys.join(', ')}`);
   }
 }
