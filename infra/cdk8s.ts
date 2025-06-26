@@ -8,6 +8,7 @@ import { FluentBit } from './charts/fluentbit.js';
 import { Karpenter, KarpenterNodePool } from './charts/karpenter.js';
 import { CoreDns } from './charts/kube-system.coredns.js';
 import { NodeLocalDns } from './charts/kube-system.node.local.dns.js';
+import { PriorityClasses } from './charts/priority.class.js';
 import { CfnOutputKeys, ClusterName, ScratchBucketName, UseNodeLocalDns, validateKeys } from './constants.js';
 import { describeCluster, getCfnOutputs } from './util/cloud.formation.js';
 import { fetchSsmParameters } from './util/ssm.js';
@@ -34,6 +35,8 @@ async function main(): Promise<void> {
     describeCluster(ClusterName),
   ]);
   validateKeys(cfnOutputs);
+
+  new PriorityClasses(app, 'priority-classes');
 
   const coredns = new CoreDns(app, 'dns', {});
 
