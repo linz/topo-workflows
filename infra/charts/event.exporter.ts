@@ -24,6 +24,7 @@ export class EventExporter extends Chart {
       namespace: 'event-exporter',
       version: chartVersion,
       values: {
+        priorityClassName: 'very-high-priority',
         config: {
           logLevel: 'error',
           logFormat: 'json',
