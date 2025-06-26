@@ -72,6 +72,7 @@ HC_Period 5
         fullnameOverride: 'fluentbit',
         input: { parser: FluentParserName, dockerMode: 'Off' },
         serviceAccount: { name: props.saName, create: false },
+        priorityClassName: 'very-high-priority',
         cloudWatchLogs: {
           enabled: true,
           region: DefaultRegion,

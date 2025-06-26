@@ -84,6 +84,7 @@ export class Karpenter extends Chart {
       namespace: 'karpenter',
       version,
       values: {
+        priorityClassName: 'very-high-priority',
         serviceAccount: {
           create: false,
           name: props.saName,
