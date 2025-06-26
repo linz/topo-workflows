@@ -5,7 +5,7 @@ import { ArgoWorkflows } from './charts/argo.workflows.js';
 import { Cloudflared } from './charts/cloudflared.js';
 import { EventExporter } from './charts/event.exporter.js';
 import { FluentBit } from './charts/fluentbit.js';
-import { Karpenter, KarpenterProvisioner } from './charts/karpenter.js';
+import { Karpenter, KarpenterNodePool } from './charts/karpenter.js';
 import { CoreDns } from './charts/kube-system.coredns.js';
 import { NodeLocalDns } from './charts/kube-system.node.local.dns.js';
 import { CfnOutputKeys, ClusterName, ScratchBucketName, UseNodeLocalDns, validateKeys } from './constants.js';
@@ -60,7 +60,7 @@ async function main(): Promise<void> {
     instanceProfile: cfnOutputs[CfnOutputKeys.KarpenterDefaultInstanceProfile],
   });
 
-  const karpenterProvisioner = new KarpenterProvisioner(app, 'karpenter-provisioner', {
+  const karpenterNodePool = new KarpenterNodePool(app, 'karpenter-nodepool', {
     clusterName: ClusterName,
     clusterEndpoint: cfnOutputs[CfnOutputKeys.ClusterEndpoint],
     saName: cfnOutputs[CfnOutputKeys.KarpenterServiceAccountName],
@@ -68,7 +68,7 @@ async function main(): Promise<void> {
     instanceProfile: cfnOutputs[CfnOutputKeys.KarpenterDefaultInstanceProfile],
   });
 
-  karpenterProvisioner.addDependency(karpenter);
+  karpenterNodePool.addDependency(karpenter);
 
   new ArgoWorkflows(app, 'argo-workflows', {
     namespace: 'argo',
