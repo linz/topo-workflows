@@ -60,7 +60,7 @@ export class Cloudflared extends Chart {
       securityContext: { ensureNonRoot: false },
     });
 
-    // manually overwrite a few configuration options that could not be configured with cdk8s-plus
+    // manually set option that could not be configured with cdk8s-plus
     ApiObject.of(deployment).addJsonPatch(JsonPatch.add('/spec/template/spec/priorityClassName', 'high-priority'));
   }
 }
