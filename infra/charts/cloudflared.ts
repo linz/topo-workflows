@@ -1,4 +1,4 @@
-import { Chart, ChartProps, Size } from 'cdk8s';
+import { ApiObject, Chart, ChartProps, JsonPatch, Size } from 'cdk8s';
 import * as kplus from 'cdk8s-plus-32';
 import { Construct } from 'constructs';
 
@@ -40,7 +40,7 @@ export class Cloudflared extends Chart {
       }),
     );
 
-    new kplus.Deployment(this, 'tunnel', {
+    const deployment = new kplus.Deployment(this, 'tunnel', {
       // Ensure two tunnels are active
       replicas: 2,
       containers: [
@@ -59,5 +59,8 @@ export class Cloudflared extends Chart {
       ],
       securityContext: { ensureNonRoot: false },
     });
+
+    // manually set option that could not be configured with cdk8s-plus
+    ApiObject.of(deployment).addJsonPatch(JsonPatch.add('/spec/template/spec/priorityClassName', 'high-priority'));
   }
 }
