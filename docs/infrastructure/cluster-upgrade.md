@@ -1,32 +1,23 @@
-# Upgrade Kubernetes Versions
+# Cluster Upgrade
+
+Ideally the upgraded versions should be tested in a Dev cluster and the upgrade process in the NonProd (production-like) cluster.
+
+This documentation does not include Argo Workflows upgrade.
+
+## Pre-upgrade
+
+- Identify current and target Kubernetes version
+- Review compatibility matrix for the k8s components (`infra/charts/`). ([Karpenter example](https://karpenter.sh/docs/upgrading/compatibility/))
+- Check for [any breaking change in Kubernetes](https://github.com/kubernetes/kubernetes/releases)
+- TODO: backup cluster state + configuration. _This process has not been implemented yet._
+
+## Upgrade Process
+
+### Kubernetes
 
 Because Kubernetes deprecates quickly and releases often, we need to keep our kubernetes cluster up to date.
 
 **You cannot jump multiple versions** You must do a deployment per individual version bump.
-
-## Upgrade steps
-
-### Upgrade `cdk8s-plus`
-
-**It is a [good idea](https://cdk8s.io/docs/latest/plus/#i-operate-kubernetes-version-1xx-which-cdk8s-library-should-i-be-using) to check if a `CDK8s-plus` version matches the Kubernetes version you want to upgrade to.**
-
-If there is a version matching to the Kubernetes version to upgrade to, upgrade CDK8s-plus before proceeding to upgrade Kubernetes steps.
-
-1. Install the new version
-
-   ```bash
-   npm install --save-dev cdk8s-plus-27
-   ```
-
-2. Remove the previous version
-
-   ```bash
-   npm rm cdk8s-plus-26
-   ```
-
-If there is no version matching, keep the version installed and proceed to upgrade Kubernetes steps.
-
-### Upgrade Kubernetes
 
 Below is an example of upgrading from v1.27 to v1.28
 
@@ -70,7 +61,7 @@ Below is an example of upgrading from v1.27 to v1.28
 
    The only changes should be Kubernetes version related.
 
-   ```
+   ```plaintext
    Resources
    [~] AWS::Lambda::LayerVersion KubeCtlLayer KubeCtlLayer replace
     ├─ [~] Content (requires replacement)
@@ -95,7 +86,7 @@ Below is an example of upgrading from v1.27 to v1.28
 
 **Version bump deployments can take 10+ minutes :coffee:**
 
-## Cycle out EC2 Nodes to the new version
+#### Cycle out EC2 Nodes to the new version
 
 <https://docs.aws.amazon.com/eks/latest/userguide/kubernetes-versions.html#version-deprecation>
 
@@ -129,3 +120,83 @@ This process is necessary to avoid being blocked for a future Kubernetes version
    ```bash
    aws eks wait nodegroup-active --cluster-name=Workflows --nodegroup-name="$node_group_name"
    ```
+
+### k8s components
+
+#### Upgrade `cdk8s-plus`
+
+**It is a [good idea](https://cdk8s.io/docs/latest/plus/#i-operate-kubernetes-version-1xx-which-cdk8s-library-should-i-be-using) to check if a `cdk8s-plus` version matches the Kubernetes version you want to upgrade to.**
+
+If there is a version matching to the Kubernetes version to upgrade to, upgrade CDK8s-plus before proceeding to upgrade Kubernetes steps.
+
+1. Install the new version
+
+   ```bash
+   npm install --save-dev cdk8s-plus-27
+   ```
+
+2. Remove the previous version
+
+   ```bash
+   npm rm cdk8s-plus-26
+   ```
+
+If there is no version matching, keep the version installed and proceed to upgrade Kubernetes steps.
+
+#### Upgrade components
+
+For each of the component to upgrade:
+
+- Use a compatible version based on Kubernetes version.
+- Create a GitHub Pull Request so the upgrade can be done by the CI/CD pipeline that deploys these changes in production using `cdk8s` and `kubectl`.
+
+##### Karpenter
+
+- Update Helm values in `infra/charts/karpenter.ts`
+- If API changed from last version, refers to [`karpenter` component documentation](components/karpenter.md) to see how to import new CRDs classes.
+
+##### Fluent Bit
+
+- Update Helm values in `infra/charts/fluentbit.ts`
+- More information in [our fluentbit documentation](components/fluentbit.md)
+
+##### Event Exporter
+
+- Update Helm values in `infra/charts/event.exporer.ts`
+- More information in [our event-exporter documentation](components/event.exporter.md)
+
+##### Cloudflare
+
+- Get the latest version of the Docker image and [add it to our ECR](components/cloudflared.md#upgrade-container-image)
+- Update container image version in `infra/charts/cloudflared.ts`
+
+#### Deployment
+
+##### Production
+
+Our CI/CD pipeline takes care of deploying any changes detected in the IaC (`infra/`), when a PR is merged to the `master` branch. In some cases, the deployment can create an instable state as a component upgrade can not be compatible with the current version of another component that the PR does not modify. It is still a good practice to modify each component with an individual PR to make it easier to track and rollback the change if needed. This instable state must be solved once the PRs for each component to update are merged.
+
+##### Non Production
+
+The process is different in a Dev/NonProd cluster as the deployment will be manual:
+
+1. Generate the kubernetes configuration yaml into `dist/`
+
+   ```shell
+   npx cdk8s synth
+   ```
+
+2. Apply the generated yaml files
+
+   ```shell
+   kubectl apply --filename=dist/
+   ```
+
+##### Clean-up
+
+You can safely apply updated YAML manifests on top of the existing deployment, however if some CRDs have changed, for example in a Karpenter upgrade we've seen `Provisioner` -> `NodePool`, Helm does not delete the old CRDs. To avoid potential issues, like confusion from orphaned CRDs, it is a good thing to delete these old CRDs. After deployment:
+
+```shell
+kubectl get crds
+kubectl deleted crd <old-crd-name>
+```
