@@ -141,7 +141,7 @@ If there is a version matching the Kubernetes version to upgrade to, upgrade CDK
    npm rm cdk8s-plus-26
    ```
 
-If there is no version matching, keep the version installed and proceed to upgrade Kubernetes steps.
+If there is no matching version, upgrade to the highest suitable version (skip this step if no higher version is available).
 
 #### Upgrade components
 
