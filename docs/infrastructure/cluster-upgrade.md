@@ -198,5 +198,5 @@ You can safely apply updated YAML manifests on top of the existing deployment, h
 
 ```shell
 kubectl get crds
-kubectl deleted crd <old-crd-name>
+kubectl delete crd <old-crd-name-1> <old-crd-name-n>
 ```
