@@ -127,7 +127,7 @@ This process is necessary to avoid being blocked for a future Kubernetes version
 
 **It is a [good idea](https://cdk8s.io/docs/latest/plus/#i-operate-kubernetes-version-1xx-which-cdk8s-library-should-i-be-using) to check if a `cdk8s-plus` version matches the Kubernetes version you want to upgrade to.**
 
-If there is a version matching to the Kubernetes version to upgrade to, upgrade CDK8s-plus before proceeding to upgrade Kubernetes steps.
+If there is a version matching the Kubernetes version to upgrade to, upgrade CDK8s-plus before proceeding to upgrade Kubernetes steps.
 
 1. Install the new version
 
