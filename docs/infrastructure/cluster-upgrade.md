@@ -162,7 +162,7 @@ For each of the component to upgrade:
 
 ##### Event Exporter
 
-- Update Helm values in `infra/charts/event.exporer.ts`
+- Update Helm values in `infra/charts/event.exporter.ts`
 - More information in [our event-exporter documentation](components/event.exporter.md)
 
 ##### Cloudflare
