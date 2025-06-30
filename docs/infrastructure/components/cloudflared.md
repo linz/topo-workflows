@@ -8,7 +8,7 @@ All of the cloudflare configuration is managed by a web control pane [https://da
 
 The configuration for the Cloudflare Application and Tunnel is in a LINZ internal document.
 
-## Upgrade
+## Upgrade container image
 
 To make `cloudflared` container usable in our cluster, we need to publish it in AWS ECR to avoid issues with the Docker Hub.
 
