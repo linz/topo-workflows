@@ -1,0 +1,111 @@
+# yaml-language-server: $schema=https://raw.githubusercontent.com/argoproj/argo-workflows/v3.5.5/api/jsonschema/schema.json
+
+apiVersion: argoproj.io/v1alpha1
+kind: WorkflowTemplate
+metadata:
+  name: unarchive
+spec:
+  entrypoint: restore
+  arguments:
+    parameters:
+      - name: archive_bucket
+        description: 'The S3 bucket where the archived data to restore is stored.'
+        value: linz-hydrographic-archive
+        enum:
+          - linz-topographic-archive
+          - linz-hydrographic-archive
+      - name: archive_directory
+        description: 'The directory in the archive bucket where the archived data to restore is stored.'
+        value: ''
+      - name: request_title
+        value: ''
+      - name: retrieval_tier
+        description: 'Use `STANDARD` for urgent requests. This has an impact on retrieval costs.'
+        value: BULK
+        enum:
+          - STANDARD
+          - BULK
+  templates:
+    - name: restore
+      inputs:
+        parameters:
+          - name: archive_bucket
+          - name: archive_directory
+          - name: request_title
+          - name: retrieval_tier
+      container:
+        image: public.ecr.aws/aws-cli/aws-cli:2.27.49
+        env:
+          - name: ACCOUNT_ID_HYDRO
+            valueFrom:
+              secretKeyRef:
+                key: ACCOUNT_ID_HYDRO
+                name: s3-batch-restore-secrets
+          - name: ACCOUNT_ID_TOPO
+            valueFrom:
+              secretKeyRef:
+                key: ACCOUNT_ID_TOPO
+                name: s3-batch-restore-secrets
+          - name: ROLE_ARN
+            valueFrom:
+              secretKeyRef:
+                key: ROLE_ARN
+                name: s3-batch-restore-secrets
+        command: [sh, -c]
+        args:
+          - |
+            if [ "{{inputs.parameters.archive_bucket}}" = "linz-hydrographic-archive" ]; then
+              ACCOUNT_ID_ARCHIVE=$ACCOUNT_ID_HYDRO
+            elif [ "{{inputs.parameters.archive_bucket}}" = "linz-topographic-archive" ]; then
+              ACCOUNT_ID_ARCHIVE=$ACCOUNT_ID_TOPO
+            else
+              echo "Unknown archive bucket: {{inputs.parameters.archive_bucket}}" >&2
+              exit 1
+            fi
+
+            aws s3control create-job \
+            --client-request-token "restore-job-{{workflow.name}}" \
+            --account-id "$ACCOUNT_ID_ARCHIVE" \
+            --region ap-southeast-2 \
+            --operation "$(cat <<EOF
+            {
+              "S3InitiateRestoreObject": {
+                "ExpirationInDays": 2,
+                "GlacierJobTier": "{{inputs.parameters.retrieval_tier}}"
+              }
+            }
+            EOF
+            )" \
+            --report "$(cat <<EOF
+            {
+              "Bucket": "arn:aws:s3:::linz-workflows-scratch",
+              "Format": "Report_CSV_20180820",
+              "Enabled": true,
+              "Prefix": "restore/reports/{{inputs.parameters.request_title}}"
+            }
+            EOF
+            )" \
+            --manifest-generator "$(cat <<EOF
+            {
+              "S3JobManifestGenerator": {
+                "ExpectedBucketOwner": "$ACCOUNT_ID_ARCHIVE",
+                "SourceBucket": "arn:aws:s3:::{{inputs.parameters.archive_bucket}}",
+                "ManifestOutputLocation": {
+                  "ExpectedManifestBucketOwner": "$ACCOUNT_ID_TOPO",
+                  "Bucket": "arn:aws:s3:::linz-workflows-scratch",
+                  "ManifestPrefix": "restore/manifests/{{inputs.parameters.request_title}}",
+                  "ManifestFormat": "S3InventoryReport_CSV_20211130"
+                },
+                "Filter": {
+                  "KeyNameConstraint": {
+                    "MatchAnyPrefix": ["{{inputs.parameters.archive_directory}}"]
+                  }
+                },
+                "EnableManifestOutput": true
+              }
+            }
+            EOF
+            )" \
+            --priority 10 \
+            --role-arn "$ROLE_ARN" \
+            --description "Restore {{inputs.parameters.request_title}}"
