@@ -297,6 +297,15 @@ export class LinzEksCluster extends Stack {
         resources: [`arn:aws:s3:${this.region}:${this.account}:job/*`],
       }),
     );
+    /**
+     * give permission to the sa to pass the S3 Batch Operations job role
+     **/
+    argoRunnerSa.role.addToPrincipalPolicy(
+      new PolicyStatement({
+        actions: ['iam:PassRole'],
+        resources: [`arn:aws:iam::${this.account}:role/S3BatchRestoreRole`], // FIXME: hardcoded role name
+      }),
+    );
 
     /* Gives read access on ODR public buckets.
      * While those are public buckets, we still need to give permission to Argo
