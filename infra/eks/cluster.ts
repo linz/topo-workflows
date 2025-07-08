@@ -38,6 +38,7 @@ interface EksClusterProps extends StackProps {
   slackChannelConfigurationName: string;
   slackWorkspaceId: string;
   slackChannelId: string;
+  s3BatchRestoreRoleArn: string;
 }
 
 export class LinzEksCluster extends Stack {
@@ -173,7 +174,7 @@ export class LinzEksCluster extends Stack {
 
     new CfnOutput(this, CfnOutputKeys.ClusterEndpoint, { value: this.cluster.clusterEndpoint });
 
-    this.configureEks();
+    this.configureEks(props.s3BatchRestoreRoleArn);
   }
 
   /**
@@ -182,7 +183,7 @@ export class LinzEksCluster extends Stack {
    * This should generally be limited to things that require direct interaction with AWS eg service accounts
    * or name space creation
    */
-  configureEks(): void {
+  configureEks(s3BatchRestoreRoleArn: string): void {
     this.tempBucket.grantReadWrite(this.nodeRole);
     this.configBucket.grantRead(this.nodeRole);
     this.nodeRole.addToPrincipalPolicy(new PolicyStatement({ actions: ['sts:AssumeRole'], resources: ['*'] }));
@@ -302,7 +303,7 @@ export class LinzEksCluster extends Stack {
     argoRunnerSa.role.addToPrincipalPolicy(
       new PolicyStatement({
         actions: ['iam:PassRole'],
-        resources: [`arn:aws:iam::${this.account}:role/S3BatchRestoreRole`], // FIXME: hardcoded role name
+        resources: [s3BatchRestoreRoleArn],
       }),
     );
 

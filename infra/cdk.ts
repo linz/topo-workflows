@@ -10,10 +10,11 @@ const app = new App();
 async function main(): Promise<void> {
   const accountId = (app.node.tryGetContext('aws-account-id') as unknown) ?? process.env['CDK_DEFAULT_ACCOUNT'];
   const maintainerRoleArns = tryGetContextArns(app.node, 'maintainer-arns');
-  const slackSsmConfig = await fetchSsmParameters({
+  const ssmConfig = await fetchSsmParameters({
     slackChannelConfigurationName: '/rds/alerts/slack/channel/name',
     slackWorkspaceId: '/rds/alerts/slack/workspace/id',
     slackChannelId: '/rds/alerts/slack/channel/id',
+    s3BatchRestoreRoleArn: '/eks/S3BatchRestore/roleArn',
   });
 
   if (maintainerRoleArns == null) throw new Error('Missing context: maintainer-arns');
@@ -24,9 +25,10 @@ async function main(): Promise<void> {
   new LinzEksCluster(app, ClusterName, {
     env: { region: DefaultRegion, account: accountId },
     maintainerRoleArns,
-    slackChannelConfigurationName: slackSsmConfig.slackChannelConfigurationName,
-    slackWorkspaceId: slackSsmConfig.slackWorkspaceId,
-    slackChannelId: slackSsmConfig.slackChannelId,
+    slackChannelConfigurationName: ssmConfig.slackChannelConfigurationName,
+    slackWorkspaceId: ssmConfig.slackWorkspaceId,
+    slackChannelId: ssmConfig.slackChannelId,
+    s3BatchRestoreRoleArn: ssmConfig.s3BatchRestoreRoleArn,
   });
 
   app.synth();
