@@ -28,6 +28,22 @@ export class EventExporter extends Chart {
         config: {
           logLevel: 'error',
           logFormat: 'json',
+          clusterName: '',
+          receivers: [
+            {
+              name: 'dump',
+              file: {
+                path: '/dev/stdout',
+              },
+            },
+          ],
+          route: {
+            routes: [
+              {
+                match: [{ receiver: 'dump' }],
+              },
+            ],
+          },
         },
         serviceAccount: {
           automountServiceAccountToken: true,
