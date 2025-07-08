@@ -10,7 +10,8 @@ export class Cloudflared extends Chart {
     id: string,
     props: { tunnelId: string; tunnelSecret: string; accountId: string; tunnelName: string } & ChartProps,
   ) {
-    super(scope, id, applyDefaultLabels(props, 'cloudflared', '2025.6.1', 'tunnel', 'workflows'));
+    const cloudflaredVersion = '2025.6.1';
+    super(scope, id, applyDefaultLabels(props, 'cloudflared', cloudflaredVersion, 'tunnel', 'workflows'));
 
     // TODO should we create a new namespace every time
     new kplus.Namespace(this, 'namespace', {
@@ -46,7 +47,7 @@ export class Cloudflared extends Chart {
       containers: [
         {
           name: 'cloudflared',
-          image: '019359803926.dkr.ecr.ap-southeast-2.amazonaws.com/cloudflared:2025.6.1',
+          image: `019359803926.dkr.ecr.ap-southeast-2.amazonaws.com/cloudflared:${cloudflaredVersion}`,
           args: ['tunnel', '--loglevel', 'trace', '--config', '/etc/cloudflared/config/config.yaml', 'run'],
           volumeMounts: [
             { volume: kplus.Volume.fromConfigMap(this, 'mount-config', cm), path: '/etc/cloudflared/config' },
