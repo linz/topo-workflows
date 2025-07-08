@@ -6,6 +6,7 @@ metadata:
   name: unarchive
 spec:
   entrypoint: restore
+  onExit: exit-handler
   arguments:
     parameters:
       - name: archive_bucket
@@ -15,12 +16,13 @@ spec:
           - linz-topographic-archive
           - linz-hydrographic-archive
       - name: archive_directory
-        description: 'The directory in the archive bucket where the archived data to restore is stored.'
+        description: 'The directory in the archive bucket where the archived data to restore is stored. Does not include the bucket name. Example: "aerialsurveys/Invercargill2022_Pgrm3016/".'
         value: ''
       - name: request_title
+        description: 'A title for the restore request. This will be used to identify the job when files will be restored. Example: "Customer request to restore files for project X".'
         value: ''
       - name: retrieval_tier
-        description: 'Use `STANDARD` for urgent requests. This has an impact on retrieval costs.'
+        description: 'Use `STANDARD` for urgent requests. This has an impact on retrieval costs. Defaults to `BULK` for regular requests.'
         value: BULK
         enum:
           - STANDARD
@@ -54,6 +56,7 @@ spec:
         command: [sh, -c]
         args:
           - |
+            TODAY=$(date '+%Y-%m-%d')
             if [ "{{inputs.parameters.archive_bucket}}" = "linz-hydrographic-archive" ]; then
               ACCOUNT_ID_ARCHIVE=$ACCOUNT_ID_HYDRO
             elif [ "{{inputs.parameters.archive_bucket}}" = "linz-topographic-archive" ]; then
@@ -64,48 +67,57 @@ spec:
             fi
 
             aws s3control create-job \
-            --client-request-token "restore-job-{{workflow.name}}" \
-            --account-id "$ACCOUNT_ID_ARCHIVE" \
-            --region ap-southeast-2 \
-            --operation "$(cat <<EOF
-            {
-              "S3InitiateRestoreObject": {
-                "ExpirationInDays": 2,
-                "GlacierJobTier": "{{inputs.parameters.retrieval_tier}}"
-              }
-            }
-            EOF
-            )" \
-            --report "$(cat <<EOF
-            {
-              "Bucket": "arn:aws:s3:::linz-workflows-scratch",
-              "Format": "Report_CSV_20180820",
-              "Enabled": true,
-              "Prefix": "restore/reports/{{inputs.parameters.request_title}}"
-            }
-            EOF
-            )" \
-            --manifest-generator "$(cat <<EOF
-            {
-              "S3JobManifestGenerator": {
-                "ExpectedBucketOwner": "$ACCOUNT_ID_ARCHIVE",
-                "SourceBucket": "arn:aws:s3:::{{inputs.parameters.archive_bucket}}",
-                "ManifestOutputLocation": {
-                  "ExpectedManifestBucketOwner": "$ACCOUNT_ID_TOPO",
-                  "Bucket": "arn:aws:s3:::linz-workflows-scratch",
-                  "ManifestPrefix": "restore/manifests/{{inputs.parameters.request_title}}",
-                  "ManifestFormat": "S3InventoryReport_CSV_20211130"
-                },
-                "Filter": {
-                  "KeyNameConstraint": {
-                    "MatchAnyPrefix": ["{{inputs.parameters.archive_directory}}"]
-                  }
-                },
-                "EnableManifestOutput": true
-              }
-            }
-            EOF
-            )" \
-            --priority 10 \
-            --role-arn "$ROLE_ARN" \
-            --description "Restore {{inputs.parameters.request_title}}"
+              --client-request-token "restore-job-{{workflow.name}}" \
+              --account-id "$ACCOUNT_ID_TOPO" \
+              --region ap-southeast-2 \
+              --operation '{
+                "S3InitiateRestoreObject": {
+                  "ExpirationInDays": 2,
+                  "GlacierJobTier": "{{inputs.parameters.retrieval_tier}}"
+                }
+              }' \
+              --report "{
+                \"Bucket\": \"arn:aws:s3:::linz-workflows-scratch\",
+                \"Format\": \"Report_CSV_20180820\",
+                \"Enabled\": true,
+                \"Prefix\": \"restore/reports/${TODAY}-{{workflow.name}}\",
+                \"ReportScope\": \"AllTasks\"
+              }" \
+              --manifest-generator "{
+                \"S3JobManifestGenerator\": {
+                  \"ExpectedBucketOwner\": \"$ACCOUNT_ID_ARCHIVE\",
+                  \"SourceBucket\": \"arn:aws:s3:::{{inputs.parameters.archive_bucket}}\",
+                  \"ManifestOutputLocation\": {
+                    \"ExpectedManifestBucketOwner\": \"$ACCOUNT_ID_TOPO\",
+                    \"Bucket\": \"arn:aws:s3:::linz-workflows-scratch\",
+                    \"ManifestPrefix\": \"restore/manifests/${TODAY}-{{workflow.name}}\",
+                    \"ManifestFormat\": \"S3InventoryReport_CSV_20211130\"
+                  },
+                  \"Filter\": {
+                    \"KeyNameConstraint\": {
+                      \"MatchAnyPrefix\": [\"{{inputs.parameters.archive_directory}}\"]
+                    }
+                  },
+                  \"EnableManifestOutput\": true
+                }
+              }" \
+              --priority 10 \
+              --role-arn "$ROLE_ARN" \
+              --description "{{workflow.name}} - {{inputs.parameters.request_title}}" \
+              --no-confirmation-required
+              --debug
+
+    - name: exit-handler
+      retryStrategy:
+        limit: '0' # `tpl-exit-handler` retries itself
+      steps:
+        - - name: exit
+            templateRef:
+              name: tpl-exit-handler
+              template: main
+            arguments:
+              parameters:
+                - name: workflow_status
+                  value: '{{workflow.status}}'
+                - name: workflow_parameters
+                  value: '{{workflow.parameters}}'
