@@ -297,9 +297,8 @@ export class LinzEksCluster extends Stack {
         resources: [`arn:aws:s3:${this.region}:${this.account}:job/*`],
       }),
     );
-    /**
-     * give permission to the sa to pass the S3 Batch Operations job role
-     **/
+
+    // give permission to the sa to pass the S3 Batch Operations job role
     argoRunnerSa.role.addToPrincipalPolicy(
       new PolicyStatement({
         actions: ['iam:PassRole'],
