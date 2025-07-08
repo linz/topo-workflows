@@ -10,7 +10,7 @@ export class Cloudflared extends Chart {
     id: string,
     props: { tunnelId: string; tunnelSecret: string; accountId: string; tunnelName: string } & ChartProps,
   ) {
-    super(scope, id, applyDefaultLabels(props, 'cloudflared', '2023.8.2', 'tunnel', 'workflows'));
+    super(scope, id, applyDefaultLabels(props, 'cloudflared', '2025.6.1', 'tunnel', 'workflows'));
 
     // TODO should we create a new namespace every time
     new kplus.Namespace(this, 'namespace', {
