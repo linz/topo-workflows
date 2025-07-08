@@ -2,6 +2,7 @@ import { Chart, ChartProps, Helm } from 'cdk8s';
 import { Namespace } from 'cdk8s-plus-32';
 import { Construct } from 'constructs';
 
+import { ClusterName } from '../constants.js';
 import { applyDefaultLabels } from '../util/labels.js';
 
 /** This is the chart version vs app version which is 1.7.0
@@ -28,7 +29,7 @@ export class EventExporter extends Chart {
         config: {
           logLevel: 'error',
           logFormat: 'json',
-          clusterName: '',
+          clusterName: ClusterName,
           receivers: [
             {
               name: 'dump',
