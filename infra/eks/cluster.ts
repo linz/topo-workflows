@@ -35,10 +35,14 @@ import { ArgoDbInstanceName, ArgoDbName, ArgoDbUser, CfnOutputKeys, ScratchBucke
 interface EksClusterProps extends StackProps {
   /** List of role ARNs to grant access to the cluster */
   maintainerRoleArns: string[];
-  slackChannelConfigurationName: string;
-  slackWorkspaceId: string;
-  slackChannelId: string;
+  /** S3 Batch Restore Role ARN */
   s3BatchRestoreRoleArn: string;
+  /** Slack channel configuration for RDS alerts */
+  slackChannelConfigurationName: string;
+  /** Slack workspace ID for RDS alerts */
+  slackWorkspaceId: string;
+  /** Slack channel ID for RDS alerts */
+  slackChannelId: string;
 }
 
 export class LinzEksCluster extends Stack {
@@ -298,7 +302,6 @@ export class LinzEksCluster extends Stack {
         resources: [`arn:aws:s3:${this.region}:${this.account}:job/*`],
       }),
     );
-
     // give permission to the sa to pass the S3 Batch Operations job role
     argoRunnerSa.role.addToPrincipalPolicy(
       new PolicyStatement({
