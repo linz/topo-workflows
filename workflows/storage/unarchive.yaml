@@ -1,0 +1,123 @@
+# yaml-language-server: $schema=https://raw.githubusercontent.com/argoproj/argo-workflows/v3.5.5/api/jsonschema/schema.json
+
+apiVersion: argoproj.io/v1alpha1
+kind: WorkflowTemplate
+metadata:
+  name: unarchive
+spec:
+  entrypoint: restore
+  onExit: exit-handler
+  arguments:
+    parameters:
+      - name: archive_bucket
+        description: 'The S3 bucket where the archived data to restore is stored.'
+        value: linz-hydrographic-archive
+        enum:
+          - linz-topographic-archive
+          - linz-hydrographic-archive
+      - name: archive_directory
+        description: 'The directory in the archive bucket where the archived data to restore is stored. Does not include the bucket name. Example: "aerialsurveys/Invercargill2022_Pgrm3016/".'
+        value: ''
+      - name: request_title
+        description: 'A title for the restore request. This will be used to identify the job when files will be restored. Example: "Customer request to restore files for project X".'
+        value: ''
+      - name: retrieval_tier
+        description: 'Use `STANDARD` for urgent requests. This has an impact on retrieval costs. Defaults to `BULK` for regular requests.'
+        value: BULK
+        enum:
+          - STANDARD
+          - BULK
+  templates:
+    - name: restore
+      inputs:
+        parameters:
+          - name: archive_bucket
+          - name: archive_directory
+          - name: request_title
+          - name: retrieval_tier
+      container:
+        image: public.ecr.aws/aws-cli/aws-cli:2.27.49
+        env:
+          - name: ACCOUNT_ID_HYDRO
+            valueFrom:
+              secretKeyRef:
+                key: ACCOUNT_ID_HYDRO
+                name: s3-batch-restore-secrets
+          - name: ACCOUNT_ID_TOPO
+            valueFrom:
+              secretKeyRef:
+                key: ACCOUNT_ID_TOPO
+                name: s3-batch-restore-secrets
+          - name: ROLE_ARN
+            valueFrom:
+              secretKeyRef:
+                key: ROLE_ARN
+                name: s3-batch-restore-secrets
+        command: [sh, -c]
+        args:
+          - |
+            TODAY=$(date '+%Y-%m-%d')
+            if [ "{{inputs.parameters.archive_bucket}}" = "linz-hydrographic-archive" ]; then
+              ACCOUNT_ID_ARCHIVE=$ACCOUNT_ID_HYDRO
+            elif [ "{{inputs.parameters.archive_bucket}}" = "linz-topographic-archive" ]; then
+              ACCOUNT_ID_ARCHIVE=$ACCOUNT_ID_TOPO
+            else
+              echo "Unknown archive bucket: {{inputs.parameters.archive_bucket}}" >&2
+              exit 1
+            fi
+
+            aws s3control create-job \
+              --client-request-token "restore-job-{{workflow.name}}" \
+              --account-id "$ACCOUNT_ID_TOPO" \
+              --region ap-southeast-2 \
+              --operation '{
+                "S3InitiateRestoreObject": {
+                  "ExpirationInDays": 2,
+                  "GlacierJobTier": "{{inputs.parameters.retrieval_tier}}"
+                }
+              }' \
+              --report "{
+                \"Bucket\": \"arn:aws:s3:::linz-workflows-scratch\",
+                \"Format\": \"Report_CSV_20180820\",
+                \"Enabled\": true,
+                \"Prefix\": \"restore/reports/${TODAY}-{{workflow.name}}\",
+                \"ReportScope\": \"AllTasks\"
+              }" \
+              --manifest-generator "{
+                \"S3JobManifestGenerator\": {
+                  \"ExpectedBucketOwner\": \"$ACCOUNT_ID_ARCHIVE\",
+                  \"SourceBucket\": \"arn:aws:s3:::{{inputs.parameters.archive_bucket}}\",
+                  \"ManifestOutputLocation\": {
+                    \"ExpectedManifestBucketOwner\": \"$ACCOUNT_ID_TOPO\",
+                    \"Bucket\": \"arn:aws:s3:::linz-workflows-scratch\",
+                    \"ManifestPrefix\": \"restore/manifests/${TODAY}-{{workflow.name}}\",
+                    \"ManifestFormat\": \"S3InventoryReport_CSV_20211130\"
+                  },
+                  \"Filter\": {
+                    \"KeyNameConstraint\": {
+                      \"MatchAnyPrefix\": [\"{{inputs.parameters.archive_directory}}\"]
+                    }
+                  },
+                  \"EnableManifestOutput\": true
+                }
+              }" \
+              --priority 10 \
+              --role-arn "$ROLE_ARN" \
+              --description "{{workflow.name}} - {{inputs.parameters.request_title}}" \
+              --no-confirmation-required
+              --debug
+
+    - name: exit-handler
+      retryStrategy:
+        limit: '0' # `tpl-exit-handler` retries itself
+      steps:
+        - - name: exit
+            templateRef:
+              name: tpl-exit-handler
+              template: main
+            arguments:
+              parameters:
+                - name: workflow_status
+                  value: '{{workflow.status}}'
+                - name: workflow_parameters
+                  value: '{{workflow.parameters}}'

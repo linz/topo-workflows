@@ -5,7 +5,7 @@
 
 ## Archive
 
-### Workflow Description
+### Description
 
 Archive files from a S3 location (for example `s3://linz-*-upload/[provider]/[survey]/[supply]/`) to a long term archive location (on a bucket where the files are stored as S3 Glacier Deep Archive storage class). This workflow is intended to be used after files in a source folder (for example, supplied by external provider) have been processed and not needed for any future update.
 
@@ -37,9 +37,23 @@ Access permissions are controlled by the [Bucket Sharing Config](https://github.
 | group      | int  | 1000    | The maximum number of files for each pod to copy (will use the value of `group` or `group_size` that is reached first).     |
 | group_size | str  | 100Gi   | The maximum group size of files for each pod to copy (will use the value of `group` or `group_size` that is reached first). |
 
+## Unarchive
+
+### Description
+
+Initiates an Amazon S3 Batch Operations restore job to unarchive files stored in S3 Glacier Deep Archive.
+
+**This workflow does not directly restore the files. It requests the files to be restored.**
+
+The workflow uses the `create-job` operation from `s3control` to request the restoration all objects under a specified prefix within an S3 archive bucket. It leverages the Manifest Generator to dynamically identify the objects to restore, and writes the restore job report and manifest to the workflows scratch bucket.
+
+The restoration can take up to 48H hours to occurs on `BULK` tier request.
+
+NOT YET IMPLEMENTED: A cron workflow is running on a daily basis (TBD) to verify and notify (Slack alert) that the files are restored.
+
 ## Copy
 
-### Workflow Description
+### Description
 
 Copy files from one S3 location to another. This workflow is intended to be used after standardising and QA to copy:
 

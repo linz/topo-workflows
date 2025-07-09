@@ -1,6 +1,7 @@
 import { App } from 'cdk8s';
 
 import { ArgoExtras } from './charts/argo.extras.js';
+import { ArgoSecretsChart } from './charts/argo.secrets.js';
 import { ArgoWorkflows } from './charts/argo.workflows.js';
 import { Cloudflared } from './charts/cloudflared.js';
 import { EventExporter } from './charts/event.exporter.js';
@@ -21,16 +22,21 @@ async function main(): Promise<void> {
     getCfnOutputs(ClusterName),
     fetchSsmParameters({
       // Config for Cloudflared to access argo-server
-      tunnelId: '/eks/cloudflared/argo/tunnelId',
-      tunnelSecret: '/eks/cloudflared/argo/tunnelSecret',
-      tunnelName: '/eks/cloudflared/argo/tunnelName',
-      accountId: '/eks/cloudflared/argo/accountId',
+      cloudflaredTunnelId: '/eks/cloudflared/argo/tunnelId',
+      cloudflaredTunnelSecret: '/eks/cloudflared/argo/tunnelSecret',
+      cloudflaredTunnelName: '/eks/cloudflared/argo/tunnelName',
+      cloudflaredAccountId: '/eks/cloudflared/argo/accountId',
 
       // Personal access token to gain access to linz-li-bot github user
       githubPat: '/eks/github/linz-li-bot/pat',
 
       // Argo Database connection password
       argoDbPassword: '/eks/argo/postgres/password',
+
+      // Argo Workflows secrets for S3 Batch Operations Restore
+      s3BatchRestoreAccountIdHydro: '/eks/S3BatchRestore/accountIdHydro',
+      s3BatchRestoreAccountIdTopo: '/eks/S3BatchRestore/accountIdTopo',
+      s3BatchRestoreRoleArn: '/eks/S3BatchRestore/roleArn',
     }),
     describeCluster(ClusterName),
   ]);
@@ -88,12 +94,18 @@ async function main(): Promise<void> {
     secrets: [{ name: 'github-linz-li-bot-pat', data: { pat: ssmConfig.githubPat } }],
   });
 
+  new ArgoSecretsChart(app, 'argo-secrets', {
+    accountIdHydro: ssmConfig.s3BatchRestoreAccountIdHydro,
+    accountIdTopo: ssmConfig.s3BatchRestoreAccountIdTopo,
+    s3BatchRestoreRoleArn: ssmConfig.s3BatchRestoreRoleArn,
+  });
+
   new Cloudflared(app, 'cloudflared', {
     namespace: 'cloudflared',
-    tunnelId: ssmConfig.tunnelId,
-    tunnelSecret: ssmConfig.tunnelSecret,
-    tunnelName: ssmConfig.tunnelName,
-    accountId: ssmConfig.accountId,
+    tunnelId: ssmConfig.cloudflaredTunnelId,
+    tunnelSecret: ssmConfig.cloudflaredTunnelSecret,
+    tunnelName: ssmConfig.cloudflaredTunnelName,
+    accountId: ssmConfig.cloudflaredAccountId,
   });
 
   new EventExporter(app, 'event-exporter', { namespace: 'event-exporter' });
