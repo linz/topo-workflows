@@ -2,7 +2,7 @@
 apiVersion: argoproj.io/v1alpha1
 kind: CronWorkflow
 metadata:
-  name: test-af-cron-national-merged-dem-hillshades
+  name: cron-national-merged-dem-hillshades
   labels:
     linz.govt.nz/category: raster
     linz.govt.nz/data-type: raster
