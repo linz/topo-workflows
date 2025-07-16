@@ -118,6 +118,8 @@ See [collection_from_items.py](https://github.com/linz/topo-imagery/blob/master/
         value: '{{=sprig.trim(workflow.parameters.licensor_list)}}'
       - name: create_capture_dates
         value: 'false'
+      - name: keep_description
+        value: 'true'
       - name: keep_title
         value: 'true'
       - name: version_topo_imagery
