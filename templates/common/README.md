@@ -13,7 +13,7 @@ The script ran by this template is generating a log, including the status of the
   "pid": 1,
   "msg": "Workflow:Succeeded",
   "version_argo_tasks": "v4",
-  "version_basemaps_cli": "v7",
+  "version_basemaps_cli": "v8",
   "version_topo_imagery": "v4",
   "ticket": "",
   "region": "new-zealand",

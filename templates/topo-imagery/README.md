@@ -90,6 +90,8 @@ See [collection_from_items.py](https://github.com/linz/topo-imagery/blob/master/
         value: '{{tasks.stac-setup.finishedAt}}'
       - name: odr_url
         value: '{{=sprig.trim(workflow.parameters.odr_url)}}'
+      - name: delete_all_existing_items
+        value: '{{=sprig.trim(workflow.parameters.delete_all_existing_items)}}'
       - name: category
         value: '{{=sprig.trim(workflow.parameters.category)}}'
       - name: region
@@ -116,44 +118,48 @@ See [collection_from_items.py](https://github.com/linz/topo-imagery/blob/master/
         value: '{{=sprig.trim(workflow.parameters.licensor_list)}}'
       - name: create_capture_dates
         value: 'false'
+      - name: keep_description
+        value: 'true'
+      - name: keep_title
+        value: 'true'
       - name: version_topo_imagery
         value: '{{= workflow.parameters.version_argo_tasks}}'
 ```
 
 ## topo-imagery/generate-hillshade - `tpl-create-hillshade`
 
-Template for creating hillshades from TIFFs (DEM).  
+Template for creating hillshades from elevation TIFFs (DEM / DSM).
 See [generate_hillshade.py](https://github.com/linz/topo-imagery/pull/1253)
-This `WorkflowTemplate` is also calling other templates in order to create the inputs of the `linz/topo-imagery/generate_hillshade.py` script:
-
-1. `tile-index-validate` to create a list of tiles with their source TIFF files
-2. `group` to split the list created into grouped tiles for parallel processing
-
-It allows generating multiple types of hillshade from the same source TIFF files, as the `preset` parameter expects a list of hillshade presets.
 
 ### Template usage
 
 ```yaml
-- name: create-hillshade
+- name: generate-hillshade
   templateRef:
-    name: tpl-create-hillshade
+    name: tpl-ti-generate-hillshade
     template: main
   arguments:
     parameters:
-      - name: source
-        value: 's3://nz-elevation/new-zealand/new-zealand-contour/dem_8m/2193/'
-      - name: scale
-        value: '50000'
-      - name: group
-        value: '2'
-      - name: version_argo_tasks
-        value: 'v4'
+      - name: group_id
+        value: '{{item}}'
+      - name: hillshade_preset
+        value: '{{=sprig.trim(workflow.parameters.hillshade_preset)}}'
       - name: version_topo_imagery
-        value: 'v7'
-      - name: target
-        value: '{{=sprig.trimSuffix("/", tasks["get-location"].outputs.parameters.location)}}/flat/'
-      - name: preset
-        value: '["greyscale", "igor"]'
+        value: '{{= workflow.parameters.version_topo_imagery}}'
+      - name: target # not using flat/ here, but {{workflow.parameters.hillshade_preset}}/ to keep temporary HS output separate
+        value: '{{=sprig.trimSuffix("/", tasks["get-location"].outputs.parameters.location)}}/{{workflow.parameters.hillshade_preset}}/flat/'
+      - name: collection_id
+        value: '{{tasks.stac-setup-hillshade.outputs.parameters.collection_id}}'
+      - name: gsd
+        value: '{{=sprig.trim(workflow.parameters.gsd)}}'
+      - name: current_datetime
+        value: '{{tasks.stac-setup-hillshade.finishedAt}}'
+      - name: odr_url
+        value: '{{=sprig.trim(workflow.parameters.odr_url)}}'
+    artifacts:
+      - name: group_data
+        from: '{{tasks.group.outputs.artifacts.output}}'
+  withParam: '{{tasks.group.outputs.parameters.output}}'
 ```
 
 The Workflow caller must have the following volume:
@@ -163,8 +169,3 @@ volumes:
   - name: ephemeral
     emptyDir: {}
 ```
-
-### Output
-
-The hillshade TIFF files will be saved in a subdirectory for each of the `preset` within the `target` directory.
-Example: `s3://linz-workflows-scratch/2025-02/03-test-hillshade-94clh/flat/igor/`

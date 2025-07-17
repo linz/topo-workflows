@@ -39,10 +39,10 @@ spec:
     parameters:
       - name: version_basemaps_cli
         description: Version of the basemaps CLI docker container to use
-        value: v7
+        value: v8
 
       - name: version_argo_tasks
-        description: Version of the basemaps CLI docker container to use
+        description: Version of the argo-tasks CLI docker container to use
         value: v4
 
       - name: user_group
@@ -150,7 +150,7 @@ spec:
 
       - name: cutline
         description: Path to cutline to apply
-        value: 's3://linz-basemaps-source/cutline/2020-05-07-cutline-nz-coasts-rural-and-urban.geojson'
+        value: 's3://linz-basemaps-source/cutline/2025-04-30-cutline-nz-coasts-rural-and-urban.geojson'
 
       - name: cutline_blend
         description: Blending to use for cutline see gdal_translate#cblend
@@ -171,6 +171,10 @@ spec:
         description: 'Background RGBA hexstring to fill empty space in the COG. Format: "#rrggbbaa"'
         value: ''
 
+      - name: base_zoom_offset
+        description: 'Adjust the base zoom level of the output COGS, "-1" reduce the target output resolution by one zoom level'
+        value: ''
+
   templates:
     # Main entrypoint into the workflow
     - name: main
@@ -186,6 +190,7 @@ spec:
           - name: cutline_blend
           - name: group_size
           - name: require_stac_collection
+          - name: base_zoom_offset
           - name: background
       dag:
         tasks:
@@ -211,6 +216,8 @@ spec:
                   value: '{{ inputs.parameters.group_size }}'
                 - name: require_stac_collection
                   value: '{{ inputs.parameters.require_stac_collection }}'
+                - name: base_zoom_offset
+                  value: '{{ inputs.parameters.base_zoom_offset }}'
                 - name: background
                   value: '{{ inputs.parameters.background }}'
           - name: create-pull-request
@@ -234,6 +241,7 @@ spec:
           - name: group_size
           - name: preset
           - name: require_stac_collection
+          - name: base_zoom_offset
           - name: background
       dag:
         tasks:
@@ -254,6 +262,8 @@ spec:
                   value: '{{ inputs.parameters.cutline }}'
                 - name: cutline_blend
                   value: '{{ inputs.parameters.cutline_blend }}'
+                - name: base_zoom_offset
+                  value: '{{ inputs.parameters.base_zoom_offset }}'
                 - name: require_stac_collection
                   value: '{{ inputs.parameters.require_stac_collection }}'
                 - name: background
@@ -330,23 +340,26 @@ spec:
           - name: cutline_blend
           - name: preset
           - name: require_stac_collection
+          - name: base_zoom_offset
           - name: background
       container:
         image: ghcr.io/linz/basemaps/cli:{{ workflow.parameters.version_basemaps_cli }}
         resources:
           requests:
             memory: 2Gi
-        command: [node, /app/node_modules/@basemaps/cogify/dist/index.cjs]
+        command: [node, index.cjs]
         env:
           - name: AWS_ROLE_CONFIG_PATH
             value: s3://linz-bucket-config/config.basemaps.json
         args:
+          - 'cogify'
           - 'cover'
           - '--preset={{ inputs.parameters.preset }}'
           - '--tile-matrix={{ inputs.parameters.tile_matrix }}'
           - '--require-stac-collection={{ inputs.parameters.require_stac_collection }}'
           - "{{= sprig.empty(inputs.parameters.cutline) ? '' : '--cutline=' + inputs.parameters.cutline }}"
           - '--cutline-blend={{ inputs.parameters.cutline_blend }}'
+          - "{{= sprig.empty(inputs.parameters.base_zoom_offset) ? '' : '--base-zoom-offset=' + inputs.parameters.base_zoom_offset }}"
           - "{{= sprig.empty(inputs.parameters.background) ? '' : '--background=' + inputs.parameters.background }}"
           - '--target={{= sprig.trim(inputs.parameters.target) }}'
           - '{{= sprig.trim(inputs.parameters.source) }}'
@@ -383,11 +396,12 @@ spec:
             cpu: 15000m # AWS gives 2x cpu cores = memory for most instances
             ephemeral-storage: 98Gi # 2 pods per 200GB of storage
         image: ghcr.io/linz/basemaps/cli:{{ workflow.parameters.version_basemaps_cli }}
-        command: [node, /app/node_modules/@basemaps/cogify/dist/index.cjs]
+        command: [node, index.cjs]
         env:
           - name: AWS_ROLE_CONFIG_PATH
             value: s3://linz-bucket-config/config.basemaps.json
         args:
+          - 'cogify'
           - 'create'
           - '--from-file={{= inputs.artifacts.covering_grouped.path }}{{inputs.parameters.covering_grouped_id}}.json'
           - '--concurrency=2'
@@ -400,12 +414,13 @@ spec:
             description: Location of the imagery to create config for
       container:
         image: ghcr.io/linz/basemaps/cli:{{ workflow.parameters.version_basemaps_cli }}
-        command: [node, /app/node_modules/@basemaps/cogify/dist/index.cjs]
+        command: [node, index.cjs]
         env:
           - name: AWS_ROLE_CONFIG_PATH
             value: s3://linz-bucket-config/config.basemaps.json
         args:
           - 'config'
+          - 'create-config'
           - '{{ inputs.parameters.path }}'
       outputs:
         parameters:
@@ -448,7 +463,6 @@ spec:
           - name: target
       container:
         image: 019359803926.dkr.ecr.ap-southeast-2.amazonaws.com/argo-tasks:{{workflow.parameters.version_argo_tasks}}
-        command: [node, /app/index.js]
         env:
           - name: AWS_ROLE_CONFIG_PATH
             value: s3://linz-bucket-config/config.basemaps.json

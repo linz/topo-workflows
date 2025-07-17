@@ -70,7 +70,7 @@ This creates pull request in the [basemaps-config](https://github.com/linz/basem
 | name          | str  | null                                                                                   | The imagery name we want to import. Following the convention name-year-resolution, like `invercargill_2022_0.05m` or `christchurch_2020-2021_0-075m_RGB`.                                                                      |
 | target        | enum | linz-basemaps                                                                          | S3 bucket that we want to import into. `--linz-basemaps` for production and `--linz-basemaps-staging` for dev.                                                                                                                 |
 | tile-matrix   | enum | NZTM2000Quad/WebMercatorQuad                                                           | Target TileMatrix we want to import as. `--NZTM2000Quad/WebMercatorQuad` to import two layers for both NZTM2000Quad and WebMercatorQuad. `--NZTM2000Quad` for NZTM2000Quad only. `--WebMercatorQuad` for WebMercatorQuad Only. |
-| cutline       | str  | s3://linz-basemaps-source/cutline/2020-05-07-cutline-nz-coasts-rural-and-urban.geojson | The cutline is used to clip source imagery                                                                                                                                                                                     |
+| cutline       | str  | s3://linz-basemaps-source/cutline/2025-04-30-cutline-nz-coasts-rural-and-urban.geojson | The cutline is used to clip source imagery                                                                                                                                                                                     |
 | blend         | int  | 20                                                                                     | How much blending to consider when working out boundaries.                                                                                                                                                                     |
 | aligned-level | int  | 6                                                                                      | How much do we want to align the output cog tiff from the source tiff resolution zoom level. `(zoom = resolution_zoom - aligned_level)`                                                                                        |
 
@@ -146,22 +146,22 @@ It is mainly used for the Standardising workflow to provide visual QA for the st
 
 ## Workflow Input Parameters
 
-| Parameter | Type | Default                                    | Description                       |
-| --------- | ---- | ------------------------------------------ | --------------------------------- |
-| location  | str  | s3://linz-workflow-artifacts/path_of_tiffs | the uri (path) to the input tiffs |
+| Parameter | Type | Default                                   | Description                       |
+| --------- | ---- | ----------------------------------------- | --------------------------------- |
+| location  | str  | s3://linz-workflows-scratch/path_of_tiffs | the uri (path) to the input tiffs |
 
 ### Example Input Parameters
 
-| Parameter | Value                                                                          |
-| --------- | ------------------------------------------------------------------------------ |
-| source    | s3://linz-workflow-artifacts/2022-11/30-imagery-standardising-v0.2.0-60-v9rwq/ |
+| Parameter | Value                                                                         |
+| --------- | ----------------------------------------------------------------------------- |
+| source    | s3://linz-workflows-scratch/2022-11/30-imagery-standardising-v0.2.0-60-v9rwq/ |
 
 ## Workflow Outputs
 
 The S3 path to the processed TIFFs and the Basemaps visualisation URL can be found in the create-config pod outputs.
 for example:
 
-**location:**: `s3://linz-workflow-artifacts/2022-11/30-imagery-standardising-v0.2.0-60-v9rwq/`
+**location:**: `s3://linz-workflows-scratch/2022-11/30-imagery-standardising-v0.2.0-60-v9rwq/`
 
 **uri:** `https://basemaps.linz.govt.nz?config=...`
 
@@ -179,10 +179,10 @@ This is mainly used for the Standardising workflow and Imagery-Import workflow w
 
 ## Workflow Input Parameters
 
-| Parameter | Type | Default                                        | Description                                                                                                    |
-| --------- | ---- | ---------------------------------------------- | -------------------------------------------------------------------------------------------------------------- |
-| source    | str  | s3://linz-workflow-artifacts/path_of_tiffs/    | The URIs (paths) to the s3 tiff files.                                                                         |
-| output    | str  | s3://linz-workflow-artifacts/path_of_overview/ | The URIs (paths) to store the output overview.tar.co file which normally uses same location of the tiff files. |
+| Parameter | Type | Default                                       | Description                                                                                                    |
+| --------- | ---- | --------------------------------------------- | -------------------------------------------------------------------------------------------------------------- |
+| source    | str  | s3://linz-workflows-scratch/path_of_tiffs/    | The URIs (paths) to the s3 tiff files.                                                                         |
+| output    | str  | s3://linz-workflows-scratch/path_of_overview/ | The URIs (paths) to store the output overview.tar.co file which normally uses same location of the tiff files. |
 
 ## Examples
 
@@ -190,9 +190,9 @@ Given a standardised imagery path and output the same path for the overview tar 
 
 ### Publish:
 
-**source:** `s3://linz-workflow-artifacts/2022-11/15-imagery-standardising-v0.2.0-56-x7699/flat/`
+**source:** `s3://linz-workflows-scratch/2022-11/15-imagery-standardising-v0.2.0-56-x7699/flat/`
 
-**output:** `s3://linz-workflow-artifacts/2022-11/15-imagery-standardising-v0.2.0-56-x7699/flat/`
+**output:** `s3://linz-workflows-scratch/2022-11/15-imagery-standardising-v0.2.0-56-x7699/flat/`
 
 # Create-Overview-All
 

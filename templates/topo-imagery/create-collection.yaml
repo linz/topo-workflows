@@ -32,6 +32,13 @@ spec:
             description: '(Optional) If an existing dataset add the S3 path to the dataset here to load existing metadata e.g. "s3://nz-imagery/taranaki/new-plymouth_2017_0.1m/rgb/2193/"'
             default: ''
 
+          - name: delete_all_existing_items
+            description: 'Delete all existing items in the collection before adding new items'
+            default: 'false'
+            enum:
+              - 'true'
+              - 'false'
+
           - name: location
             description: 'Location for output files'
             default: ''
@@ -43,6 +50,13 @@ spec:
           - name: category
             description: 'Geospatial category of the dataset'
             default: ''
+
+          - name: domain
+            description: 'domain of the dataset, e.g. "land", "coastal"'
+            default: 'land'
+            enum:
+              - 'land'
+              - 'coastal'
 
           - name: region
             description: 'Region of the dataset'
@@ -92,6 +106,14 @@ spec:
             description: 'Add a capture-dates.geojson.gz file to the collection assets'
             default: 'false'
 
+          - name: keep_description
+            description: 'Keep the description of the existing Collection'
+            default: 'false'
+
+          - name: keep_title
+            description: 'Keep the title of the existing Collection'
+            default: 'false'
+
       outputs:
         artifacts:
           - name: capture-area
@@ -113,8 +135,12 @@ spec:
           - '{{inputs.parameters.linz_slug}}'
           - '--odr-url'
           - '{{=sprig.trim(inputs.parameters.odr_url)}}'
+          - '--delete-all-existing-items'
+          - '{{=sprig.trim(inputs.parameters.delete_all_existing_items)}}'
           - '--category'
           - '{{=sprig.trim(inputs.parameters.category)}}'
+          - '--domain'
+          - '{{=sprig.trim(inputs.parameters.domain)}}'
           - '--region'
           - '{{=sprig.trim(inputs.parameters.region)}}'
           - '--gsd'
@@ -129,6 +155,10 @@ spec:
           - '{{=sprig.trim(inputs.parameters.lifecycle)}}'
           - '--add-title-suffix'
           - '{{inputs.parameters.add_title_suffix}}'
+          - '--keep-description'
+          - '{{inputs.parameters.keep_description}}'
+          - '--keep-title'
+          - '{{inputs.parameters.keep_title}}'
           - '--capture-dates'
           - '{{inputs.parameters.create_capture_dates}}'
           - '--producer'

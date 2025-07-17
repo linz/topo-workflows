@@ -1,5 +1,5 @@
 import { Chart, ChartProps, Duration, Helm } from 'cdk8s';
-import { Secret } from 'cdk8s-plus-30';
+import { Secret } from 'cdk8s-plus-32';
 import { Construct } from 'constructs';
 
 import { ArgoDbName, ArgoDbUser, DefaultRegion } from '../constants.js';
@@ -110,6 +110,7 @@ export class ArgoWorkflows extends Chart {
       values: {
         server: {
           replicas: 2,
+          priorityClassName: 'high-priority',
           extraEnv: [
             /** Disable the "first time" popups that pop up every time  */
             { name: 'FIRST_TIME_USER_MODAL', value: 'false' },
@@ -133,6 +134,7 @@ export class ArgoWorkflows extends Chart {
           extraEnv: [{ name: 'WATCH_CONTROLLER_SEMAPHORE_CONFIGMAPS', value: 'false' }],
           persistence,
           replicas: 2,
+          priorityClassName: 'high-priority',
           workflowDefaults: {
             spec: {
               serviceAccountName: props.saName,

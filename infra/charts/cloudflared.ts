@@ -1,5 +1,5 @@
-import { Chart, ChartProps, Size } from 'cdk8s';
-import * as kplus from 'cdk8s-plus-30';
+import { ApiObject, Chart, ChartProps, JsonPatch, Size } from 'cdk8s';
+import * as kplus from 'cdk8s-plus-32';
 import { Construct } from 'constructs';
 
 import { applyDefaultLabels } from '../util/labels.js';
@@ -10,7 +10,8 @@ export class Cloudflared extends Chart {
     id: string,
     props: { tunnelId: string; tunnelSecret: string; accountId: string; tunnelName: string } & ChartProps,
   ) {
-    super(scope, id, applyDefaultLabels(props, 'cloudflared', '2023.8.2', 'tunnel', 'workflows'));
+    const cloudflaredVersion = '2025.6.1';
+    super(scope, id, applyDefaultLabels(props, 'cloudflared', cloudflaredVersion, 'tunnel', 'workflows'));
 
     // TODO should we create a new namespace every time
     new kplus.Namespace(this, 'namespace', {
@@ -40,13 +41,13 @@ export class Cloudflared extends Chart {
       }),
     );
 
-    new kplus.Deployment(this, 'tunnel', {
+    const deployment = new kplus.Deployment(this, 'tunnel', {
       // Ensure two tunnels are active
       replicas: 2,
       containers: [
         {
           name: 'cloudflared',
-          image: '019359803926.dkr.ecr.ap-southeast-2.amazonaws.com/cloudflared:2023.8.2',
+          image: `019359803926.dkr.ecr.ap-southeast-2.amazonaws.com/cloudflared:${cloudflaredVersion}`,
           args: ['tunnel', '--loglevel', 'trace', '--config', '/etc/cloudflared/config/config.yaml', 'run'],
           volumeMounts: [
             { volume: kplus.Volume.fromConfigMap(this, 'mount-config', cm), path: '/etc/cloudflared/config' },
@@ -59,5 +60,8 @@ export class Cloudflared extends Chart {
       ],
       securityContext: { ensureNonRoot: false },
     });
+
+    // manually set option that could not be configured with cdk8s-plus
+    ApiObject.of(deployment).addJsonPatch(JsonPatch.add('/spec/template/spec/priorityClassName', 'high-priority'));
   }
 }

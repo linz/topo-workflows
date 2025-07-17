@@ -12,7 +12,6 @@ spec:
   concurrencyPolicy: 'Allow'
   successfulJobsHistoryLimit: 3
   failedJobsHistoryLimit: 3
-  suspend: true
   workflowMetadata:
     labels:
       linz.govt.nz/ticket: 'TDE-1130'
@@ -23,13 +22,17 @@ spec:
         linz.govt.nz/data-type: raster
         linz.govt.nz/region: 'new-zealand'
     workflowTemplateRef:
-      name: national-dem
+      name: national-elevation
     arguments:
       parameters:
         - name: 'config_file'
           value: 'https://raw.githubusercontent.com/linz/basemaps-config/master/config/tileset/elevation.json'
         - name: 'odr_url'
           value: 's3://nz-elevation/new-zealand/new-zealand/dem_1m/2193/'
+        - name: 'target_bucket_name'
+          value: 'nz-elevation'
+        - name: geospatial_category
+          value: 'dem'
         - name: publish_to_odr
           value: 'true'
         - name: 'copy_option'

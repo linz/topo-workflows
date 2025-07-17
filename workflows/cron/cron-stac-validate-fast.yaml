@@ -6,7 +6,7 @@ metadata:
   labels:
     linz.govt.nz/category: stac
 spec:
-  schedule: '0 05 * * *' # 5 AM every day
+  schedule: '0 15 * * 1-5' # At 3:00 PM, Monday through Friday
   timezone: 'NZ'
   startingDeadlineSeconds: 3600 # Allow 1 hour delay if the workflow-controller clashes during the starting time.
   concurrencyPolicy: 'Allow'
@@ -50,6 +50,18 @@ spec:
                 parameters:
                   - name: 'uri'
                     value: 's3://nz-elevation/catalog.json'
+                  - name: 'checksum_assets'
+                    value: '{{workflow.parameters.checksum_assets}}'
+                  - name: 'checksum_links'
+                    value: '{{workflow.parameters.checksum_links}}'
+            - name: stac-validate-coastal
+              templateRef:
+                name: tpl-at-stac-validate
+                template: main
+              arguments:
+                parameters:
+                  - name: 'uri'
+                    value: 's3://nz-coastal/catalog.json'
                   - name: 'checksum_assets'
                     value: '{{workflow.parameters.checksum_assets}}'
                   - name: 'checksum_links'

@@ -1,0 +1,387 @@
+# yaml-language-server: $schema=https://raw.githubusercontent.com/argoproj/argo-workflows/v3.5.5/api/jsonschema/schema.json
+
+apiVersion: argoproj.io/v1alpha1
+kind: WorkflowTemplate
+metadata:
+  name: basemaps-vector-etl-shortbread
+  labels:
+    linz.govt.nz/category: basemaps
+    linz.govt.nz/data-type: vector
+spec:
+  parallelism: 20
+  entrypoint: main
+  onExit: exit-handler
+  podMetadata:
+    labels:
+      linz.govt.nz/category: basemaps
+      linz.govt.nz/data-type: vector
+  arguments:
+    parameters:
+      - name: version_basemaps_cli
+        description: Version of the basemaps CLI docker container to use
+        value: 'v8'
+
+      - name: version_argo_tasks
+        description: Version of the Argo Tasks CLI docker container to use
+        value: 'v4'
+
+      - name: target
+        description: S3 Bucket to use for storing the output
+        value: 's3://linz-basemaps-staging'
+        enum:
+          - 's3://linz-basemaps'
+          - 's3://linz-basemaps-staging'
+
+      - name: cache
+        description: mbtiles cache location
+        value: 's3://linz-basemaps-staging/mbtiles-cache/'
+
+      - name: tile_matrix
+        description: Output tile matrix, ";" separated list
+        value: 'NZTM2000Quad;WebMercatorQuad'
+        enum:
+          - 'NZTM2000Quad'
+          - 'WebMercatorQuad'
+          - 'NZTM2000Quad;WebMercatorQuad'
+
+      - name: retry
+        description: Number of retry on failure vector-etl task
+        value: '2'
+
+      - name: group_size
+        description: Number of layers grouped together, default to 100
+        value: '100'
+
+      - name: concurrency
+        description: Number of layers process in concurrency, default to 20
+        value: '20'
+
+      - name: create_pull_request
+        description: If true, creates a linz/basemaps-config pull request
+        value: 'true'
+        enum:
+          - 'true'
+          - 'false'
+
+      - name: analyse
+        description: Should generate an analyse report for the output mbtiles
+        value: 'true'
+        enum:
+          - 'true'
+          - 'false'
+
+  templateDefaults:
+    container:
+      imagePullPolicy: Always
+      image: ''
+
+  templates:
+    - name: main
+      retryStrategy:
+        expression: 'false'
+      dag:
+        tasks:
+          - name: etl
+            template: etl
+            arguments:
+              parameters:
+                - name: tile_matrix
+                  value: '{{ item }}'
+            withParam: "{{= toJson(sprig.splitList(';', workflow.parameters.tile_matrix)) }}"
+
+          - name: create-pull-request
+            template: create-pull-request
+            arguments:
+              parameters:
+                - name: target
+                  value: '{{ tasks.etl.outputs.parameters.target }}'
+            when: '{{ workflow.parameters.create_pull_request }} == true'
+            depends: 'etl'
+
+    - name: etl
+      inputs:
+        parameters:
+          - name: tile_matrix
+      dag:
+        tasks:
+          - name: extract
+            template: extract
+            arguments:
+              parameters:
+                - name: tile_matrix
+                  value: '{{ inputs.parameters.tile_matrix }}'
+
+          - name: stac-validate-cache-files
+            depends: 'extract'
+            when: '{{tasks.extract.outputs.parameters.updateRequired}} == true'
+            templateRef:
+              name: tpl-at-stac-validate
+              template: main
+            arguments:
+              parameters:
+                - name: uri
+                  value: "{{workflow.parameters.cache}}{{= inputs.parameters.tile_matrix == 'WebMercatorQuad'? '3857' : '2193'}}/catalog.json"
+                - name: aws_role_config_path
+                  value: s3://linz-bucket-config/config.basemaps.json
+              artifacts:
+                - name: stac-result
+                  raw:
+                    data: '{{tasks.stac-validate.outputs.result}}'
+
+          - name: group
+            depends: extract
+            when: '{{tasks.extract.outputs.parameters.updateRequired}} == true'
+            templateRef:
+              name: tpl-at-group
+              template: main
+            arguments:
+              parameters:
+                - name: size
+                  value: '{{ workflow.parameters.group_size }}'
+                - name: version
+                  value: '{{= workflow.parameters.version_argo_tasks }}'
+              artifacts:
+                - name: input
+                  from: '{{ tasks.extract.outputs.artifacts.smallLayers }}'
+
+          - name: create-small-layers
+            depends: 'group'
+            when: '{{tasks.extract.outputs.parameters.updateRequired}} == true'
+            template: create-small-layers
+            withParam: '{{ tasks.group.outputs.parameters.output }}'
+            arguments:
+              parameters:
+                - name: grouped_id
+                  value: '{{ item }}'
+              artifacts:
+                - name: grouped
+                  from: '{{ tasks.group.outputs.artifacts.output }}'
+
+          - name: create-large-layers
+            depends: 'extract'
+            when: '{{tasks.extract.outputs.parameters.updateRequired}} == true'
+            template: create-large-layers
+            withParam: '{{ tasks.extract.outputs.parameters.largeLayers }}'
+            arguments:
+              parameters:
+                - name: path
+                  value: '{{ item.path }}'
+
+          - name: tile-join
+            depends: 'create-large-layers && create-small-layers'
+            when: '{{tasks.extract.outputs.parameters.updateRequired}} == true'
+            template: tile-join
+            arguments:
+              parameters:
+                - name: tile_matrix
+                  value: '{{ inputs.parameters.tile_matrix }}'
+              artifacts:
+                - name: input
+                  from: '{{ tasks.extract.outputs.artifacts.allCaches }}'
+
+          - name: analyse
+            depends: 'tile-join'
+            when: '{{tasks.extract.outputs.parameters.updateRequired}} == true && {{ workflow.parameters.analyse }} == true'
+            template: analyse
+            arguments:
+              parameters:
+                - name: mbTilesTarget
+                  value: '{{ tasks.tile-join.outputs.parameters.mbTilesTarget }}'
+                - name: analyseTarget
+                  value: '{{ tasks.tile-join.outputs.parameters.analyseTarget }}'
+
+          - name: stac-validate
+            depends: 'analyse'
+            when: '{{tasks.extract.outputs.parameters.updateRequired}} == true && {{ workflow.parameters.analyse }} == true'
+            templateRef:
+              name: tpl-at-stac-validate
+              template: main
+            arguments:
+              parameters:
+                - name: uri
+                  value: '{{tasks.tile-join.outputs.parameters.analyseTarget}}collection.json'
+                - name: aws_role_config_path
+                  value: s3://linz-bucket-config/config.basemaps.json
+              artifacts:
+                - name: stac-result
+                  raw:
+                    data: '{{tasks.stac-validate.outputs.result}}'
+
+      outputs:
+        parameters:
+          - name: target
+            description: location of where the output mbtiles are stored
+            valueFrom:
+              parameter: '{{ tasks.tile-join.outputs.parameters.target }}'
+
+    - name: extract
+      inputs:
+        parameters:
+          - name: tile_matrix
+      container:
+        image: ghcr.io/linz/basemaps/cli:{{ workflow.parameters.version_basemaps_cli }}
+        command: [node, index.cjs]
+        env:
+          - name: AWS_ROLE_CONFIG_PATH
+            value: s3://linz-bucket-config/config.basemaps.json
+        args:
+          - 'vector'
+          - 'extract'
+          - '--cache={{ workflow.parameters.cache }}'
+          - '--tile-matrix={{ inputs.parameters.tile_matrix }}'
+      outputs:
+        parameters:
+          - name: updateRequired
+            valueFrom:
+              path: '/tmp/extract/updateRequired'
+          - name: largeLayers
+            valueFrom:
+              path: '/tmp/extract/largeLayers.json'
+        artifacts:
+          - name: smallLayers
+            path: '/tmp/extract/smallLayers.json'
+          - name: allCaches
+            path: '/tmp/extract/allCaches.json'
+
+    - name: create-small-layers
+      retryStrategy:
+        limit: '{{workflow.parameters.retry}}'
+        retryPolicy: 'Always'
+      nodeSelector:
+        karpenter.sh/capacity-type: 'spot'
+      inputs:
+        artifacts:
+          - name: grouped
+            path: /tmp/group/grouped/
+        parameters:
+          - name: grouped_id
+      container:
+        image: ghcr.io/linz/basemaps/cli:{{ workflow.parameters.version_basemaps_cli }}
+        resources:
+          requests:
+            memory: 7.8Gi
+            cpu: 15000m
+        command: [node, index.cjs]
+        env:
+          - name: AWS_ROLE_CONFIG_PATH
+            value: s3://linz-bucket-config/config.basemaps.json
+        args:
+          - 'vector'
+          - 'create'
+          - '--from-file={{= inputs.artifacts.grouped.path }}{{inputs.parameters.grouped_id}}.json'
+          - '--concurrency={{ workflow.parameters.concurrency }}'
+
+    - name: create-large-layers
+      retryStrategy:
+        limit: '{{workflow.parameters.retry}}'
+        retryPolicy: 'Always'
+      nodeSelector:
+        karpenter.sh/capacity-type: 'spot'
+      inputs:
+        parameters:
+          - name: path
+      container:
+        image: ghcr.io/linz/basemaps/cli:{{ workflow.parameters.version_basemaps_cli }}
+        resources:
+          requests:
+            memory: 7.8Gi
+            cpu: 15000m
+        command: [node, index.cjs]
+        env:
+          - name: AWS_ROLE_CONFIG_PATH
+            value: s3://linz-bucket-config/config.basemaps.json
+        args:
+          - 'vector'
+          - 'create'
+          - '{{inputs.parameters.path}}'
+
+    - name: tile-join
+      inputs:
+        parameters:
+          - name: tile_matrix
+        artifacts:
+          - name: input
+            path: /tmp/extract/allCaches.json
+      container:
+        image: ghcr.io/linz/basemaps/cli:{{ workflow.parameters.version_basemaps_cli }}
+        resources:
+          requests:
+            memory: 7.8Gi
+            cpu: 15000m
+        command: [node, index.cjs]
+        env:
+          - name: AWS_ROLE_CONFIG_PATH
+            value: s3://linz-bucket-config/config.basemaps.json
+        args:
+          - 'vector'
+          - 'join'
+          - '--from-file={{= inputs.artifacts.input.path }}'
+          - '--target={{ workflow.parameters.target }}'
+          - '--tile-matrix={{ inputs.parameters.tile_matrix }}'
+      outputs:
+        parameters:
+          - name: target
+            valueFrom:
+              path: '/tmp/target'
+          - name: mbTilesTarget
+            valueFrom:
+              path: '/tmp/mbTilesTarget'
+          - name: analyseTarget
+            valueFrom:
+              path: '/tmp/analyseTarget'
+
+    - name: analyse
+      inputs:
+        parameters:
+          - name: mbTilesTarget
+          - name: analyseTarget
+      container:
+        image: ghcr.io/linz/basemaps/cli:{{ workflow.parameters.version_basemaps_cli }}
+        resources:
+          requests:
+            memory: 7.8Gi
+            cpu: 15000m
+        command: [node, index.cjs]
+        env:
+          - name: AWS_ROLE_CONFIG_PATH
+            value: s3://linz-bucket-config/config.basemaps.json
+        args:
+          - 'vector'
+          - 'analyse'
+          - '--path={{ inputs.parameters.mbTilesTarget }}'
+          - '--target={{ inputs.parameters.analyseTarget }}'
+
+    - name: create-pull-request
+      inputs:
+        parameters:
+          - name: target
+      container:
+        image: 019359803926.dkr.ecr.ap-southeast-2.amazonaws.com/argo-tasks:{{ workflow.parameters.version_argo_tasks }}
+        env:
+          - name: AWS_ROLE_CONFIG_PATH
+            value: s3://linz-bucket-config/config.basemaps.json
+          - name: GITHUB_API_TOKEN
+            valueFrom:
+              secretKeyRef:
+                name: github-linz-li-bot-pat
+                key: pat
+        args:
+          - 'bmc'
+          - 'create-pr'
+          - '--target={{ inputs.parameters.target }}'
+          - '--config-type=vector'
+
+    - name: exit-handler
+      retryStrategy:
+        limit: '0' # `tpl-exit-handler` retries itself
+      steps:
+        - - name: exit
+            templateRef:
+              name: tpl-exit-handler
+              template: main
+            arguments:
+              parameters:
+                - name: workflow_status
+                  value: '{{workflow.status}}'
+                - name: workflow_parameters
+                  value: '{{workflow.parameters}}'

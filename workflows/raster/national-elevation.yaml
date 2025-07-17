@@ -3,7 +3,7 @@
 apiVersion: argoproj.io/v1alpha1
 kind: WorkflowTemplate
 metadata:
-  name: national-dem
+  name: national-elevation
   labels:
     linz.govt.nz/category: raster
     linz.govt.nz/data-type: raster
@@ -30,14 +30,26 @@ spec:
         description: 'Specify a version of the argo-tasks image to use, e.g. "v4.1" or "latest"'
         value: 'v4'
       - name: version_basemaps_cli
-        description: 'Specify a version of the basemaps-cli image to use, e.g. "v7.1" or "latest"'
-        value: 'v7'
+        description: 'Specify a version of the basemaps-cli image to use, e.g. "v8" or "latest"'
+        value: 'v8'
       - name: version_topo_imagery
         description: 'Specify a version of the topo-imagery image to use, e.g. "v4.8" or "latest"'
         value: 'v7'
       - name: ticket
         description: 'Ticket ID, e.g. "TDE-1130"'
         value: ''
+      - name: geospatial_category
+        description: 'Geospatial category of the elevation dataset'
+        value: 'dem'
+        enum:
+          - 'dem'
+          - 'dsm'
+      - name: domain
+        description: 'domain of the dataset, e.g. "land", "coastal"'
+        value: 'land'
+        enum:
+          - 'land'
+          - 'coastal'
       - name: config_file
         description: 'Location of the configuration file listing the source datasets to merge.'
         value: 'https://raw.githubusercontent.com/linz/basemaps-config/master/config/tileset/elevation.json'
@@ -53,6 +65,12 @@ spec:
         enum:
           - 'false'
           - 'true'
+      - name: target_bucket_name
+        description: 'Target bucket name for publishing to ODR, e.g. "nz-elevation"'
+        value: 'nz-elevation'
+        enum:
+          - 'nz-elevation'
+          - 'nz-coastal'
       - name: copy_option
         description: 'Do not overwrite existing files with "no-clobber", "force" overwriting files in the target location, or "force-no-clobber" overwriting only changed files, skipping unchanged files'
         value: '--force-no-clobber'
@@ -117,7 +135,7 @@ spec:
                 - name: region
                   value: 'new zealand'
                 - name: geospatial_category
-                  value: 'dem'
+                  value: '{{workflow.parameters.geospatial_category}}'
                 - name: odr_url
                   value: '{{=sprig.trim(workflow.parameters.odr_url)}}'
                 - name: version
@@ -171,13 +189,15 @@ spec:
                 - name: linz_slug
                   value: '{{tasks.stac-setup.outputs.parameters.linz_slug}}'
                 - name: location
-                  value: '{{tasks.get-location.outputs.parameters.location}}'
+                  value: '{{=sprig.trimSuffix("/", tasks["get-location"].outputs.parameters.location)}}/flat/'
                 - name: current_datetime
                   value: '{{tasks.stac-setup.finishedAt}}'
                 - name: odr_url
                   value: '{{=sprig.trim(workflow.parameters.odr_url)}}'
                 - name: category
-                  value: 'dem'
+                  value: '{{workflow.parameters.geospatial_category}}'
+                - name: domain
+                  value: '{{workflow.parameters.domain}}'
                 - name: region
                   value: 'new-zealand'
                 - name: gsd
@@ -190,11 +210,13 @@ spec:
                   value: 'Toitū Te Whenua Land Information New Zealand'
                 - name: create_capture_dates
                   value: 'true'
+                - name: keep_title
+                  value: 'true'
                 - name: version_topo_imagery
                   value: '{{= workflow.parameters.version_topo_imagery}}'
             depends: 'standardise-validate.Succeeded'
 
-          - name: stac-validate
+          - name: stac-validate-all
             templateRef:
               name: tpl-at-stac-validate
               template: main
@@ -205,8 +227,30 @@ spec:
               artifacts:
                 - name: stac-result
                   raw:
-                    data: '{{tasks.stac-validate.outputs.result}}'
+                    data: '{{tasks.stac-validate-all.outputs.result}}'
             depends: 'create-collection.Succeeded'
+            when: "'{{workflow.parameters.odr_url}}' == ''"
+
+          - name: stac-validate-only-updated
+            templateRef:
+              name: stac-validate-parallel # Needs to validate a list of STAC documents
+              template: main
+            arguments:
+              parameters:
+                - name: uri
+                  value: '{{=sprig.trimSuffix("/", tasks["get-location"].outputs.parameters.location)}}/flat/'
+                - name: recursive
+                  value: 'false' # The Collection might have some Items that are only in the published location
+                - name: checksum_links
+                  value: 'false'
+                - name: checksum_assets
+                  value: 'true'
+                - name: include
+                  value: '\.json$' # FIXME: For now, assuming we have only STAC as JSON files in the scratch location
+                - name: concurrency
+                  value: '50'
+            depends: 'create-collection.Succeeded'
+            when: "'{{workflow.parameters.odr_url}}' != ''"
 
           - name: create-config
             arguments:
@@ -230,12 +274,14 @@ spec:
                 - name: source
                   value: '{{=sprig.trimSuffix("/", tasks["get-location"].outputs.parameters.location)}}/flat/'
                 - name: target_bucket_name
-                  value: 'nz-elevation'
+                  value: '{{=sprig.trim(workflow.parameters.target_bucket_name)}}'
                 - name: copy_option
                   value: '{{workflow.parameters.copy_option}}'
                 - name: ticket
                   value: '{{=sprig.trim(workflow.parameters.ticket)}}'
-            depends: 'stac-validate.Succeeded && create-config.Succeeded'
+                - name: odr_url
+                  value: '{{=sprig.trim(workflow.parameters.odr_url)}}'
+            depends: '(stac-validate-all.Succeeded || stac-validate-only-updated.Succeeded) && create-config.Succeeded'
 
       outputs:
         parameters:
@@ -258,7 +304,6 @@ spec:
           requests:
             cpu: 3000m
             memory: 7.8Gi
-        command: [node, /app/index.js]
         env:
           - name: AWS_ROLE_CONFIG_PATH
             value: s3://linz-bucket-config/config.json
@@ -312,12 +357,13 @@ spec:
           - name: key
       container:
         image: 'ghcr.io/linz/basemaps/cli:{{=sprig.trim(workflow.parameters.version_basemaps_cli)}}'
-        command: [node, /app/node_modules/@basemaps/cogify/dist/index.cjs]
+        command: [node, index.cjs]
         env:
           - name: AWS_ROLE_CONFIG_PATH
             value: s3://linz-bucket-config/config.basemaps.json
         args:
           - 'config'
+          - 'create-config'
           - '{{=sprig.trimSuffix("/", inputs.parameters.location)}}/flat/'
       outputs:
         parameters:

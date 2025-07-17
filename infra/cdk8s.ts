@@ -5,9 +5,10 @@ import { ArgoWorkflows } from './charts/argo.workflows.js';
 import { Cloudflared } from './charts/cloudflared.js';
 import { EventExporter } from './charts/event.exporter.js';
 import { FluentBit } from './charts/fluentbit.js';
-import { Karpenter, KarpenterProvisioner } from './charts/karpenter.js';
+import { Karpenter, KarpenterNodePool } from './charts/karpenter.js';
 import { CoreDns } from './charts/kube-system.coredns.js';
 import { NodeLocalDns } from './charts/kube-system.node.local.dns.js';
+import { PriorityClasses } from './charts/priority.class.js';
 import { CfnOutputKeys, ClusterName, ScratchBucketName, UseNodeLocalDns, validateKeys } from './constants.js';
 import { describeCluster, getCfnOutputs } from './util/cloud.formation.js';
 import { fetchSsmParameters } from './util/ssm.js';
@@ -35,6 +36,8 @@ async function main(): Promise<void> {
   ]);
   validateKeys(cfnOutputs);
 
+  new PriorityClasses(app, 'priority-classes');
+
   const coredns = new CoreDns(app, 'dns', {});
 
   // Node localDNS is very expermential in this cluster, it can and will break DNS resolution
@@ -60,7 +63,7 @@ async function main(): Promise<void> {
     instanceProfile: cfnOutputs[CfnOutputKeys.KarpenterDefaultInstanceProfile],
   });
 
-  const karpenterProvisioner = new KarpenterProvisioner(app, 'karpenter-provisioner', {
+  const karpenterNodePool = new KarpenterNodePool(app, 'karpenter-nodepool', {
     clusterName: ClusterName,
     clusterEndpoint: cfnOutputs[CfnOutputKeys.ClusterEndpoint],
     saName: cfnOutputs[CfnOutputKeys.KarpenterServiceAccountName],
@@ -68,7 +71,7 @@ async function main(): Promise<void> {
     instanceProfile: cfnOutputs[CfnOutputKeys.KarpenterDefaultInstanceProfile],
   });
 
-  karpenterProvisioner.addDependency(karpenter);
+  karpenterNodePool.addDependency(karpenter);
 
   new ArgoWorkflows(app, 'argo-workflows', {
     namespace: 'argo',

@@ -69,9 +69,10 @@ spec:
         description: 'The ODR bucket name to publish to'
         value: ''
         enum:
-          - 'nz-elevation'
-          - 'nz-imagery'
           - ''
+          - 'nz-imagery'
+          - 'nz-elevation'
+          - 'nz-coastal'
       - name: copy_option
         description: 'Do not overwrite existing files with "no-clobber", or "force" overwriting files in the target location'
         value: '--no-clobber'
@@ -79,6 +80,9 @@ spec:
           - '--no-clobber'
           - '--force'
           - '--force-no-clobber'
+      - name: odr_url
+        description: '(Optional) URL of existing dataset to update. If provided, the target_bucket_name will be ignored.'
+        value: ''
   templateDefaults:
     container:
       imagePullPolicy: Always
@@ -93,9 +97,11 @@ spec:
           - name: source
           - name: target_bucket_name
           - name: ticket
+          - name: odr_url
       dag:
         tasks:
           - name: generate-path
+            when: '{{= inputs.parameters.odr_url == ""}}'
             templateRef:
               name: tpl-at-generate-path
               template: main
@@ -117,7 +123,7 @@ spec:
                 - name: source
                   value: '{{inputs.parameters.source}}'
                 - name: target
-                  value: '{{tasks.generate-path.outputs.parameters.target}}'
+                  value: '{{= inputs.parameters.odr_url == "" ? tasks["generate-path"].outputs.parameters.target : inputs.parameters.odr_url}}'
                 - name: version_argo_tasks
                   value: '{{workflow.parameters.version_argo_tasks}}'
                 - name: repository

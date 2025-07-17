@@ -39,8 +39,8 @@ spec:
         description: 'Specify a version of the argo-tasks image to use, e.g. "v4.1" or "latest"'
         value: 'v4'
       - name: version_basemaps_cli
-        description: 'Specify a version of the basemaps-cli image to use, e.g. "v7.1" or "latest"'
-        value: 'v7'
+        description: 'Specify a version of the basemaps-cli image to use, e.g. "v8" or "latest"'
+        value: 'v8'
       - name: version_topo_imagery
         description: 'Specify a version of the topo-imagery image to use, e.g. "v4.8" or "latest"'
         value: 'v7'
@@ -135,6 +135,12 @@ spec:
       - name: odr_url
         description: '(Optional) If an existing dataset add the S3 path to the dataset here to load existing metadata e.g. "s3://nz-imagery/taranaki/new-plymouth_2017_0.1m/rgb/2193/"'
         value: ''
+      - name: delete_all_existing_items
+        description: 'Delete all existing items in the collection before adding new items. Only when re-supplying existing datasets.'
+        value: 'false'
+        enum:
+          - 'true'
+          - 'false'
       - name: category
         description: 'Geospatial category of the dataset'
         value: 'urban-aerial-photos'
@@ -146,6 +152,12 @@ spec:
           - 'dem'
           - 'dsm'
           - 'satellite-imagery'
+      - name: domain
+        description: 'domain of the dataset, e.g. "land", "coastal"'
+        value: 'land'
+        enum:
+          - 'land'
+          - 'coastal'
       - name: gsd
         description: 'Dataset GSD in metres, e.g., "0.3" for 30 centimetres'
       - name: producer
@@ -164,6 +176,7 @@ spec:
             'GeoSmart',
             'Landpro',
             'Maxar',
+            'NV5',
             'NZ Aerial Mapping',
             'Ocean Infinity',
             'Recon',
@@ -236,6 +249,7 @@ spec:
             'National Institute of Water and Atmospheric Research',
             'Nelson City Council',
             'New Plymouth District Council',
+            'Ngā Tāngata Tiaki o Whanganui',
             'Northland Regional Council',
             'Ōpōtiki District Council',
             'Ōtorohanga District Council',
@@ -323,7 +337,7 @@ spec:
           - ''
           - 'nz-imagery'
           - 'nz-elevation'
-          - ''
+          - 'nz-coastal'
       - name: copy_option
         description: 'Do not overwrite existing files with "no-clobber", "force" overwriting files in the target location, or "force-no-clobber" overwriting only changed files, skipping unchanged files'
         value: '--no-clobber'
@@ -362,6 +376,8 @@ spec:
                   value: '{{=sprig.trim(workflow.parameters.geographic_description)}}'
                 - name: geospatial_category
                   value: '{{=sprig.trim(workflow.parameters.category)}}'
+                - name: survey_id
+                  value: '{{=sprig.trim(workflow.parameters.historic_survey_number)}}'
                 - name: odr_url
                   value: '{{=sprig.trim(workflow.parameters.odr_url)}}'
                 - name: version
@@ -461,8 +477,12 @@ spec:
                   value: '{{tasks.stac-setup.finishedAt}}'
                 - name: odr_url
                   value: '{{=sprig.trim(workflow.parameters.odr_url)}}'
+                - name: delete_all_existing_items
+                  value: '{{=sprig.trim(workflow.parameters.delete_all_existing_items)}}'
                 - name: category
                   value: '{{=sprig.trim(workflow.parameters.category)}}'
+                - name: domain
+                  value: '{{=sprig.trim(workflow.parameters.domain)}}'
                 - name: region
                   value: '{{=sprig.trim(workflow.parameters.region)}}'
                 - name: gsd
@@ -489,7 +509,7 @@ spec:
                   value: '{{= workflow.parameters.version_topo_imagery}}'
             depends: 'standardise-validate'
 
-          - name: stac-validate
+          - name: stac-validate-all
             templateRef:
               name: tpl-at-stac-validate
               template: main
@@ -500,8 +520,30 @@ spec:
               artifacts:
                 - name: stac-result
                   raw:
-                    data: '{{tasks.stac-validate.outputs.result}}'
-            depends: 'create-collection'
+                    data: '{{tasks.stac-validate-all.outputs.result}}'
+            depends: 'create-collection.Succeeded'
+            when: "'{{workflow.parameters.odr_url}}' == ''"
+
+          - name: stac-validate-only-updated
+            templateRef:
+              name: stac-validate-parallel # Needs to validate a list of STAC documents
+              template: main
+            arguments:
+              parameters:
+                - name: uri
+                  value: '{{=sprig.trimSuffix("/", tasks["get-location"].outputs.parameters.location)}}/flat/'
+                - name: recursive
+                  value: 'false' # The Collection might have some Items that are only in the published location
+                - name: checksum_links
+                  value: 'false'
+                - name: checksum_assets
+                  value: 'true'
+                - name: include
+                  value: '\.json$' # FIXME: For now, assuming we have only STAC as JSON files in the scratch location
+                - name: concurrency
+                  value: '50'
+            depends: 'create-collection.Succeeded'
+            when: "'{{workflow.parameters.odr_url}}' != ''"
 
           - name: get-location
             templateRef:
@@ -545,7 +587,9 @@ spec:
                   value: '{{workflow.parameters.copy_option}}'
                 - name: ticket
                   value: '{{=sprig.trim(workflow.parameters.ticket)}}'
-            depends: 'stac-validate && create-config'
+                - name: odr_url
+                  value: '{{=sprig.trim(workflow.parameters.odr_url)}}'
+            depends: '(stac-validate-all || stac-validate-only-updated) && create-config'
 
       outputs:
         parameters:
@@ -588,12 +632,13 @@ spec:
           - name: key
       container:
         image: 'ghcr.io/linz/basemaps/cli:{{=sprig.trim(workflow.parameters.version_basemaps_cli)}}'
-        command: [node, /app/node_modules/@basemaps/cogify/dist/index.cjs]
+        command: [node, index.cjs]
         env:
           - name: AWS_ROLE_CONFIG_PATH
             value: s3://linz-bucket-config/config.basemaps.json
         args:
           - 'config'
+          - 'create-config'
           - '{{=sprig.trimSuffix("/", inputs.parameters.location)}}/flat/'
       outputs:
         parameters:

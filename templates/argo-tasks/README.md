@@ -9,6 +9,7 @@
 - [Generate Path](##argo-tasks/generate-path)
 - [STAC setup](##argo-tasks/stac-setup)
 - [STAC validate](##argo-tasks/stac-validate)
+- [Identify updated items](##argo-tasks/identify-updated-items)
 
 ## argo-tasks/group - `tpl-at-group`
 
@@ -255,4 +256,45 @@ See (https://github.com/linz/argo-tasks#stac-validate)
         value: '{{workflow.parameters.recursive}}'
       - name: concurrency
         value: '20'
+```
+
+## argo-tasks/identify-updated-items
+
+Template to identify updated items in a STAC collection.
+The output is a `file-list.json` file containing the list of mapsheets/tiles (with all associated `derived_from` files) where at least one source (derived_from) item has been changed/added/removed compared to the optional targetCollection. If targetCollection has not been specified, all items will be considered "new".
+The format of `file-list.json` is equivalent to `mapsheet-coverage` and `tile-index-validate` outputs.
+
+### Template Usage
+
+```yaml
+- name: identify-updated-items
+  templateRef:
+    name: tpl-at-identify-updated-items
+    template: main
+  arguments:
+    parameters:
+      - name: targetCollection
+        value: '{{= inputs.parameters.odr_url == "" ? "" : sprig.trimSuffix("/", inputs.parameters.odr_url) + "/collection.json" }}'
+      - name: sourceCollections
+        value: '{{= inputs.parameters.base_layer_source == "" ? "" : sprig.trimSuffix("/", inputs.parameters.base_layer_source) + "/collection.json;" }}{{=sprig.trimSuffix("/", inputs.parameters.top_layer_source)}}/collection.json'
+      - name: version
+        value: '{{= inputs.parameters.version_argo_tasks}}'
+```
+
+Sample output:
+`file-list.json`
+
+```json
+[
+  {
+    "output": "BD31",
+    "input": ["s3://path/to/dem_8m/BD31.tiff", "s3://path/to/dem_1m/BD31.tiff"],
+    "includeDerived": true
+  },
+  {
+    "output": "BD32",
+    "input": ["s3://path/to/dem_8m/BD32.tiff", "s3://path/to/dem_1m/BD32.tiff"],
+    "includeDerived": true
+  }
+]
 ```

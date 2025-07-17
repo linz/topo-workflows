@@ -1,9 +1,11 @@
-# Contents:
+# Contents
 
 - [Standardising](#Standardising)
-- [copy](#copy)
 - [publish-odr](#Publish-odr)
-- [National DEM](#national-dem)
+- [National Elevation](#national-elevation)
+- [Merge Layers](#merge-layers)
+- [Hillshade](#hillshade)
+- [Hillshade Combinations](#hillshade-combinations)
 - [tests](#Tests)
 
 # Standardising
@@ -16,38 +18,40 @@ Publishing to the AWS Registry of Open Data is an optional step [publish-odr](#P
 
 ## Workflow Input Parameters
 
-| Parameter              | Type  | Default                               | Description                                                                                                                                                                                                                                                       |
-| ---------------------- | ----- | ------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| user_group             | enum  | none                                  | Group of users running the workflow                                                                                                                                                                                                                               |
-| ticket                 | str   |                                       | Ticket ID e.g. 'AIP-55'                                                                                                                                                                                                                                           |
-| region                 | enum  |                                       | Region of the dataset                                                                                                                                                                                                                                             |
-| source                 | str   | s3://linz-imagery-staging/test/sample | the uri (path) to the input tiffs                                                                                                                                                                                                                                 |
-| include                | regex | .tiff?$                               | A regular expression to match object path(s) or name(s) from within the source path to include in standardising\*.                                                                                                                                                |
-| scale                  | enum  | 500                                   | The scale of the TIFFs                                                                                                                                                                                                                                            |
-| validate               | enum  | true                                  | Validate the TIFFs files with `tileindex-validate`.                                                                                                                                                                                                               |
-| retile                 | enum  | false                                 | Prepare the data for retiling TIFFs files to `scale` with `tileindex-validate`.                                                                                                                                                                                   |
-| group                  | int   | 50                                    | The number of files to group into the pods (testing has recommended using 50 for large datasets).                                                                                                                                                                 |
-| compression            | enum  | webp                                  | Standardised file format                                                                                                                                                                                                                                          |
-| create_capture_area    | enum  | true                                  | Create a GeoJSON capture area for the dataset                                                                                                                                                                                                                     |
-| cutline                | str   |                                       | (Optional) location of a cutline file to cut the imagery to `.fgb` or `.geojson` (leave blank if no cutline)                                                                                                                                                      |
-| odr_url                | str   |                                       | (Optional) If an existing dataset add the S3 path to the dataset here to load existing metadata.                                                                                                                                                                  |
-| category               | enum  | urban-aerial-photos                   | Dataset type for collection metadata, also used to Build Dataset title & description                                                                                                                                                                              |
-| gsd                    | str   |                                       | Dataset GSD in metres for collection metadata, also used to build dataset title                                                                                                                                                                                   |
-| producer               | enum  | Unknown                               | Imagery producer :warning: Ignored if `producer_list` is used.                                                                                                                                                                                                    |
-| producer_list          | str   |                                       | List of imagery producers, separated by semicolon (;). :warning: Has no effect unless a semicolon delimited list is entered.                                                                                                                                      |
-| licensor               | enum  | Unknown                               | Imagery licensor. :warning: Ignored if `licensor_list` is used.                                                                                                                                                                                                   |
-| licensor_list          | str   |                                       | List of imagery licensors, separated by semicolon (;). :warning: Has no effect unless a semicolon delimited list is entered.                                                                                                                                      |
-| start_datetime         | str   | YYYY-MM-DD                            | Imagery start date (flown from), must be in default formatting                                                                                                                                                                                                    |
-| end_datetime           | str   | YYYY-MM-DD                            | Imagery end date (flown to), must be in default formatting                                                                                                                                                                                                        |
-| geographic_description | str   | Hamilton                              | (Optional) Additional datatset description, to be used in dataset title / description in place of the Region.                                                                                                                                                     |
-| lifeycle               | enum  | Completed                             | Lifecycle Status of Collection, from [linz STAC extension](https://github.com/linz/stac/tree/master/extensions/linz#collection-fields). Options: `completed`, `preview`, `ongoing`, `under development`, `deprecated`                                             |
-| event                  | str   | Cyclone Gabrielle                     | (Optional) Event name if dataset has been captured in association with an event.                                                                                                                                                                                  |
-| historic_survey_number | str   | SNC8844                               | (Optional) Survey Number associated with historical datasets.                                                                                                                                                                                                     |
-| source_epsg            | str   | 2193                                  | The EPSG code of the source imagery                                                                                                                                                                                                                               |
-| target_epsg            | str   | 2193                                  | The target EPSG code - if different to source the imagery will be reprojected                                                                                                                                                                                     |
-| publish_to_odr         | str   | false                                 | Run [publish-odr](#Publish-odr) after standardising has completed successfully                                                                                                                                                                                    |
-| target_bucket_name     | enum  |                                       | Used only if `publish_to_odr` is true. The bucket name of the target ODR location                                                                                                                                                                                 |
-| copy_option            | enum  | --no-clobber                          | Used only if `publish_to_odr` is true.<dl><dt>`--no-clobber` </dt><dd> Skip overwriting existing files.</dd><dt> `--force` </dt><dd> Overwrite all files. </dd><dt> `--force-no-clobber` </dt><dd> Overwrite only changed files, skip unchanged files. </dd></dl> |
+| Parameter                 | Type  | Default                               | Description                                                                                                                                                                                                                                                       |
+| ------------------------- | ----- | ------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| user_group                | enum  | none                                  | Group of users running the workflow                                                                                                                                                                                                                               |
+| ticket                    | str   |                                       | Ticket ID e.g. 'AIP-55'                                                                                                                                                                                                                                           |
+| region                    | enum  |                                       | Region of the dataset                                                                                                                                                                                                                                             |
+| source                    | str   | s3://linz-imagery-staging/test/sample | the uri (path) to the input tiffs                                                                                                                                                                                                                                 |
+| include                   | regex | .tiff?$                               | A regular expression to match object path(s) or name(s) from within the source path to include in standardising\*.                                                                                                                                                |
+| scale                     | enum  | 500                                   | The scale of the TIFFs                                                                                                                                                                                                                                            |
+| validate                  | enum  | true                                  | Validate the TIFFs files with `tileindex-validate`.                                                                                                                                                                                                               |
+| retile                    | enum  | false                                 | Prepare the data for retiling TIFFs files to `scale` with `tileindex-validate`.                                                                                                                                                                                   |
+| group                     | int   | 50                                    | The number of files to group into the pods (testing has recommended using 50 for large datasets).                                                                                                                                                                 |
+| compression               | enum  | webp                                  | Standardised file format                                                                                                                                                                                                                                          |
+| create_capture_area       | enum  | true                                  | Create a GeoJSON capture area for the dataset                                                                                                                                                                                                                     |
+| cutline                   | str   |                                       | (Optional) location of a cutline file to cut the imagery to `.fgb` or `.geojson` (leave blank if no cutline)                                                                                                                                                      |
+| odr_url                   | str   |                                       | (Optional) If an existing dataset add the S3 path to the dataset here to load existing metadata.                                                                                                                                                                  |
+| delete_all_existing_items | enum  | false                                 | Delete all existing items in the collection before adding new items. Only when re-supplying existing datasets.                                                                                                                                                    |
+| category                  | enum  | urban-aerial-photos                   | Dataset type for collection metadata, also used to Build Dataset title & description                                                                                                                                                                              |
+| domain                    | enum  | land                                  | domain of the dataset, e.g. "land", "coastal"                                                                                                                                                                                                                     |
+| gsd                       | str   |                                       | Dataset GSD in metres for collection metadata, also used to build dataset title                                                                                                                                                                                   |
+| producer                  | enum  | Unknown                               | Imagery producer :warning: Ignored if `producer_list` is used.                                                                                                                                                                                                    |
+| producer_list             | str   |                                       | List of imagery producers, separated by semicolon (;). :warning: Has no effect unless a semicolon delimited list is entered.                                                                                                                                      |
+| licensor                  | enum  | Unknown                               | Imagery licensor. :warning: Ignored if `licensor_list` is used.                                                                                                                                                                                                   |
+| licensor_list             | str   |                                       | List of imagery licensors, separated by semicolon (;). :warning: Has no effect unless a semicolon delimited list is entered.                                                                                                                                      |
+| start_datetime            | str   | YYYY-MM-DD                            | Imagery start date (flown from), must be in default formatting                                                                                                                                                                                                    |
+| end_datetime              | str   | YYYY-MM-DD                            | Imagery end date (flown to), must be in default formatting                                                                                                                                                                                                        |
+| geographic_description    | str   | Hamilton                              | (Optional) Additional datatset description, to be used in dataset title / description in place of the Region.                                                                                                                                                     |
+| lifeycle                  | enum  | Completed                             | Lifecycle Status of Collection, from [linz STAC extension](https://github.com/linz/stac/tree/master/extensions/linz#collection-fields). Options: `completed`, `preview`, `ongoing`, `under development`, `deprecated`                                             |
+| event                     | str   | Cyclone Gabrielle                     | (Optional) Event name if dataset has been captured in association with an event.                                                                                                                                                                                  |
+| historic_survey_number    | str   | SNC8844                               | (Optional) Survey Number associated with historical datasets.                                                                                                                                                                                                     |
+| source_epsg               | str   | 2193                                  | The EPSG code of the source imagery                                                                                                                                                                                                                               |
+| target_epsg               | str   | 2193                                  | The target EPSG code - if different to source the imagery will be reprojected                                                                                                                                                                                     |
+| publish_to_odr            | str   | false                                 | Run [publish-odr](#Publish-odr) after standardising has completed successfully                                                                                                                                                                                    |
+| target_bucket_name        | enum  |                                       | Used only if `publish_to_odr` is true. The bucket name of the target ODR location                                                                                                                                                                                 |
+| copy_option               | enum  | --no-clobber                          | Used only if `publish_to_odr` is true.<dl><dt>`--no-clobber` </dt><dd> Skip overwriting existing files.</dd><dt> `--force` </dt><dd> Overwrite all files. </dd><dt> `--force-no-clobber` </dt><dd> Overwrite only changed files, skip unchanged files. </dd></dl> |
 
 \* This regex can be used to exclude paths as well, e.g. if there are RBG and RGBI directories, the following regex will only include TIFF files in the RGB directory: `RGB(?!I).*.tiff?$`. For more complicated exclusions, there is an `--exclude` parameter, which would need to be added to the Argo WorkflowTemplate.
 
@@ -110,7 +114,7 @@ The S3 path to the processed TIFFs and the Basemaps visualisation URL can be fou
 for example:
 
 ```
-location: s3://linz-workflow-artifacts/2022-10/31-imagery-standardising-v0.02-58-df4gf
+location: s3://linz-workflows-scratch/2022-10/31-imagery-standardising-v0.02-58-df4gf
 ```
 
 ```
@@ -126,7 +130,13 @@ graph TD;
     tileindex-validate-->standardise-validate;
     standardise-validate-->create-collection;
     standardise-validate-->create-overview;
-    create-collection-->stac-validate-.->|publish_to_odr == true|publish-odr;
+
+    create-collection-->|odr_url == ''|stac-validate-all;
+    create-collection-->|odr_url != ''|stac-validate-only-updated;
+
+    stac-validate-all-.->|publish_to_odr == true|publish-odr;
+    stac-validate-only-updated-.->|publish_to_odr == true|publish-odr;
+
     create-overview-.->|compression != dem_lerc|create-config-.->|publish_to_odr == true|publish-odr;
 ```
 
@@ -193,92 +203,36 @@ Validates the collection.json and all associated items.
 
 Creates a config of the imagery files within the `flat` directory and outputs a Basemaps link for Visual QA. Currently Aerial Imagery only; not Elevation.
 
-# copy
-
-## Workflow Description
-
-Copy files from one S3 location to another. This workflow is intended to be used after standardising and QA to copy:
-
-- from `linz-workflow-artifacts` "flattened" directory to `linz-imagery`
-- from `linz-imagery-upload` to `linz-imagery-staging` to store a copy of the uploaded RGBI imagery.
-
-```mermaid
-graph TD;
-  create-manifest-->copy;
-```
-
-This is a workflow that uses the [argo-tasks](https://github.com/linz/argo-tasks#create-manifest) container `create-manifest` (list of source and target file paths) and `copy` (the actual file copy) commands.
-
-Access permissions are controlled by the [Bucket Sharing Config](https://github.com/linz/topo-aws-infrastructure/blob/master/src/stacks/bucket.sharing.ts) which gives Argo Workflows access to the S3 buckets we use.
-
-## Workflow Input Parameters
-
-| Parameter            | Type  | Default                                                                                                                                                       | Description                                                                                                                                                                                                                 |
-| -------------------- | ----- | ------------------------------------------------------------------------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| user_group           | enum  | none                                                                                                                                                          | Group of users running the workflow                                                                                                                                                                                         |
-| ticket               | str   |                                                                                                                                                               | Ticket ID e.g. 'AIP-55'                                                                                                                                                                                                     |
-| region               | enum  |                                                                                                                                                               | Region of the dataset                                                                                                                                                                                                       |
-| source               | str   | s3://linz-imagery-staging/test/sample/                                                                                                                        | The URIs (paths) to the s3 source location. Separate multiple source paths with `;`                                                                                                                                         |
-| target               | str   | s3://linz-imagery-staging/test/sample_target/                                                                                                                 | The URIs (paths) to the s3 target location                                                                                                                                                                                  |
-| include              | regex | \\.tiff?\$\|\\.json\$\|\\.tfw\$\|/capture-area\\.geojson\$\|/capture-area\\.geojson\$                                                                         | A regular expression to match object path(s) or name(s) from within the source path to include in the copy.                                                                                                                 |
-| exclude              | regex |                                                                                                                                                               | A regular expression to match object path(s) or name(s) from within the source path to exclude from the copy.                                                                                                               |
-| copy_option          | enum  | --no-clobber                                                                                                                                                  | <dl><dt>`--no-clobber` </dt><dd> Skip overwriting existing files.</dd><dt> `--force` </dt><dd> Overwrite all files. </dd><dt> `--force-no-clobber` </dt><dd> Overwrite only changed files, skip unchanged files. </dd></dl> |
-| flatten              | enum  | false                                                                                                                                                         | Flatten the files in the target location (useful for multiple source locations)                                                                                                                                             |
-| group                | int   | 1000                                                                                                                                                          | The maximum number of files for each pod to copy (will use the value of `group` or `group_size` that is reached first).                                                                                                     |
-| group_size           | str   | 100Gi                                                                                                                                                         | The maximum group size of files for each pod to copy (will use the value of `group` or `group_size` that is reached first).                                                                                                 |
-| transform            | str   | `f`                                                                                                                                                           | String to be transformed from source to target to renamed filenames, e.g. `f.replace("text to replace", "new_text_to_use")`. Leave as `f` for no transformation.                                                            |
-| aws_role_config_path | str   | `s3://linz-bucket-config/config-write.elevation.json,s3://linz-bucket-config/config-write.imagery.json,s3://linz-bucket-config/config-write.topographic.json` | s3 URL or comma-separated list of s3 URLs allowing the workflow to write to a target(s).                                                                                                                                    |
-
-## Examples
-
-### Publish:
-
-**source:** `s3://linz-workflow-artifacts/2022-11/15-imagery-standardising-v0.2.0-56-x7699/flat/`
-
-**target:** `s3://linz-imagery/southland/invercargill_2022_0.1m/rgb/2193/`
-
-**include:** Although only `.tiff` and `.json` files are required, there should not be any `.tfw` files in with the standardised imagery, so this option can be left at the default.
-
-**copy_option:** `--no-clobber`
-
-**Target path naming convention:** `s3://linz-imagery/<region>/<city-or-sub-region>_<year>_<resolution>/<product>/<crs>/`
-
-### Backup RGBI:
-
-**source:** `s3://linz-imagery-upload/Invercargill2022_Pgrm3016/OutputPGRM3016-InvercargillRural2022/tifs-RGBI/`
-
-**target:** `s3://linz-imagery-staging/RGBi4/invercargill_urban_2022_0.1m/`
-
-**include:** Although only `.tif(f)` and `.tfw` files are required, there should not be any `.json` files in with the uploaded imagery, so this option can be left at the default.
-
-**copy_option:** `--no-clobber`
-
 # Publish-odr
 
 ## Workflow Description
 
-This workflow creates a GitHub pull request to be reviewed for publishing to `s3://nz-imagery` and `s3://nz-elevation` (the two AWS Registry of Open Data public S3 buckets). When the pull request is approved and merged, the files will be copied.
+This workflow creates a GitHub pull request to be reviewed for publishing to `s3://nz-coastal`, `s3://nz-elevation` and `s3://nz-imagery` (the AWS Registry of Open Data public S3 buckets). When the pull request is approved and merged, the files will be copied.
 
 ```mermaid
 graph TD;
-  generate-path-->push-to-github;
+  subgraph "if **odr_url == &quot;&quot;**"
+    generate-path
+  end
+  generate-path --> push-to-github;
 ```
 
 ## Workflow Input Parameters
 
 | Parameter          | Type | Default                                | Description                                                                                                                                                                                                                 |
-| ------------------ | ---- | -------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | --- |
+| ------------------ | ---- | -------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | ticket             | str  |                                        | Ticket ID e.g. 'AIP-55'                                                                                                                                                                                                     |
 | region             | enum |                                        | Region of the dataset                                                                                                                                                                                                       |
 | source             | str  | s3://linz-imagery-staging/test/sample/ | The URIs (paths) to the s3 source location                                                                                                                                                                                  |
-| target_bucket_name | enum |                                        | The bucket name of the target location                                                                                                                                                                                      |     |
+| target_bucket_name | enum |                                        | The bucket name of the target location                                                                                                                                                                                      |
 | copy_option        | enum | --no-clobber                           | <dl><dt>`--no-clobber` </dt><dd> Skip overwriting existing files.</dd><dt> `--force` </dt><dd> Overwrite all files. </dd><dt> `--force-no-clobber` </dt><dd> Overwrite only changed files, skip unchanged files. </dd></dl> |
+| odr_url            | str  |                                        | s3 path to the existing dataset, if updating. Providing this will skip `generate_path` (i.e. ignore `target_bucket_name` etc) and publish to the provided location instead.                                                 |
 
 ## Examples
 
 ### Publish:
 
-**source:** `s3://linz-workflow-artifacts/2022-11/15-imagery-standardising-v0.2.0-56-x7699/flat/`
+**source:** `s3://linz-workflows-scratch/2022-11/15-imagery-standardising-v0.2.0-56-x7699/flat/`
 
 **target_bucket_name:** `nz-imagery`
 
@@ -286,24 +240,122 @@ graph TD;
 
 See the [copy template](#copy) for more information.
 
-# national-dem
+# national-elevation
 
-This workflow combines a set of DEMs datasets in order to create a single national dataset composed of 1:50k tiles.
+This workflow combines a set of DEM or DSM datasets in order to create a single national dataset composed of 1:50k tiles.
 
-Upon completion all standardised TIFF and STAC files will be located with the ./flat/ directory of the workflow in the artifacts scratch bucket. In addition, a Basemaps link is produced enabling visual QA.
+Upon completion all standardised TIFF and STAC files will be located in the ./flat/ directory of the workflow in the artifacts scratch bucket. In addition, a Basemaps link is produced enabling visual QA.
 
 Publishing to the AWS Registry of Open Data is an optional step [publish-odr](#Publish-odr) that can be run automatically after standardisation.
 
 ## Workflow Input Parameters
 
-| Parameter      | Type | Default                                                                                     | Description                                                                                                                                                                                                                                                       |
-| -------------- | ---- | ------------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| ticket         | str  |                                                                                             | Ticket ID e.g. 'TDE-1130'                                                                                                                                                                                                                                         |
-| config_file    | str  | https://raw.githubusercontent.com/linz/basemaps-config/master/config/tileset/elevation.json | Location of the configuration file listing the source datasets to merge.                                                                                                                                                                                          |
-| odr_url        | str  |                                                                                             | (Optional) If an existing dataset add the S3 path to the dataset here to load existing metadata e.g. "s3://nz-elevation/new-zealand/new-zealand/dem_1m/2193/"                                                                                                     |
-| group          | 2    |                                                                                             | How many output tiles to process in each standardising task "pod". Change if you have resource or performance issues when standardising a dataset.                                                                                                                |
-| publish_to_odr | str  | false                                                                                       | Run [publish-odr](#Publish-odr) after standardising has completed successfully                                                                                                                                                                                    |
-| copy_option    | enum | --force-no-clobber                                                                          | Used only if `publish_to_odr` is true.<dl><dt>`--no-clobber` </dt><dd> Skip overwriting existing files.</dd><dt> `--force` </dt><dd> Overwrite all files. </dd><dt> `--force-no-clobber` </dt><dd> Overwrite only changed files, skip unchanged files. </dd></dl> |
+| Parameter           | Type | Default                                                                                     | Description                                                                                                                                                                                                                                                       |
+| ------------------- | ---- | ------------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| ticket              | str  |                                                                                             | Ticket ID e.g. 'TDE-1130'                                                                                                                                                                                                                                         |
+| geospatial_category | enum | dem                                                                                         | Geospatial category for the elevation dataset (`dem`, `dsm`)                                                                                                                                                                                                      |
+| config_file         | str  | https://raw.githubusercontent.com/linz/basemaps-config/master/config/tileset/elevation.json | Location of the configuration file listing the source datasets to merge.                                                                                                                                                                                          |
+| odr_url             | str  |                                                                                             | (Optional) If an existing dataset add the S3 path to the dataset here to load existing metadata e.g. "s3://nz-elevation/new-zealand/new-zealand/dem_1m/2193/"                                                                                                     |
+| target_bucket_name  | enum | nz-elevation                                                                                | 'Target bucket name for publishing to ODR, e.g. "nz-elevation"                                                                                                                                                                                                    |
+| group               | int  | 2                                                                                           | How many output tiles to process in each standardising task "pod". Change if you have resource or performance issues when standardising a dataset.                                                                                                                |
+| group               | int  | 2                                                                                           | How many output tiles to process in each standardising task "pod". Change if you have resource or performance issues when standardising a dataset.                                                                                                                |
+| publish_to_odr      | str  | false                                                                                       | Run [publish-odr](#Publish-odr) after standardising has completed successfully                                                                                                                                                                                    |
+| copy_option         | enum | --force-no-clobber                                                                          | Used only if `publish_to_odr` is true.<dl><dt>`--no-clobber` </dt><dd> Skip overwriting existing files.</dd><dt> `--force` </dt><dd> Overwrite all files. </dd><dt> `--force-no-clobber` </dt><dd> Overwrite only changed files, skip unchanged files. </dd></dl> |
+
+# merge-layers
+
+This workflow passes multiple sources to `tpl-at-tile-index-validate` to layer datasets over each other, and then proceeds to create matching STAC files (see below). Currently, the use case for this is back-filling the 1m hillshade of a preset with the respective 8m hillshade to create a gap-less national dataset composed of 1:50k tiles.
+
+Upon completion all standardised TIFF and STAC files will be located in the ./`geospatial_category`/flat/ directory of the workflow in the artifacts scratch bucket. In addition, a Basemaps link is produced enabling visual QA.
+
+Publishing to the AWS Registry of Open Data is an optional step [publish-odr](#Publish-odr) that can be run automatically after standardisation.
+
+1. `get-location`
+2. `stac-setup`
+3. `identify-update-items` to create a list of output tiles with (both) their source TIFF files
+4. `group` to split the list created into grouped tiles for parallel processing
+5. `standardise-validate` to standardise TIFF files and create the STAC items
+6. `create-collection` to create the STAC collection
+7. `stac-validate` to validate the STAC collection
+8. `create-config` to create a basemaps config for visual QA
+9. `publish-odr`
+
+```mermaid
+graph TD
+  A[stac-setup] --> C[identify-update-items]
+  B[get-location] --> C
+  C --> |if file-list length > 0|D[group]
+  D --> |1..n|E[standardise-validate]
+  E --> F[create-config]
+  E --> G[create-collection]
+  G --> H[stac-validate]
+  F --> I[publish-odr]
+  H --> I[publish-odr]
+```
+
+## Workflow Input Parameters
+
+Default values for this workflow should be sufficient for most use cases. However, the following parameters can be adjusted if necessary:
+
+| Parameter               | Type    | Default                                                                         | Description                                                                                                                                                                                                                                                       |
+| ----------------------- | ------- | ------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| version_argo_tasks      | str     | v4                                                                              | Version of the Argo tasks to use.                                                                                                                                                                                                                                 |
+| version_basemaps_cli    | str     | v8                                                                              | Version of the Basemaps CLI to use.                                                                                                                                                                                                                               |
+| version_topo_imagery    | str     | v7                                                                              | Version of the Topo Imagery scripts to use.                                                                                                                                                                                                                       |
+| ticket                  | str     |                                                                                 | Ticket ID e.g. 'TDE-1130'                                                                                                                                                                                                                                         |
+| top_layer_source        | str     | `s3://nz-elevation/new-zealand/new-zealand/dem-hillshade-igor_1m/2193/`         | Top layer (1m hillshade) to add.                                                                                                                                                                                                                                  |
+| base_layer_source       | str     | `s3://nz-elevation/new-zealand/new-zealand-contour/dem-hillshade-igor_8m/2193/` | Base layer (8m hillshade) to use.                                                                                                                                                                                                                                 |
+| odr_url                 | str     | `s3://nz-elevation/new-zealand/new-zealand/dem-hillshade-igor/2193/`            | S3 path to the existing dataset to load existing metadata.                                                                                                                                                                                                        |
+| group                   | int     | 4                                                                               | How many output tiles to process in each standardising task "pod". Change if you have resource or performance issues when standardising a dataset.                                                                                                                |
+| publish_to_odr          | enum    | false                                                                           | Run [publish-odr](#Publish-odr) after standardising has completed successfully (`true` / `false`)                                                                                                                                                                 |
+| copy_option             | enum    | --force-no-clobber                                                              | Used only if `publish_to_odr` is true.<dl><dt>`--no-clobber` </dt><dd> Skip overwriting existing files.</dd><dt> `--force` </dt><dd> Overwrite all files. </dd><dt> `--force-no-clobber` </dt><dd> Overwrite only changed files, skip unchanged files. </dd></dl> |
+| geospatial_category     | enum    | `dem-hillshade-igor`                                                            | Geospatial category of the dataset.                                                                                                                                                                                                                               |
+| create_capture_area     | enum    | true                                                                            | Create a GeoJSON capture area for the dataset.                                                                                                                                                                                                                    |
+| create_capture_dates    | enum    | false                                                                           | Create capture dates for the dataset.                                                                                                                                                                                                                             |
+| gsd                     | decimal | 1                                                                               | Dataset GSD in metres for collection metadata, also used to build dataset title.                                                                                                                                                                                  |
+| scale_to_resolution     | str     | 1,1                                                                             | Target x,y resolution to scale the output hillshade to. Leave blank for no scaling.                                                                                                                                                                               |
+| source_epsg             | str     | 2193                                                                            | The EPSG code of the source imagery.                                                                                                                                                                                                                              |
+| target_epsg             | str     | 2193                                                                            | The target EPSG code - if different to source the imagery will be reprojected.                                                                                                                                                                                    |
+| include                 | regex   | \.tiff?$                                                                        | A regular expression to match object path(s) or name(s) from within the source path to include in the standardising.                                                                                                                                              |
+| scale                   | enum    | 50000                                                                           | The scale of the standardised output TIFFs.                                                                                                                                                                                                                       |
+| target_bucket_name      | enum    | nz-elevation                                                                    | Used only if `publish_to_odr` is true. The bucket name of the target ODR location. (`nz-elevation` / `nz-imagery`)                                                                                                                                                |
+| region                  | str     | new-zealand                                                                     | Region of the dataset.                                                                                                                                                                                                                                            |
+| gdal_compression_preset | str     | dem_lerc                                                                        | The GDAL compression preset to use for the output TIFFs.                                                                                                                                                                                                          |
+
+# hillshade
+
+This workflow can use a DEM or DSM dataset source (such as a National DEM dataset, for example) to create hillshades.
+
+Upon completion all hillshade TIFF and STAC files will be located in the .`{{workflow.parameters.hillshade_preset}}`/flat/ directory of the workflow in the artifacts scratch bucket. In addition, a Basemaps link is produced enabling visual QA.
+
+Publishing to the AWS Registry of Open Data is an optional step [publish-odr](#Publish-odr) that can be run automatically after hillshade creation.
+
+## Workflow Input Parameters
+
+| Parameter        | Type | Default                                                | Description                                                                                                                                                                                                                                                       |
+| ---------------- | ---- | ------------------------------------------------------ | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| ticket           | str  |                                                        | Ticket ID e.g. 'TDE-1130'                                                                                                                                                                                                                                         |
+| source           | str  | s3://nz-elevation/new-zealand/new-zealand/dem_1m/2193/ | Location of the input elevation data to create hillshade.                                                                                                                                                                                                         |
+| gsd              | str  | 1                                                      | Dataset GSD in metres, e.g., "1" for 1 metre                                                                                                                                                                                                                      |
+| odr_url          | str  |                                                        | (Optional) If an existing dataset add the S3 path to the dataset here to load existing metadata e.g. "s3://nz-elevation/new-zealand/new-zealand/dem-hillshade_1m/2193/"                                                                                           |
+| hillshade-preset | str  | hillshade                                              | Hillshade preset to use, must be one of "hillshade" or "hillshade-igor"                                                                                                                                                                                           |
+| group            | int  | 4                                                      | How many output tiles to process in each standardising task "pod". Change if you have resource or performance issues when standardising a dataset.                                                                                                                |
+| publish_to_odr   | str  | false                                                  | Run [publish-odr](#Publish-odr) after standardising has completed successfully                                                                                                                                                                                    |
+| copy_option      | enum | --force-no-clobber                                     | Used only if `publish_to_odr` is true.<dl><dt>`--no-clobber` </dt><dd> Skip overwriting existing files.</dd><dt> `--force` </dt><dd> Overwrite all files. </dd><dt> `--force-no-clobber` </dt><dd> Overwrite only changed files, skip unchanged files. </dd></dl> |
+
+# hillshade-combinations
+
+This workflow calls `hillshade` to iterate over a provided list of geospatial elevation categories (DEM / DSM) and hillshade presets (hillshade / hillshade-igor) to easily create hillshades using Cron Workflows.
+
+Key parameters that differ from the `hillshade` workflow are `source_geospatial_categories` and `hillshade_presets`, which be iterated over to create multiple hillshades using each corresponding geospatial category and hillshade preset in the `hillshade` workflow.
+The `bucket_name` parameter is used to determine the correct source and output paths for the hillshade creation.
+All other parameters will be passed through to the `hillshade` workflow without modification.
+
+| Parameter                    | Type | Default                         | Description                                                                              |
+| ---------------------------- | ---- | ------------------------------- | ---------------------------------------------------------------------------------------- |
+| bucket_name                  | enum | nz-elevation                    | Source and target bucket of the respective dataset, e.g. `nz-elevation` or `nz-coastal`. |
+| source_geospatial_categories | str  | ["dem", "dsm"]                  | Geospatial categories of the source elevation data as stringified json, e.g. ["dem"]     |
+| hillshade_presets            | str  | ["hillshade-igor", "hillshade"] | Hillshade presets to use, as stringified json, e.g. ["hillshade"]                        |
 
 # Tests
 
