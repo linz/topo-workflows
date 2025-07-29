@@ -5,38 +5,115 @@ kind: WorkflowTemplate
 metadata:
   name: unarchive
 spec:
-  entrypoint: restore
+  nodeSelector:
+    karpenter.sh/capacity-type: 'spot'
+  entrypoint: main
   onExit: exit-handler
+  workflowMetadata:
+    labelsFrom:
+      linz.govt.nz/user-group:
+        expression: workflow.parameters.user_group
+      linz.govt.nz/ticket:
+        expression: workflow.parameters.ticket
+  podMetadata:
+    labels:
+      linz.govt.nz/user-group: '{{workflow.parameters.user_group}}'
+      linz.govt.nz/ticket: '{{workflow.parameters.ticket}}'
   arguments:
     parameters:
+      - name: version_argo_tasks
+        description: 'Specify a version of the argo-tasks image to use, e.g. "v4.1" or "latest"'
+        value: 'v4'
+      - name: user_group
+        description: Group of users running the workflow
+        value: 'none'
+        enum:
+          - 'land'
+          - 'sea'
+          - 'none'
+      - name: ticket
+        description: 'Ticket ID, e.g. "LI-1570"'
+        value: ''
       - name: archive_bucket
-        description: 'The S3 bucket where the archived data to restore is stored.'
-        value: linz-hydrographic-archive
+        description: 'The S3 bucket where the data to unarchive is stored.'
+        value: 'linz-hydrographic-archive'
         enum:
-          - linz-topographic-archive
-          - linz-hydrographic-archive
+          - 'linz-topographic-archive'
+          - 'linz-hydrographic-archive'
       - name: archive_directory
-        description: 'The directory in the archive bucket where the archived data to restore is stored. Does not include the bucket name. Example: "aerialsurveys/Invercargill2022_Pgrm3016/".'
+        description: 'The directory in the archive bucket where the data to unarchive is stored. Does not include the bucket name. Example: "aerialsurveys/Invercargill2022_Pgrm3016/".'
         value: ''
-      - name: request_title
-        description: 'A title for the restore request. This will be used to identify the job when files will be restored. Example: "Customer request to restore files for project X".'
-        value: ''
-      - name: retrieval_tier
-        description: 'Use `STANDARD` for urgent requests. This has an impact on retrieval costs. Defaults to `BULK` for regular requests.'
-        value: BULK
+      - name: consumer
+        description: 'The consumer for who the data is being unarchived. The unarchive data will be copied to the consumer shared location.'
+        value: 'linz'
         enum:
-          - STANDARD
-          - BULK
+          - 'linz'
+      - name: urgent
+        description: 'Whether the unarchive request is urgent. If not urgent, the restore process can take up to 48 hours. If urgent, it will take up to 12 hours. Defaults to false.'
+        value: 'false'
+        enum:
+          - 'true'
+          - 'false'
+      - name: group
+        value: '1000'
+      - name: group_size
+        value: '100Gi'
   templates:
+    - name: main
+      dag:
+        tasks:
+          - name: create-manifest
+            templateRef:
+              name: tpl-create-manifest
+              template: main
+            arguments:
+              parameters:
+                - name: source
+                  value: 's3://{{workflow.parameters.archive_bucket}}/{{=sprig.trimPrefix("/",workflow.parameters.archive_directory)}}'
+                - name: target
+                  value: 's3://{{= workflow.parameters.archive_bucket == "linz-topographic-archive" ? "linz-topographic-shared" : workflow.parameters.archive_bucket == "linz-hydrographic-archive" ? "linz-hydrographic-shared" : "unknown-bucket" }}/{{=sprig.trimPrefix("/",workflow.parameters.archive_directory)}}'
+                - name: include
+                  value: '.*'
+                - name: group
+                  value: '{{workflow.parameters.group}}'
+                - name: group_size
+                  value: '{{workflow.parameters.group_size}}'
+                - name: aws_role_config_path
+                  value: 's3://linz-bucket-config/config-write.topographic.json, s3://linz-bucket-config/config-write.hydrographic.json'
+          - name: get-location
+            templateRef:
+              name: tpl-get-location
+              template: main
+          - name: restore
+            template: restore
+            arguments:
+              parameters:
+                - name: archive_bucket
+                  value: '{{workflow.parameters.archive_bucket}}'
+                - name: archive_directory
+                  value: '{{=sprig.trimSuffix("/",sprig.trimPrefix("/",workflow.parameters.archive_directory))}}'
+                - name: archive_path
+                  value: '{{workflow.parameters.archive_bucket}}/{{=sprig.trimSuffix("/",sprig.trimPrefix("/",workflow.parameters.archive_directory))}}'
+                - name: retrieval_tier
+                  value: '{{= workflow.parameters.urgent == "true" ? "STANDARD" : "BULK"}}'
+                - name: manifest_list
+                  value: '{{tasks.create-manifest.outputs.parameters.files}}'
+                - name: request_output_bucket
+                  value: '{{tasks.get-location.outputs.parameters.bucket}}'
+            depends: 'get-location && create-manifest'
+            when: '{{tasks.create-manifest.outputs.parameters.files}} != ""'
+
     - name: restore
       inputs:
         parameters:
           - name: archive_bucket
           - name: archive_directory
-          - name: request_title
+          - name: archive_path
           - name: retrieval_tier
+          - name: manifest_list
+          - name: request_output_bucket
       container:
-        image: public.ecr.aws/aws-cli/aws-cli:2.27.49
+        image: public.ecr.aws/aws-cli/aws-cli:2.27.62
         env:
           - name: ACCOUNT_ID_HYDRO
             valueFrom:
@@ -56,7 +133,7 @@ spec:
         command: [sh, -c]
         args:
           - |
-            TODAY=$(date '+%Y-%m-%d')
+            # Determine the account ID for the archive bucket
             if [ "{{inputs.parameters.archive_bucket}}" = "linz-hydrographic-archive" ]; then
               ACCOUNT_ID_ARCHIVE=$ACCOUNT_ID_HYDRO
             elif [ "{{inputs.parameters.archive_bucket}}" = "linz-topographic-archive" ]; then
@@ -66,7 +143,14 @@ spec:
               exit 1
             fi
 
-            aws s3control create-job \
+            # Save the list of copy action manifests to local for artifact output
+            echo '{{inputs.parameters.manifest_list}}' > /tmp/copy-manifests.json
+
+            TODAY_YYYY_MM=$(date +%Y-%m)
+            TODAY_DD=$(date +%d)
+            REQUEST_LOCATION="{{inputs.parameters.archive_path}}/${TODAY_YYYY_MM}/${TODAY_DD}-{{workflow.name}}"
+
+            JOB_ID=$(aws s3control create-job \
               --client-request-token "restore-job-{{workflow.name}}" \
               --account-id "$ACCOUNT_ID_TOPO" \
               --region ap-southeast-2 \
@@ -77,10 +161,10 @@ spec:
                 }
               }' \
               --report "{
-                \"Bucket\": \"arn:aws:s3:::linz-workflows-scratch\",
+                \"Bucket\": \"arn:aws:s3:::{{inputs.parameters.request_output_bucket}}\",
                 \"Format\": \"Report_CSV_20180820\",
                 \"Enabled\": true,
-                \"Prefix\": \"restore/reports/${TODAY}-{{workflow.name}}\",
+                \"Prefix\": \"restore/requests/${REQUEST_LOCATION}\",
                 \"ReportScope\": \"AllTasks\"
               }" \
               --manifest-generator "{
@@ -89,23 +173,29 @@ spec:
                   \"SourceBucket\": \"arn:aws:s3:::{{inputs.parameters.archive_bucket}}\",
                   \"ManifestOutputLocation\": {
                     \"ExpectedManifestBucketOwner\": \"$ACCOUNT_ID_TOPO\",
-                    \"Bucket\": \"arn:aws:s3:::linz-workflows-scratch\",
-                    \"ManifestPrefix\": \"restore/manifests/${TODAY}-{{workflow.name}}\",
+                    \"Bucket\": \"arn:aws:s3:::{{inputs.parameters.request_output_bucket}}\",
+                    \"ManifestPrefix\": \"restore/manifests/${REQUEST_LOCATION}\",
                     \"ManifestFormat\": \"S3InventoryReport_CSV_20211130\"
                   },
                   \"Filter\": {
                     \"KeyNameConstraint\": {
-                      \"MatchAnyPrefix\": [\"{{inputs.parameters.archive_directory}}\"]
-                    }
+                      \"MatchAnyPrefix\": [\"{{inputs.parameters.archive_directory}}/\"]
+                    },
+                    \"MatchAnyStorageClass\": [\"DEEP_ARCHIVE\"]
                   },
                   \"EnableManifestOutput\": true
                 }
               }" \
               --priority 10 \
               --role-arn "$ROLE_ARN" \
-              --description "{{workflow.name}} - {{inputs.parameters.request_title}}" \
-              --no-confirmation-required
-              --debug
+              --description "{{workflow.name}}" \
+              --debug \
+              --no-confirmation-required \
+              --query 'JobId' \
+              --output text)
+
+              # Upload the copy manifests list at the same location as the report manifest
+              aws s3 cp /tmp/copy-manifests.json "s3://{{inputs.parameters.request_output_bucket}}/restore/requests/${REQUEST_LOCATION}/job-${JOB_ID}/copy-manifests.json"
 
     - name: exit-handler
       retryStrategy:
