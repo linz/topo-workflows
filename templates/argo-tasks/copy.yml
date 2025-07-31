@@ -48,7 +48,10 @@ spec:
           - name: aws_role_config_path
             description: s3 URL or comma-separated list of s3 URLs allowing the workflow to write to a target(s)
             default: 's3://linz-bucket-config/config-write.imagery.json,s3://linz-bucket-config/config-write.elevation.json,s3://linz-bucket-config/config-write.topographic.json'
-
+      activeDeadlineSeconds: '900' # Run up to 900 secs / 15 minutes
+      retryStrategy:
+        limit: '10' # Retry up to 10 times
+        retryPolicy: 'Always'
       container:
         image: '019359803926.dkr.ecr.ap-southeast-2.amazonaws.com/argo-tasks:{{=sprig.trim(workflow.parameters.version_argo_tasks)}}'
         resources:
