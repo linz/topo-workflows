@@ -10,47 +10,46 @@ spec:
       imagePullPolicy: Always
       image: ''
   entrypoint: main
+  arguments:
+    parameters:
+      - name: version_argo_tasks
+        description: Version of the argo-tasks CLI docker container to use
+        value: v4
+
+      - name: target
+        description: Target location for output COGs in array format
+
+      - name: ticket
+        description: Ticket ID e.g. 'BM-55'
+        value: ''
+
+      - name: config_type
+        description: 'Type of Basemaps Config file to create in pull requests'
+        value: 'raster'
+        enum:
+          - 'raster'
+          - 'elevation'
+
+      - name: individual
+        description: 'Individual Config or Combined Config'
+        value: 'combined'
+        enum:
+          - 'individual'
+          - 'combined'
+
+      - name: category
+        value: 'Rural Aerial Photos'
+        enum:
+          - 'Rural Aerial Photos'
+          - 'Urban Aerial Photos'
+          - 'Scanned Aerial Imagery'
+          - 'Satellite Imagery'
+          - 'Event'
+          - 'Elevation'
 
   templates:
     # Main entrypoint into the workflow
     - name: main
-      inputs:
-      parameters:
-        - name: version_argo_tasks
-          description: Version of the argo-tasks CLI docker container to use
-          value: v4
-
-        - name: ticket
-          description: Ticket ID e.g. 'BM-55'
-          value: ''
-
-        - name: config_type
-          description: 'Type of Basemaps Config file to create in pull requests'
-          value: 'raster'
-          enum:
-            - 'raster'
-            - 'elevation'
-
-        - name: individual
-          description: 'Individual Config or Combined Config'
-          value: 'combined'
-          enum:
-            - 'individual'
-            - 'combined'
-
-        - name: category
-          value: 'Rural Aerial Photos'
-          enum:
-            - 'Rural Aerial Photos'
-            - 'Urban Aerial Photos'
-            - 'Scanned Aerial Imagery'
-            - 'Satellite Imagery'
-            - 'Event'
-            - 'Elevation'
-
-        - name: target
-          description: Target location for output COGs in array format
-
       container:
         image: 019359803926.dkr.ecr.ap-southeast-2.amazonaws.com/argo-tasks:{{workflow.parameters.version_argo_tasks}}
         env:
