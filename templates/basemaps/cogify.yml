@@ -21,10 +21,6 @@ spec:
         description: Version of the argo-tasks CLI docker container to use
         value: v4
 
-      - name: ticket
-        description: Ticket ID e.g. 'BM-55'
-        value: ''
-
       - name: preset
         description: Import preset configuration, WebP for 4 band RGBA LERC for 1 band DEM/DSM
         value: 'webp'

@@ -16,9 +16,6 @@ spec:
         description: Version of the argo-tasks CLI docker container to use
         value: v4
 
-      - name: target
-        description: Target location for output COGs in array format
-
       - name: ticket
         description: Ticket ID e.g. 'BM-55'
         value: ''
@@ -50,6 +47,9 @@ spec:
   templates:
     # Main entrypoint into the workflow
     - name: main
+      inputs:
+        parameters:
+          - name: target
       container:
         image: 019359803926.dkr.ecr.ap-southeast-2.amazonaws.com/argo-tasks:{{workflow.parameters.version_argo_tasks}}
         env:
@@ -63,7 +63,7 @@ spec:
         args:
           - 'bmc'
           - 'create-pr'
-          - '--target={{workflow.parameters.target}}'
+          - '--target={{inputs.parameters.target}}'
           - '--ticket={{workflow.parameters.ticket}}'
           - '--config-type={{workflow.parameters.config_type}}'
           - "--individual={{= workflow.parameters.individual == 'individual'? 'true' : 'false' }}"
