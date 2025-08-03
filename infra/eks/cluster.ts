@@ -59,6 +59,7 @@ export class LinzEksCluster extends Stack {
   vpc: IVpc;
   cluster: Cluster;
   nodeRole: Role;
+  s3BatchRestoreRoleArn: string;
 
   constructor(scope: Construct, id: string, props: EksClusterProps) {
     super(scope, id, props);
@@ -69,6 +70,8 @@ export class LinzEksCluster extends Stack {
     this.configBucket = Bucket.fromBucketName(this, 'BucketConfig', 'linz-bucket-config');
 
     this.vpc = Vpc.fromLookup(this, 'Vpc', { tags: { BaseVPC: 'true' } });
+
+    this.s3BatchRestoreRoleArn = props.s3BatchRestoreRoleArn;
 
     this.cluster = new Cluster(this, `Eks${id}`, {
       clusterName: id,
@@ -178,7 +181,7 @@ export class LinzEksCluster extends Stack {
 
     new CfnOutput(this, CfnOutputKeys.ClusterEndpoint, { value: this.cluster.clusterEndpoint });
 
-    this.configureEks(props.s3BatchRestoreRoleArn);
+    this.configureEks();
   }
 
   /**
@@ -187,7 +190,7 @@ export class LinzEksCluster extends Stack {
    * This should generally be limited to things that require direct interaction with AWS eg service accounts
    * or name space creation
    */
-  configureEks(s3BatchRestoreRoleArn: string): void {
+  configureEks(): void {
     this.tempBucket.grantReadWrite(this.nodeRole);
     this.configBucket.grantRead(this.nodeRole);
     this.nodeRole.addToPrincipalPolicy(new PolicyStatement({ actions: ['sts:AssumeRole'], resources: ['*'] }));
@@ -306,7 +309,7 @@ export class LinzEksCluster extends Stack {
     argoRunnerSa.role.addToPrincipalPolicy(
       new PolicyStatement({
         actions: ['iam:PassRole'],
-        resources: [s3BatchRestoreRoleArn],
+        resources: [this.s3BatchRestoreRoleArn],
       }),
     );
 
