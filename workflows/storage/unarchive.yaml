@@ -49,7 +49,7 @@ spec:
         enum:
           - 'linz'
       - name: urgent
-        description: 'Whether the unarchive request is urgent. If not urgent, the restore process can take up to 48 hours. If urgent, it will take up to 12 hours. Defaults to false.'
+        description: 'Whether the unarchive request is urgent. If not urgent ("BULK" retrieval tier), the restore process can take up to 48 hours. If urgent ("STANDARD" retrieval tier), it will take up to 12 hours. Defaults to false.'
         value: 'false'
         enum:
           - 'true'
