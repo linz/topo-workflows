@@ -16,40 +16,39 @@ spec:
         description: Version of the argo-tasks CLI docker container to use
         value: v4
 
-      - name: ticket
-        description: Ticket ID e.g. 'BM-55'
-        value: ''
-
-      - name: config_type
-        description: 'Type of Basemaps Config file to create in pull requests'
-        value: 'raster'
-        enum:
-          - 'raster'
-          - 'elevation'
-
-      - name: individual
-        description: 'Individual Config or Combined Config'
-        value: 'combined'
-        enum:
-          - 'individual'
-          - 'combined'
-
-      - name: category
-        value: 'Rural Aerial Photos'
-        enum:
-          - 'Rural Aerial Photos'
-          - 'Urban Aerial Photos'
-          - 'Scanned Aerial Imagery'
-          - 'Satellite Imagery'
-          - 'Event'
-          - 'Elevation'
-
   templates:
     # Main entrypoint into the workflow
     - name: main
       inputs:
         parameters:
           - name: target
+          - name: ticket
+            description: Ticket ID e.g. 'BM-55'
+            value: ''
+          - name: config_type
+            description: 'Type of Basemaps Config file to create in pull requests'
+            value: 'raster'
+            enum:
+              - 'raster'
+              - 'elevation'
+              - 'vector'
+          - name: individual
+            description: 'Individual Config or Combined Config'
+            value: 'combined'
+            enum:
+              - 'individual'
+              - 'combined'
+          - name: category
+            description: 'Category of the Basemaps Config file'
+            value: 'Rural Aerial Photos'
+            enum:
+              - 'Rural Aerial Photos'
+              - 'Urban Aerial Photos'
+              - 'Scanned Aerial Imagery'
+              - 'Satellite Imagery'
+              - 'Event'
+              - 'Elevation'
+
       container:
         image: 019359803926.dkr.ecr.ap-southeast-2.amazonaws.com/argo-tasks:{{workflow.parameters.version_argo_tasks}}
         env:
@@ -64,7 +63,7 @@ spec:
           - 'bmc'
           - 'create-pr'
           - '--target={{inputs.parameters.target}}'
-          - '--ticket={{workflow.parameters.ticket}}'
-          - '--config-type={{workflow.parameters.config_type}}'
-          - "--individual={{= workflow.parameters.individual == 'individual'? 'true' : 'false' }}"
-          - '--category={{workflow.parameters.category}}'
+          - '--ticket={{inputs.parameters.ticket}}'
+          - '--config-type={{inputs.parameters.config_type}}'
+          - "--individual={{= inputs.parameters.individual == 'individual'? 'true' : 'false' }}"
+          - '--category={{inputs.parameters.category}}'

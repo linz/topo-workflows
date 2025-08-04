@@ -97,6 +97,9 @@ spec:
               parameters:
                 - name: target
                   value: '{{ tasks.etl.outputs.parameters.target }}'
+                - name: config_type
+                  value: 'vector'
+
             when: '{{ workflow.parameters.create_pull_request }} == true'
             depends: 'etl'
 

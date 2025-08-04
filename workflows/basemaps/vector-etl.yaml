@@ -46,13 +46,6 @@ spec:
           - 'true'
           - 'false'
 
-      - name: individual
-        description: 'Individual Config or Combined Config'
-        value: 'combined'
-        enum:
-          - 'individual'
-          - 'combined'
-
       - name: retry
         description: Number of retry on failure vector-etl task
         value: '1'
@@ -88,6 +81,8 @@ spec:
               parameters:
                 - name: target
                   value: '{{ tasks.vector-etl.outputs.parameters.target }}'
+                - name: config_type
+                  value: 'vector'
             when: '{{ workflow.parameters.create_pull_request }} == true && {{tasks.check-updates.outputs.parameters.updatesRequired}} == true'
             depends: 'vector-etl'
 

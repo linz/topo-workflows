@@ -230,6 +230,14 @@ spec:
               parameters:
                 - name: target
                   value: '{{ tasks.cogify.outputs.parameters.target }}'
+                - name: ticket
+                  value: '{{ workflow.parameters.ticket }}'
+                - name: config_type
+                  value: '{{ workflow.parameters.config_type }}'
+                - name: individual
+                  value: '{{ workflow.parameters.individual }}'
+                - name: category
+                  value: '{{ workflow.parameters.category }}'
             when: '{{workflow.parameters.create_pull_request}} == true'
             depends: 'cogify'
 
