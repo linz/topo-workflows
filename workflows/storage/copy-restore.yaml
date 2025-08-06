@@ -17,10 +17,11 @@ spec:
     parameters:
       - name: version_argo_tasks
         description: 'Specify a version of the argo-tasks image to use, e.g. "v4.1" or "latest"'
-        value: 'v4'
+        value: 'pr-1239'
       - name: reports_location
         description: 'Location of the archive restore report manifest files'
-        value: 's3://linz-workflows-scratch/restore/reports/'
+        value: 's3://linz-workflows-scratch/restore/requests/linz-topographic-archive/afage/'
+#        value: 's3://linz-workflows-scratch/restore/requests/'
   templateDefaults:
     container:
       imagePullPolicy: Always
@@ -90,60 +91,77 @@ spec:
         parameters:
           - name: version_argo_tasks
           - name: inner_list
-      dag:
-        tasks:
-          - name: verify-restore
-            template: verify-restore
-            arguments:
-              parameters:
-                - name: version_argo_tasks
-                  value: "{{inputs.parameters.version_argo_tasks}}"
-                - name: manifest
-                  value: "{{item}}"
-            withParam: "{{inputs.parameters.inner_list}}"
-          - name: copy
-            templateRef:
-                name: tpl-copy
-                template: main
-            arguments:
-              parameters: # hardcode some values as they are specific for copying restored files
-                - name: copy_option
-                  value: '--force-no-clobber'
-                - name: file
-                  value: '{{item}}'
-                - name: version_argo_tasks
-                  value: '{{inputs.parameters.version_argo_tasks}}'
-                - name: aws_role_config_path
-                  value: 's3://linz-bucket-config/config-write.topographic.json, s3://linz-bucket-config/config-write.hydrographic.json'
-            depends: 'verify-restore.Succeeded'
-            withParam: '{{tasks.verify-restore.outputs.parameters.copy_manifest}}'
+      steps:
+#        - - name: verify-restore
+#            templateRef:
+#              name: test-tpl-at-verify-restore
+#              template: main
+#            arguments:
+#              parameters:
+#                - name: version_argo_tasks
+#                  value: "{{inputs.parameters.version_argo_tasks}}"
+#                - name: aws_role_config_path
+#                  value: 's3://linz-bucket-config/config-write.topographic.json, s3://linz-bucket-config/config-write.hydrographic.json'
+#                - name: manifest
+#                  value: "{{item}}"
+#            withParam: "{{inputs.parameters.inner_list}}"
+      - - name: placeholder-verify-restore
+          template: placeholder
+          arguments:
+            parameters:
+            - name: manifest
+              value: "{{item}}"
+          withParam: "{{inputs.parameters.inner_list}}"
+      - - name: placeholder-copy-parse
+          template: placeholder
+          arguments:
+            parameters:
+              - name: manifest
+                value: "{{item}}"
+          when: '{{steps.placeholder-verify-restore.outputs.result}} == true'
 
-    - name: verify-restore
+#          - name: copy
+#            templateRef:
+#                name: tpl-copy
+#                template: main
+#            arguments:
+#              parameters: # hardcode some values as they are specific for copying restored files
+#                - name: copy_option
+#                  value: '--force-no-clobber'
+#                - name: file
+#                  value: '{{item}}'
+#                - name: version_argo_tasks
+#                  value: '{{inputs.parameters.version_argo_tasks}}'
+#                - name: aws_role_config_path
+#                  value: 's3://linz-bucket-config/config-write.topographic.json, s3://linz-bucket-config/config-write.hydrographic.json'
+#            depends: 'verify-restore.Succeeded'
+#            when: '{{steps.verify-restore.outputs.parameters.status}} == true'
+
+    - name: placeholder-verify-restore
       inputs:
         parameters:
-          - name: version_argo_tasks
           - name: manifest
-      retryStrategy:
-        limit: '2' # force retrying this specific task
-      container:
-        image: '019359803926.dkr.ecr.ap-southeast-2.amazonaws.com/argo-tasks:{{=sprig.trim(inputs.parameters.version_argo_tasks)}}'
-        env:
-          - name: AWS_ROLE_CONFIG_PATH
-            value: s3://linz-bucket-config/config.json
-        args:
-          [
-            'verify-restore',
-            '--verbose',
-            '--mark-done',
-            '--output',
-            '/tmp/results.json',
-            '{{inputs.parameters.manifest}}',
-          ]
+      script:
+        image: python:alpine3.6
+        command: [python]
+        source: |
+          print(f"true")
+          with open("/tmp/result.json", "w") as f:
+              f.write(f"true")
       outputs:
         parameters:
-          - name: copy_manifest
+          - name: result
             valueFrom:
-              path: /tmp/results.json
+              path: /tmp/result.json
+          - name: manifest
+            value: "{{inputs.parameters.manifest}}"
+
+    - name: placeholder-copy-parse
+      script:
+        image: python:alpine3.6
+        command: [python]
+        source: |
+          print("true")
 
     - name: exit-handler
       retryStrategy:
