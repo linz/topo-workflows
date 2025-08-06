@@ -35,8 +35,13 @@ import { ArgoDbInstanceName, ArgoDbName, ArgoDbUser, CfnOutputKeys, ScratchBucke
 interface EksClusterProps extends StackProps {
   /** List of role ARNs to grant access to the cluster */
   maintainerRoleArns: string[];
+  /** S3 Batch Restore Role ARN */
+  s3BatchRestoreRoleArn: string;
+  /** Slack channel configuration for RDS alerts */
   slackChannelConfigurationName: string;
+  /** Slack workspace ID for RDS alerts */
   slackWorkspaceId: string;
+  /** Slack channel ID for RDS alerts */
   slackChannelId: string;
 }
 
@@ -54,6 +59,7 @@ export class LinzEksCluster extends Stack {
   vpc: IVpc;
   cluster: Cluster;
   nodeRole: Role;
+  s3BatchRestoreRoleArn: string;
 
   constructor(scope: Construct, id: string, props: EksClusterProps) {
     super(scope, id, props);
@@ -64,6 +70,8 @@ export class LinzEksCluster extends Stack {
     this.configBucket = Bucket.fromBucketName(this, 'BucketConfig', 'linz-bucket-config');
 
     this.vpc = Vpc.fromLookup(this, 'Vpc', { tags: { BaseVPC: 'true' } });
+
+    this.s3BatchRestoreRoleArn = props.s3BatchRestoreRoleArn;
 
     this.cluster = new Cluster(this, `Eks${id}`, {
       clusterName: id,
@@ -290,6 +298,20 @@ export class LinzEksCluster extends Stack {
     this.tempBucket.grantReadWrite(argoRunnerSa.role);
     // give permission to the sa to assume a role
     argoRunnerSa.role.addToPrincipalPolicy(new PolicyStatement({ actions: ['sts:AssumeRole'], resources: ['*'] }));
+    // give permission to the sa to create S3 Batch Operations jobs
+    argoRunnerSa.role.addToPrincipalPolicy(
+      new PolicyStatement({
+        actions: ['s3:CreateJob'],
+        resources: [`arn:aws:s3:${this.region}:${this.account}:job/*`],
+      }),
+    );
+    // give permission to the sa to pass the S3 Batch Operations job role
+    argoRunnerSa.role.addToPrincipalPolicy(
+      new PolicyStatement({
+        actions: ['iam:PassRole'],
+        resources: [this.s3BatchRestoreRoleArn],
+      }),
+    );
 
     /* Gives read access on ODR public buckets.
      * While those are public buckets, we still need to give permission to Argo
