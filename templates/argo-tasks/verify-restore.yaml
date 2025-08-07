@@ -36,6 +36,6 @@ spec:
           ]
       outputs:
         parameters:
-          - name: status
+          - name: result
             valueFrom:
-              path: /tmp/results.json
+              path: /tmp/result.json
