@@ -18,9 +18,6 @@ spec:
       - name: version_argo_tasks
         description: 'Specify a version of the argo-tasks image to use, e.g. "v4.1" or "latest"'
         value: 'v4'
-      - name: version_topo_imagery
-        description: 'Specify a version of the topo-imagery image to use, e.g. "v4.8" or "latest"'
-        value: 'v7'
       - name: reports_location
         description: 'Location of the archive restore report manifest files'
         value: 's3://linz-workflows-scratch/restore/requests/linz-topographic-archive/afage/'
@@ -38,8 +35,6 @@ spec:
         parameters:
           - name: version_argo_tasks
             value: '{{workflow.parameters.version_argo_tasks}}'
-          - name: version_topo_imagery
-            value: '{{workflow.parameters.version_topo_imagery}}'
           - name: reports_location
             value: '{{workflow.parameters.reports_location}}'
       dag:
