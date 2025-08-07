@@ -58,7 +58,7 @@ spec:
               parameters:
                 - name: version_argo_tasks
                   value: '{{inputs.parameters.version_argo_tasks}}'
-                - name: manifest
+                - name: manifests
                   value: '{{item}}'
             withParam: '{{tasks.list-manifests.outputs.parameters.manifest_list}}'
             depends: 'list-manifests.Succeeded'
@@ -95,6 +95,23 @@ spec:
       inputs:
         parameters:
           - name: version_argo_tasks
+          - name: manifests
+      dag:
+        tasks:
+          - name: verify-copy-item
+            arguments:
+              parameters:
+                - name: version_argo_tasks
+                  value: "{{inputs.parameters.version_argo_tasks}}"
+                - name: manifest
+                  value: "{{item}}"
+            template: verify-copy-item
+            withParam: "{{inputs.parameters.manifests}}"
+
+    - name: verify-copy-item
+      inputs:
+        parameters:
+          - name: version_argo_tasks
           - name: manifest
       steps:
       - - name: placeholder-verify-restore
@@ -102,8 +119,7 @@ spec:
           arguments:
             parameters:
             - name: restore_manifest
-              value: "{{item}}"
-          withParam: "{{inputs.parameters.manifest}}"
+              value: "{{inputs.parameters.manifest}}"
       - - name: placeholder-copy-parse
           template: placeholder-copy-parse
           arguments:
