@@ -1,0 +1,41 @@
+# yaml-language-server: $schema=https://raw.githubusercontent.com/argoproj/argo-workflows/v3.5.5/api/jsonschema/schema.json
+
+apiVersion: argoproj.io/v1alpha1
+kind: WorkflowTemplate
+metadata:
+  # Template from linz/argo-tasks
+  # see https://github.com/linz/argo-tasks#archive-setup
+  name: test-tpl-at-verify-restore
+spec:
+  templateDefaults:
+    container:
+      imagePullPolicy: Always
+      image: ''
+  entrypoint: main
+  templates:
+    - name: main
+      inputs:
+        parameters:
+          - name: version_argo_tasks
+          - name: restore_manifest
+      retryStrategy:
+        limit: '2' # force retrying this specific task
+      container:
+        image: '019359803926.dkr.ecr.ap-southeast-2.amazonaws.com/argo-tasks:{{=sprig.trim(inputs.parameters.version_argo_tasks)}}'
+        env:
+          - name: AWS_ROLE_CONFIG_PATH
+            value: s3://linz-bucket-config/config.json
+        args:
+          [
+            'verify-restore',
+            '--verbose',
+            '--mark-done',
+            '--output',
+            '/tmp/result.json',
+            '{{inputs.parameters.restore_manifest}}',
+          ]
+      outputs:
+        parameters:
+          - name: status
+            valueFrom:
+              path: /tmp/results.json

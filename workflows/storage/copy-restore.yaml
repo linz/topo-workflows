@@ -17,7 +17,10 @@ spec:
     parameters:
       - name: version_argo_tasks
         description: 'Specify a version of the argo-tasks image to use, e.g. "v4.1" or "latest"'
-        value: 'pr-1239'
+        value: 'v4'
+      - name: version_topo_imagery
+        description: 'Specify a version of the topo-imagery image to use, e.g. "v4.8" or "latest"'
+        value: 'v7'
       - name: reports_location
         description: 'Location of the archive restore report manifest files'
         value: 's3://linz-workflows-scratch/restore/requests/linz-topographic-archive/afage/'
@@ -35,6 +38,8 @@ spec:
         parameters:
           - name: version_argo_tasks
             value: '{{workflow.parameters.version_argo_tasks}}'
+          - name: version_topo_imagery
+            value: '{{workflow.parameters.version_topo_imagery}}'
           - name: reports_location
             value: '{{workflow.parameters.reports_location}}'
       dag:
@@ -47,15 +52,15 @@ spec:
                   value: '{{inputs.parameters.version_argo_tasks}}'
                 - name: reports_location
                   value: '{{inputs.parameters.reports_location}}'
-          - name: process-list
-            template: process-list
+          - name: verify-copy
+            template: verify-copy
             arguments:
               parameters:
                 - name: version_argo_tasks
                   value: '{{inputs.parameters.version_argo_tasks}}'
-                - name: inner_list
+                - name: manifest
                   value: '{{item}}'
-            withParam: '{{tasks.list-manifests.outputs.parameters.nested_list}}'
+            withParam: '{{tasks.list-manifests.outputs.parameters.manifest_list}}'
             depends: 'list-manifests.Succeeded'
 
     - name: list-manifests
@@ -82,72 +87,42 @@ spec:
           ]
       outputs:
         parameters:
-          - name: nested_list
+          - name: manifest_list
             valueFrom:
               path: /tmp/file_list.json
 
-    - name: process-list
+    - name: verify-copy
       inputs:
         parameters:
           - name: version_argo_tasks
-          - name: inner_list
+          - name: manifest
       steps:
-#        - - name: verify-restore
-#            templateRef:
-#              name: test-tpl-at-verify-restore
-#              template: main
-#            arguments:
-#              parameters:
-#                - name: version_argo_tasks
-#                  value: "{{inputs.parameters.version_argo_tasks}}"
-#                - name: aws_role_config_path
-#                  value: 's3://linz-bucket-config/config-write.topographic.json, s3://linz-bucket-config/config-write.hydrographic.json'
-#                - name: restore_manifest
-#                  value: "{{item}}"
-#            withParam: "{{inputs.parameters.inner_list}}"
       - - name: placeholder-verify-restore
           template: placeholder-verify-restore
           arguments:
             parameters:
             - name: restore_manifest
               value: "{{item}}"
-          withParam: "{{inputs.parameters.inner_list}}"
+          withParam: "{{inputs.parameters.manifest}}"
       - - name: placeholder-copy-parse
-          template: placeholder
+          template: placeholder-copy-parse
           arguments:
             parameters:
               - name: copy_manifest
-                value: "{{steps.placeholder-verify-restore.outputs.result}}"
-          when: '{{steps.placeholder-verify-restore.outputs.result}} == true'
-
-#          - name: copy
-#            templateRef:
-#                name: tpl-copy
-#                template: main
-#            arguments:
-#              parameters: # hardcode some values as they are specific for copying restored files
-#                - name: copy_option
-#                  value: '--force-no-clobber'
-#                - name: file
-#                  value: '{{item}}'
-#                - name: version_argo_tasks
-#                  value: '{{inputs.parameters.version_argo_tasks}}'
-#                - name: aws_role_config_path
-#                  value: 's3://linz-bucket-config/config-write.topographic.json, s3://linz-bucket-config/config-write.hydrographic.json'
-#            depends: 'verify-restore.Succeeded'
-#            when: '{{steps.verify-restore.outputs.parameters.result}} == true'
+                value: "{{steps.placeholder-verify-restore.outputs.parameters.manifest}}"
+          when: "{{steps.placeholder-verify-restore.outputs.parameters.result}} == true"
 
     - name: placeholder-verify-restore
       inputs:
         parameters:
           - name: restore_manifest
       script:
-        image: python:alpine3.6
+        image: python:3.9
         command: [python]
         source: |
-          print(f"true")
-          with open("/tmp/result.json", "w") as f:
-              f.write(f"true")
+            print(f"true")
+            with open("/tmp/result.json", "w") as f:
+                f.write(f"true")
       outputs:
         parameters:
           - name: result
@@ -177,3 +152,69 @@ spec:
                   value: '{{workflow.status}}'
                 - name: workflow_parameters
                   value: '{{workflow.parameters}}'
+
+#          - name: process-list
+#            template: process-list
+#            arguments:
+#              parameters:
+#                - name: version_topo_imagery
+#                  value: '{{inputs.parameters.version_topo_imagery}}'
+#                - name: manifest_list
+#                  value: '{{item}}'
+#            withParam: '{{tasks.list-manifests.outputs.parameters.manifest_list}}'
+#            depends: 'list-manifests.Succeeded'
+#
+#    - name: process-list
+#      inputs:
+#        parameters:
+#          - name: version_topo_imagery
+#          - name: manifest_list
+#      script:
+#        image: '019359803926.dkr.ecr.ap-southeast-2.amazonaws.com/topo-imagery:{{=sprig.trim(inputs.parameters.version_topo_imagery)}}'
+#        command: [ python ]
+#        source: |
+#          import json
+#          data = json.loads('{{inputs.parameters.manifest_list}}')
+#          print(data)
+#          with open("/tmp/manifests.json", "w") as f:
+#            json.dump(data, f)
+#      outputs:
+#        parameters:
+#          - name: manifests
+#            valueFrom:
+#              path: /tmp/manifests.json
+#          - name: manifest_from_input_parameter
+#            value: '{{inputs.parameters.manifest_list}}'
+
+
+
+#        - - name: verify-restore
+#            templateRef:
+#              name: test-tpl-at-verify-restore
+#              template: main
+#            arguments:
+#              parameters:
+#                - name: version_argo_tasks
+#                  value: "{{inputs.parameters.version_argo_tasks}}"
+#                - name: aws_role_config_path
+#                  value: 's3://linz-bucket-config/config-write.topographic.json, s3://linz-bucket-config/config-write.hydrographic.json'
+#                - name: restore_manifest
+#                  value: "{{item}}"
+#            withParam: "{{inputs.parameters.inner_list}}"
+
+#          - name: copy
+#            templateRef:
+#                name: tpl-copy
+#                template: main
+#            arguments:
+#              parameters: # hardcode some values as they are specific for copying restored files
+#                - name: copy_option
+#                  value: '--force-no-clobber'
+#                - name: file
+#                  value: '{{item}}'
+#                - name: version_argo_tasks
+#                  value: '{{inputs.parameters.version_argo_tasks}}'
+#                - name: aws_role_config_path
+#                  value: 's3://linz-bucket-config/config-write.topographic.json, s3://linz-bucket-config/config-write.hydrographic.json'
+#            depends: 'verify-restore.Succeeded'
+#            when: '{{steps.verify-restore.outputs.parameters.result}} == true'
