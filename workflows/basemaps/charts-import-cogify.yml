@@ -36,7 +36,7 @@ spec:
     parameters:
       - name: version_basemaps_cli
         description: Version of the basemaps CLI docker container to use
-        value: pr-3483
+        value: v8
 
       - name: version_argo_tasks
         description: Version of the argo-tasks CLI docker container to use
@@ -55,15 +55,8 @@ spec:
         value: ''
 
       - name: source
-        description: Source imagery file location "s3://linz-hydrographic-upload/charts/NChart1200/CK141-1.tif"
+        description: Source imagery file location, i.e: "s3://linz-hydrographic-upload/charts/NChart1200/CK141-1.tif"
         value: 's3://linz-hydrographic-upload/charts/NChart1200/CK141-1.tif'
-
-      - name: create_pull_request
-        description: 'Create pull request after importing imagery.'
-        value: 'true'
-        enum:
-          - 'true'
-          - 'false'
 
       - name: target
         description: Target location for output COGs
