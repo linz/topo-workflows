@@ -114,7 +114,7 @@ spec:
         description: 'EPSG of the standardised output files'
         value: '2193'
       - name: group
-    description: 'How many output tiles to process in each standardise-validate task "pod". Change if you have resource or performance issues when standardising a dataset.'
+        description: 'How many output tiles to process in each standardise-validate task "pod". Change if you have resource or performance issues when standardising a dataset.'
         value: '50'
       - name: compression
         description: 'Compression type to use when standardising TIFFs, e.g. "webp" for imagery or "dem_lerc" for elevation data'
@@ -470,7 +470,6 @@ spec:
                 - name: collection_id
                   value: '{{tasks.stac-setup.outputs.parameters.collection_id}}'
                 - name: linz_slug
-
                   value: '{{tasks.stac-setup.outputs.parameters.linz_slug}}'
                 - name: location
                   value: '{{=sprig.trimSuffix("/", tasks["get-location"].outputs.parameters.location)}}/flat/'
