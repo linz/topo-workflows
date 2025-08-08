@@ -1,0 +1,72 @@
+# yaml-language-server: $schema=https://raw.githubusercontent.com/argoproj/argo-workflows/v3.5.5/api/jsonschema/schema.json
+
+apiVersion: argoproj.io/v1alpha1
+kind: WorkflowTemplate
+metadata:
+  # Template for listing files in a S3 location
+  # See https://github.com/linz/argo-tasks#list
+  name: tpl-at-list
+spec:
+  templateDefaults:
+    container:
+      imagePullPolicy: Always
+      image: ''
+  entrypoint: main
+  templates:
+    - name: main
+      inputs:
+        parameters:
+          - name: location
+            description: location of data to list
+
+          - name: version_argo_tasks
+            description: version of argo-tasks to use
+            default: 'v4'
+
+          - name: include
+            description: A regular expression to match object path(s) or name(s) to include in the list
+            default: ''
+
+          - name: exclude
+            description: A regular expression to match object path(s) or name(s) to exclude from the list
+            default: ''
+
+          - name: group
+            description: Group files by this many files (will use the value of `group` or `group_size` that is reached first)
+            default: '1000'
+
+          - name: group_size
+            description: Group the files into this size per group (will use the value of `group` or `group_size` that is reached first)
+            default: '100Gi'
+
+          - name: aws_role_config_path
+            description: s3 URL or comma-separated list of s3 URLs of roles config files allowing the workflow to read from a location
+            default: ''
+
+      outputs:
+        parameters:
+          - name: files
+            valueFrom:
+              path: /tmp/file_list.json
+
+      container:
+        image: '019359803926.dkr.ecr.ap-southeast-2.amazonaws.com/argo-tasks:{{=sprig.trim(inputs.parameters.version_argo_tasks)}}'
+        env:
+          - name: AWS_ROLE_CONFIG_PATH
+            value: '{{inputs.parameters.aws_role_config_path}},s3://linz-bucket-config/config.json'
+        args:
+          [
+            'list',
+            '--verbose',
+            '--include',
+            '{{=sprig.trim(inputs.parameters.include)}}',
+            '--exclude',
+            '{{=sprig.trim(inputs.parameters.exclude)}}',
+            '--group',
+            '{{=sprig.trim(inputs.parameters.group)}}',
+            '--group-size',
+            '{{=sprig.trim(inputs.parameters.group_size)}}',
+            '--output',
+            '/tmp/file_list.json',
+            '{{=sprig.trim(inputs.parameters.location)}}',
+          ]

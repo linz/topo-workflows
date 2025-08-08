@@ -4,8 +4,8 @@ apiVersion: argoproj.io/v1alpha1
 kind: WorkflowTemplate
 metadata:
   # Template from linz/argo-tasks
-  # see https://github.com/linz/argo-tasks#archive-setup
-  name: test-tpl-at-verify-restore
+  # see https://github.com/linz/argo-tasks#verify-restore
+  name: tpl-at-verify-restore
 spec:
   templateDefaults:
     container:
@@ -17,14 +17,21 @@ spec:
       inputs:
         parameters:
           - name: version_argo_tasks
+            description: Version of argo-tasks to use
+            default: 'v4'
           - name: restore_manifest
+            description: S3 path to the restore manifest file
+            default: ''
+          - name: aws_role_config_path
+            description: s3 URL or comma-separated list of s3 URLs allowing the workflow to read from a location
+            default: ''
       retryStrategy:
         limit: '2' # force retrying this specific task
       container:
         image: '019359803926.dkr.ecr.ap-southeast-2.amazonaws.com/argo-tasks:{{=sprig.trim(inputs.parameters.version_argo_tasks)}}'
         env:
           - name: AWS_ROLE_CONFIG_PATH
-            value: s3://linz-bucket-config/config.json
+            value: '{{inputs.parameters.aws_role_config_path}},s3://linz-bucket-config/config.json'
         args:
           [
             'verify-restore',
@@ -37,5 +44,9 @@ spec:
       outputs:
         parameters:
           - name: result
+            description: Result of the restore verification
             valueFrom:
               path: /tmp/result.json
+          - name: location
+            description: Location of the restore report
+            value: '{{=sprig.dir(inputs.parameters.restore_manifest)}}/'
