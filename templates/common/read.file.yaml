@@ -1,0 +1,30 @@
+# yaml-language-server: $schema=https://raw.githubusercontent.com/argoproj/argo-workflows/v3.5.5/api/jsonschema/schema.json
+
+apiVersion: argoproj.io/v1alpha1
+kind: WorkflowTemplate
+metadata:
+  # Template to output the content of a file in S3
+  name: tpl-read-file
+spec:
+  templateDefaults:
+    container:
+      imagePullPolicy: Always
+      image: ''
+  entrypoint: main
+  templates:
+    - name: main
+      inputs:
+        parameters:
+          - name: location
+            description: Location of the file to read
+            default: ''
+      outputs:
+        parameters:
+          - name: content
+            valueFrom:
+              path: '/tmp/content'
+      script:
+        image: 'public.ecr.aws/aws-cli/aws-cli:2.27.62'
+        command: [sh, -c]
+        source: |
+          aws s3 cp '{{inputs.parameters.location}}' /tmp/content
