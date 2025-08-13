@@ -93,7 +93,7 @@ spec:
                 - name: archive_directory
                   value: '{{=sprig.trimSuffix("/",sprig.trimPrefix("/",workflow.parameters.archive_directory))}}'
                 - name: archive_path
-                  value: '{{workflow.parameters.archive_bucket}}/{{=sprig.trimSuffix("/",sprig.trimPrefix("/",workflow.parameters.archive_directory))}}'
+                  value: '{{workflow.parameters.archive_bucket}}/{{=sprig.trimSuffix("/",sprig.trimPrefix("/",sprig.trim(workflow.parameters.archive_directory)))}}'
                 - name: retrieval_tier
                   value: '{{= workflow.parameters.urgent == "true" ? "STANDARD" : "BULK"}}'
                 - name: manifest_list
