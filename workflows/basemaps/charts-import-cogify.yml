@@ -1,0 +1,229 @@
+# yaml-language-server: $schema=https://raw.githubusercontent.com/argoproj/argo-workflows/v3.5.5/api/jsonschema/schema.json
+
+apiVersion: argoproj.io/v1alpha1
+kind: WorkflowTemplate
+metadata:
+  name: basemaps-charts-import-cogify
+  labels:
+    linz.govt.nz/category: basemaps
+    linz.govt.nz/data-type: raster
+spec:
+  parallelism: 100
+  entrypoint: main
+  onExit: exit-handler
+  synchronization:
+    semaphore:
+      configMapKeyRef:
+        name: semaphores
+        key: basemaps_import
+  templateDefaults:
+    container:
+      imagePullPolicy: Always
+      image: ''
+  workflowMetadata:
+    labelsFrom:
+      linz.govt.nz/user-group:
+        expression: workflow.parameters.user_group
+      linz.govt.nz/ticket:
+        expression: workflow.parameters.ticket
+  podMetadata:
+    labels:
+      linz.govt.nz/user-group: '{{workflow.parameters.user_group}}'
+      linz.govt.nz/category: basemaps
+      linz.govt.nz/data-type: raster
+      linz.govt.nz/ticket: '{{workflow.parameters.ticket}}'
+  arguments:
+    parameters:
+      - name: version_basemaps_cli
+        description: Version of the basemaps CLI docker container to use
+        value: v8
+
+      - name: version_argo_tasks
+        description: Version of the argo-tasks CLI docker container to use
+        value: v4
+
+      - name: user_group
+        description: Group of users running the workflow
+        value: 'none'
+        enum:
+          - 'land'
+          - 'sea'
+          - 'none'
+
+      - name: ticket
+        description: Ticket ID e.g. 'AIP-55'
+        value: ''
+
+      - name: source
+        description: Source imagery file location, "s3://linz-hydrographic-upload/charts/NChart1200/CK141-1.tif"
+        value: 's3://linz-hydrographic-upload/charts/NChart1200/CK141-1.tif'
+
+      - name: target
+        description: Target location for output COGs
+        value: 's3://linz-basemaps-staging/'
+        enum:
+          - 's3://linz-basemaps/'
+          - 's3://linz-basemaps-staging/'
+          - 's3://linz-workflows-scratch/'
+
+      - name: tile_matrix
+        description: Output tile matrix, ";" separated list
+        value: 'NZTM2000Quad;WebMercatorQuad'
+        enum:
+          - 'NZTM2000Quad'
+          - 'WebMercatorQuad'
+          - 'NZTM2000Quad;WebMercatorQuad'
+
+      - name: cutline
+        description: Path to cutline to apply
+        value: 's3://linz-hydrographic-upload/charts/RNCPANEL/'
+
+      - name: buffer_pixels
+        description: Buffer in pixels to apply to cutline
+        value: '10'
+
+      - name: group_size
+        description: How many items to pass to each create-cog job
+        value: '20'
+
+      - name: create_overview
+        description: 'Create overview after importing imagery.'
+        value: 'true'
+        enum:
+          - 'true'
+          - 'false'
+
+  templates:
+    # Main entrypoint into the workflow
+    - name: main
+      retryStrategy:
+        expression: 'false'
+      inputs:
+        parameters:
+          - name: source
+          - name: target
+          - name: tile_matrix
+          - name: cutline
+          - name: buffer_pixels
+          - name: group_size
+      dag:
+        tasks:
+          - name: import-charts
+            template: import-charts
+            withParam: "{{= toJson(sprig.splitList(';', inputs.parameters.tile_matrix)) }}"
+            arguments:
+              parameters:
+                - name: source
+                  value: '{{ inputs.parameters.source }}'
+                - name: target
+                  value: '{{ inputs.parameters.target }}'
+                - name: cutline
+                  value: '{{ inputs.parameters.cutline }}'
+                - name: buffer_pixels
+                  value: '{{ inputs.parameters.buffer_pixels }}'
+                - name: tile_matrix
+                  value: '{{ item }}'
+                - name: group_size
+                  value: '{{ inputs.parameters.group_size }}'
+
+    - name: import-charts
+      inputs:
+        parameters:
+          - name: source
+          - name: target
+          - name: cutline
+          - name: buffer_pixels
+          - name: tile_matrix
+          - name: group_size
+      dag:
+        tasks:
+          - name: charts
+            template: charts
+            arguments:
+              parameters:
+                - name: source
+                  value: '{{ inputs.parameters.source }}'
+                - name: target
+                  value: 's3://linz-workflows-scratch/charts/'
+                - name: cutline
+                  value: '{{ inputs.parameters.cutline }}'
+                - name: buffer_pixels
+                  value: '{{ inputs.parameters.buffer_pixels }}'
+                - name: tile_matrix
+                  value: '{{ inputs.parameters.tile_matrix }}'
+          - name: cogify
+            templateRef:
+              name: tpl-bm-cogify
+              template: main
+            withParam: '{{ tasks.charts.outputs.parameters.output }}'
+            arguments:
+              parameters:
+                - name: source
+                  value: '{{ item }}'
+                - name: target
+                  value: '{{ inputs.parameters.target }}'
+                - name: tile_matrix
+                  value: '{{ inputs.parameters.tile_matrix }}'
+                - name: group_size
+                  value: '{{ inputs.parameters.group_size }}'
+                - name: require_stac_collection
+                  value: 'true'
+                - name: cutline
+                  value: ''
+                - name: cutline_blend
+                  value: 0
+                - name: preset
+                  value: 'webp'
+                - name: base_zoom_offset
+                  value: ''
+                - name: background
+                  value: ''
+            depends: 'charts'
+
+    - name: charts
+      inputs:
+        parameters:
+          - name: source
+          - name: target
+          - name: cutline
+          - name: buffer_pixels
+          - name: tile_matrix
+      container:
+        resources:
+          requests:
+            memory: 30Gi
+            cpu: 15000m # AWS gives 2x cpu cores = memory for most instances
+            ephemeral-storage: 98Gi # 2 pods per 200GB of storage
+        image: ghcr.io/linz/basemaps/cli:{{ workflow.parameters.version_basemaps_cli }}
+        command: [node, index.cjs]
+        env:
+          - name: AWS_ROLE_CONFIG_PATH
+            value: s3://linz-bucket-config/config.json
+        args:
+          - 'cogify'
+          - 'charts'
+          - '--tile-matrix={{ inputs.parameters.tile_matrix }}'
+          - '--target={{ inputs.parameters.target }}'
+          - '--cutline={{ inputs.parameters.cutline }}'
+          - '--buffer-pixels={{ inputs.parameters.buffer_pixels }}'
+          - '{{ inputs.parameters.source }}'
+      outputs:
+        parameters:
+          - name: output
+            valueFrom:
+              path: /tmp/extract/output.json
+
+    - name: exit-handler
+      retryStrategy:
+        limit: '0' # `tpl-exit-handler` retries itself
+      steps:
+        - - name: exit
+            templateRef:
+              name: tpl-exit-handler
+              template: main
+            arguments:
+              parameters:
+                - name: workflow_status
+                  value: '{{workflow.status}}'
+                - name: workflow_parameters
+                  value: '{{workflow.parameters}}'

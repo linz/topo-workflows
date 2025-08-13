@@ -71,7 +71,7 @@ spec:
         enum:
           - 's3://linz-basemaps/'
           - 's3://linz-basemaps-staging/'
-          - 's3://linz-workflowsnp-scratch/'
+          - 's3://linz-workflows-scratch/'
 
       - name: tile_matrix
         description: Output tile matrix, ";" separated list
