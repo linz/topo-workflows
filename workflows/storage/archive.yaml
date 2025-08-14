@@ -92,7 +92,7 @@ spec:
                 - name: exclude
                   value: ''
                 - name: copy_option
-                  value: '--force-no-clobber'
+                  value: '--force-no-clobber' # TODO: verify how this is handled by `copy` with `--compress`
                 - name: flatten
                   value: 'false'
                 - name: group
