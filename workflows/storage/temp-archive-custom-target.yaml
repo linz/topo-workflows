@@ -1,0 +1,144 @@
+# yaml-language-server: $schema=https://raw.githubusercontent.com/argoproj/argo-workflows/v3.5.5/api/jsonschema/schema.json
+
+apiVersion: argoproj.io/v1alpha1
+kind: WorkflowTemplate
+metadata:
+  name: temp-archive-custom-target
+spec:
+  parallelism: 50
+  nodeSelector:
+    karpenter.sh/capacity-type: 'spot'
+  entrypoint: main
+  onExit: exit-handler
+  workflowMetadata:
+    labelsFrom:
+      linz.govt.nz/user-group:
+        expression: workflow.parameters.user_group
+      linz.govt.nz/ticket:
+        expression: workflow.parameters.ticket
+  podMetadata:
+    labels:
+      linz.govt.nz/user-group: '{{workflow.parameters.user_group}}'
+      linz.govt.nz/category: storage
+      linz.govt.nz/ticket: '{{workflow.parameters.ticket}}'
+  arguments:
+    parameters:
+      - name: version_argo_tasks
+        value: 'v4'
+      - name: user_group
+        description: Group of users running the workflow
+        value: 'none'
+        enum:
+          - 'land'
+          - 'sea'
+          - 'none'
+      - name: ticket
+        description: Ticket ID e.g. 'AIP-55'
+        value: ''
+      - name: source
+        description: Path where the files to be archived are located
+        value: ''
+      - name: target
+        description: Custom target path that the files will be archived to
+        value: ''
+      - name: group
+        value: '1000'
+      - name: group_size
+        value: '100Gi'
+  templateDefaults:
+    container:
+      imagePullPolicy: Always
+      image: ''
+
+  templates:
+    - name: main
+      retryStrategy:
+        expression: 'false'
+      inputs:
+        parameters:
+          - name: source
+            value: '{{workflow.parameters.source}}'
+          - name: target
+            value: '{{workflow.parameters.target}}'
+          - name: group
+            value: '{{workflow.parameters.group}}'
+            default: '1000'
+          - name: group_size
+            value: '{{workflow.parameters.group_size}}'
+            default: '100Gi'
+          - name: version_argo_tasks
+            value: '{{workflow.parameters.version_argo_tasks}}'
+            default: 'v4'
+      dag:
+        tasks:
+          - name: check-source
+            template: check-source
+            arguments:
+              parameters:
+                - name: source
+                  value: '{{inputs.parameters.source}}'
+                - name: version_argo_tasks
+                  value: '{{inputs.parameters.version_argo_tasks}}'
+          - name: copy
+            depends: 'check-source.Succeeded'
+            templateRef:
+              name: copy
+              template: main
+            arguments:
+              parameters: # hardcode some values as they are specific for archiving
+                - name: source
+                  value: '{{inputs.parameters.source}}'
+                - name: target
+                  value: '{{inputs.parameters.target}}'
+                - name: include
+                  value: ''
+                - name: exclude
+                  value: ''
+                - name: copy_option
+                  value: '--force-no-clobber' # TODO: verify how this is handled by `copy` with `--compress`
+                - name: flatten
+                  value: 'false'
+                - name: group
+                  value: '{{inputs.parameters.group}}'
+                - name: group_size
+                  value: '{{inputs.parameters.group_size}}'
+                - name: transform
+                  value: 'f'
+                - name: version_argo_tasks
+                  value: '{{inputs.parameters.version_argo_tasks}}'
+                - name: aws_role_config_path
+                  value: 's3://linz-bucket-config/config-write.topographic.json, s3://linz-bucket-config/config-write.hydrographic.json'
+                - name: compress
+                  value: 'true'
+                - name: delete_source
+                  value: 'true'
+
+    - name: check-source
+      inputs:
+        parameters:
+          - name: source
+          - name: version_argo_tasks
+      script:
+        image: '019359803926.dkr.ecr.ap-southeast-2.amazonaws.com/argo-tasks:{{= inputs.parameters.version_argo_tasks }}'
+        command: [node]
+        source: |
+          import { isSafePath } from '../../app/commands/archive-setup/archive.setup.ts';
+          const source = new URL('{{inputs.parameters.source}}');
+          if (!isSafePath(source)) {
+            throw new Error(`The path ${source.toString()} is not safe for archiving. Please check the path.`);
+          }
+
+    - name: exit-handler
+      retryStrategy:
+        limit: '0' # `tpl-exit-handler` retries itself
+      steps:
+        - - name: exit
+            templateRef:
+              name: tpl-exit-handler
+              template: main
+            arguments:
+              parameters:
+                - name: workflow_status
+                  value: '{{workflow.status}}'
+                - name: workflow_parameters
+                  value: '{{workflow.parameters}}'
