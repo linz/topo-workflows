@@ -47,6 +47,3 @@ spec:
             description: Result of the restore verification
             valueFrom:
               path: /tmp/result.json
-          - name: location
-            description: Location of the restore report
-            value: '{{=sprig.dir(inputs.parameters.restore_manifest)}}/'

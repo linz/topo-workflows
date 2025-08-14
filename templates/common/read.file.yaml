@@ -25,6 +25,6 @@ spec:
               path: '/tmp/content'
       script:
         image: 'public.ecr.aws/aws-cli/aws-cli:2.27.62'
-        command: [sh, -c]
+        command: [sh]
         source: |
           aws s3 cp '{{inputs.parameters.location}}' /tmp/content
