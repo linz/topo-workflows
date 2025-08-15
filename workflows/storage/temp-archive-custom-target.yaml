@@ -46,7 +46,7 @@ spec:
       - name: group_size
         value: '100Gi'
       - name: check_source_path
-        description: Check that the source path is safe to archive e.g. not the whole bucket
+        description: Check that the source path is safe to archive e.g. not the whole bucket or top-level folder
         value: 'true'
         enum:
           - 'true'
