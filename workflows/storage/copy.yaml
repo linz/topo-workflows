@@ -89,7 +89,7 @@ spec:
       - name: group
         value: '1000'
       - name: group_size
-        value: '100Gi'
+        value: '50Gi'
       - name: transform
         value: 'f'
       - name: aws_role_config_path
