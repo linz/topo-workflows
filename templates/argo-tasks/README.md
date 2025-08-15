@@ -5,6 +5,7 @@
 - [Group](##argo-tasks/group)
 - [Copy](##argo-tasks/copy)
 - [Create Manifest](##argo-tasks/create-manifest)
+- [Delete](##argo-task/delete)
 - [Push to Github](##argo-tasks/push-to-github)
 - [Generate Path](##argo-tasks/generate-path)
 - [STAC setup](##argo-tasks/stac-setup)
@@ -156,6 +157,34 @@ Create a manifest file for a user specified source and target that includes `.ti
         value: '100Gi'
       - name: version_argo_tasks
         value: '{{workflow.parameters.version_argo_tasks}}'
+```
+
+## argo-tasks/delete - `tpl-delete`
+
+Template for deleting files that are `source` in a manifest
+See https://github.com/linz/argo-tasks#delete
+
+### Template usage
+
+Delete the `source` entries in a manifest file.
+
+```yaml
+- name: delete
+  templateRef:
+    name: tpl-delete
+    template: main
+  arguments:
+    parameters:
+      - name: dry_run
+        value: 'false'
+      - name: file
+        value: '{{item}}'
+      - name: aws_role_config_path
+        value: 's3://linz-bucket-config/config-write.topographic.json'
+      - name: version_argo_tasks
+        value: '{{workflow.parameters.version_argo_tasks}}'
+  depends: 'create-manifest'
+  withParam: '{{tasks.create-manifest.outputs.parameters.files}}'
 ```
 
 ## argo-tasks/push-to-github - `tpl-push-to-github`
