@@ -57,9 +57,9 @@ spec:
       inputs:
         parameters:
           - name: source
-            value: '{{workflow.parameters.source}}'
+            value: '{{=sprig.trim(workflow.parameters.source)}}'
           - name: target
-            value: '{{workflow.parameters.target}}'
+            value: '{{=sprig.trim(workflow.parameters.target)}}'
           - name: group
             value: '{{workflow.parameters.group}}'
             default: '1000'
@@ -107,7 +107,7 @@ spec:
                 - name: version_argo_tasks
                   value: '{{inputs.parameters.version_argo_tasks}}'
                 - name: aws_role_config_path
-                  value: 's3://linz-bucket-config/config-write.topographic.json, s3://linz-bucket-config/config-write.hydrographic.json'
+                  value: 's3://linz-bucket-config/config-write.elevation.json,s3://linz-bucket-config/config-write.imagery.json,s3://linz-bucket-config/config-write.topographic.json,s3://linz-bucket-config/config-write.hydrographic.json'
                 - name: compress
                   value: 'true'
                 - name: delete_source
