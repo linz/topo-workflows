@@ -45,6 +45,12 @@ spec:
         value: '1000'
       - name: group_size
         value: '100Gi'
+      - name: check_source_path
+        description: Check that the source path is safe to archive e.g. not the whole bucket
+        value: 'true'
+        enum:
+          - 'true'
+          - 'false'
   templateDefaults:
     container:
       imagePullPolicy: Always
@@ -69,6 +75,9 @@ spec:
           - name: version_argo_tasks
             value: '{{workflow.parameters.version_argo_tasks}}'
             default: 'v4'
+          - name: check_source_path
+            value: '{{workflow.parameters.check_source_path}}'
+            default: 'true'
       dag:
         tasks:
           - name: check-source
@@ -79,8 +88,9 @@ spec:
                   value: '{{inputs.parameters.source}}'
                 - name: version_argo_tasks
                   value: '{{inputs.parameters.version_argo_tasks}}'
+            when: '{{inputs.parameters.check_source_path}} == true'
           - name: copy
-            depends: 'check-source.Succeeded'
+            depends: 'check-source'
             templateRef:
               name: copy
               template: main
