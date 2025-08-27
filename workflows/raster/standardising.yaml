@@ -135,6 +135,9 @@ spec:
       - name: odr_url
         description: '(Optional) If an existing dataset add the S3 path to the dataset here to load existing metadata e.g. "s3://nz-imagery/taranaki/new-plymouth_2017_0.1m/rgb/2193/"'
         value: ''
+      - name: supplied_capture_area
+        description: '(Optional) location of a supplied GeoJSON capture area file. Must be EPSG:4326'
+        value: ''
       - name: delete_all_existing_items
         description: 'Delete all existing items in the collection before adding new items. Only when re-supplying existing datasets.'
         value: 'false'
@@ -447,6 +450,8 @@ spec:
                   value: '{{=sprig.trim(workflow.parameters.create_capture_area)}}'
                 - name: cutline
                   value: '{{=sprig.trim(workflow.parameters.cutline)}}'
+                - name: supplied_capture_area
+                  value: '{{=sprig.trim(workflow.parameters.supplied_capture_area)}}'
                 - name: gsd
                   value: '{{=sprig.trim(workflow.parameters.gsd)}}'
                 - name: source_epsg
@@ -477,6 +482,8 @@ spec:
                   value: '{{tasks.stac-setup.finishedAt}}'
                 - name: odr_url
                   value: '{{=sprig.trim(workflow.parameters.odr_url)}}'
+                - name: supplied_capture_area
+                  value: '{{=sprig.trim(workflow.parameters.supplied_capture_area)}}'
                 - name: delete_all_existing_items
                   value: '{{=sprig.trim(workflow.parameters.delete_all_existing_items)}}'
                 - name: category
