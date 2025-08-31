@@ -2,7 +2,7 @@
 apiVersion: argoproj.io/v1alpha1
 kind: CronWorkflow
 metadata:
-  name: national-dem-coastal
+  name: cron-national-dem-coastal
   labels:
     linz.govt.nz/category: raster
     linz.govt.nz/data-type: raster
