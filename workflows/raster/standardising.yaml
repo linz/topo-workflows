@@ -136,7 +136,7 @@ spec:
         description: '(Optional) If an existing dataset add the S3 path to the dataset here to load existing metadata e.g. "s3://nz-imagery/taranaki/new-plymouth_2017_0.1m/rgb/2193/"'
         value: ''
       - name: supplied_capture_area
-        description: '(Optional) location of a supplied GeoJSON capture area file. Must be EPSG:4326'
+        description: '(Optional) location of a supplied GeoJSON capture area file. Must be EPSG:4326. This will be used instead of generating a capture area from the TIFFs. If odr-url is supplied, the existing and supplied capture areas will be merged.'
         value: ''
       - name: delete_all_existing_items
         description: 'Delete all existing items in the collection before adding new items. Only when re-supplying existing datasets.'

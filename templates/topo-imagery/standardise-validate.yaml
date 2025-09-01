@@ -61,7 +61,7 @@ spec:
             default: ''
 
           - name: supplied_capture_area
-            description: '(Optional) location of a supplied GeoJSON capture area file. Must be EPSG:4326'
+            description: '(Optional) location of a supplied GeoJSON capture area file. Must be EPSG:4326. This will be used instead of generating a capture area from the TIFFs. If odr-url is supplied, the existing and supplied capture areas will be merged.'
             default: ''
 
           - name: gsd
