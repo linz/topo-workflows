@@ -74,7 +74,18 @@ spec:
             default: 'v4'
       dag:
         tasks:
+          - name: archive-setup
+            templateRef:
+              name: tpl-at-archive-setup
+              template: main
+            arguments:
+              parameters:
+                - name: source
+                  value: '{{inputs.parameters.source}}'
+                - name: version
+                  value: '{{inputs.parameters.version_argo_tasks}}'
           - name: copy
+            depends: 'archive-setup.Succeeded'
             templateRef:
               name: copy
               template: main
