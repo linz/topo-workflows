@@ -201,6 +201,7 @@ spec:
                 - name: status
                   value: '{{tasks.copy.status}}'
             depends: 'copy'
+            when: '"{{inputs.parameters.set_status}}" == "true"'
 
     - name: copy-status
       inputs:
