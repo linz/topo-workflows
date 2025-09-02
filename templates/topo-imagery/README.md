@@ -90,6 +90,8 @@ See [collection_from_items.py](https://github.com/linz/topo-imagery/blob/master/
         value: '{{tasks.stac-setup.finishedAt}}'
       - name: odr_url
         value: '{{=sprig.trim(workflow.parameters.odr_url)}}'
+      - name: supplied_capture_area
+        value: '{{=sprig.trim(workflow.parameters.supplied_capture_area)}}'
       - name: delete_all_existing_items
         value: '{{=sprig.trim(workflow.parameters.delete_all_existing_items)}}'
       - name: category
