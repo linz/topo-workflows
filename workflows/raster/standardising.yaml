@@ -447,11 +447,9 @@ spec:
                 - name: end_datetime
                   value: '{{=sprig.trim(workflow.parameters.end_datetime)}}'
                 - name: create_capture_area
-                  value: '{{=sprig.trim(workflow.parameters.create_capture_area)}}'
+                  value: '{{=workflow.parameters.supplied_capture_area != "" ? "false" : sprig.trim(workflow.parameters.create_capture_area)}}'
                 - name: cutline
                   value: '{{=sprig.trim(workflow.parameters.cutline)}}'
-                - name: supplied_capture_area
-                  value: '{{=sprig.trim(workflow.parameters.supplied_capture_area)}}'
                 - name: gsd
                   value: '{{=sprig.trim(workflow.parameters.gsd)}}'
                 - name: source_epsg

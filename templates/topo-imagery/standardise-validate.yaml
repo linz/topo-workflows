@@ -60,10 +60,6 @@ spec:
             description: '(Optional) location of a cutline file to cut the imagery to .fgb or .geojson'
             default: ''
 
-          - name: supplied_capture_area
-            description: '(Optional) location of a supplied GeoJSON capture area file. Must be EPSG:4326. This will be used instead of generating a capture area from the TIFFs. If odr-url is provided, the existing and supplied capture areas will be merged.'
-            default: ''
-
           - name: gsd
             description: 'Dataset GSD in metres, e.g., "0.3" for 30 centimetres'
             default: ''
@@ -108,8 +104,6 @@ spec:
           - '{{inputs.parameters.create_capture_area}}'
           - '--cutline'
           - '{{=sprig.trim(inputs.parameters.cutline)}}'
-          - '--supplied-capture-area'
-          - '{{=sprig.trim(inputs.parameters.supplied_capture_area)}}'
           - '--source-epsg'
           - '{{=sprig.trim(inputs.parameters.source_epsg)}}'
           - '--target-epsg'
