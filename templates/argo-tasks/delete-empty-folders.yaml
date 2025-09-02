@@ -1,0 +1,42 @@
+# yaml-language-server: $schema=https://raw.githubusercontent.com/argoproj/argo-workflows/v3.5.5/api/jsonschema/schema.json
+
+apiVersion: argoproj.io/v1alpha1
+kind: WorkflowTemplate
+metadata:
+  # Template from linz/argo-tasks
+  name: tpl-at-delete-empty-folders
+spec:
+  templateDefaults:
+    container:
+      imagePullPolicy: Always
+      image: ''
+  entrypoint: main
+  templates:
+    - name: main
+      inputs:
+        parameters:
+          - name: location
+            description: Location of the folder to delete
+            default: ''
+
+          - name: dry_run
+            description: Do not delete files, just report what would be deleted
+            default: 'true'
+
+          - name: version
+            description: container version to use
+            default: 'v4'
+
+          - name: aws_role_config_path
+            description: s3 URL or comma-separated list of s3 URLs allowing the workflow to write to a target(s)
+            value: 's3://linz-bucket-config/config.json'
+
+      container:
+        image: '019359803926.dkr.ecr.ap-southeast-2.amazonaws.com/argo-tasks:{{=sprig.trim(inputs.parameters.version)}}'
+        env:
+          - name: AWS_ROLE_CONFIG_PATH
+            value: '{{inputs.parameters.aws_role_config_path}}'
+        args:
+          - 'delete-empty-folders'
+          - '--dry-run={{inputs.parameters.dry_run}}'
+          - '{{inputs.parameters.location}}'

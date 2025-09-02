@@ -20,7 +20,7 @@ Archive files from a S3 location (for example `s3://linz-*-upload/[provider]/[su
 
 ```mermaid
 graph TD;
-  archive-setup-->create-manifest-->copy;
+  archive-setup-->create-manifest-->copy-->|cleanup == 'true'|cleanup;
 ```
 
 This is a workflow that calls the `copy` workflow with `--compress` and `--delete-source` options, after setting up the archive location by calling the `archive-setup` workflow.
@@ -34,6 +34,7 @@ Access permissions are controlled by the [Bucket Sharing Config](https://github.
 | user_group | enum | none    | Group of users running the workflow                                                                                         |
 | ticket     | str  |         | Ticket ID e.g. 'AIP-55'                                                                                                     |
 | source     | str  |         | The URI (path) to the s3 source location where the files to archive are.                                                    |
+| cleanup    | enum | true    | Cleanup the source directory after archiving                                                                                |
 | group      | int  | 1000    | The maximum number of files for each pod to copy (will use the value of `group` or `group_size` that is reached first).     |
 | group_size | str  | 100Gi   | The maximum group size of files for each pod to copy (will use the value of `group` or `group_size` that is reached first). |
 
@@ -48,7 +49,7 @@ Copy files from one S3 location to another. This workflow is intended to be used
 
 ```mermaid
 graph TD;
-  create-manifest-->copy;
+  create-manifest-->copy-->|set_status == 'true'|copy-status;
 ```
 
 This is a workflow that uses the [argo-tasks](https://github.com/linz/argo-tasks#create-manifest) container `create-manifest` (list of source and target file paths) and `copy` (the actual file copy) commands.

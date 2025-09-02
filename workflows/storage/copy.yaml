@@ -139,6 +139,14 @@ spec:
             default: 'false'
           - name: delete_source # This should not be exposed to the user (as a workflow parameter)
             default: 'false'
+          - name: set_status
+            default: 'false'
+      outputs:
+        parameters:
+          - name: status
+            valueFrom:
+              parameter: '{{tasks.copy-status.outputs.parameters.status}}'
+
       dag:
         tasks:
           - name: create-manifest
@@ -186,6 +194,29 @@ spec:
                   value: '{{inputs.parameters.aws_role_config_path}}'
             depends: 'create-manifest'
             withParam: '{{tasks.create-manifest.outputs.parameters.files}}'
+          - name: copy-status
+            template: copy-status
+            arguments:
+              parameters:
+                - name: status
+                  value: '{{tasks.copy.status}}'
+            depends: 'copy'
+            when: '"{{inputs.parameters.set_status}}" == "true"'
+
+    - name: copy-status
+      inputs:
+        parameters:
+          - name: status
+      script:
+        image: '019359803926.dkr.ecr.ap-southeast-2.amazonaws.com/argo-tasks:{{=sprig.trim(workflow.parameters.version_argo_tasks)}}'
+        command: [sh]
+        source: |
+          echo "{{inputs.parameters.status}}" > /tmp/copy_status.txt
+      outputs:
+        parameters:
+          - name: status
+            valueFrom:
+              path: /tmp/copy_status.txt
 
     - name: exit-handler
       retryStrategy:
