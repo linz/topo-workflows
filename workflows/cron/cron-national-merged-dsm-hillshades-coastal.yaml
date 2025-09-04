@@ -2,7 +2,7 @@
 apiVersion: argoproj.io/v1alpha1
 kind: CronWorkflow
 metadata:
-  name: cron-national-merged-dem-hillshades-coastal
+  name: cron-national-merged-dsm-hillshades-coastal
   labels:
     linz.govt.nz/category: raster
     linz.govt.nz/data-type: raster
@@ -78,7 +78,7 @@ spec:
                     value: 's3://{{workflow.parameters.target_bucket_name}}/new-zealand/new-zealand/{{item}}/2193/'
                   - name: geospatial_category
                     value: '{{item}}'
-              withParam: '["dem-hillshade", "dem-hillshade-igor"]'
+              withParam: '["dsm-hillshade", "dsm-hillshade-igor"]'
 
       - name: exit-handler
         retryStrategy:
