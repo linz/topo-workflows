@@ -15,7 +15,7 @@ spec:
   suspend: false
   workflowMetadata:
     labels:
-      linz.govt.nz/ticket: 'TDE-1524'
+      linz.govt.nz/ticket: 'TDE-1571'
   workflowSpec:
     podMetadata:
       labels:
@@ -27,7 +27,7 @@ spec:
     arguments:
       parameters:
         - name: 'config_file'
-          value: 'https://raw.githubusercontent.com/linz/basemaps-config/refs/heads/master/config/tileset/elevation.coastal.json'
+          value: 'https://raw.githubusercontent.com/linz/basemaps-config/refs/heads/master/config/tileset/elevation.coastal.dsm.json'
         - name: 'odr_url'
           value: 's3://nz-coastal/new-zealand/new-zealand/dsm_1m/2193/'
         - name: geospatial_category
@@ -41,4 +41,4 @@ spec:
         - name: 'copy_option'
           value: '--force-no-clobber'
         - name: 'ticket'
-          value: 'TDE-1524'
+          value: 'TDE-1571'

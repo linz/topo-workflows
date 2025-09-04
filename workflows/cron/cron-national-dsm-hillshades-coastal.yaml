@@ -14,7 +14,7 @@ spec:
   failedJobsHistoryLimit: 3
   workflowMetadata:
     labels:
-      linz.govt.nz/ticket: 'TDE-1525'
+      linz.govt.nz/ticket: 'TDE-1571'
   workflowSpec:
     podMetadata:
       labels:
@@ -32,7 +32,7 @@ spec:
         - name: version_topo_imagery
           value: 'v7'
         - name: ticket
-          value: 'TDE-1525'
+          value: 'TDE-1571'
         - name: source_geospatial_categories
           value: '["dsm"]'
         - name: bucket_name

@@ -14,7 +14,7 @@ spec:
   failedJobsHistoryLimit: 3
   workflowMetadata:
     labels:
-      linz.govt.nz/ticket: 'TDE-1479'
+      linz.govt.nz/ticket: 'TDE-1571'
   workflowSpec:
     entrypoint: main
     onExit: exit-handler
@@ -32,7 +32,7 @@ spec:
         - name: version_topo_imagery
           value: 'v7'
         - name: ticket
-          value: 'TDE-1479'
+          value: 'TDE-1571'
         - name: group
           value: '4'
         - name: publish_to_odr
