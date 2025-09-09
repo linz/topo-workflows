@@ -38,6 +38,12 @@ spec:
       - name: source
         description: Path where the files to be archived are located
         value: ''
+      - name: cleanup
+        description: Cleanup the source directory after archiving
+        value: 'true'
+        enum:
+          - 'false'
+          - 'true'
       - name: group
         value: '1000'
       - name: group_size
@@ -55,6 +61,8 @@ spec:
         parameters:
           - name: source
             value: '{{=sprig.trim(workflow.parameters.source)}}'
+          - name: cleanup
+            value: '{{workflow.parameters.cleanup}}'
           - name: group
             value: '{{workflow.parameters.group}}'
             default: '1000'
@@ -109,6 +117,24 @@ spec:
                   value: 'true'
                 - name: delete_source
                   value: 'true'
+                - name: set_status
+                  value: 'true'
+          - name: cleanup
+            templateRef:
+              name: tpl-at-delete-empty-folders
+              template: main
+            arguments:
+              parameters:
+                - name: location
+                  value: '{{inputs.parameters.source}}'
+                - name: dry_run
+                  value: 'false'
+                - name: version
+                  value: '{{inputs.parameters.version_argo_tasks}}'
+                - name: aws_role_config_path
+                  value: 's3://linz-bucket-config/config-write.topographic.json,s3://linz-bucket-config/config-write.hydrographic.json'
+            depends: 'copy.Succeeded'
+            when: '"{{inputs.parameters.cleanup}}" == "true" && "{{tasks.copy.outputs.parameters.status}}" != "Skipped"'
 
     - name: exit-handler
       retryStrategy:
