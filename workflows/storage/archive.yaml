@@ -40,7 +40,7 @@ spec:
         value: ''
       - name: cleanup
         description: Cleanup the source directory after archiving
-        value: 'true'
+        value: 'false'
         enum:
           - 'false'
           - 'true'
@@ -61,7 +61,7 @@ spec:
         parameters:
           - name: source
             value: '{{=sprig.trim(workflow.parameters.source)}}'
-          - name: cleanup
+          - name: delete_empty_folders
             value: '{{workflow.parameters.cleanup}}'
           - name: group
             value: '{{workflow.parameters.group}}'
@@ -117,24 +117,8 @@ spec:
                   value: 'true'
                 - name: delete_source
                   value: 'true'
-                - name: set_status
-                  value: 'true'
-          - name: cleanup
-            templateRef:
-              name: tpl-at-delete-empty-folders
-              template: main
-            arguments:
-              parameters:
-                - name: location
-                  value: '{{inputs.parameters.source}}'
-                - name: dry_run
-                  value: 'false'
-                - name: version
-                  value: '{{inputs.parameters.version_argo_tasks}}'
-                - name: aws_role_config_path
-                  value: 's3://linz-bucket-config/config-write.topographic.json,s3://linz-bucket-config/config-write.hydrographic.json'
-            depends: 'copy.Succeeded'
-            when: '"{{inputs.parameters.cleanup}}" == "true" && "{{tasks.copy.outputs.parameters.status}}" != "Skipped"'
+                - name: delete_empty_folders
+                  value: '{{inputs.parameters.delete_empty_folders}}'
 
     - name: exit-handler
       retryStrategy:
