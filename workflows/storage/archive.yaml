@@ -40,7 +40,7 @@ spec:
         value: ''
       - name: cleanup
         description: Cleanup the source directory after archiving
-        value: 'true'
+        value: 'false'
         enum:
           - 'false'
           - 'true'

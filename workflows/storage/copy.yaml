@@ -203,7 +203,7 @@ spec:
                 - name: aws_role_config_path
                   value: 's3://linz-bucket-config/config-write.topographic.json,s3://linz-bucket-config/config-write.hydrographic.json'
             depends: 'copy.Succeeded'
-            when: "'{{inputs.parameters.delete_empty_folders}}' == 'true' && '{{inputs.parameters.delete_source}}' == 'true'"
+            when: "'{{inputs.parameters.delete_empty_folders}}' == 'true'"
 
     - name: exit-handler
       retryStrategy:
