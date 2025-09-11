@@ -3,7 +3,7 @@
 apiVersion: argoproj.io/v1alpha1
 kind: WorkflowTemplate
 metadata:
-  name: tpl-bm-cogify
+  name: test-tpl-bm-cogify
 spec:
   templateDefaults:
     container:
@@ -107,6 +107,10 @@ spec:
         description: 'Adjust the base zoom level of the output COGS, "-1" reduce the target output resolution by one zoom level'
         value: ''
 
+      - name: bounds_scale
+        description: 'Adjust the scale for the source bounds when calculating the area to cover'
+        value: ''
+
   templates:
     # Generate COGs for a specific tile matrix from a given collection of source imagery
     - name: main
@@ -119,8 +123,9 @@ spec:
           - name: cutline_blend
           - name: group_size
           - name: preset
-          - name: require_stac_collection
           - name: base_zoom_offset
+          - name: bounds_scale
+          - name: require_stac_collection
           - name: background
       dag:
         tasks:
@@ -143,6 +148,8 @@ spec:
                   value: '{{ inputs.parameters.cutline_blend }}'
                 - name: base_zoom_offset
                   value: '{{ inputs.parameters.base_zoom_offset }}'
+                - name: bounds_scale
+                  value: '{{ inputs.parameters.bounds_scale }}'
                 - name: require_stac_collection
                   value: '{{ inputs.parameters.require_stac_collection }}'
                 - name: background
@@ -220,6 +227,7 @@ spec:
           - name: preset
           - name: require_stac_collection
           - name: base_zoom_offset
+          - name: bounds_scale
           - name: background
       container:
         image: ghcr.io/linz/basemaps/cli:{{ workflow.parameters.version_basemaps_cli }}
@@ -238,7 +246,7 @@ spec:
           - '--require-stac-collection={{ inputs.parameters.require_stac_collection }}'
           - "{{= sprig.empty(inputs.parameters.cutline) ? '' : '--cutline=' + inputs.parameters.cutline }}"
           - '--cutline-blend={{ inputs.parameters.cutline_blend }}'
-          - "{{= sprig.empty(inputs.parameters.base_zoom_offset) ? '' : '--base-zoom-offset=' + inputs.parameters.base_zoom_offset }}"
+          - "{{= sprig.empty(inputs.parameters.bounds_scale) ? '' : '--bounds-scale=' + inputs.parameters.bounds_scale }}"
           - "{{= sprig.empty(inputs.parameters.background) ? '' : '--background=' + inputs.parameters.background }}"
           - '--target={{= sprig.trim(inputs.parameters.target) }}'
           - '{{= sprig.trim(inputs.parameters.source) }}'
