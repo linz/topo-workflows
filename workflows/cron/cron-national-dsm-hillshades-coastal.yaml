@@ -1,0 +1,51 @@
+# yaml-language-server: $schema=https://raw.githubusercontent.com/argoproj/argo-workflows/v3.5.5/api/jsonschema/schema.json
+apiVersion: argoproj.io/v1alpha1
+kind: CronWorkflow
+metadata:
+  name: cron-national-dsm-hillshades-coastal
+  labels:
+    linz.govt.nz/category: raster
+    linz.govt.nz/data-type: raster
+spec:
+  schedule: '30 9 * * 1-5' # At 9:30 AM, Monday through Friday
+  timezone: 'NZ'
+  concurrencyPolicy: 'Allow'
+  successfulJobsHistoryLimit: 3
+  failedJobsHistoryLimit: 3
+  workflowMetadata:
+    labels:
+      linz.govt.nz/ticket: 'TDE-1571'
+  workflowSpec:
+    podMetadata:
+      labels:
+        linz.govt.nz/category: raster
+        linz.govt.nz/data-type: raster
+        linz.govt.nz/region: 'new-zealand'
+    workflowTemplateRef:
+      name: hillshade-combinations
+    arguments:
+      parameters:
+        - name: version_argo_tasks
+          value: 'v4'
+        - name: version_basemaps_cli
+          value: 'v8'
+        - name: version_topo_imagery
+          value: 'v7'
+        - name: ticket
+          value: 'TDE-1571'
+        - name: source_geospatial_categories
+          value: '["dsm"]'
+        - name: bucket_name
+          value: 'nz-coastal'
+        - name: domain
+          value: 'coastal'
+        - name: gsd
+          value: '1'
+        - name: hillshade_presets
+          value: '["hillshade", "hillshade-igor"]'
+        - name: bucket_name
+          value: 'nz-coastal'
+        - name: publish_to_odr
+          value: 'true'
+        - name: copy_option
+          value: '--force-no-clobber'
