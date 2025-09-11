@@ -5,16 +5,16 @@
 
 ## Archive
 
-### Workflow Description
+### Description
 
 Archive files from a S3 location (for example `s3://linz-*-upload/[provider]/[survey]/[supply]/`) to a long term archive location (on a bucket where the files are stored as S3 Glacier Deep Archive storage class). This workflow is intended to be used after files in a source folder (for example, supplied by external provider) have been processed and not needed for any future update.
 
 1. Verify the path of the files to archive. Restricted to some buckets only (TODO: link to `argo-task` command) and set the archive location.
-1. Create a manifest of file to be archived from the source location (example: `s3://linz-topographic-upload/[PROVIDER]/[SURVEY]/`)
-1. Compress each file listed in the manifest and check if the compression is worthwhile (very small files may have a bigger size after compression)
-1. Copy the compressed (or original if smaller) file to the archive bucket (example: `s3://linz-topographic-archive/[PROVIDER]/[SURVEY]/`)
-1. Ensure a new version is stored if a file already exists in the archive (this is managed by AWS S3 versioning)
-1. Delete the original files that have been archived. The original files will be still available for retrieval for the next 90 days after deletion.
+2. Create a manifest of file to be archived from the source location (example: `s3://linz-topographic-upload/[PROVIDER]/[SURVEY]/`)
+3. Compress each file listed in the manifest and check if the compression is worthwhile (very small files may have a bigger size after compression)
+4. Copy the compressed (or original if smaller) file to the archive bucket (example: `s3://linz-topographic-archive/[PROVIDER]/[SURVEY]/`)
+5. Ensure a new version is stored if a file already exists in the archive (this is managed by AWS S3 versioning)
+6. Delete the original files that have been archived. The original files will be still available for retrieval for the next 90 days after deletion.
 
 ### Flow
 
@@ -38,9 +38,26 @@ Access permissions are controlled by the [Bucket Sharing Config](https://github.
 | group      | int  | 1000    | The maximum number of files for each pod to copy (will use the value of `group` or `group_size` that is reached first).     |
 | group_size | str  | 100Gi   | The maximum group size of files for each pod to copy (will use the value of `group` or `group_size` that is reached first). |
 
+## Unarchive
+
+### Description
+
+This workflow is used to unarchive files (_S3 Objects_) from an **archive** bucket. The unarchived files will be accessible in the corresponding **shared** bucket (example: `linz-hydrographic-archive` -> `linz-hydrographic-shared`).
+
+In order to be able to copy the archived files to the shared bucket, the files that have been transitioned into the Deep Archive storage class need to be restored.
+**The `unarchive` workflow does not directly restore these files. It makes a request to AWS to restore them. The requests can take [up to 48 hours](https://docs.aws.amazon.com/AmazonS3/latest/userguide/restoring-objects-retrieval-options.html) to be processed. Therefore, the entire unarchive process not only involves this workflow, but also [S3 Batch Operations](https://aws.amazon.com/s3/features/batch-operations/), and the `copy-unarchive` cron workflow.**
+
+### Flow
+
+```mermaid
+graph TD;
+    create-manifest-->|files != ''|restore;
+    get-location-->|files != ''|restore;
+```
+
 ## Copy
 
-### Workflow Description
+### Description
 
 Copy files from one S3 location to another. This workflow is intended to be used after standardising and QA to copy:
 
