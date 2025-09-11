@@ -38,11 +38,10 @@ spec:
 
       - name: target
         description: s3 directory into which to save the generated directory structure of STAC files and COGs
-        value: 's3://linz-workflows-scratch/'
+        value: 's3://linz-basemaps/'
         enum:
+          - 's3://linz-basemaps/'
           - 's3://linz-basemaps-staging/'
-          - 's3://linz-workflows-scratch/'
-          - 's3://linz-topographic/'
 
       - name: map_series
         description: topo50 or topo250
@@ -57,6 +56,14 @@ spec:
         enum:
           - 'true'
           - 'false'
+
+      - name: tile_matrix
+        description: Output tile matrix, ";" separated list for importing into basemaps
+        value: 'NZTM2000Quad;WebMercatorQuad'
+        enum:
+          - 'NZTM2000Quad'
+          - 'WebMercatorQuad'
+          - 'NZTM2000Quad;WebMercatorQuad'
 
       - name: group_size
         description: How many items to pass to each create-cog job
