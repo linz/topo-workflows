@@ -15,14 +15,13 @@ spec:
   suspend: false
   workflowSpec:
     entrypoint: main
-    onExit: exit-handler
     podMetadata:
       labels:
         linz.govt.nz/category: storage
     templates:
       - name: main
         retryStrategy:
-          expression: 'false' # TODO: check
+          expression: 'false'
         steps:
           - - name: copy-restore
               templateRef:
@@ -30,19 +29,7 @@ spec:
                 template: main
               arguments:
                 parameters:
+                  - name: version_argo_tasks
+                    value: 'v4'
                   - name: reports_location
-                    value: 's3://linz-workflows-scratch/restore/reports/'
-      - name: exit-handler
-        retryStrategy:
-          limit: '0' # `tpl-exit-handler` retries itself
-        steps:
-          - - name: exit
-              templateRef:
-                name: tpl-exit-handler
-                template: main
-              arguments:
-                parameters:
-                  - name: workflow_status
-                    value: '{{workflow.status}}'
-                  - name: workflow_parameters
-                    value: '{{workflow.parameters}}'
+                    value: 's3://linz-workflows-scratch/restore/requests/'
