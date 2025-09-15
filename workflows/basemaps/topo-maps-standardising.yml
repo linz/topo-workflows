@@ -3,7 +3,7 @@
 apiVersion: argoproj.io/v1alpha1
 kind: WorkflowTemplate
 metadata:
-  name: topo-raster-maps-standardising
+  name: test-topo-raster-maps-standardising-with-cogify
   labels:
     linz.govt.nz/category: basemaps
     linz.govt.nz/data-type: raster
@@ -32,21 +32,20 @@ spec:
       - name: source
         description: s3 directory of the NZ Topo Raster Map Series imagery to process
         value: 's3://linz-topographic-upload/topographic/TopoReleaseArchive/NZTopo50_GeoTif_Gridless/'
-        enum:
-          - 's3://linz-topographic-upload/topographic/TopoReleaseArchive/NZTopo50_GeoTif_Gridless/'
-          - 's3://linz-topographic-upload/topographic/TopoReleaseArchive/NZTopo250_GeoTif_Gridless/'
 
       - name: target
         description: s3 directory into which to save the generated directory structure of STAC files and COGs
-        value: 's3://linz-basemaps/'
+        value: 's3://linz-workflows-scratch/'
         enum:
-          - 's3://linz-basemaps/'
           - 's3://linz-basemaps-staging/'
+          - 's3://linz-workflows-scratch/'
+          - 's3://linz-topographic/'
 
       - name: map_series
-        description: topo50 or topo250
+        description: topo25, topo50 or topo250
         value: 'topo50'
         enum:
+          - 'topo25'
           - 'topo50'
           - 'topo250'
 
@@ -57,6 +56,14 @@ spec:
           - 'true'
           - 'false'
 
+      - name: import_basemaps
+        description: Whether to import the generated COGs into basemaps
+        value: 'none'
+        enum:
+          - 'none'
+          - 's3://linz-basemaps/'
+          - 's3://linz-basemaps-staging/'
+
       - name: tile_matrix
         description: Output tile matrix, ";" separated list for importing into basemaps
         value: 'NZTM2000Quad;WebMercatorQuad'
@@ -64,6 +71,13 @@ spec:
           - 'NZTM2000Quad'
           - 'WebMercatorQuad'
           - 'NZTM2000Quad;WebMercatorQuad'
+
+      - name: create_overview
+        description: 'Create overview after importing imagery.'
+        value: 'true'
+        enum:
+          - 'true'
+          - 'false'
 
       - name: group_size
         description: How many items to pass to each create-cog job
@@ -142,16 +156,6 @@ spec:
                   from: '{{ tasks.group.outputs.artifacts.output }}'
             depends: group
 
-          - name: create-config
-            template: create-config
-            when: '{{ item.epsg }} == 2193'
-            withParam: '{{ tasks.topo-stac-creation.outputs.parameters.targets }}'
-            arguments:
-              parameters:
-                - name: location
-                  value: '{{ item.url }}'
-            depends: topo-stac-creation && topo-cog-creation
-
           - name: copy
             templateRef:
               name: copy
@@ -200,6 +204,55 @@ spec:
                 - name: transform
                   value: 'f'
             depends: topo-stac-creation && topo-cog-creation
+
+          - name: import-basemaps
+            template: import-basemaps
+            withParam: "{{= toJson(sprig.splitList(';', workflow.parameters.tile_matrix)) }}"
+            arguments:
+              parameters:
+                - name: sources
+                  value: '{{ tasks.topo-stac-creation.outputs.parameters.targets }}'
+                - name: tile_matrix
+                  value: '{{ item }}'
+            when: "'{{workflow.parameters.import_basemaps}}' != 'none'"
+            depends: 'topo-stac-creation && topo-cog-creation'
+
+    - name: import-basemaps
+      retryStrategy:
+        expression: 'false'
+      inputs:
+        parameters:
+          - name: sources
+          - name: tile_matrix
+      dag:
+        tasks:
+          - name: cogify
+            templateRef:
+              name: tpl-bm-cogify
+              template: main
+            withParam: '{{ inputs.parameters.sources }}'
+            arguments:
+              parameters:
+                - name: source
+                  value: '{{ item.url }}'
+                - name: target
+                  value: '{{ workflow.parameters.import_basemaps }}'
+                - name: tile_matrix
+                  value: '{{ inputs.parameters.tile_matrix }}'
+                - name: group_size
+                  value: '{{ workflow.parameters.group_size }}'
+                - name: require_stac_collection
+                  value: 'true'
+                - name: cutline
+                  value: ''
+                - name: cutline_blend
+                  value: 0
+                - name: preset
+                  value: 'webp'
+                - name: base_zoom_offset
+                  value: ''
+                - name: background
+                  value: '#d0e7f4ff'
 
     # List of the topographic tiles from source and import into target bucket
     - name: topo-stac-creation
@@ -258,33 +311,6 @@ spec:
           - 'create'
           - '--from-file={{= inputs.artifacts.grouped.path }}{{inputs.parameters.grouped_id}}.json'
           - '--concurrency=2'
-
-    # Create a basemaps configuration file to view the imagery
-    - name: create-config
-      inputs:
-        parameters:
-          - name: location
-            description: Location of the imagery to create config for
-      container:
-        image: ghcr.io/linz/basemaps/cli:{{ workflow.parameters.version_basemaps_cli }}
-        command: [node, index.cjs]
-        env:
-          - name: AWS_ROLE_CONFIG_PATH
-            value: s3://linz-bucket-config/config.json
-        args:
-          - 'config'
-          - 'create-config'
-          - '{{ inputs.parameters.location }}'
-      outputs:
-        parameters:
-          - name: url
-            description: Basemaps URL to view the imagery
-            valueFrom:
-              path: '/tmp/cogify/config-url'
-          - name: config
-            description: Location of the config file
-            valueFrom:
-              path: '/tmp/cogify/config-path'
 
     - name: exit-handler
       retryStrategy:
