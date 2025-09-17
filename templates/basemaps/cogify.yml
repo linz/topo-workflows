@@ -22,12 +22,22 @@ spec:
         value: v4
 
       - name: preset
-        description: Import preset configuration, WebP for 4 band RGBA LERC for 1 band DEM/DSM
+        description: Import preset configuration, WebP for 4 band RGBA,  LERC for 1 band DEM/DSM and ZSTD for everything else
         value: 'webp'
         enum:
           - 'webp'
           - 'lerc_10mm'
           - 'lerc_1mm'
+          - 'zstd_17'
+
+      - name: color_interpretation
+        description: Color profile to use for the output imagery
+        value: 'rgba'
+        enum:
+          - 'rgbi'
+          - 'rgba'
+          - 'elevation'
+          - 'gray'
 
       - name: region
         description: Region of the dataset
@@ -147,6 +157,8 @@ spec:
                   value: '{{ inputs.parameters.require_stac_collection }}'
                 - name: background
                   value: '{{ inputs.parameters.background }}'
+                - name: color_interpretation
+                  value: '{{ inputs.parameters.color_interpretation }}'
 
           # Group covering output into chunks to pass to create-cog
           - name: group
@@ -234,6 +246,7 @@ spec:
           - 'cogify'
           - 'cover'
           - '--preset={{ inputs.parameters.preset }}'
+          - '--preset-bands={{ inputs.parameters.color_interpretation }}'
           - '--tile-matrix={{ inputs.parameters.tile_matrix }}'
           - '--require-stac-collection={{ inputs.parameters.require_stac_collection }}'
           - "{{= sprig.empty(inputs.parameters.cutline) ? '' : '--cutline=' + inputs.parameters.cutline }}"

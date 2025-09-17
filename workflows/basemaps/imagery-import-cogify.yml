@@ -58,12 +58,22 @@ spec:
         value: ''
 
       - name: preset
-        description: Import preset configuration, WebP for 4 band RGBA LERC for 1 band DEM/DSM
+        description: Import preset configuration, WebP for 4 band RGBA,  LERC for 1 band DEM/DSM and ZSTD for everything else
         value: 'webp'
         enum:
           - 'webp'
           - 'lerc_10mm'
           - 'lerc_1mm'
+          - 'zstd_17'
+
+      - name: color_interpretation
+        description: Color profile to use for the output imagery
+        value: 'rgba'
+        enum:
+          - 'rgbi'
+          - 'rgba'
+          - 'elevation'
+          - 'gray'
 
       - name: region
         description: Region of the dataset
@@ -192,6 +202,7 @@ spec:
           - name: require_stac_collection
           - name: base_zoom_offset
           - name: background
+          - name: color_interpretation
       dag:
         tasks:
           # For each tile matrix specified run the "cogify" template
@@ -222,6 +233,8 @@ spec:
                   value: '{{ inputs.parameters.base_zoom_offset }}'
                 - name: background
                   value: '{{ inputs.parameters.background }}'
+                - name: color_interpretation
+                  value: '{{ inputs.parameters.color_interpretation }}'
           - name: create-pull-request
             templateRef:
               name: tpl-bm-create-pull-request
