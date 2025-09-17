@@ -202,7 +202,6 @@ spec:
           - name: require_stac_collection
           - name: base_zoom_offset
           - name: background
-          - name: color_interpretation
       dag:
         tasks:
           # For each tile matrix specified run the "cogify" template
@@ -234,7 +233,7 @@ spec:
                 - name: background
                   value: '{{ inputs.parameters.background }}'
                 - name: color_interpretation
-                  value: '{{ inputs.parameters.color_interpretation }}'
+                  value: '{{ workflow.parameters.color_interpretation }}'
           - name: create-pull-request
             templateRef:
               name: tpl-bm-create-pull-request
