@@ -230,6 +230,7 @@ spec:
           - name: cutline
           - name: cutline_blend
           - name: preset
+          - name: color_interpretation
           - name: require_stac_collection
           - name: base_zoom_offset
           - name: background
