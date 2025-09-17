@@ -22,7 +22,7 @@ spec:
         value: v4
 
       - name: preset
-        description: Import preset configuration, WebP for 4 band RGBA,  LERC for 1 band DEM/DSM and ZSTD for everything else
+        description: Import preset configuration, WebP for 4 band RGBA, LERC for 1 band DEM/DSM and ZSTD for everything else
         value: 'webp'
         enum:
           - 'webp'
