@@ -3,7 +3,7 @@
 apiVersion: argoproj.io/v1alpha1
 kind: WorkflowTemplate
 metadata:
-  name: test-basemaps-charts-import-cogify
+  name: basemaps-charts-import-cogify
   labels:
     linz.govt.nz/category: basemaps
     linz.govt.nz/data-type: raster
@@ -97,10 +97,6 @@ spec:
         description: 'Adjust the base zoom level of the output COGS, "-1" reduce the target output resolution by one zoom level'
         value: ''
 
-      - name: bounds_scale
-        description: 'Adjust the scale for the source bounds when calculating the area to cover'
-        value: ''
-
   templates:
     # Main entrypoint into the workflow
     - name: main
@@ -157,7 +153,7 @@ spec:
                   value: '{{ inputs.parameters.buffer_pixels }}'
           - name: cogify
             templateRef:
-              name: test-tpl-bm-cogify
+              name: tpl-bm-cogify
               template: main
             withParam: "{{= toJson(sprig.splitList(';', workflow.parameters.tile_matrix)) }}"
             arguments:
@@ -180,8 +176,6 @@ spec:
                   value: 'webp'
                 - name: base_zoom_offset
                   value: '{{ workflow.parameters.base_zoom_offset }}'
-                - name: bounds_scale
-                  value: '{{ workflow.parameters.bounds_scale }}'
                 - name: background
                   value: ''
             depends: 'charts'
