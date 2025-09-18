@@ -38,6 +38,13 @@ spec:
               - 'true'
               - 'false'
 
+          - name: decompress
+            description: Decompress the files in their target location
+            default: 'false'
+            enum:
+              - 'true'
+              - 'false'
+
           - name: delete_source
             description: Delete the source files after copying
             default: 'false'
@@ -66,4 +73,5 @@ spec:
           - '{{inputs.parameters.copy_option}}'
           - '{{inputs.parameters.file}}'
           - '--compress={{inputs.parameters.compress}}'
+          - '--decompress={{inputs.parameters.decompress}}'
           - '--delete-source={{inputs.parameters.delete_source}}'

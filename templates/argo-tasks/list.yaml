@@ -35,10 +35,6 @@ spec:
             description: Group the files into this size per group (will use the value of `group` or `group_size` that is reached first)
             default: '100Gi'
 
-          - name: aws_role_config_path
-            description: s3 URL or comma-separated list of s3 URLs of roles config files allowing the workflow to read from a location
-            default: ''
-
       outputs:
         parameters:
           - name: files
