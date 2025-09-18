@@ -36,7 +36,7 @@ spec:
     parameters:
       - name: version_basemaps_cli
         description: Version of the basemaps CLI docker container to use
-        value: pr-3504
+        value: v8
 
       - name: version_argo_tasks
         description: Version of the argo-tasks CLI docker container to use
