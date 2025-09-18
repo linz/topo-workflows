@@ -1,0 +1,56 @@
+# yaml-language-server: $schema=https://raw.githubusercontent.com/argoproj/argo-workflows/v3.5.5/api/jsonschema/schema.json
+apiVersion: argoproj.io/v1alpha1
+kind: CronWorkflow
+metadata:
+  name: test-cron-copy-restore
+  labels:
+    linz.govt.nz/category: storage
+spec:
+  schedule: '0 7,10,13,16 * * *' # At 7am, 10am, 1pm, 4pm every day
+  timezone: 'NZ'
+  startingDeadlineSeconds: 3600 # Allow 1 hour delay if the workflow-controller clashes during the starting time.
+  concurrencyPolicy: 'Allow'
+  successfulJobsHistoryLimit: 3
+  failedJobsHistoryLimit: 3
+  suspend: false
+  workflowSpec:
+    entrypoint: main
+    onExit: exit-handler
+    podMetadata:
+      labels:
+        linz.govt.nz/category: storage
+    arguments:
+      parameters:
+        - name: version_argo_tasks
+          value: 'v4'
+        - name: reports_location
+          value: 's3://linz-workflows-scratch/restore/requests/'
+    templates:
+      - name: main
+        retryStrategy:
+          expression: 'false'
+        steps:
+          - - name: copy-restore
+              templateRef:
+                name: copy-restore
+                template: main
+              arguments:
+                parameters:
+                  - name: version_argo_tasks
+                    value: '{{workflow.parameters.version_argo_tasks}}'
+                  - name: reports_location
+                    value: '{{workflow.parameters.reports_location}}'
+      - name: exit-handler
+        retryStrategy:
+          limit: '0' # `tpl-exit-handler` retries itself
+        steps:
+          - - name: exit
+              templateRef:
+                name: tpl-exit-handler
+                template: main
+              arguments:
+                parameters:
+                  - name: workflow_status
+                    value: '{{workflow.status}}'
+                  - name: workflow_parameters
+                    value: '{{workflow.parameters}}'

@@ -1,0 +1,141 @@
+# yaml-language-server: $schema=https://raw.githubusercontent.com/argoproj/argo-workflows/v3.5.5/api/jsonschema/schema.json
+
+apiVersion: argoproj.io/v1alpha1
+kind: WorkflowTemplate
+metadata:
+  name: copy-restore
+spec:
+  parallelism: 50
+  nodeSelector:
+    karpenter.sh/capacity-type: 'spot'
+  entrypoint: main
+  onExit: exit-handler
+  podMetadata:
+    labels:
+      linz.govt.nz/category: storage
+  arguments:
+    parameters:
+      - name: version_argo_tasks
+        description: 'Specify a version of the argo-tasks image to use, e.g. "v4.1" or "latest"'
+        value: 'v4'
+      - name: reports_location
+        description: 'Location of the archive restore report manifest files'
+        value: 's3://linz-workflows-scratch/restore/requests/'
+
+  templates:
+    - name: main
+      retryStrategy:
+        expression: 'false'
+      inputs:
+        parameters:
+          - name: version_argo_tasks
+            value: '{{workflow.parameters.version_argo_tasks}}'
+            default: 'v4'
+          - name: reports_location
+            value: '{{workflow.parameters.reports_location}}'
+      dag:
+        tasks:
+          - name: list-manifests
+            templateRef:
+              name: tpl-at-list
+              template: main
+            arguments:
+              parameters:
+                - name: version_argo_tasks
+                  value: '{{inputs.parameters.version_argo_tasks}}'
+                - name: location
+                  value: '{{inputs.parameters.reports_location}}'
+                - name: include
+                  value: 'manifest.json$'
+          - name: flatten-manifests
+            template: flatten-manifests
+            arguments:
+              parameters:
+                - name: manifests_list
+                  value: '{{tasks.list-manifests.outputs.parameters.files}}'
+            depends: 'list-manifests.Succeeded'
+          - name: verify-and-copy
+            template: verify-and-copy
+            arguments:
+              parameters:
+                - name: version_argo_tasks
+                  value: '{{inputs.parameters.version_argo_tasks}}'
+                - name: restore_manifest
+                  value: '{{item}}'
+            withParam: '{{tasks.flatten-manifests.outputs.parameters.flattened_manifests}}'
+            depends: 'flatten-manifests.Succeeded'
+
+    - name: flatten-manifests
+      inputs:
+        parameters:
+          - name: manifests_list
+            description: List of restore manifest files to flatten
+            default: ''
+      outputs:
+        parameters:
+          - name: flattened_manifests
+            valueFrom:
+              path: /tmp/flattened_manifests.json
+      container:
+        image: peterevans/curl-jq:latest
+        imagePullPolicy: Always
+        command: [sh, '-c']
+        args:
+          - echo '{{inputs.parameters.manifests_list}}' | jq -c 'flatten' > /tmp/flattened_manifests.json
+
+    - name: verify-and-copy
+      inputs:
+        parameters:
+          - name: version_argo_tasks
+          - name: restore_manifest
+      steps:
+        - - name: verify-restore
+            templateRef:
+              name: tpl-at-verify-restore
+              template: main
+            arguments:
+              parameters:
+                - name: version_argo_tasks
+                  value: '{{inputs.parameters.version_argo_tasks}}'
+                - name: restore_manifest
+                  value: '{{inputs.parameters.restore_manifest}}'
+        - - name: read-copy-manifest
+            templateRef:
+              name: tpl-read-file
+              template: main
+            arguments:
+              parameters:
+                - name: location
+                  value: "{{= sprig.replace('manifest.json', 'copy-manifests.json', inputs.parameters.restore_manifest)}}"
+            when: '{{steps.verify-restore.outputs.parameters.result}} == true'
+        - - name: copy
+            templateRef:
+              name: tpl-copy
+              template: main
+            arguments:
+              parameters:
+                - name: file
+                  value: '{{item}}'
+                - name: copy_option
+                  value: '--force-no-clobber'
+                - name: decompress
+                  value: 'true'
+                - name: aws_role_config_path
+                  value: 's3://linz-bucket-config/config-write.topographic.json,s3://linz-bucket-config/config-write.hydrographic.json'
+            withParam: '{{steps.read-copy-manifest.outputs.parameters.content}}'
+            when: '{{steps.read-copy-manifest.status}} == Succeeded'
+
+    - name: exit-handler
+      retryStrategy:
+        limit: '0' # `tpl-exit-handler` retries itself
+      steps:
+        - - name: exit
+            templateRef:
+              name: tpl-exit-handler
+              template: main
+            arguments:
+              parameters:
+                - name: workflow_status
+                  value: '{{workflow.status}}'
+                - name: workflow_parameters
+                  value: '{{workflow.parameters}}'
