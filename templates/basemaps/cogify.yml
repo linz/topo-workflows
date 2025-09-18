@@ -148,8 +148,6 @@ spec:
                   value: '{{ inputs.parameters.cutline_blend }}'
                 - name: base_zoom_offset
                   value: '{{ inputs.parameters.base_zoom_offset }}'
-                - name: bounds_scale
-                  value: '{{ inputs.parameters.bounds_scale }}'
                 - name: require_stac_collection
                   value: '{{ inputs.parameters.require_stac_collection }}'
                 - name: background
@@ -246,7 +244,6 @@ spec:
           - '--require-stac-collection={{ inputs.parameters.require_stac_collection }}'
           - "{{= sprig.empty(inputs.parameters.cutline) ? '' : '--cutline=' + inputs.parameters.cutline }}"
           - '--cutline-blend={{ inputs.parameters.cutline_blend }}'
-          - "{{= sprig.empty(inputs.parameters.bounds_scale) ? '' : '--bounds-scale=' + inputs.parameters.bounds_scale }}"
           - "{{= sprig.empty(inputs.parameters.background) ? '' : '--background=' + inputs.parameters.background }}"
           - '--target={{= sprig.trim(inputs.parameters.target) }}'
           - '{{= sprig.trim(inputs.parameters.source) }}'
