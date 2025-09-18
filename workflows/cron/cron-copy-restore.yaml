@@ -2,7 +2,7 @@
 apiVersion: argoproj.io/v1alpha1
 kind: CronWorkflow
 metadata:
-  name: test-cron-copy-restore
+  name: cron-copy-restore
   labels:
     linz.govt.nz/category: storage
 spec:
