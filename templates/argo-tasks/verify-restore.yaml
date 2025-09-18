@@ -22,16 +22,13 @@ spec:
           - name: restore_manifest
             description: S3 path to the restore manifest file
             default: ''
-          - name: aws_role_config_path
-            description: s3 URL or comma-separated list of s3 URLs allowing the workflow to read from a location
-            default: ''
       retryStrategy:
         limit: '2' # force retrying this specific task
       container:
         image: '019359803926.dkr.ecr.ap-southeast-2.amazonaws.com/argo-tasks:{{=sprig.trim(inputs.parameters.version_argo_tasks)}}'
         env:
           - name: AWS_ROLE_CONFIG_PATH
-            value: '{{inputs.parameters.aws_role_config_path}},s3://linz-bucket-config/config.json'
+            value: s3://linz-bucket-config/config.json
         args:
           [
             'verify-restore',

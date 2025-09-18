@@ -126,7 +126,7 @@ spec:
                 - name: aws_role_config_path
                   value: 's3://linz-bucket-config/config-write.topographic.json,s3://linz-bucket-config/config-write.hydrographic.json'
             withParam: '{{steps.read-copy-manifest.outputs.parameters.content}}'
-            when: '{{steps.read-copy-manifest.outputs.parameters.content}} != ""'
+            when: '{{steps.read-copy-manifest.status}} == Succeeded'
 
     - name: exit-handler
       retryStrategy:

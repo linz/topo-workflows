@@ -2,11 +2,11 @@
 apiVersion: argoproj.io/v1alpha1
 kind: CronWorkflow
 metadata:
-  name: cron-copy-restore
+  name: test-cron-copy-restore
   labels:
     linz.govt.nz/category: storage
 spec:
-  schedule: '0 6,12 * * 1-5' # At 6:00AM and 12:00PM, Monday through Friday
+  schedule: '0 6 * * 1-5' # At 6:00AM and 12:00PM, Monday through Friday
   timezone: 'NZ'
   startingDeadlineSeconds: 3600 # Allow 1 hour delay if the workflow-controller clashes during the starting time.
   concurrencyPolicy: 'Allow'
