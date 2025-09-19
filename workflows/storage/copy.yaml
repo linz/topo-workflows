@@ -137,6 +137,8 @@ spec:
             default: 'v4'
           - name: compress # This should not be exposed to the user (as a workflow parameter)
             default: 'false'
+          - name: decompress # This should not be exposed to the user (as a workflow parameter)
+            default: 'false'
           - name: delete_source # This should not be exposed to the user (as a workflow parameter)
             default: 'false'
           - name: delete_empty_folders # This should not be exposed to the user (as a workflow parameter)

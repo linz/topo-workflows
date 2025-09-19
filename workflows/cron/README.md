@@ -4,6 +4,7 @@
 - [cron-stac-validate-full](#cron-stac-validate-full)
 - [National Elevation](#national-elevation)
 - [National Hillshades](#national-hillshades)
+- [Unarchive Copy Restore](#copy-restore)
 
 ## STAC validation
 
@@ -70,3 +71,7 @@ The three cron workflows `cron-national-merged-dem-hillshades-coastal` and `cron
 - [New Zealand DSM Hillshade - Igor](https://github.com/linz/elevation/blob/master/stac/new-zealand/new-zealand/dsm-hillshade-igor/2193/collection.json)
 
 - schedule: **Monday to Friday at 12:30pm**
+
+## Unarchive Copy Restore
+
+The `cron-copy-restore` workflow triggers the [`copy-restore` workflow](https://github.com/linz/topo-workflows/blob/master/workflows/storage/README.md#copy-restore) on a twice daily (7am & 1pm Mon-Sun) basis to check for the status of S3 Glacier Batch Restore jobs, and initiate a file copy of restored files if the batch job has completed.
