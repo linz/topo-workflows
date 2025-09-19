@@ -56,7 +56,7 @@ spec:
 
       - name: source
         description: Source imagery file location, "s3://linz-hydrographic-upload/charts/NChart1200/CK141-1.tif"
-        value: 's3://linz-hydrographic-upload/charts/NChart1200/CK141-1.tif'
+        value: 's3://linz-hydrographic-upload/charts/NChart1200/NZ14065-1.tif'
 
       - name: target
         description: Target location for output COGs
@@ -93,6 +93,10 @@ spec:
           - 'true'
           - 'false'
 
+      - name: base_zoom_offset
+        description: 'Adjust the base zoom level of the output COGS, "-1" reduce the target output resolution by one zoom level'
+        value: ''
+
   templates:
     # Main entrypoint into the workflow
     - name: main
@@ -110,7 +114,6 @@ spec:
         tasks:
           - name: import-charts
             template: import-charts
-            withParam: "{{= toJson(sprig.splitList(';', inputs.parameters.tile_matrix)) }}"
             arguments:
               parameters:
                 - name: source
@@ -133,7 +136,6 @@ spec:
           - name: target
           - name: cutline
           - name: buffer_pixels
-          - name: tile_matrix
           - name: group_size
       dag:
         tasks:
@@ -149,21 +151,19 @@ spec:
                   value: '{{ inputs.parameters.cutline }}'
                 - name: buffer_pixels
                   value: '{{ inputs.parameters.buffer_pixels }}'
-                - name: tile_matrix
-                  value: '{{ inputs.parameters.tile_matrix }}'
           - name: cogify
             templateRef:
               name: tpl-bm-cogify
               template: main
-            withParam: '{{ tasks.charts.outputs.parameters.output }}'
+            withParam: "{{= toJson(sprig.splitList(';', workflow.parameters.tile_matrix)) }}"
             arguments:
               parameters:
                 - name: source
-                  value: '{{ item }}'
+                  value: "{{= jsonpath(tasks.charts.outputs.parameters.output, '$[0]') }}"
                 - name: target
                   value: '{{ inputs.parameters.target }}'
                 - name: tile_matrix
-                  value: '{{ inputs.parameters.tile_matrix }}'
+                  value: '{{ item }}'
                 - name: group_size
                   value: '{{ inputs.parameters.group_size }}'
                 - name: require_stac_collection
@@ -175,7 +175,7 @@ spec:
                 - name: preset
                   value: 'webp'
                 - name: base_zoom_offset
-                  value: ''
+                  value: '{{ workflow.parameters.base_zoom_offset }}'
                 - name: background
                   value: ''
             depends: 'charts'
@@ -187,7 +187,6 @@ spec:
           - name: target
           - name: cutline
           - name: buffer_pixels
-          - name: tile_matrix
       container:
         resources:
           requests:
@@ -202,7 +201,6 @@ spec:
         args:
           - 'cogify'
           - 'charts'
-          - '--tile-matrix={{ inputs.parameters.tile_matrix }}'
           - '--target={{ inputs.parameters.target }}'
           - '--cutline={{ inputs.parameters.cutline }}'
           - '--buffer-pixels={{ inputs.parameters.buffer_pixels }}'

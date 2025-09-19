@@ -119,8 +119,8 @@ spec:
           - name: cutline_blend
           - name: group_size
           - name: preset
-          - name: require_stac_collection
           - name: base_zoom_offset
+          - name: require_stac_collection
           - name: background
       dag:
         tasks:
