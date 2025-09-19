@@ -1,5 +1,9 @@
 # Common Templates
 
+- [Exit Handler](##common/exit-handler)
+- [Get Location](##common/get-location)
+- [Read File](##common/read-file)
+
 ## Exit Handler - `tpl-exit-handler`
 
 Template for handling a workflow `onExit`.
