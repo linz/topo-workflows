@@ -2,6 +2,8 @@
 
 - [Archive](#archive)
 - [Copy](#copy)
+- [Copy Restore](#copy-restore)
+- [Unarchive](#unarchive)
 
 ## Archive
 
@@ -123,3 +125,32 @@ retryStrategy:
 **include:** Although only `.tif(f)` and `.tfw` files are required, there should not be any `.json` files in with the uploaded imagery, so this option can be left at the default.
 
 **copy_option:** `--no-clobber` |
+
+## Copy Restore
+
+### Description
+
+Check for the status of S3 Glacier Batch Restore jobs triggered by the [`unarchive` workflow](#unarchive), and initiate a file copy of restored files if the batch job has completed.
+
+It will copy files from archive buckets to sharing buckets as follows:
+
+- from `linz-topographic-archive` to `linz-topographic-shared`
+- from `linz-hydrographic-archive` to `linz-hydrographic-shared`
+```mermaid
+graph TD
+    Start([Start]) --> ListManifests[List Manifests]
+    ListManifests --> FlattenManifests[Flatten Manifests]
+    FlattenManifests --> VerifyAndCopy[For Each Manifest: Verify and Copy]
+    VerifyAndCopy -->|Verify Restore| VerifyRestore[Verify Restore]
+    VerifyRestore -->|If True| ReadCopyManifest[Read Copy Manifest]
+    ReadCopyManifest -->|If Succeeded| Copy[For Each File: Copy]
+    VerifyAndCopy --> ExitHandler[Exit Handler]
+    Copy --> ExitHandler
+    ExitHandler --> End([End])
+```
+
+### Workflow Input Parameters
+
+| Parameter        | Type | Default                                       | Description                                                                |
+|------------------|------|-----------------------------------------------|----------------------------------------------------------------------------|
+| reports_location | str  | s3://linz-workflows-scratch/restore/requests/ | Location of S3 Glacier Batch Restore reports and copy manifests references |

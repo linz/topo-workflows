@@ -94,3 +94,19 @@ spec:
 
 Template to output the S3 Archive location for the workflow (example: `s3://linz-workflows-scratch/2024-10/02-my-workflow-29l4x/`).
 In some cases, we need this location to write output files by the workflow in a specific and consistent "folder" within the archive bucket.
+
+## Read File - `tpl-read-file`
+
+Template to copy a file from an AWS S3 location and output the file contents as a workflow parameter.
+
+Example usage:
+```yaml
+- name: read-copy-manifest
+  templateRef:
+    name: tpl-read-file
+    template: main
+  arguments:
+    parameters:
+      - name: location
+        value: "{{inputs.parameters.restore_copy_manifest)}}"
+```

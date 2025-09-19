@@ -5,11 +5,13 @@
 - [Group](##argo-tasks/group)
 - [Copy](##argo-tasks/copy)
 - [Create Manifest](##argo-tasks/create-manifest)
+- [List](##argo-tasks/list)
 - [Push to Github](##argo-tasks/push-to-github)
 - [Generate Path](##argo-tasks/generate-path)
 - [STAC setup](##argo-tasks/stac-setup)
 - [STAC validate](##argo-tasks/stac-validate)
 - [Identify updated items](##argo-tasks/identify-updated-items)
+- [Verify Restore](##argo-tasks/verify-restore)
 
 ## argo-tasks/group - `tpl-at-group`
 
@@ -156,6 +158,30 @@ Create a manifest file for a user specified source and target that includes `.ti
         value: '100Gi'
       - name: version_argo_tasks
         value: '{{workflow.parameters.version_argo_tasks}}'
+```
+
+## argo-tasks/list - `tpl-at-list`
+
+Template for listing and grouping files into a parameter containing a list of a list of files.
+See https://github.com/linz/argo-tasks#list
+
+### Template usage
+
+List files in a location that end with `manifest.json`:
+
+```yaml
+- name: list-manifests
+  templateRef:
+    name: tpl-at-list
+    template: main
+  arguments:
+    parameters:
+      - name: version_argo_tasks
+        value: '{{inputs.parameters.version_argo_tasks}}'
+      - name: location
+        value: '{{inputs.parameters.reports_location}}'
+      - name: include
+        value: 'manifest.json$'
 ```
 
 ## argo-tasks/push-to-github - `tpl-push-to-github`
@@ -306,4 +332,26 @@ Sample output:
     "includeDerived": true
   }
 ]
+```
+
+## argo-tasks/verify-restore - `tpl-at-verify-restore`
+
+Template for listing and grouping files into collections of tasks.  
+See https://github.com/linz/argo-tasks/tree/master/src/commands/verify-restore
+
+### Template usage
+
+Verify that all the files requested to be restored with S3 Batch Operations Restore are restored yet. Output a boolean value to indicate if all files are restored.
+
+```yaml
+- name: verify-restore
+  templateRef:
+    name: tpl-at-verify-restore
+    template: main
+  arguments:
+    parameters:
+      - name: version_argo_tasks
+        value: '{{inputs.parameters.version_argo_tasks}}'
+      - name: restore_manifest
+        value: '{{inputs.parameters.restore_manifest}}'
 ```
