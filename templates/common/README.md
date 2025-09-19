@@ -100,6 +100,7 @@ In some cases, we need this location to write output files by the workflow in a 
 Template to copy a file from an AWS S3 location and output the file contents as a workflow parameter.
 
 Example usage:
+
 ```yaml
 - name: read-copy-manifest
   templateRef:
@@ -108,5 +109,5 @@ Example usage:
   arguments:
     parameters:
       - name: location
-        value: "{{inputs.parameters.restore_copy_manifest)}}"
+        value: '{{inputs.parameters.restore_copy_manifest)}}'
 ```

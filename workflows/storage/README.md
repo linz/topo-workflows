@@ -136,6 +136,7 @@ It will copy files from archive buckets to sharing buckets as follows:
 
 - from `linz-topographic-archive` to `linz-topographic-shared`
 - from `linz-hydrographic-archive` to `linz-hydrographic-shared`
+
 ```mermaid
 graph TD
     Start([Start]) --> ListManifests[List Manifests]
@@ -152,5 +153,5 @@ graph TD
 ### Workflow Input Parameters
 
 | Parameter        | Type | Default                                       | Description                                                                |
-|------------------|------|-----------------------------------------------|----------------------------------------------------------------------------|
+| ---------------- | ---- | --------------------------------------------- | -------------------------------------------------------------------------- |
 | reports_location | str  | s3://linz-workflows-scratch/restore/requests/ | Location of S3 Glacier Batch Restore reports and copy manifests references |
