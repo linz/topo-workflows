@@ -97,7 +97,7 @@ In some cases, we need this location to write output files by the workflow in a 
 
 ## Read File - `tpl-read-file`
 
-Template to copy a file from an AWS S3 location and output the file contents as a workflow parameter.
+Template to copy a file from an AWS S3 location to the local filesystem and output the file contents as a workflow parameter.
 
 Example usage:
 
