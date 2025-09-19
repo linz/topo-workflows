@@ -19,7 +19,10 @@ spec:
             description: S3 path to the restore manifest file
             default: ''
       retryStrategy:
-        limit: '2' # force retrying this specific task
+        retryPolicy: 'OnFailure'
+        backoff:
+          duration: '2m' # wait in case this has run before the batch restore request has not fully completed
+        limit: '2'
       container:
         image: '019359803926.dkr.ecr.ap-southeast-2.amazonaws.com/argo-tasks:{{=sprig.trim(inputs.parameters.version_argo_tasks)}}'
         imagePullPolicy: Always

@@ -33,6 +33,7 @@ spec:
             default: 'v4'
           - name: reports_location
             value: '{{workflow.parameters.reports_location}}'
+            default: 's3://linz-workflows-scratch/restore/requests/'
       dag:
         tasks:
           - name: list-manifests
