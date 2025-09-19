@@ -1,9 +1,9 @@
 # Contents
 
-- [Archive](#archive)
-- [Copy](#copy)
-- [Copy Restore](#copy-restore)
-- [Unarchive](#unarchive)
+- [Archive](##archive)
+- [Unarchive](##unarchive)
+- [Copy](##copy)
+- [Copy Restore](##copy-restore)
 
 ## Archive
 

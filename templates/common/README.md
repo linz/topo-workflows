@@ -1,8 +1,8 @@
 # Common Templates
 
-- [Exit Handler](##common/exit-handler)
-- [Get Location](##common/get-location)
-- [Read File](##common/read-file)
+- [Exit Handler](##exit-handler---tpl-exit-handler)
+- [Get Location](##get-location---tpl-get-location)
+- [Read File](##read-file---tpl-read-file)
 
 ## Exit Handler - `tpl-exit-handler`
 
