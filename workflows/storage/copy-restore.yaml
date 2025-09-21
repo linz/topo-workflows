@@ -78,7 +78,7 @@ spec:
             valueFrom:
               path: /tmp/flattened_manifests.json
       container:
-        image: peterevans/curl-jq:latest
+        image: peterevans/curl-jq@sha256:f62dbba08fad486a67d323e75dce757efc2ec55b1ddc2e5b78f174c978c3077c
         imagePullPolicy: Always
         command: [sh, '-c']
         args:
