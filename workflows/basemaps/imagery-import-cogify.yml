@@ -68,8 +68,9 @@ spec:
 
       - name: color_interpretation
         description: Color profile to use for the output imagery
-        value: 'rgba'
+        value: ''
         enum:
+          - ''
           - 'rgbi'
           - 'rgba'
           - 'elevation'

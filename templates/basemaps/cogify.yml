@@ -32,10 +32,11 @@ spec:
 
       - name: color_interpretation
         description: Color profile to use for the output imagery
-        value: 'rgba'
+        value: ''
         enum:
-          - 'rgbi'
+          - ''
           - 'rgba'
+          - 'rgbi'
           - 'elevation'
           - 'gray'
 
@@ -248,7 +249,7 @@ spec:
           - 'cogify'
           - 'cover'
           - '--preset={{ inputs.parameters.preset }}'
-          - '--preset-bands={{ inputs.parameters.color_interpretation }}'
+          - "{{= sprig.empty(inputs.parameters.color_interpretation) ? '' : '--preset-bands=' + inputs.parameters.color_interpretation }}"
           - '--tile-matrix={{ inputs.parameters.tile_matrix }}'
           - '--require-stac-collection={{ inputs.parameters.require_stac_collection }}'
           - "{{= sprig.empty(inputs.parameters.cutline) ? '' : '--cutline=' + inputs.parameters.cutline }}"
