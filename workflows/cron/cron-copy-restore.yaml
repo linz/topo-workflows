@@ -2,7 +2,7 @@
 apiVersion: argoproj.io/v1alpha1
 kind: CronWorkflow
 metadata:
-  name: cron-copy-restore
+  name: cron-check-restore-copy
   labels:
     linz.govt.nz/category: storage
 spec:
@@ -30,9 +30,9 @@ spec:
         retryStrategy:
           expression: 'false'
         steps:
-          - - name: copy-restore
+          - - name: check-restore-copy
               templateRef:
-                name: copy-restore
+                name: check-restore-copy
                 template: main
               arguments:
                 parameters:

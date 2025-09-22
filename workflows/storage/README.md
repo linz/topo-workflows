@@ -3,7 +3,7 @@
 - [Archive](##archive)
 - [Unarchive](##unarchive)
 - [Copy](##copy)
-- [Copy Restore](##copy-restore)
+- [Check Restore and Copy](##check-restore-and-copy)
 
 ## Archive
 
@@ -126,7 +126,7 @@ retryStrategy:
 
 **copy_option:** `--no-clobber` |
 
-## Copy Restore
+## Check Restore and Copy
 
 ### Description
 
