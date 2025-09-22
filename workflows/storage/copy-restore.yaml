@@ -108,7 +108,7 @@ spec:
               parameters:
                 - name: location
                   value: "{{= sprig.replace('manifest.json', 'copy-manifests.json', inputs.parameters.restore_manifest)}}"
-            when: '{{steps.verify-restore.outputs.parameters.result}} == true'
+            when: '{{steps.verify-restore.outputs.parameters.all-files-restored-result}} == true'
         - - name: copy
             templateRef:
               name: tpl-copy
