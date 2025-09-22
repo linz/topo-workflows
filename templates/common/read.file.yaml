@@ -6,10 +6,6 @@ metadata:
   # Template to output the content of a file in S3
   name: tpl-read-file
 spec:
-  templateDefaults:
-    container:
-      imagePullPolicy: Always
-      image: ''
   entrypoint: main
   templates:
     - name: main
@@ -25,7 +21,7 @@ spec:
               path: '/tmp/content'
       script:
         image: 'public.ecr.aws/aws-cli/aws-cli:2.27.62'
-        imagePullPolicy: Always
+        imagePullPolicy: IfNotPresent
         command: [sh]
         source: |
           aws s3 cp '{{inputs.parameters.location}}' /tmp/content

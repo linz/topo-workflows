@@ -79,7 +79,7 @@ spec:
               path: /tmp/flattened_manifests.json
       container:
         image: peterevans/curl-jq@sha256:f62dbba08fad486a67d323e75dce757efc2ec55b1ddc2e5b78f174c978c3077c
-        imagePullPolicy: Always
+        imagePullPolicy: IfNotPresent
         command: [sh, '-c']
         args:
           - echo '{{inputs.parameters.manifests_list}}' | jq -c 'flatten' > /tmp/flattened_manifests.json
