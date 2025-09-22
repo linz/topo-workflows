@@ -28,11 +28,11 @@ spec:
             default: ''
 
           - name: group
-            description: Group files by this many files (will use the value of `group` or `group_size` that is reached first)
+            description: Group files by this many files (will use the value of `group` or `group_size` that is reached first). Set to -1 to disable.
             default: '1000'
 
           - name: group_size
-            description: Group the files into this size per group (will use the value of `group` or `group_size` that is reached first)
+            description: Group the files into this size per group (will use the value of `group` or `group_size` that is reached first). Set to -1 to disable.
             default: '100Gi'
 
       outputs:

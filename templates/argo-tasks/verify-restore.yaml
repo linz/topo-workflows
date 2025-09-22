@@ -21,7 +21,7 @@ spec:
       retryStrategy:
         retryPolicy: 'OnFailure'
         backoff:
-          duration: '2m' # wait in case this has run before the batch restore request has not fully completed
+          duration: '2m' # wait in case this has run before the batch restore request has fully completed
         limit: '2'
       container:
         image: '019359803926.dkr.ecr.ap-southeast-2.amazonaws.com/argo-tasks:{{=sprig.trim(inputs.parameters.version_argo_tasks)}}'
@@ -35,12 +35,12 @@ spec:
             '--verbose',
             '--mark-done',
             '--output',
-            '/tmp/result.json',
+            '/tmp/all-files-restored-result',
             '{{inputs.parameters.restore_manifest}}',
           ]
       outputs:
         parameters:
-          - name: result
-            description: Result of the restore verification
+          - name: all_files_restored_result
+            description: True if the restore request is complete for all files
             valueFrom:
-              path: /tmp/result.json
+              path: /tmp/all-files-restored-result

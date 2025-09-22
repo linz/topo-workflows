@@ -47,7 +47,7 @@ spec:
                 - name: location
                   value: '{{inputs.parameters.reports_location}}'
                 - name: include
-                  value: 'manifest.json$'
+                  value: '/manifest.json$'
           - name: flatten-manifests
             template: flatten-manifests
             arguments:
