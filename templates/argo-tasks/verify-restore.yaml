@@ -30,14 +30,12 @@ spec:
           - name: AWS_ROLE_CONFIG_PATH
             value: s3://linz-bucket-config/config.json
         args:
-          [
-            'verify-restore',
-            '--verbose',
-            '--mark-done',
-            '--output',
-            '/tmp/all-files-restored-result',
-            '{{inputs.parameters.restore_manifest}}',
-          ]
+          - 'verify-restore'
+          - '--verbose'
+          - '--mark-done'
+          - '--output'
+          - '/tmp/all-files-restored-result'
+          - '{{inputs.parameters.restore_manifest}}'
       outputs:
         parameters:
           - name: all_files_restored_result
