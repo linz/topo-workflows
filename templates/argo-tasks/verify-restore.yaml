@@ -1,0 +1,44 @@
+# yaml-language-server: $schema=https://raw.githubusercontent.com/argoproj/argo-workflows/v3.5.5/api/jsonschema/schema.json
+
+apiVersion: argoproj.io/v1alpha1
+kind: WorkflowTemplate
+metadata:
+  # Template from linz/argo-tasks
+  # see https://github.com/linz/argo-tasks#verify-restore
+  name: tpl-at-verify-restore
+spec:
+  entrypoint: main
+  templates:
+    - name: main
+      inputs:
+        parameters:
+          - name: version_argo_tasks
+            description: Version of argo-tasks to use
+            default: 'v4'
+          - name: restore_manifest
+            description: S3 path to the restore manifest file
+            default: ''
+      retryStrategy:
+        retryPolicy: 'OnFailure'
+        backoff:
+          duration: '2m' # wait in case this has run before the batch restore request has fully completed
+        limit: '2'
+      container:
+        image: '019359803926.dkr.ecr.ap-southeast-2.amazonaws.com/argo-tasks:{{=sprig.trim(inputs.parameters.version_argo_tasks)}}'
+        imagePullPolicy: Always
+        env:
+          - name: AWS_ROLE_CONFIG_PATH
+            value: s3://linz-bucket-config/config.json
+        args:
+          - 'verify-restore'
+          - '--verbose'
+          - '--mark-done'
+          - '--output'
+          - '/tmp/all-files-restored-result'
+          - '{{inputs.parameters.restore_manifest}}'
+      outputs:
+        parameters:
+          - name: all_files_restored_result
+            description: True if the restore request is complete for all files
+            valueFrom:
+              path: /tmp/all-files-restored-result
