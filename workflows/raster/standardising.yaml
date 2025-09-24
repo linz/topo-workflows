@@ -96,13 +96,13 @@ spec:
           - '50000'
           - 'None'
       - name: validate
-        description: 'Validate the tiles match LINZ map sheet tile index and there are no duplicate tiles'
+        description: 'Validate the tiles match LINZ map sheet tile index and there are no duplicate tiles, and that the TIFF resolution (GSD) matches across all files'
         value: 'true'
         enum:
           - 'false'
           - 'true'
       - name: retile
-        description: 'Retile the dataset to the output scale specified in the "scale" parameter'
+        description: 'Retile the dataset to the output scale specified in the "scale" parameter and GSD of the source imagery'
         value: 'false'
         enum:
           - 'true'
@@ -161,8 +161,6 @@ spec:
         enum:
           - 'land'
           - 'coastal'
-      - name: gsd
-        description: 'Dataset GSD in metres, e.g., "0.3" for 30 centimetres'
       - name: producer
         description: 'The producer of the source dataset, e.g. aerial or bathymetric survey company'
         value: 'Unknown'
@@ -361,31 +359,6 @@ spec:
           - name: source
       dag:
         tasks:
-          - name: stac-setup
-            templateRef:
-              name: tpl-at-stac-setup
-              template: main
-            arguments:
-              parameters:
-                - name: start_datetime
-                  value: '{{=sprig.trim(workflow.parameters.start_datetime)}}'
-                - name: end_datetime
-                  value: '{{=sprig.trim(workflow.parameters.end_datetime)}}'
-                - name: gsd
-                  value: '{{=sprig.trim(workflow.parameters.gsd)}}'
-                - name: region
-                  value: '{{=sprig.trim(workflow.parameters.region)}}'
-                - name: geographic_description
-                  value: '{{=sprig.trim(workflow.parameters.geographic_description)}}'
-                - name: geospatial_category
-                  value: '{{=sprig.trim(workflow.parameters.category)}}'
-                - name: survey_id
-                  value: '{{=sprig.trim(workflow.parameters.historic_survey_number)}}'
-                - name: odr_url
-                  value: '{{=sprig.trim(workflow.parameters.odr_url)}}'
-                - name: version
-                  value: '{{=sprig.trim(workflow.parameters.version_argo_tasks)}}'
-
           - name: tile-index-validate
             templateRef:
               name: tpl-at-tile-index-validate
@@ -408,6 +381,34 @@ spec:
                   value: '{{= workflow.parameters.compression}}'
                 - name: version
                   value: '{{= workflow.parameters.version_argo_tasks}}'
+
+          - name: stac-setup
+            templateRef:
+              name: tpl-at-stac-setup
+              template: main
+            arguments:
+              parameters:
+                - name: start_datetime
+                  value: '{{=sprig.trim(workflow.parameters.start_datetime)}}'
+                - name: end_datetime
+                  value: '{{=sprig.trim(workflow.parameters.end_datetime)}}'
+                - name: gsd
+                  value: '{{ tasks.tile-index-validate.outputs.parameters.gsd }}'
+                - name: validate
+                  value: '{{= workflow.parameters.validate}}'
+                - name: region
+                  value: '{{=sprig.trim(workflow.parameters.region)}}'
+                - name: geographic_description
+                  value: '{{=sprig.trim(workflow.parameters.geographic_description)}}'
+                - name: geospatial_category
+                  value: '{{=sprig.trim(workflow.parameters.category)}}'
+                - name: survey_id
+                  value: '{{=sprig.trim(workflow.parameters.historic_survey_number)}}'
+                - name: odr_url
+                  value: '{{=sprig.trim(workflow.parameters.odr_url)}}'
+                - name: version
+                  value: '{{=sprig.trim(workflow.parameters.version_argo_tasks)}}'
+            depends: tile-index-validate
 
           - name: group
             templateRef:
@@ -451,7 +452,7 @@ spec:
                 - name: cutline
                   value: '{{=sprig.trim(workflow.parameters.cutline)}}'
                 - name: gsd
-                  value: '{{=sprig.trim(workflow.parameters.gsd)}}'
+                  value: '{{ tasks.tile-index-validate.outputs.parameters.gsd }}'
                 - name: source_epsg
                   value: '{{=sprig.trim(workflow.parameters.source_epsg)}}'
                 - name: target_epsg
@@ -491,7 +492,7 @@ spec:
                 - name: region
                   value: '{{=sprig.trim(workflow.parameters.region)}}'
                 - name: gsd
-                  value: '{{=sprig.trim(workflow.parameters.gsd)}}'
+                  value: '{{ tasks.tile-index-validate.outputs.parameters.gsd }}'
                 - name: geographic_description
                   value: '{{=sprig.trim(workflow.parameters.geographic_description)}}'
                 - name: event

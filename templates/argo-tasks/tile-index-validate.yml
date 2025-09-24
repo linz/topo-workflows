@@ -52,6 +52,12 @@ spec:
             default: 'v4'
 
       outputs:
+        parameters:
+          - name: gsd
+            description: 'GSD of the input tiffs'
+            valueFrom:
+              path: /tmp/tile-index-validate/gsd
+
         artifacts:
           # List of tiff files that need to be processed
           - name: files

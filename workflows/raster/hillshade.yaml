@@ -126,6 +126,8 @@ spec:
               parameters:
                 - name: gsd
                   value: '{{=sprig.trim(workflow.parameters.gsd)}}'
+                - name: validate
+                  value: 'true'
                 - name: region
                   value: 'new-zealand'
                 - name: geospatial_category
