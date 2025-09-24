@@ -25,7 +25,7 @@ spec:
           - name: gsd
             description: 'Dataset GSD in metres'
           - name: validate
-            description: 'Validate input GSD against the existing ODR_URL (collection.json or first tiff asset)'
+            description: 'Validate input GSD against the dataset at (optional) odr_url'
             default: 'true'
           - name: region
             description: 'Region of the dataset'
