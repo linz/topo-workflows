@@ -59,10 +59,6 @@ spec:
               path: /tmp/tile-index-validate/gsd
 
         artifacts:
-          # GSD of the input tiffs
-          - name: gsd
-            path: /tmp/tile-index-validate/gsd
-
           # List of tiff files that need to be processed
           - name: files
             path: /tmp/tile-index-validate/file-list.json
