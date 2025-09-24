@@ -453,6 +453,10 @@ spec:
                   value: '{{=sprig.trim(workflow.parameters.cutline)}}'
                 - name: gsd
                   value: '{{ tasks.tile-index-validate.outputs.parameters.gsd }}'
+                - name: scale_to_resolution
+                  value: '{{=sprig.trim(workflow.parameters.retile) == "true" ?
+                    sprig.trim(tasks["tile-index-validate"].outputs.parameters.gsd) + "," + sprig.trim(tasks["tile-index-validate"].outputs.parameters.gsd)
+                    : ""}}'
                 - name: source_epsg
                   value: '{{=sprig.trim(workflow.parameters.source_epsg)}}'
                 - name: target_epsg
