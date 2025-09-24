@@ -26,8 +26,8 @@ Publishing to the AWS Registry of Open Data is an optional step [publish-odr](#P
 | source                    | str   | s3://linz-imagery-staging/test/sample | the uri (path) to the input tiffs                                                                                                                                                                                                                                 |
 | include                   | regex | .tiff?$                               | A regular expression to match object path(s) or name(s) from within the source path to include in standardising\*.                                                                                                                                                |
 | scale                     | enum  | 500                                   | The scale of the TIFFs                                                                                                                                                                                                                                            |
-| validate                  | enum  | true                                  | Validate the TIFFs files with `tileindex-validate`.                                                                                                                                                                                                               |
-| retile                    | enum  | false                                 | Prepare the data for retiling TIFFs files to `scale` with `tileindex-validate`.                                                                                                                                                                                   |
+| validate                  | enum  | true                                  | Validate the TIFF files with `tileindex-validate`.                                                                                                                                                                                                                |
+| retile                    | enum  | false                                 | Prepare the data for retiling TIFF files to `scale` and matching GSD with `tileindex-validate`.                                                                                                                                                                   |
 | group                     | int   | 50                                    | The number of files to group into the pods (testing has recommended using 50 for large datasets).                                                                                                                                                                 |
 | compression               | enum  | webp                                  | Standardised file format                                                                                                                                                                                                                                          |
 | create_capture_area       | enum  | true                                  | Create a GeoJSON capture area for the dataset                                                                                                                                                                                                                     |
@@ -37,7 +37,6 @@ Publishing to the AWS Registry of Open Data is an optional step [publish-odr](#P
 | delete_all_existing_items | enum  | false                                 | Delete all existing items in the collection before adding new items. Only when re-supplying existing datasets.                                                                                                                                                    |
 | category                  | enum  | urban-aerial-photos                   | Dataset type for collection metadata, also used to Build Dataset title & description                                                                                                                                                                              |
 | domain                    | enum  | land                                  | domain of the dataset, e.g. "land", "coastal"                                                                                                                                                                                                                     |
-| gsd                       | str   |                                       | Dataset GSD in metres for collection metadata, also used to build dataset title                                                                                                                                                                                   |
 | producer                  | enum  | Unknown                               | Imagery producer :warning: Ignored if `producer_list` is used.                                                                                                                                                                                                    |
 | producer_list             | str   |                                       | List of imagery producers, separated by semicolon (;). :warning: Has no effect unless a semicolon delimited list is entered.                                                                                                                                      |
 | licensor                  | enum  | Unknown                               | Imagery licensor. :warning: Ignored if `licensor_list` is used.                                                                                                                                                                                                   |
@@ -74,7 +73,6 @@ Publishing to the AWS Registry of Open Data is an optional step [publish-odr](#P
 | odr_url                | s3://nz-imagery/taranaki/new-plymouth_2017_0.1m/rgb/2193/                         |
 | supplied_capture_area  | s3://linz-hydrographic-upload/linz/tauranga_1m/supplied-capture-area.geojson      |
 | category               | rural-aerial-photos                                                               |
-| gsd                    | 0.3                                                                               |
 | producer               | Aerial Surveys                                                                    |
 | licensor               | Toitū Te Whenua Land Information New Zealand                                      |
 | licensor_list          | Waka Kotahi; Nelson City Council;Tasman District Council                          |
@@ -144,7 +142,7 @@ graph TD;
 
 ### [stac-setup](./standardising.yaml)
 
-if `odr_url` is provided, gets existing `linz:slug` and `collection-id` STAC metadata fields (e.g. for dataset resupply),
+if `odr_url` is provided, gets existing `linz:slug` and `collection-id` STAC metadata fields (e.g. for dataset resupply), and if `validate` is true, checks the input `gsd` matches the existing collection (or first TIFF asset, if collection.json file is of an older format without `gsd` metadata).
 If no `odr_url` is provided:
 
 - a ULID is generated for the collection ID
@@ -154,7 +152,7 @@ Output parameters are `collection_id` and `linz_slug`.
 
 ### [tileindex-validate](https://github.com/linz/argo-tasks/blob/master/src/commands/tileindex-validate/)
 
-Lists tiffs from source input, validates they match a LINZ Mapsheet tile index and asserts that there will be no duplicates. Checks `webp` files are 8-bit.
+Lists tiffs from source input, validates they match a LINZ Mapsheet tile index and asserts that there will be no duplicates. Checks `webp` files are 8-bit. Extracts GSD from the first file (and ensures all files match the same GSD if `validate` is true).
 
 ### [standardise-validate](https://github.com/linz/topo-imagery/blob/master/scripts/standardise_validate.py)
 

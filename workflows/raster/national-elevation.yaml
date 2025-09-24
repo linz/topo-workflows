@@ -132,6 +132,8 @@ spec:
               parameters:
                 - name: gsd
                   value: '1'
+                - name: validate
+                  value: 'true'
                 - name: region
                   value: 'new zealand'
                 - name: geospatial_category
