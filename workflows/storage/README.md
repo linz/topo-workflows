@@ -75,15 +75,6 @@ This is a workflow that uses the [argo-tasks](https://github.com/linz/argo-tasks
 
 Access permissions are controlled by the [Bucket Sharing Config](https://github.com/linz/topo-aws-infrastructure/blob/master/src/stacks/bucket.sharing.ts) which gives Argo Workflows access to the S3 buckets we use.
 
-Note: In order to mitigate stuck copy workflows the `tpl-copy` [template](https://github.com/linz/topo-workflows/blob/master/templates/argo-tasks/README.md#argo-taskscopy---tpl-copy) now times out after 15 minutes (using `activeDeadlineSeconds`) and will retry up to 10 times. This is a measure to avoid having to manually interact with the workflows while we investigate the root cause of this issue.
-
-```yaml
-activeDeadlineSeconds: '900' # Run up to 900 secs / 15 minutes
-retryStrategy:
-  limit: '10' # Retry up to 10 times
-  retryPolicy: 'Always'
-```
-
 ### Workflow Input Parameters
 
 | Parameter            | Type  | Default                                                                                                                                                       | Description                                                                                                                                                                                                                 |

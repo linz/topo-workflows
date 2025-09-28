@@ -93,17 +93,8 @@ steps:
 
 ## argo-tasks/copy - `tpl-copy`
 
-Template for copying a manifest of files between two locations.
+Template for copying a manifest of files between two locations.  
 See https://github.com/linz/argo-tasks#copy
-
-Note: In order to mitigate stuck copy workflows the `tpl-copy` template now times out after 15 minutes (using `activeDeadlineSeconds`) and will retry up to 10 times. This is a measure to avoid having to manually interact with the workflows while we investigate the root cause of this issue.
-
-```yaml
-activeDeadlineSeconds: '900' # Run up to 900 secs / 15 minutes
-retryStrategy:
-  limit: '10' # Retry up to 10 times
-  retryPolicy: 'Always'
-```
 
 ### Template usage
 
