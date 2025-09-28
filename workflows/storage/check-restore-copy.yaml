@@ -125,10 +125,21 @@ spec:
                   value: 's3://linz-bucket-config/config-write.topographic.json,s3://linz-bucket-config/config-write.hydrographic.json'
             withParam: '{{steps.read-copy-manifest.outputs.parameters.content}}'
             when: '{{steps.read-copy-manifest.status}} == Succeeded'
+            hooks:
+              exit:
+                template: exit-handler
+                arguments:
+                  parameters:
+                    - name: msg
+                      value: 'UnarchiveCopy:Done'
 
     - name: exit-handler
       retryStrategy:
         limit: '0' # `tpl-exit-handler` retries itself
+      inputs:
+        parameters:
+          - name: msg
+            default: 'Workflow:Done'
       steps:
         - - name: exit
             templateRef:
@@ -140,3 +151,5 @@ spec:
                   value: '{{workflow.status}}'
                 - name: workflow_parameters
                   value: '{{workflow.parameters}}'
+                - name: msg
+                  value: '{{inputs.parameters.msg}}'

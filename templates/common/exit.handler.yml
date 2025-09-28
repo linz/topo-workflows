@@ -15,6 +15,9 @@ spec:
     - name: main
       inputs:
         parameters:
+          - name: msg
+            description: Custom status message
+            default: 'Workflow:Done'
           - name: workflow_status
             description: Status of the workflow
           - name: workflow_parameters
@@ -34,7 +37,7 @@ spec:
               time: Date.now(),
               level: 20,
               pid: 1,
-              msg: 'Workflow:Done',
+              msg: '{{inputs.parameters.msg}}',
               workflowStatus: '{{inputs.parameters.workflow_status}}', 
               parameters,
             }),
