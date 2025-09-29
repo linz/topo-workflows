@@ -202,7 +202,7 @@ spec:
               aws s3 cp /tmp/copy-manifests.json "s3://{{inputs.parameters.request_output_bucket}}/restore/requests/${REQUEST_LOCATION}/job-${JOB_ID}/copy-manifests.json"
 
               # Store information for Slack alerting
-              cat "{{inputs.parameters.restore_location}}" >  /tmp/restore-location
+              echo "{{inputs.parameters.restore_location}}" >  /tmp/restore-location
               aws s3 cp /tmp/restore-location "s3://{{inputs.parameters.request_output_bucket}}/restore/requests/${REQUEST_LOCATION}/job-${JOB_ID}/restore-location"
 
     - name: exit-handler
