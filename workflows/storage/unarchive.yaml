@@ -100,6 +100,8 @@ spec:
                   value: '{{tasks.create-manifest.outputs.parameters.files}}'
                 - name: request_output_bucket
                   value: '{{tasks.get-location.outputs.parameters.bucket}}'
+                - name: restore_location
+                  value: 's3://{{= workflow.parameters.archive_bucket == "linz-topographic-archive" ? "linz-topographic-shared" : workflow.parameters.archive_bucket == "linz-hydrographic-archive" ? "linz-hydrographic-shared" : "unknown-bucket" }}/{{workflow.parameters.consumer}}/{{=sprig.trimPrefix("/",workflow.parameters.archive_directory)}}'
             depends: 'get-location && create-manifest'
             when: '{{tasks.create-manifest.outputs.parameters.files}} != ""'
 
@@ -112,6 +114,8 @@ spec:
           - name: retrieval_tier
           - name: manifest_list
           - name: request_output_bucket
+          - name: restore_location
+
       container:
         image: public.ecr.aws/aws-cli/aws-cli:2.27.62
         env:
@@ -196,6 +200,10 @@ spec:
 
               # Upload the copy manifests list at the same location as the report manifest
               aws s3 cp /tmp/copy-manifests.json "s3://{{inputs.parameters.request_output_bucket}}/restore/requests/${REQUEST_LOCATION}/job-${JOB_ID}/copy-manifests.json"
+
+              # Store information for Slack alerting
+              cat "{{inputs.parameters.restore_location}}" >  /tmp/restore-location
+              aws s3 cp /tmp/restore-location "s3://{{inputs.parameters.request_output_bucket}}/restore/requests/${REQUEST_LOCATION}/job-${JOB_ID}/restore-location"
 
     - name: exit-handler
       retryStrategy:
