@@ -53,8 +53,6 @@ The script ran by this template is generating a log, including the status of the
 
 ### Template usage
 
-The information to pass to this `WorkflowTemplate` is the status and the parameters of the workflow (`workflow.status` & `workflow.parameters`).
-
 As the `onExit` event [does not handle a `templateRef`](https://github.com/argoproj/argo-workflows/issues/3188),
 an additional template called by the `onExit` event has to be added to the templates so it can finally call the `tpl-exit-handler` template.
 
@@ -86,12 +84,6 @@ spec:
             templateRef:
               name: tpl-exit-handler
               template: main
-            arguments:
-              parameters:
-                - name: workflow_status
-                  value: '{{workflow.status}}'
-                - name: workflow_parameters
-                  value: '{{workflow.parameters}}'
 ```
 
 ## Get Location - `tpl-get-location`
