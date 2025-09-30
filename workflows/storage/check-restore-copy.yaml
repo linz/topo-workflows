@@ -109,12 +109,23 @@ spec:
                 - name: location
                   value: "{{= sprig.replace('manifest.json', 'copy-manifests.json', inputs.parameters.restore_manifest)}}"
             when: '{{steps.verify-restore.outputs.parameters.all_files_restored_result}} == true'
+          - name: read-restore-location
+            templateRef:
+              name: tpl-read-file
+              template: main
+            arguments:
+              parameters:
+                - name: location
+                  value: "{{= sprig.replace('manifest.json', 'restore-location', inputs.parameters.restore_manifest)}}"
+            when: '{{steps.verify-restore.outputs.parameters.all_files_restored_result}} == true'
         - - name: copy
             templateRef:
               name: tpl-copy
               template: main
             arguments:
               parameters:
+#                - name: restore_location
+#                  value:
                 - name: file
                   value: '{{item}}'
                 - name: copy_option
@@ -124,7 +135,7 @@ spec:
                 - name: aws_role_config_path
                   value: 's3://linz-bucket-config/config-write.topographic.json,s3://linz-bucket-config/config-write.hydrographic.json'
             withParam: '{{steps.read-copy-manifest.outputs.parameters.content}}'
-            when: '{{steps.read-copy-manifest.status}} == Succeeded'
+            when: '{{steps.read-copy-manifest.status}} == Succeeded && {{steps.read-restore-location.status}} == Succeeded'
             hooks:
               exit:
                 template: exit-handler
@@ -132,6 +143,8 @@ spec:
                   parameters:
                     - name: msg
                       value: 'UnarchiveCopy:Done'
+                    - name: restore_location
+                      value: '{{steps.read-restore-location.outputs.parameters.content}}'
 
     - name: exit-handler
       retryStrategy:
@@ -140,10 +153,12 @@ spec:
         parameters:
           - name: msg
             default: 'Workflow:Done'
+          - name: restore_location
+            default: ''
       steps:
         - - name: exit
             templateRef:
-              name: tpl-exit-handler
+              name: test-tpl-exit-handler
               template: main
             arguments:
               parameters:
@@ -153,3 +168,5 @@ spec:
                   value: '{{workflow.parameters}}'
                 - name: msg
                   value: '{{inputs.parameters.msg}}'
+                - name: optional_information
+                  value: '{{inputs.parameters.restore_location}}'
