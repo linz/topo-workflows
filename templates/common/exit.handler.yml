@@ -32,15 +32,22 @@ spec:
         command: [node]
         source: |
           let parameters = {};
-          {{= inputs.parameters.workflow_parameters }}.forEach((pair) => (parameters[pair.name] = pair.value));
-
+          let inputParameters = {{= toJson(inputs.parameters) }};
+          const workflowParamsObj = Object.fromEntries(
+            JSON.parse(inputParameters.workflow_parameters).map((pair) => [pair.name, pair.value]),
+          );
+          const merged = {
+            ...inputParameters,
+            ...workflowParamsObj,
+          };
+          delete merged.workflow_parameters;
           console.log(
             JSON.stringify({
               time: Date.now(),
               level: 20,
               pid: 1,
               msg: '{{inputs.parameters.msg}}',
-              workflowStatus: '{{inputs.parameters.workflow_status}}', 
-              parameters,
+              workflowStatus: '{{workflow.status}}',
+              parameters: merged,
             }),
           );
