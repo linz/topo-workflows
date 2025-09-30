@@ -677,12 +677,6 @@ spec:
             templateRef:
               name: tpl-exit-handler
               template: main
-            arguments:
-              parameters:
-                - name: workflow_status
-                  value: '{{workflow.status}}'
-                - name: workflow_parameters
-                  value: '{{workflow.parameters}}'
 
   volumes:
     - name: ephemeral

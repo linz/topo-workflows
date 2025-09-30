@@ -16,6 +16,7 @@ describe('exit handler script template', () => {
         ]),
       },
       { toReplace: '{{inputs.parameters.workflow_status}}', replaceWith: 'Succeeded' },
+      { toReplace: '{{inputs.parameters.msg}}', replaceWith: 'Workflow:Done' },
     ]);
 
     assert.equal(spy.mock.callCount(), 1);

@@ -17,8 +17,13 @@ spec:
         parameters:
           - name: workflow_status
             description: Status of the workflow
+            value: '{{workflow.status}}'
           - name: workflow_parameters
             description: Parameters of the workflow
+            value: '{{workflow.parameters}}'
+          - name: msg
+            default: 'Workflow:Done'
+            description: Custom exit status message
           - name: version_argo_tasks
             description: Version of argo-tasks to use
             default: 'v4'
@@ -34,7 +39,7 @@ spec:
               time: Date.now(),
               level: 20,
               pid: 1,
-              msg: 'Workflow:Done',
+              msg: '{{inputs.parameters.msg}}',
               workflowStatus: '{{inputs.parameters.workflow_status}}', 
               parameters,
             }),
