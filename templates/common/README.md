@@ -86,12 +86,12 @@ spec:
             templateRef:
               name: tpl-exit-handler
               template: main
-              arguments:
-                parameters:
-                  - name: msg
-                    value: 'Workflow:Done:CustomMessage'
-                  - name: custom_parameter
-                    value: 'Custom parameter value to be collected for logs'
+            arguments:
+              parameters:
+                - name: msg
+                  value: 'Workflow:Done:CustomMessage'
+                - name: custom_parameter
+                  value: 'Custom parameter value to be collected for logs'
 ```
 
 ## Get Location - `tpl-get-location`
