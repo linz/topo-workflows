@@ -53,6 +53,8 @@ The script ran by this template is generating a log, including the status of the
 
 ### Template usage
 
+The information to pass to this can be a custom value in the `msg` field, and any other custom parameters to collect in the logs.
+
 As the `onExit` event [does not handle a `templateRef`](https://github.com/argoproj/argo-workflows/issues/3188),
 an additional template called by the `onExit` event has to be added to the templates so it can finally call the `tpl-exit-handler` template.
 
@@ -84,6 +86,12 @@ spec:
             templateRef:
               name: tpl-exit-handler
               template: main
+              arguments:
+                parameters:
+                  - name: msg
+                    value: 'Workflow:Done:CustomMessage'
+                  - name: custom_parameter
+                    value: 'Custom parameter value to be collected for logs'
 ```
 
 ## Get Location - `tpl-get-location`
