@@ -124,8 +124,6 @@ spec:
               template: main
             arguments:
               parameters:
-#                - name: restore_location
-#                  value:
                 - name: file
                   value: '{{item}}'
                 - name: copy_option
@@ -141,8 +139,6 @@ spec:
                 template: exit-handler
                 arguments:
                   parameters:
-                    - name: msg
-                      value: 'UnarchiveCopy:Done'
                     - name: restore_location
                       value: '{{steps.read-restore-location.outputs.parameters.content}}'
 
@@ -151,22 +147,15 @@ spec:
         limit: '0' # `tpl-exit-handler` retries itself
       inputs:
         parameters:
-          - name: msg
-            default: 'Workflow:Done'
           - name: restore_location
-            default: ''
       steps:
         - - name: exit
             templateRef:
-              name: test-tpl-exit-handler
+              name: tpl-exit-handler-new
               template: main
             arguments:
               parameters:
-                - name: workflow_status
-                  value: '{{workflow.status}}'
-                - name: workflow_parameters
-                  value: '{{workflow.parameters}}'
                 - name: msg
-                  value: '{{inputs.parameters.msg}}'
-                - name: optional_information
+                  value: 'UnarchiveCopy:Done'
+                - name: restore_location
                   value: '{{inputs.parameters.restore_location}}'
