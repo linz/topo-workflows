@@ -31,16 +31,15 @@ spec:
         image: '019359803926.dkr.ecr.ap-southeast-2.amazonaws.com/argo-tasks:{{=sprig.trim(inputs.parameters.version_argo_tasks)}}'
         command: [node]
         source: |
-          let parameters = {};
           let inputParameters = {{= toJson(inputs.parameters) }};
           const workflowParamsObj = Object.fromEntries(
             JSON.parse(inputParameters.workflow_parameters).map((pair) => [pair.name, pair.value]),
           );
-          const merged = {
+          const mergedParameters = {
             ...inputParameters,
             ...workflowParamsObj,
           };
-          delete merged.workflow_parameters;
+          delete mergedParameters.workflow_parameters;
           console.log(
             JSON.stringify({
               time: Date.now(),
@@ -48,6 +47,6 @@ spec:
               pid: 1,
               msg: '{{inputs.parameters.msg}}',
               workflowStatus: '{{workflow.status}}',
-              parameters: merged,
+              parameters: mergedParameters,
             }),
           );
