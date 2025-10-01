@@ -3,11 +3,11 @@ import { describe, it } from 'node:test';
 
 import { runTestFunction } from './function.helper.js';
 
-describe('custom exit handler script template', () => {
-  it('should log workflow status and parameters', (t) => {
+describe('notification handler script template', () => {
+  it('should log workflow status and custom parameters', (t) => {
     const spy = t.mock.method(console, 'log');
 
-    runTestFunction('./templates/common/exit.handler.custom.yml', [
+    runTestFunction('./templates/common/notification.handler.yml', [
       {
         toReplace: '{{= toJson(inputs.parameters) }}',
         replaceWith: JSON.stringify({

@@ -4,7 +4,7 @@ apiVersion: argoproj.io/v1alpha1
 kind: WorkflowTemplate
 metadata:
   # Template to log the workflow status and its parameters.
-  name: tpl-exit-handler-custom
+  name: tpl-notification-handler
 spec:
   templateDefaults:
     container:
