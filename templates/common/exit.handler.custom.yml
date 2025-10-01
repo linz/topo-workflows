@@ -1,0 +1,49 @@
+# yaml-language-server: $schema=https://raw.githubusercontent.com/argoproj/argo-workflows/v3.5.5/api/jsonschema/schema.json
+
+apiVersion: argoproj.io/v1alpha1
+kind: WorkflowTemplate
+metadata:
+  # Template to log the workflow status and its parameters.
+  name: tpl-exit-handler-custom
+spec:
+  templateDefaults:
+    container:
+      imagePullPolicy: Always
+      image: ''
+  entrypoint: main
+  templates:
+    - name: main
+      inputs:
+        parameters:
+          - name: workflow_parameters
+            description: Parameters of the workflow
+            value: '{{workflow.parameters}}'
+          - name: msg
+            default: 'Workflow:Done'
+            description: Custom exit status message
+          - name: version_argo_tasks
+            description: Version of argo-tasks to use
+            default: 'v4'
+      script:
+        image: '019359803926.dkr.ecr.ap-southeast-2.amazonaws.com/argo-tasks:{{=sprig.trim(inputs.parameters.version_argo_tasks)}}'
+        command: [node]
+        source: |
+          let inputParameters = {{= toJson(inputs.parameters) }};
+          const workflowParamsObj = Object.fromEntries(
+            JSON.parse(inputParameters.workflow_parameters).map((pair) => [pair.name, pair.value]),
+          );
+          const mergedParameters = {
+            ...inputParameters,
+            ...workflowParamsObj,
+          };
+          delete mergedParameters.workflow_parameters;
+          console.log(
+            JSON.stringify({
+              time: Date.now(),
+              level: 20,
+              pid: 1,
+              msg: '{{inputs.parameters.msg}}',
+              workflowStatus: '{{workflow.status}}',
+              parameters: mergedParameters,
+            }),
+          );
