@@ -1,7 +1,7 @@
 # Common Templates
 
 - [Exit Handler](##exit-handler---tpl-exit-handler)
-- [Custom Exit Handler](##custom-exit-handler---tpl-exit-handler-custom)
+- [Notification Handler](##notification-handler---tpl-notification-handler)
 - [Get Location](##get-location---tpl-get-location)
 - [Read File](##read-file---tpl-read-file)
 
@@ -95,7 +95,7 @@ spec:
                   value: '{{workflow.parameters}}'
 ```
 
-## Custom Exit Handler - `tpl-exit-handler-custom`
+## Notification Handler - `tpl-notification-handler`
 
 Template for handling a workflow `onExit` or from a task or step lifecycle exit hook.
 See <https://argo-workflows.readthedocs.io/en/latest/walk-through/exit-handlers/> and <https://argo-workflows.readthedocs.io/en/latest/lifecyclehook/#notification-use-case>
@@ -103,10 +103,11 @@ The script run by this template is generating a log, including the status of the
 
 ```json
 {
+  "msg": "Workflow:Done:CustomMessage",
+  "custom_parameter": "Custom parameter value to be collected for logs",
   "time": 1722568553969,
   "level": 20,
   "pid": 1,
-  "msg": "Workflow:Succeeded",
   "version_argo_tasks": "v4",
   "version_basemaps_cli": "v8",
   "version_topo_imagery": "v4",
@@ -144,10 +145,7 @@ The script run by this template is generating a log, including the status of the
 
 ### Template usage
 
-The information to pass to this can be a custom value in the `msg` field, and any other custom parameters to collect in the logs.
-
-As the `onExit` event [does not handle a `templateRef`](https://github.com/argoproj/argo-workflows/issues/3188),
-an additional template called by the `onExit` event has to be added to the templates so it can finally call the `tpl-exit-handler` template.
+The information to pass to this can be a custom value in the `msg` field, and any other custom parameters to collect in the logs. These are supplied as argument parameters when referencing the template.
 
 ```yaml
 apiVersion: argoproj.io/v1alpha1
@@ -156,7 +154,6 @@ metadata:
   generateName: hello-world-
 spec:
   entrypoint: hello
-  onExit: exit-handler
   arguments:
     parameters:
       - name: message
@@ -170,19 +167,17 @@ spec:
         image: alpine:latest
         command: [sh, -c]
         args: ['echo {{inputs.parameters.message}}']
-
-    - name: exit-handler
-      steps:
-        - - name: exit
-            templateRef:
-              name: tpl-exit-handler
-              template: main
-            arguments:
-              parameters:
-                - name: msg
-                  value: 'Workflow:Done:CustomMessage'
-                - name: custom_parameter
-                  value: 'Custom parameter value to be collected for logs'
+      hooks:
+      exit:
+        templateRef:
+          name: tpl-notification-handler
+          template: main
+        arguments:
+          parameters:
+            - name: msg
+              value: 'Workflow:Done:CustomMessage'
+            - name: custom_parameter
+              value: 'Custom parameter value to be collected for logs'
 ```
 
 ## Get Location - `tpl-get-location`
