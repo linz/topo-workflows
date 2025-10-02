@@ -3,7 +3,7 @@
 apiVersion: argoproj.io/v1alpha1
 kind: WorkflowTemplate
 metadata:
-  name: test-trs-pdal-fix-laz-header
+  name: pdal-fix-laz-header
   labels:
     linz.govt.nz/category: pointcloud
     linz.govt.nz/data-type: pointcloud
@@ -39,8 +39,8 @@ spec:
         description: 'Specify a version of the argo-tasks image to use, e.g. "v4.1" or "latest"'
         value: 'v4'
       - name: version_topo_imagery
-        description: 'Specify a version of the topo-imagery image to use, e.g. "v4.8" or "latest"'
-        value: 'v7'
+        description: 'Specify a version of the topo-imagery image to use, e.g. "v4.8" or "latest". Note: This image needs to contain PDAL.'
+        value: 'pr-1419' # Use PR version with PDAL. This may or may not be merged.
       - name: user_group
         description: Group of users running the workflow
         value: 'none'
@@ -197,6 +197,13 @@ spec:
       # END TEMPLATE `main`
 
     - name: pdal-translate
+      outputs:
+        artifacts:
+          - name: processed_files
+            path: '/tmp/processed.json'
+            archive:
+              none: {}
+
       inputs:
         parameters:
           - name: version_topo_imagery
