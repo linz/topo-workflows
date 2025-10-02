@@ -1,0 +1,264 @@
+# yaml-language-server: $schema=https://raw.githubusercontent.com/argoproj/argo-workflows/v3.5.5/api/jsonschema/schema.json
+
+apiVersion: argoproj.io/v1alpha1
+kind: WorkflowTemplate
+metadata:
+  name: test-trs-pdal-fix-laz-header
+  labels:
+    linz.govt.nz/category: pointcloud
+    linz.govt.nz/data-type: pointcloud
+spec:
+  parallelism: 50
+  nodeSelector:
+    karpenter.sh/capacity-type: 'spot'
+  entrypoint: main
+  onExit: exit-handler
+  synchronization:
+    semaphore:
+      configMapKeyRef:
+        name: semaphores
+        key: standardising
+  workflowMetadata:
+    labelsFrom:
+      linz.govt.nz/user-group:
+        expression: workflow.parameters.user_group
+      linz.govt.nz/ticket:
+        expression: workflow.parameters.ticket
+      linz.govt.nz/region:
+        expression: workflow.parameters.region
+  podMetadata:
+    labels:
+      linz.govt.nz/user-group: '{{workflow.parameters.user_group}}'
+      linz.govt.nz/category: pointcloud
+      linz.govt.nz/data-type: pointcloud
+      linz.govt.nz/ticket: '{{workflow.parameters.ticket}}'
+      linz.govt.nz/region: '{{workflow.parameters.region}}'
+  arguments:
+    parameters:
+      - name: version_argo_tasks
+        description: 'Specify a version of the argo-tasks image to use, e.g. "v4.1" or "latest"'
+        value: 'v4'
+      - name: version_topo_imagery
+        description: 'Specify a version of the topo-imagery image to use, e.g. "v4.8" or "latest"'
+        value: 'v7'
+      - name: user_group
+        description: Group of users running the workflow
+        value: 'none'
+        enum:
+          - 'land'
+          - 'sea'
+          - 'none'
+      - name: ticket
+        description: 'Ticket ID, e.g. "LI-1570"'
+        value: ''
+      - name: region
+        description: 'Region of the dataset from the list below'
+        value: 'new-zealand'
+        enum:
+          - 'antarctica'
+          - 'auckland'
+          - 'bay-of-plenty'
+          - 'canterbury'
+          - 'gisborne'
+          - 'global'
+          - 'hawkes-bay'
+          - 'manawatu-whanganui'
+          - 'marlborough'
+          - 'nelson'
+          - 'new-zealand'
+          - 'northland'
+          - 'otago'
+          - 'pacific-islands'
+          - 'southland'
+          - 'taranaki'
+          - 'tasman'
+          - 'waikato'
+          - 'wellington'
+          - 'west-coast'
+      - name: source
+        description: 'S3 location of the source dataset. Files will be modified in place.'
+        value: 's3://linz-imagery-staging/test/sample/'
+      - name: include
+        description: 'Regular expression pattern match for paths/files to include e.g ".laz?$"'
+        value: '.laz?$'
+      - name: exclude
+        description: 'Regular expression pattern match for paths/files to exclude'
+        value: ''
+      - name: group
+        description: 'Group files by this many files (will use the value of `group` or `group_size` that is reached first). Set to -1 to disable.'
+        value: '1000'
+      - name: group_size
+        description: 'Group the files into this size per group (will use the value of `group` or `group_size` that is reached first). Set to -1 to disable.'
+        value: '100Gi'
+      - name: copy_option
+        description: 'Do not overwrite existing files with "no-clobber", "force" overwriting files in the target location, or "force-no-clobber" overwriting only changed files, skipping unchanged files'
+        value: '--force-no-clobber'
+        enum:
+          - '--no-clobber'
+          - '--force'
+          - '--force-no-clobber'
+      - name: aws_role_config_path
+        value: 's3://linz-bucket-config/config-write.elevation.json,s3://linz-bucket-config/config-write.imagery.json,s3://linz-bucket-config/config-write.topographic.json'
+      - name: dryrun
+        description: Perform a dryrun (do not copy files back to source)
+        value: 'true'
+        enum:
+          - 'true'
+          - 'false'
+  templateDefaults:
+    container:
+      image: ''
+  templates:
+    - name: main
+      retryStrategy:
+        expression: 'false'
+      dag:
+        tasks:
+          - name: list-source
+            templateRef:
+              name: tpl-create-manifest
+              template: main
+            arguments:
+              parameters:
+                - name: source
+                  value: '{{workflow.parameters.source}}'
+                - name: target
+                  value: '{{workflow.parameters.source}}'
+                - name: include
+                  value: '{{workflow.parameters.include}}'
+                - name: exclude
+                  value: '{{workflow.parameters.exclude}}'
+                - name: flatten
+                  value: 'false'
+                - name: transform
+                  value: 'false'
+                - name: group
+                  value: '{{workflow.parameters.group}}'
+                - name: group_size
+                  value: '{{workflow.parameters.group_size}}'
+                - name: version_argo_tasks
+                  value: '{{workflow.parameters.version_argo_tasks}}'
+          - name: get-location
+            templateRef:
+              name: tpl-get-location
+              template: main
+
+          - name: pdal-translate
+            template: pdal-translate
+            arguments:
+              parameters:
+                - name: from_manifest
+                  value: '{{item}}'
+                - name: target
+                  value: '{{=sprig.trimSuffix("/", tasks["get-location"].outputs.parameters.location)}}/flat/'
+                - name: version_topo_imagery
+                  value: '{{= workflow.parameters.version_topo_imagery}}'
+            depends: 'list-source.Succeeded && get-location.Succeeded'
+            withParam: '{{tasks.list-source.outputs.parameters.files}}'
+
+          - name: copy-processed
+            when: '{{workflow.parameters.dryrun}} == "false"'
+            templateRef:
+              name: copy
+              template: main
+            arguments:
+              parameters:
+                - name: source
+                  value: '{{=sprig.trimSuffix("/", tasks["get-location"].outputs.parameters.location)}}/flat/'
+                - name: target
+                  value: '{{workflow.parameters.source}}'
+                - name: include
+                  value: '{{workflow.parameters.include}}'
+                - name: exclude
+                  value: '{{workflow.parameters.exclude}}'
+                - name: copy_option
+                  value: '{{workflow.parameters.copy_option}}'
+                - name: aws_role_config_path
+                  value: '{{workflow.parameters.aws_role_config_path}}'
+                - name: flatten
+                  value: 'false'
+                - name: transform
+                  value: 'f'
+                - name: group
+                  value: '{{workflow.parameters.group}}'
+                - name: group_size
+                  value: '{{workflow.parameters.group_size}}'
+                - name: version_argo_tasks
+                  value: '{{workflow.parameters.version_argo_tasks}}'
+                - name: compress
+                  value: 'false'
+                - name: decompress
+                  value: 'false'
+                - name: delete_source
+                  value: 'false'
+                - name: delete_empty_folders
+                  value: 'false'
+            depends: 'pdal-translate.Succeeded'
+      # END TEMPLATE `main`
+
+    - name: pdal-translate
+      inputs:
+        parameters:
+          - name: version_topo_imagery
+            description: 'Specify a version of the topo-imagery image to use, e.g. "v4.8" or "latest"'
+            default: 'v7'
+
+          - name: files
+            description: 'Space-separated list of files to process'
+            default: ''
+
+          - name: from_file
+            description: 'File containing a JSON list of files to process'
+            default: ''
+
+          - name: from_manifest
+            description: 'File containing a manifest of files to process (will only use source)'
+            default: ''
+
+          - name: target
+            description: 'Location for output files'
+            default: ''
+
+      container:
+        imagePullPolicy: Always
+        image: '019359803926.dkr.ecr.ap-southeast-2.amazonaws.com/topo-imagery:{{=sprig.trim(inputs.parameters.version_topo_imagery)}}'
+        resources:
+          requests:
+            memory: 7.8Gi
+            cpu: 15000m
+            ephemeral-storage: 29.5Gi
+        volumeMounts:
+          # This volume must be defined in the workflow calling this workflowTemplate
+          - name: ephemeral
+            mountPath: '/tmp'
+        args:
+          - python
+          - '/app/scripts/pdal_translate.py'
+          - '--from-file'
+          - '{{inputs.parameters.from_file}}'
+          - '--from-manifest'
+          - '{{inputs.parameters.from_manifest}}'
+          - '--files'
+          - '{{=sprig.trim(inputs.parameters.files)}}'
+          - '--target'
+          - '{{inputs.parameters.target}}'
+      # END TEMPLATE `pdal-translate`
+
+    - name: exit-handler
+      retryStrategy:
+        limit: '0' # `tpl-exit-handler` retries itself
+      steps:
+        - - name: exit
+            templateRef:
+              name: tpl-exit-handler
+              template: main
+            arguments:
+              parameters:
+                - name: workflow_status
+                  value: '{{workflow.status}}'
+                - name: workflow_parameters
+                  value: '{{workflow.parameters}}'
+
+  volumes:
+    - name: ephemeral
+      emptyDir: {}
