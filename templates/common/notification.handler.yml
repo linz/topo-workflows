@@ -6,10 +6,6 @@ metadata:
   # Template to log the workflow status and its parameters.
   name: tpl-notification-handler
 spec:
-  templateDefaults:
-    container:
-      imagePullPolicy: Always
-      image: ''
   entrypoint: main
   templates:
     - name: main
@@ -26,6 +22,7 @@ spec:
             default: 'v4'
       script:
         image: '019359803926.dkr.ecr.ap-southeast-2.amazonaws.com/argo-tasks:{{=sprig.trim(inputs.parameters.version_argo_tasks)}}'
+        imagePullPolicy: Always
         command: [node]
         source: |
           let inputParameters = {{= toJson(inputs.parameters) }};

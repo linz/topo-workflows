@@ -170,16 +170,16 @@ spec:
         command: [sh, -c]
         args: ['echo {{inputs.parameters.message}}']
       hooks:
-      exit:
-        templateRef:
-          name: tpl-notification-handler
-          template: main
-        arguments:
-          parameters:
-            - name: msg
-              value: 'Workflow:Done:CustomMessage'
-            - name: custom_parameter
-              value: 'Custom parameter value to be collected for logs'
+        exit:
+          templateRef:
+            name: tpl-notification-handler
+            template: main
+          arguments:
+            parameters:
+              - name: msg
+                value: 'Workflow:Done:CustomMessage'
+              - name: custom_parameter
+                value: 'Custom parameter value to be collected for logs'
 ```
 
 ## Get Location - `tpl-get-location`
