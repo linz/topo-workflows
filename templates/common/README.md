@@ -145,7 +145,9 @@ The script run by this template is generating a log, including the status of the
 
 ### Template usage
 
-The information to pass to this can be a custom value in the `msg` field, and any other custom parameters to collect in the logs. These are supplied as argument parameters when referencing the template.
+The information to pass to this can be a custom value in the `msg` field, and any other custom parameters to collect in the logs. These are supplied as argument parameters when referencing the template, as shown in the example below.
+
+As the `onExit` event [does not handle a `templateRef`](https://github.com/argoproj/argo-workflows/issues/3188), an additional template called by the `onExit` event has to be added to the templates so it can finally call the `tpl-exit-handler` template (see example above for the [Exit Handler](##exit-handler---tpl-exit-handler)).
 
 ```yaml
 apiVersion: argoproj.io/v1alpha1
