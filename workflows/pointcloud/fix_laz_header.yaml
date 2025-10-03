@@ -200,9 +200,14 @@ spec:
       outputs:
         artifacts:
           - name: processed_files
+            optional: true
             path: '/tmp/processed.json'
             archive:
               none: {}
+        parameters:
+          - name: modified_file_count
+            valueFrom:
+              path: '/tmp/modified_file_count'
 
       inputs:
         parameters:
