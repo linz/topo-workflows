@@ -157,7 +157,7 @@ spec:
             withParam: '{{tasks.list-source.outputs.parameters.files}}'
 
           - name: copy-processed
-            when: '{{workflow.parameters.dryrun}} == "false"'
+            when: '{{workflow.parameters.dryrun}} == false'
             templateRef:
               name: copy
               template: main
