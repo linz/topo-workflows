@@ -1,3 +1,4 @@
+import { applyTags, SecurityClassification } from '@linzjs/cdk-tags';
 import { App } from 'aws-cdk-lib';
 
 import { ClusterName, DefaultRegion } from './constants.js';
@@ -22,13 +23,22 @@ async function main(): Promise<void> {
     throw new Error("Missing AWS Account information, set with either '-c aws-account-id' or $CDK_DEFAULT_ACCOUNT");
   }
 
-  new LinzEksCluster(app, ClusterName, {
+  const cluster = new LinzEksCluster(app, ClusterName, {
     env: { region: DefaultRegion, account: accountId },
     maintainerRoleArns,
     slackChannelConfigurationName: ssmConfig.slackChannelConfigurationName,
     slackWorkspaceId: ssmConfig.slackWorkspaceId,
     slackChannelId: ssmConfig.slackChannelId,
     s3BatchRestoreRoleArn: ssmConfig.s3BatchRestoreRoleArn,
+  });
+
+  applyTags(cluster, {
+    application: 'argo',
+    environment: process.env['NODE_ENV'] === 'production' ? 'prod' : 'nonprod',
+    group: 'li',
+    impact: 'moderate',
+    classification: SecurityClassification.Unclassified,
+    responderTeam: 'LI - Geospatial Data Engineering',
   });
 
   app.synth();
