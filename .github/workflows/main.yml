@@ -77,7 +77,7 @@ jobs:
         if: steps.get-infra-changes.outputs.run_infra == 'true'
         run: |
           npx cdk deploy ${{ env.CLUSTER_NAME }} \
-            -c maintainer-arns=${{ secrets.AWS_CI_ROLE }},${{ secrets.AWS_ADMIN_ROLE }},${{ secrets.AWS_WFMAINTAINER_ROLE }} \
+            -c maintainer-arns=${{ secrets.AWS_CI_ROLE }},${{ secrets.AWS_ADMIN_ROLE }},${{ secrets.AWS_ADMIN_SSO_ROLE }},${{ secrets.AWS_WFMAINTAINER_ROLE }} \
             -c aws-account-id=${{ secrets.AWS_ACCOUNT_ID }} \
             --require-approval never
         env:

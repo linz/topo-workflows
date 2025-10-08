@@ -154,9 +154,13 @@ export class LinzEksCluster extends Stack {
     for (const roleArn of props.maintainerRoleArns) {
       const roleId = `MaintainerRole-${createHash('sha256').update(roleArn).digest('hex').slice(0, 12)}`;
       const role = Role.fromRoleArn(this, roleId, roleArn, { defaultPolicyName: this.stackName });
-      role.addToPrincipalPolicy(
-        new iam.PolicyStatement({ actions: ['eks:DescribeCluster'], resources: [this.cluster.clusterArn] }),
-      );
+      if (!roleArn.includes('AWSReservedSSO_')) {
+        role.addToPrincipalPolicy(
+          new iam.PolicyStatement({ actions: ['eks:DescribeCluster'], resources: [this.cluster.clusterArn] }),
+        );
+      } else {
+        console.warn(`Skipping policy attachment for SSO-managed role: ${roleArn}`);
+      }
       this.cluster.awsAuth.addMastersRole(role);
     }
 
