@@ -102,6 +102,8 @@ spec:
                   value: '{{tasks.get-location.outputs.parameters.bucket}}'
                 - name: restore_location
                   value: 's3://{{= workflow.parameters.archive_bucket == "linz-topographic-archive" ? "linz-topographic-shared" : workflow.parameters.archive_bucket == "linz-hydrographic-archive" ? "linz-hydrographic-shared" : "unknown-bucket" }}/{{workflow.parameters.consumer}}/{{=sprig.trimPrefix("/",workflow.parameters.archive_directory)}}'
+                - name: consumer
+                  value: '{{workflow.parameters.consumer}}'
             depends: 'get-location && create-manifest'
             when: '{{tasks.create-manifest.outputs.parameters.files}} != ""'
 
@@ -202,7 +204,7 @@ spec:
               aws s3 cp /tmp/copy-manifests.json "s3://{{inputs.parameters.request_output_bucket}}/restore/requests/${REQUEST_LOCATION}/job-${JOB_ID}/copy-manifests.json"
 
               # Store information for Slack alerting
-              echo '{"restore_location":"{{inputs.parameters.restore_location}}","archive_bucket":"s3://{{inputs.parameters.archive_bucket}}","consumer":"{{inputs.parameters.consumer}}"}' > /tmp/restore_details
+              echo '{"restore_location":"{{inputs.parameters.restore_location}}","archive_bucket":"s3://{{inputs.parameters.archive_bucket}}","consumer":"{{inputs.parameters.consumer}}"}' > /tmp/restore-details
               aws s3 cp /tmp/restore-details "s3://{{inputs.parameters.request_output_bucket}}/restore/requests/${REQUEST_LOCATION}/job-${JOB_ID}/restore-details"
 
     - name: exit-handler
