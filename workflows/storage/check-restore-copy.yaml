@@ -125,55 +125,45 @@ spec:
                   value: 's3://linz-bucket-config/config-write.topographic.json,s3://linz-bucket-config/config-write.hydrographic.json'
             withParam: '{{steps.read-copy-manifest.outputs.parameters.content}}'
             when: '{{steps.read-copy-manifest.status}} == Succeeded'
-        - - name: read-restore-location
+        - - name: read-restore-details
             templateRef:
               name: tpl-read-file
               template: main
             arguments:
               parameters:
                 - name: location
-                  value: "{{= sprig.replace('manifest.json', 'restore-location', inputs.parameters.restore_manifest)}}"
-            when: '{{steps.copy-restored-files.status}} == Succeeded'
-            hooks:
-              exit:
-                template: notification
-                arguments:
-                  parameters:
-                    - name: restore_location
-                      value: '{{steps.read-restore-location.outputs.parameters.content}}'
-
+                  value: "{{= sprig.replace('manifest.json', 'restore-details', inputs.parameters.restore_manifest)}}"
+            when: '{{steps.verify-restore.status}} == Succeeded'
+        - - name: notification
+            template: notification
+            arguments:
+              parameters:
+                - name: custom_parameters
+                  value: '{{steps.read-restore-details.outputs.parameters.content}}'
+                - name: msg
+                  value: 'UnarchiveCopy:Done'
+                - name: version_argo_tasks
+                  value: 'v4'
+            when: '{{steps.copy-restored-files.status}} == Succeeded && {{steps.read-restore-details.status}} == Succeeded'
     - name: notification
       inputs:
         parameters:
-          - name: workflow_parameters
-            value: '{{workflow.parameters}}'
+          - name: custom_parameters
           - name: msg
-            value: 'UnarchiveCopy:Done'
           - name: version_argo_tasks
-            value: 'v4'
-          - name: restore_location
-            default: ''
       script:
         image: '019359803926.dkr.ecr.ap-southeast-2.amazonaws.com/argo-tasks:{{=sprig.trim(inputs.parameters.version_argo_tasks)}}'
         imagePullPolicy: Always
         command: [node]
         source: |
-          let inputParameters = {{= toJson(inputs.parameters) }};
-          const workflowParamsObj = Object.fromEntries(
-            JSON.parse(inputParameters.workflow_parameters).map((pair) => [pair.name, pair.value]),
-          );
-          const mergedParameters = {
-            ...inputParameters,
-            ...workflowParamsObj,
-          };
-          delete mergedParameters.workflow_parameters;
+          const customParams = JSON.parse('{{inputs.parameters.custom_parameters}}');
           console.log(
             JSON.stringify({
               time: Date.now(),
               level: 20,
               pid: 1,
               msg: '{{inputs.parameters.msg}}',
-              parameters: mergedParameters,
+              parameters: customParams,
             }),
           );
 
