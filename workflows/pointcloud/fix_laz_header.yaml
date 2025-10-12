@@ -35,7 +35,7 @@ spec:
         value: 'v4'
       - name: version_topo_imagery
         description: 'Specify a version of the topo-imagery image to use, e.g. "v4.8" or "latest". Note: This image needs to contain PDAL.'
-        value: 'pr-1419' # Use PR version with PDAL. This may or may not be merged.
+        value: 'v7'
       - name: user_group
         description: Group of users running the workflow
         value: 'none'
@@ -240,7 +240,7 @@ spec:
             mountPath: '/tmp'
         args:
           - python
-          - '/app/scripts/pdal_translate.py'
+          - '/app/scripts/fix_laz_header.py'
           - '--from-file'
           - '{{inputs.parameters.from_file}}'
           - '--from-manifest'
