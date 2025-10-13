@@ -108,7 +108,7 @@ spec:
               parameters:
                 - name: location
                   value: "{{= sprig.replace('manifest.json', 'copy-manifests.json', inputs.parameters.restore_manifest)}}"
-            when: "{{steps.verify-restore.outputs.parameters.all_files_restored_result}} == true"
+            when: '{{steps.verify-restore.outputs.parameters.all_files_restored_result}} == true'
         - - name: copy-and-notify
             template: copy-and-notify
             arguments:
@@ -119,7 +119,7 @@ spec:
                   value: '{{inputs.parameters.restore_manifest}}'
                 - name: copy_manifests
                   value: '{{steps.read-copy-manifest.outputs.parameters.content}}'
-            when: "{{steps.read-copy-manifest.status}} == Succeeded"
+            when: '{{steps.read-copy-manifest.status}} == Succeeded'
 
     - name: copy-and-notify
       inputs:
@@ -152,18 +152,18 @@ spec:
               parameters:
                 - name: location
                   value: "{{= sprig.replace('manifest.json', 'restore-details', inputs.parameters.restore_manifest)}}"
-            depends: "copy-restored-files.Succeeded"
+            depends: 'copy-restored-files.Succeeded'
           - name: notify
             template: notification
             arguments:
               parameters:
                 - name: custom_parameters
-                  value: "{{tasks.read-restore-details.outputs.parameters.content}}"
+                  value: '{{tasks.read-restore-details.outputs.parameters.content}}'
                 - name: msg
-                  value: "UnarchiveCopy:Done"
+                  value: 'UnarchiveCopy:Done'
                 - name: version_argo_tasks
                   value: 'v4'
-            depends: "read-restore-details.Succeeded"
+            depends: 'read-restore-details.Succeeded'
 
     - name: notification
       inputs:
