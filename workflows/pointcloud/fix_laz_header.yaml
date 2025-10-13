@@ -74,8 +74,8 @@ spec:
         description: 'S3 location of the source dataset. Files will be modified in place.'
         value: 's3://linz-imagery-staging/test/sample/'
       - name: include
-        description: 'Regular expression pattern match for paths/files to include e.g ".laz?$"'
-        value: '.laz?$'
+        description: 'Regular expression pattern match for paths/files to include e.g ".laz$"'
+        value: '.laz$'
       - name: exclude
         description: 'Regular expression pattern match for paths/files to exclude'
         value: ''
@@ -93,7 +93,7 @@ spec:
           - '--force'
           - '--force-no-clobber'
       - name: aws_role_config_path
-        value: 's3://linz-bucket-config/config-write.elevation.json,s3://linz-bucket-config/config-write.imagery.json,s3://linz-bucket-config/config-write.topographic.json'
+        value: 's3://linz-bucket-config/config-write.topographic.json'
       - name: dryrun
         description: Perform a dryrun (do not copy files back to source)
         value: 'true'
@@ -126,7 +126,7 @@ spec:
                 - name: flatten
                   value: 'false'
                 - name: transform
-                  value: 'false'
+                  value: 'f'
                 - name: group
                   value: '{{workflow.parameters.group}}'
                 - name: group_size
