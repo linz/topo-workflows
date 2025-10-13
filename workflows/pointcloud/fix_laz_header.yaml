@@ -3,7 +3,7 @@
 apiVersion: argoproj.io/v1alpha1
 kind: WorkflowTemplate
 metadata:
-  name: pdal-fix-laz-header
+  name: fix-laz-header
   labels:
     linz.govt.nz/category: pointcloud
     linz.govt.nz/data-type: pointcloud
