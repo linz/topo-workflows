@@ -108,8 +108,28 @@ spec:
               parameters:
                 - name: location
                   value: "{{= sprig.replace('manifest.json', 'copy-manifests.json', inputs.parameters.restore_manifest)}}"
-            when: '{{steps.verify-restore.outputs.parameters.all_files_restored_result}} == true'
-        - - name: copy-restored-files
+            when: "{{steps.verify-restore.outputs.parameters.all_files_restored_result}} == true"
+        - - name: copy-and-notify
+            template: copy-and-notify
+            arguments:
+              parameters:
+                - name: version_argo_tasks
+                  value: '{{inputs.parameters.version_argo_tasks}}'
+                - name: restore_manifest
+                  value: '{{inputs.parameters.restore_manifest}}'
+                - name: copy_manifests
+                  value: '{{steps.read-copy-manifest.outputs.parameters.content}}'
+            when: "{{steps.read-copy-manifest.status}} == Succeeded"
+
+    - name: copy-and-notify
+      inputs:
+        parameters:
+          - name: version_argo_tasks
+          - name: restore_manifest
+          - name: copy_manifests
+      dag:
+        tasks:
+          - name: copy-restored-files
             templateRef:
               name: tpl-copy
               template: main
@@ -123,9 +143,8 @@ spec:
                   value: 'true'
                 - name: aws_role_config_path
                   value: 's3://linz-bucket-config/config-write.topographic.json,s3://linz-bucket-config/config-write.hydrographic.json'
-            withParam: '{{steps.read-copy-manifest.outputs.parameters.content}}'
-            when: '{{steps.read-copy-manifest.status}} == Succeeded'
-        - - name: read-restore-details
+            withParam: '{{inputs.parameters.copy_manifests}}'
+          - name: read-restore-details
             templateRef:
               name: tpl-read-file
               template: main
@@ -133,18 +152,19 @@ spec:
               parameters:
                 - name: location
                   value: "{{= sprig.replace('manifest.json', 'restore-details', inputs.parameters.restore_manifest)}}"
-            when: '{{steps.verify-restore.status}} == Succeeded'
-        - - name: notification
+            depends: "copy-restored-files.Succeeded"
+          - name: notify
             template: notification
             arguments:
               parameters:
                 - name: custom_parameters
-                  value: '{{steps.read-restore-details.outputs.parameters.content}}'
+                  value: "{{tasks.read-restore-details.outputs.parameters.content}}"
                 - name: msg
-                  value: 'UnarchiveCopy:Done'
+                  value: "UnarchiveCopy:Done"
                 - name: version_argo_tasks
                   value: 'v4'
-            when: '{{steps.copy-restored-files.status}} == Succeeded && {{steps.read-restore-details.status}} == Succeeded'
+            depends: "read-restore-details.Succeeded"
+
     - name: notification
       inputs:
         parameters:
