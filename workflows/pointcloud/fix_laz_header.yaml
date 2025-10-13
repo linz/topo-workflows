@@ -138,8 +138,8 @@ spec:
               name: tpl-get-location
               template: main
 
-          - name: pdal-translate
-            template: pdal-translate
+          - name: fix-laz-header
+            template: fix-laz-header
             arguments:
               parameters:
                 - name: from_manifest
@@ -188,10 +188,10 @@ spec:
                   value: 'false'
                 - name: delete_empty_folders
                   value: 'false'
-            depends: 'pdal-translate.Succeeded'
+            depends: 'fix-laz-header.Succeeded'
       # END TEMPLATE `main`
 
-    - name: pdal-translate
+    - name: fix-laz-header
       outputs:
         artifacts:
           - name: processed_files
@@ -249,7 +249,7 @@ spec:
           - '{{=sprig.trim(inputs.parameters.files)}}'
           - '--target'
           - '{{inputs.parameters.target}}'
-      # END TEMPLATE `pdal-translate`
+      # END TEMPLATE `fix-laz-header`
 
     - name: exit-handler
       retryStrategy:
