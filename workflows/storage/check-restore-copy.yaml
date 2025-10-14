@@ -157,7 +157,7 @@ spec:
             template: notification
             arguments:
               parameters:
-                - name: custom_parameters
+                - name: unarchive_workflow_parameters
                   value: '{{tasks.read-restore-details.outputs.parameters.content}}'
                 - name: msg
                   value: 'UnarchiveCopy:Done'
@@ -168,7 +168,7 @@ spec:
     - name: notification
       inputs:
         parameters:
-          - name: custom_parameters
+          - name: unarchive_workflow_parameters
           - name: msg
           - name: version_argo_tasks
       script:
@@ -176,14 +176,14 @@ spec:
         imagePullPolicy: Always
         command: [node]
         source: |
-          const customParams = JSON.parse('{{inputs.parameters.custom_parameters}}');
+          const unarchiveWorkflowParams = JSON.parse('{{inputs.parameters.unarchive_workflow_parameters}}');
           console.log(
             JSON.stringify({
               time: Date.now(),
               level: 20,
               pid: 1,
               msg: '{{inputs.parameters.msg}}',
-              parameters: customParams,
+              parameters: unarchiveWorkflowParams,
             }),
           );
 
