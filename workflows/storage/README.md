@@ -49,7 +49,7 @@ This workflow is used to unarchive files (_S3 Objects_) from an **archive** buck
 In order to be able to copy the archived files to the shared bucket, the files that have been transitioned into the Deep Archive storage class need to be restored.
 **The `unarchive` workflow does not directly restore these files. It makes a request to AWS to restore them. The requests can take [up to 48 hours](https://docs.aws.amazon.com/AmazonS3/latest/userguide/restoring-objects-retrieval-options.html) to be processed. Therefore, the entire unarchive process not only involves this workflow, but also [S3 Batch Operations](https://aws.amazon.com/s3/features/batch-operations/), and the `copy-unarchive` cron workflow.**
 
-The `unarchive` workflow also writes information from this workflow such as the copy manifest location and the restore location to files for the `copy-unarchive` workflow to use.
+The `unarchive` workflow also writes the restore_location, archive_bucket and consumer parameters from this workflow to a file for the `copy-unarchive` workflow to use.
 
 ### Flow
 
