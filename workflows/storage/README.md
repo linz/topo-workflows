@@ -49,6 +49,8 @@ This workflow is used to unarchive files (_S3 Objects_) from an **archive** buck
 In order to be able to copy the archived files to the shared bucket, the files that have been transitioned into the Deep Archive storage class need to be restored.
 **The `unarchive` workflow does not directly restore these files. It makes a request to AWS to restore them. The requests can take [up to 48 hours](https://docs.aws.amazon.com/AmazonS3/latest/userguide/restoring-objects-retrieval-options.html) to be processed. Therefore, the entire unarchive process not only involves this workflow, but also [S3 Batch Operations](https://aws.amazon.com/s3/features/batch-operations/), and the `copy-unarchive` cron workflow.**
 
+The `unarchive` workflow also writes information from this workflow such as the copy manifest location and the restore location to files for the `copy-unarchive` workflow to use.
+
 ### Flow
 
 ```mermaid
@@ -122,6 +124,7 @@ Access permissions are controlled by the [Bucket Sharing Config](https://github.
 ### Description
 
 Check for the status of S3 Glacier Batch Restore jobs triggered by the [`unarchive` workflow](#unarchive), and initiate a file copy of restored files if the batch job has completed.
+Write notification information to the logs so that an Elasticsearch watcher can send a Slack alert.
 
 It will copy files from archive buckets to sharing buckets as follows:
 
@@ -130,15 +133,23 @@ It will copy files from archive buckets to sharing buckets as follows:
 
 ```mermaid
 graph TD
-    Start([Start]) --> ListManifests[List Manifests]
-    ListManifests --> FlattenManifests[Flatten Manifests]
-    FlattenManifests --> VerifyAndCopy[For Each Manifest: Verify and Copy]
-    VerifyAndCopy -->|Verify Restore| VerifyRestore[Verify Restore]
-    VerifyRestore -->|If True| ReadCopyManifest[Read Copy Manifest]
-    ReadCopyManifest -->|If Succeeded| Copy[For Each File: Copy]
-    VerifyAndCopy --> ExitHandler[Exit Handler]
-    Copy --> ExitHandler
-    ExitHandler --> End([End])
+  subgraph main
+    A[list-manifests] --> B[flatten-manifests]
+    B --> C[verify-and-copy]
+  end
+
+  subgraph verify-and-copy
+    C1[verify-restore] -->|all_files_restored_result == true| C2[read-copy-manifest]
+    C2 --> C3[copy-and-notify]
+  end
+
+  subgraph copy-and-notify
+    D1[copy-restored-files] --> D2[read-restore-details]
+    D2 --> D3[notify]
+  end
+
+  C --> C1
+  C3 --> D1
 ```
 
 ### Workflow Input Parameters
