@@ -78,7 +78,7 @@ spec:
             valueFrom:
               path: /tmp/flattened_manifests.json
       container:
-        image: peterevans/curl-jq@sha256:f62dbba08fad486a67d323e75dce757efc2ec55b1ddc2e5b78f174c978c3077c
+        image: public.ecr.aws/aws-cli/aws-cli:2.27.62
         imagePullPolicy: IfNotPresent
         command: [sh, '-c']
         args:
@@ -154,46 +154,26 @@ spec:
                   value: "{{= sprig.replace('manifest.json', 'restore-details', inputs.parameters.restore_manifest)}}"
             depends: 'copy-restored-files.Succeeded'
           - name: notify
-            template: notification
+            templateRef:
+              name: tpl-log-notification
+              template: main
             arguments:
               parameters:
-                - name: unarchive_workflow_parameters
-                  value: '{{tasks.read-restore-details.outputs.parameters.content}}'
                 - name: msg
                   value: 'UnarchiveCopy:Done'
-                - name: version_argo_tasks
-                  value: 'v4'
+                - name: workflow_status
+                  value: '{{workflow.status}}'
+                - name: workflow_parameters
+                  value: '{{tasks.read-restore-details.outputs.parameters.content}}'
             depends: 'read-restore-details.Succeeded'
-
-    - name: notification
-      inputs:
-        parameters:
-          - name: unarchive_workflow_parameters
-          - name: msg
-          - name: version_argo_tasks
-      script:
-        image: '019359803926.dkr.ecr.ap-southeast-2.amazonaws.com/argo-tasks:{{=sprig.trim(inputs.parameters.version_argo_tasks)}}'
-        imagePullPolicy: Always
-        command: [node]
-        source: |
-          const unarchiveWorkflowParams = JSON.parse('{{inputs.parameters.unarchive_workflow_parameters}}');
-          console.log(
-            JSON.stringify({
-              time: Date.now(),
-              level: 20,
-              pid: 1,
-              msg: '{{inputs.parameters.msg}}',
-              parameters: unarchiveWorkflowParams,
-            }),
-          );
 
     - name: exit-handler
       retryStrategy:
-        limit: '0' # `tpl-exit-handler` retries itself
+        limit: '0' # `tpl-log-notification` retries itself
       steps:
         - - name: exit
             templateRef:
-              name: tpl-exit-handler
+              name: tpl-log-notification
               template: main
             arguments:
               parameters:

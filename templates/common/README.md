@@ -1,10 +1,10 @@
 # Common Templates
 
-- [Exit Handler](##exit-handler---tpl-exit-handler)
+- [Exit Handler](##exit-handler---tpl-log-notification)
 - [Get Location](##get-location---tpl-get-location)
 - [Read File](##read-file---tpl-read-file)
 
-## Exit Handler - `tpl-exit-handler`
+## Exit Handler - `tpl-log-notification`
 
 Template for handling a workflow `onExit`.
 See <https://argo-workflows.readthedocs.io/en/latest/walk-through/exit-handlers/>
@@ -56,7 +56,7 @@ The script ran by this template is generating a log, including the status of the
 The information to pass to this `WorkflowTemplate` is the status and the parameters of the workflow (`workflow.status` & `workflow.parameters`).
 
 As the `onExit` event [does not handle a `templateRef`](https://github.com/argoproj/argo-workflows/issues/3188),
-an additional template called by the `onExit` event has to be added to the templates so it can finally call the `tpl-exit-handler` template.
+an additional template called by the `onExit` event has to be added to the templates so it can finally call the `tpl-log-notification` template.
 
 ```yaml
 apiVersion: argoproj.io/v1alpha1
@@ -84,7 +84,7 @@ spec:
       steps:
         - - name: exit
             templateRef:
-              name: tpl-exit-handler
+              name: tpl-log-notification
               template: main
             arguments:
               parameters:
