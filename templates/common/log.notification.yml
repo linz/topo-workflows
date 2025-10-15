@@ -16,12 +16,12 @@ spec:
       inputs:
         parameters:
           - name: msg
-            description: Message use for logging
+            description: Message used for logging
             default: 'Workflow:Done'
           - name: workflow_status
             description: Status of the workflow
           - name: workflow_parameters
-            description: Parameters of the workflow
+            description: Parameters of the workflow or custom parameters
           - name: version_argo_tasks
             description: Version of argo-tasks to use
             default: 'v4'
