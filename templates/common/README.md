@@ -6,9 +6,9 @@
 
 ## Log Notification - `tpl-log-notification`
 
-This template can be used as a template for handling a workflow `onExit`.
+This template can be used for handling a workflow `onExit`.
 See <https://argo-workflows.readthedocs.io/en/latest/walk-through/exit-handlers/>
-The script run by this template as an exit handler is generating a log, including the status of the workflow and its parameters, in the following format:
+The script run by this template as an exit handler is generating a log, including the status of the workflow, its parameters, and a customisable message, in the following format:
 
 ```json
 {
