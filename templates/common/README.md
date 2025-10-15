@@ -1,14 +1,14 @@
 # Common Templates
 
-- [Exit Handler](##exit-handler---tpl-log-notification)
+- [Log Notification](##log-notification---tpl-log-notification)
 - [Get Location](##get-location---tpl-get-location)
 - [Read File](##read-file---tpl-read-file)
 
-## Exit Handler - `tpl-log-notification`
+## Log Notification - `tpl-log-notification`
 
-Template for handling a workflow `onExit`.
+This can be used as a step dag task to add custom parameters to a log file. It can also be used as a template for handling a workflow `onExit`.
 See <https://argo-workflows.readthedocs.io/en/latest/walk-through/exit-handlers/>
-The script ran by this template is generating a log, including the status of the workflow and its parameters, with the following format:
+The script ran by this template is generating a log, including the status of the workflow and its parameters the following format:
 
 ```json
 {
@@ -53,9 +53,70 @@ The script ran by this template is generating a log, including the status of the
 
 ### Template usage
 
-The information to pass to this `WorkflowTemplate` is the status and the parameters of the workflow (`workflow.status` & `workflow.parameters`).
+The information to pass to this `WorkflowTemplate` is the status, the parameters of the workflow (`workflow.status` & `workflow.parameters`) or custom parameters, and an optional status message (`msg`).
 
-As the `onExit` event [does not handle a `templateRef`](https://github.com/argoproj/argo-workflows/issues/3188),
+Example of supplying custom parameters:
+
+```yaml
+apiVersion: argoproj.io/v1alpha1
+kind: Workflow
+metadata:
+  generateName: example-log-notification-
+spec:
+  entrypoint: main
+  arguments:
+    parameters:
+      - name: custom_parameter
+        value: Hello world!
+  templates:
+    - name: main
+      inputs:
+        parameters:
+          - name: custom_parameter
+      dag:
+        tasks:
+          - name: generate-parameters
+            template: generate-parameters
+            arguments:
+              parameters:
+                - name: custom_parameter
+                  value: '{{inputs.parameters.custom_parameter}}'
+          - name: notify
+            templateRef:
+              name: tpl-log-notification
+              template: main
+            arguments:
+              parameters:
+                - name: msg
+                  value: 'Workflow:Done:CustomMessage'
+                - name: workflow_status
+                  value: '{{workflow.status}}'
+                - name: workflow_parameters
+                  value: '{{tasks.create-parameters.outputs.parameters.custom_parameters}}'
+            depends: 'generate-parameters.Succeeded'
+
+    - name: generate-parameters
+      inputs:
+        parameters:
+          - name: custom_parameter
+      container:
+        image: public.ecr.aws/aws-cli/aws-cli:2.27.62
+        command: [sh, -c]
+        args:
+          - |
+            jq -nc '
+              [
+                {name: "restore_location", value: "{{inputs.parameters.custom_parameter}}"}
+              ]
+            ' > /tmp/custom-parameters
+      outputs:
+        parameters:
+          - name: custom_parameters
+            valueFrom:
+              path: '/tmp/custom-parameters'
+```
+
+Example using the `onExit` event [does not handle a `templateRef`](https://github.com/argoproj/argo-workflows/issues/3188),
 an additional template called by the `onExit` event has to be added to the templates so it can finally call the `tpl-log-notification` template.
 
 ```yaml

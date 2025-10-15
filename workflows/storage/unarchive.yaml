@@ -200,18 +200,18 @@ spec:
               --query 'JobId' \
               --output text)
 
-              # Upload the copy manifests list at the same location as the report manifest
-              aws s3 cp /tmp/copy-manifests.json "s3://{{inputs.parameters.request_output_bucket}}/restore/requests/${REQUEST_LOCATION}/job-${JOB_ID}/copy-manifests.json"
+            # Upload the copy manifests list at the same location as the report manifest
+            aws s3 cp /tmp/copy-manifests.json "s3://{{inputs.parameters.request_output_bucket}}/restore/requests/${REQUEST_LOCATION}/job-${JOB_ID}/copy-manifests.json"
 
-              # Store information for Slack alerting and upload to the same location as copy and restore manifests
-              jq -nc '
-                [
-                  {name: "restore_location", value: "{{inputs.parameters.restore_location}}"},
-                  {name: "archive_bucket", value: "s3://{{inputs.parameters.archive_bucket}}"},
-                  {name: "consumer", value: "{{inputs.parameters.consumer}}"}
-                ]
-              ' > /tmp/restore-details
-              aws s3 cp /tmp/restore-details "s3://{{inputs.parameters.request_output_bucket}}/restore/requests/${REQUEST_LOCATION}/job-${JOB_ID}/restore-details"
+            # Store information for Slack alerting and upload to the same location as copy and restore manifests
+            jq -nc '
+              [
+                {name: "restore_location", value: "{{inputs.parameters.restore_location}}"},
+                {name: "archive_bucket", value: "s3://{{inputs.parameters.archive_bucket}}"},
+                {name: "consumer", value: "{{inputs.parameters.consumer}}"}
+              ]
+            ' > /tmp/restore-details
+            aws s3 cp /tmp/restore-details "s3://{{inputs.parameters.request_output_bucket}}/restore/requests/${REQUEST_LOCATION}/job-${JOB_ID}/restore-details"
 
     - name: exit-handler
       retryStrategy:
