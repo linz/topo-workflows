@@ -6,6 +6,8 @@
 
 ## Log Notification - `tpl-log-notification`
 
+This template is used to emit structured logs for key events. The logs being ingested into Elasticsearch, where Watchers look for specific log patterns or fields to trigger notifications. 
+
 This template can be used for handling a workflow `onExit`.
 See <https://argo-workflows.readthedocs.io/en/latest/walk-through/exit-handlers/>
 The script run by this template as an exit handler is generating a log, including the status of the workflow, its parameters, and a customisable message, in the following format:
