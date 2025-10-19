@@ -78,7 +78,7 @@ spec:
             valueFrom:
               path: /tmp/flattened_manifests.json
       container:
-        image: peterevans/curl-jq@sha256:f62dbba08fad486a67d323e75dce757efc2ec55b1ddc2e5b78f174c978c3077c
+        image: public.ecr.aws/aws-cli/aws-cli:2.27.62
         imagePullPolicy: IfNotPresent
         command: [sh, '-c']
         args:
@@ -109,7 +109,27 @@ spec:
                 - name: location
                   value: "{{= sprig.replace('manifest.json', 'copy-manifests.json', inputs.parameters.restore_manifest)}}"
             when: '{{steps.verify-restore.outputs.parameters.all_files_restored_result}} == true'
-        - - name: copy
+        - - name: copy-and-notify
+            template: copy-and-notify
+            arguments:
+              parameters:
+                - name: version_argo_tasks
+                  value: '{{inputs.parameters.version_argo_tasks}}'
+                - name: restore_manifest
+                  value: '{{inputs.parameters.restore_manifest}}'
+                - name: copy_manifests
+                  value: '{{steps.read-copy-manifest.outputs.parameters.content}}'
+            when: '{{steps.read-copy-manifest.status}} == Succeeded'
+
+    - name: copy-and-notify
+      inputs:
+        parameters:
+          - name: version_argo_tasks
+          - name: restore_manifest
+          - name: copy_manifests
+      dag:
+        tasks:
+          - name: copy-restored-files
             templateRef:
               name: tpl-copy
               template: main
@@ -123,16 +143,37 @@ spec:
                   value: 'true'
                 - name: aws_role_config_path
                   value: 's3://linz-bucket-config/config-write.topographic.json,s3://linz-bucket-config/config-write.hydrographic.json'
-            withParam: '{{steps.read-copy-manifest.outputs.parameters.content}}'
-            when: '{{steps.read-copy-manifest.status}} == Succeeded'
+            withParam: '{{inputs.parameters.copy_manifests}}'
+          - name: read-restore-details
+            templateRef:
+              name: tpl-read-file
+              template: main
+            arguments:
+              parameters:
+                - name: location
+                  value: "{{= sprig.replace('manifest.json', 'restore-details', inputs.parameters.restore_manifest)}}"
+            depends: 'copy-restored-files.Succeeded'
+          - name: notify
+            templateRef:
+              name: tpl-log-notification
+              template: main
+            arguments:
+              parameters:
+                - name: msg
+                  value: 'UnarchiveCopy:Done'
+                - name: workflow_status
+                  value: '{{workflow.status}}'
+                - name: workflow_parameters
+                  value: '{{tasks.read-restore-details.outputs.parameters.content}}'
+            depends: 'read-restore-details.Succeeded'
 
     - name: exit-handler
       retryStrategy:
-        limit: '0' # `tpl-exit-handler` retries itself
+        limit: '0' # `tpl-log-notification` retries itself
       steps:
         - - name: exit
             templateRef:
-              name: tpl-exit-handler
+              name: tpl-log-notification
               template: main
             arguments:
               parameters:

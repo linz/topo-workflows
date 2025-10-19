@@ -3,11 +3,11 @@ import { describe, it } from 'node:test';
 
 import { runTestFunction } from './function.helper.js';
 
-describe('exit handler script template', () => {
+describe('notification script template', () => {
   it('should log workflow status and parameters', (t) => {
     const spy = t.mock.method(console, 'log');
 
-    runTestFunction('./templates/common/exit.handler.yml', [
+    runTestFunction('./templates/common/log.notification.yml', [
       {
         toReplace: '{{= inputs.parameters.workflow_parameters }}',
         replaceWith: JSON.stringify([
@@ -16,6 +16,7 @@ describe('exit handler script template', () => {
         ]),
       },
       { toReplace: '{{inputs.parameters.workflow_status}}', replaceWith: 'Succeeded' },
+      { toReplace: '{{inputs.parameters.msg}}', replaceWith: 'Workflow:Done' },
     ]);
 
     assert.equal(spy.mock.callCount(), 1);
