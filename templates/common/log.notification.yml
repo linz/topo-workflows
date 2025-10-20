@@ -4,7 +4,7 @@ apiVersion: argoproj.io/v1alpha1
 kind: WorkflowTemplate
 metadata:
   # Template to log the workflow status and its parameters.
-  name: tpl-exit-handler
+  name: tpl-log-notification
 spec:
   templateDefaults:
     container:
@@ -15,10 +15,13 @@ spec:
     - name: main
       inputs:
         parameters:
+          - name: msg
+            description: Message used for logging
+            default: 'Workflow:Done'
           - name: workflow_status
             description: Status of the workflow
           - name: workflow_parameters
-            description: Parameters of the workflow
+            description: Parameters of the workflow or custom parameters
           - name: version_argo_tasks
             description: Version of argo-tasks to use
             default: 'v4'
@@ -34,8 +37,8 @@ spec:
               time: Date.now(),
               level: 20,
               pid: 1,
-              msg: 'Workflow:Done',
-              workflowStatus: '{{inputs.parameters.workflow_status}}', 
+              msg: '{{inputs.parameters.msg}}',
+              workflowStatus: '{{inputs.parameters.workflow_status}}',
               parameters,
             }),
           );

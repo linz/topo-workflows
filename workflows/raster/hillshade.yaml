@@ -344,11 +344,11 @@ spec:
 
     - name: exit-handler
       retryStrategy:
-        limit: '0' # `tpl-exit-handler` retries itself
+        limit: '0' # `tpl-log-notification` retries itself
       steps:
         - - name: exit
             templateRef:
-              name: tpl-exit-handler
+              name: tpl-log-notification
               template: main
             arguments:
               parameters:
