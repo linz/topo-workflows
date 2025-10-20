@@ -1,0 +1,41 @@
+# yaml-language-server: $schema=https://raw.githubusercontent.com/argoproj/argo-workflows/v3.5.5/api/jsonschema/schema.json
+
+apiVersion: argoproj.io/v1alpha1
+kind: WorkflowTemplate
+metadata:
+  # Template from linz/argo-tasks
+  # see https://github.com/linz/argo-tasks#stac-read-collection
+  name: tpl-at-stac-read-collection
+spec:
+  templateDefaults:
+    container:
+      imagePullPolicy: Always
+      image: ''
+  entrypoint: main
+  templates:
+    - name: main
+      inputs:
+        parameters:
+          - name: odr_url
+            description: 'S3 path to existing dataset collection.json'
+            default: ''
+          - name: version
+            description: 'argo-tasks container version to use'
+            default: 'v4'
+
+      container:
+        image: '019359803926.dkr.ecr.ap-southeast-2.amazonaws.com/argo-tasks:{{=inputs.parameters.version}}'
+        env:
+          - name: AWS_ROLE_CONFIG_PATH
+            value: s3://linz-bucket-config/config.json
+        args:
+          - 'stac'
+          - 'read-collection'
+          - "{{= sprig.empty(inputs.parameters.odr_url) ? '' : '--odr-url=' + inputs.parameters.odr_url }}"
+
+      outputs:
+        parameters:
+          - name: scale
+            description: Scale of the ODR dataset
+            valueFrom:
+              path: '/tmp/stac-read-collection/scale'

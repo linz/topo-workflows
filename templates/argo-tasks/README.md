@@ -8,6 +8,7 @@
 - [List](##argo-tasks/list)
 - [Push to Github](##argo-tasks/push-to-github)
 - [Generate Path](##argo-tasks/generate-path)
+- [STAC read collection](##argo-tasks/stac-read-collection)
 - [STAC setup](##argo-tasks/stac-setup)
 - [STAC validate](##argo-tasks/stac-validate)
 - [Identify updated items](##argo-tasks/identify-updated-items)
@@ -224,6 +225,26 @@ arguments:
       value: '{{inputs.parameters.target_bucket_name}}'
     - name: source
       value: '{{inputs.parameters.source}}'
+```
+
+## argo-tasks/stac-read-collection
+
+Template to read a STAC collection from the ODR; can add more outputs as required. Currently outputs `scale`
+See (https://github.com/linz/argo-tasks#stac-read-collection)
+
+### Template Usage
+
+```yaml
+- name: stac-read-collection
+  templateRef:
+    name: tpl-at-stac-read-collection
+    template: main
+  arguments:
+    parameters:
+      - name: odr_url
+        value: '{{workflow.parameters.odr_url}}'
+      - name: version
+        value: '{{workflow.parameters.version_argo_tasks}}'
 ```
 
 ## argo-tasks/stac-setup
