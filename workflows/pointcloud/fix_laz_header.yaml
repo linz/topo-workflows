@@ -94,9 +94,9 @@ spec:
           - '--force-no-clobber'
       - name: aws_role_config_path
         value: 's3://linz-bucket-config/config-write.topographic.json'
-      - name: dryrun
-        description: Perform a dryrun (do not copy files back to source)
-        value: 'true'
+      - name: update_source
+        description: Write modified files back to source location, overwriting original data.
+        value: 'false'
         enum:
           - 'true'
           - 'false'
@@ -152,7 +152,7 @@ spec:
             withParam: '{{tasks.list-source.outputs.parameters.files}}'
 
           - name: copy-processed
-            when: '{{workflow.parameters.dryrun}} == false'
+            when: '{{workflow.parameters.update_source}} == true'
             templateRef:
               name: copy
               template: main
@@ -253,11 +253,11 @@ spec:
 
     - name: exit-handler
       retryStrategy:
-        limit: '0' # `tpl-exit-handler` retries itself
+        limit: '0' # `tpl-log-notification` retries itself
       steps:
         - - name: exit
             templateRef:
-              name: tpl-exit-handler
+              name: tpl-log-notification
               template: main
             arguments:
               parameters:
