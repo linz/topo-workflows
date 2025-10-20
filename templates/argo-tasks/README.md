@@ -8,7 +8,7 @@
 - [List](##argo-tasks/list)
 - [Push to Github](##argo-tasks/push-to-github)
 - [Generate Path](##argo-tasks/generate-path)
-- [STAC read collection](##argo-tasks/stac-read-collection)
+- [STAC collection output](##argo-tasks/stac-collection-output)
 - [STAC setup](##argo-tasks/stac-setup)
 - [STAC validate](##argo-tasks/stac-validate)
 - [Identify updated items](##argo-tasks/identify-updated-items)
@@ -227,17 +227,17 @@ arguments:
       value: '{{inputs.parameters.source}}'
 ```
 
-## argo-tasks/stac-read-collection
+## argo-tasks/stac-collection-output
 
-Template to read a STAC collection from the ODR; can add more outputs as required. Currently outputs `scale`
+Template to read a STAC collection from the ODR and write STAC metadata as workflow output parameters; can add more outputs as required. Currently outputs `scale`
 See (https://github.com/linz/argo-tasks#stac-read-collection)
 
 ### Template Usage
 
 ```yaml
-- name: stac-read-collection
+- name: get-scale
   templateRef:
-    name: tpl-at-stac-read-collection
+    name: tpl-at-stac-collection-output
     template: main
   arguments:
     parameters:
