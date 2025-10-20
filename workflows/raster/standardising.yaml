@@ -85,8 +85,8 @@ spec:
         description: 'Regular expression pattern match for paths/files to include e.g ".tiff?$"'
         value: '.tiff?$'
       - name: scale
-        description: 'Scale of the standardised output imagery'
-        value: '500'
+        description: 'Scale of the standardised output imagery. "auto" determines appropriate scale based on source TIFFs GSD and preset.'
+        value: 'auto'
         enum:
           - '500'
           - '1000'
@@ -94,7 +94,7 @@ spec:
           - '5000'
           - '10000'
           - '50000'
-          - 'None'
+          - 'auto'
       - name: validate
         description: 'Validate the tiles match LINZ map sheet tile index and there are no duplicate tiles, and that the TIFF resolution (GSD) matches across all files'
         value: 'true'
@@ -102,11 +102,12 @@ spec:
           - 'false'
           - 'true'
       - name: retile
-        description: 'Retile the dataset to the output scale specified in the "scale" parameter and GSD of the source imagery'
-        value: 'false'
+        description: 'Retile the dataset to the output scale specified in the "scale" parameter and GSD of the source imagery. "auto" decides re-tiling based on source and target scales. Use "true" to merge multiple sources.'
+        value: 'auto'
         enum:
           - 'true'
           - 'false'
+          - 'auto'
       - name: source_epsg
         description: 'EPSG of the source files'
         value: '2193'
@@ -454,7 +455,8 @@ spec:
                 - name: gsd
                   value: '{{ tasks.tile-index-validate.outputs.parameters.gsd }}'
                 - name: scale_to_resolution
-                  value: '{{=sprig.trim(workflow.parameters.retile) == "true" ?
+                  value:
+                    '{{=sprig.trim(workflow.parameters.retile) == "true" || sprig.trim(workflow.parameters.retile) == "auto" ?
                     sprig.trim(tasks["tile-index-validate"].outputs.parameters.gsd) + "," + sprig.trim(tasks["tile-index-validate"].outputs.parameters.gsd)
                     : ""}}'
                 - name: source_epsg

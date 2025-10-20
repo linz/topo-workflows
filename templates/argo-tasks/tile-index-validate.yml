@@ -18,6 +18,7 @@ spec:
         parameters:
           - name: scale
             description: Tile Index scale to validate against or target scale for retiling
+            default: 'auto'
 
           - name: source_epsg
             description: Force source EPSG, "" will attempt to load EPSG from the source tiffs
@@ -41,7 +42,7 @@ spec:
 
           - name: retile
             description: Output tile configuration for retiling
-            default: 'false'
+            default: 'auto'
 
           - name: preset
             description: Compression type of dataset e.g. webp, lzw, dem_lerc
