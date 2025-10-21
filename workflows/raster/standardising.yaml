@@ -96,11 +96,12 @@ spec:
           - '50000'
           - 'auto'
       - name: validate
-        description: 'Validate the tiles match LINZ map sheet tile index and there are no duplicate tiles, and that the TIFF resolution (GSD) matches across all files'
-        value: 'true'
+        description: 'Validate the tiles match LINZ map sheet tile index and there are no duplicate tiles, and that the TIFF resolution (GSD) matches across all files. "auto" skips GSD check and the validation when retiling.'
+        value: 'auto'
         enum:
-          - 'false'
           - 'true'
+          - 'false'
+          - 'auto'
       - name: retile
         description: 'Retile the dataset to the output scale specified in the "scale" parameter and GSD of the source imagery. "auto" decides re-tiling based on source and target scales. Use "true" to merge multiple sources.'
         value: 'auto'

@@ -17,7 +17,7 @@ spec:
       inputs:
         parameters:
           - name: scale
-            description: Tile Index scale to validate against or target scale for retiling
+            description: Tile Index scale to validate against or target scale for retiling. "auto" determines the appropriate scale based on input TIFFs GSD and preset
             default: 'auto'
 
           - name: source_epsg
@@ -37,11 +37,11 @@ spec:
             default: 'false'
 
           - name: validate
-            description: Validate that all input tiffs perfectly align to tile grid
-            default: 'true'
+            description: Validate that all input tiffs perfectly align to tile grid. "auto" skips validation when retiling
+            default: 'auto'
 
           - name: retile
-            description: Output tile configuration for retiling
+            description: Output tile configuration for retiling. "auto" enables intelligent re-tiling based on input vs output scales
             default: 'auto'
 
           - name: preset
