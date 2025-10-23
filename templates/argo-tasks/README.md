@@ -245,6 +245,7 @@ See (https://github.com/linz/argo-tasks#stac-read-collection)
         value: '{{workflow.parameters.odr_url}}'
       - name: version
         value: '{{workflow.parameters.version_argo_tasks}}'
+  when: "'{{workflow.parameters.odr_url}}' != ''"
 ```
 
 ## argo-tasks/stac-setup
