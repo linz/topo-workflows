@@ -1,6 +1,6 @@
 on: [push]
 env:
-  ARGO_URL: https://github.com/argoproj/argo-workflows/releases/download/v3.5.5/argo-linux-amd64.gz
+  ARGO_URL: https://github.com/argoproj/argo-workflows/releases/download/v3.6.10/argo-linux-amd64.gz
 jobs:
   main:
     name: Build, Format and Test
