@@ -1,4 +1,4 @@
-# yaml-language-server: $schema=https://raw.githubusercontent.com/argoproj/argo-workflows/v3.5.5/api/jsonschema/schema.json
+# yaml-language-server: $schema=https://raw.githubusercontent.com/argoproj/argo-workflows/v3.6.12/api/jsonschema/schema.json
 apiVersion: argoproj.io/v1alpha1
 kind: CronWorkflow
 metadata:
@@ -7,7 +7,8 @@ metadata:
     linz.govt.nz/category: raster
     linz.govt.nz/data-type: raster
 spec:
-  schedule: '30 9 * * 1-5' # At 9:30 AM, Monday through Friday
+  schedules:
+    - '30 9 * * 1-5' # At 9:30 AM, Monday through Friday
   timezone: 'NZ'
   concurrencyPolicy: 'Allow'
   successfulJobsHistoryLimit: 3
