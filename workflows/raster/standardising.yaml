@@ -15,9 +15,9 @@ spec:
   onExit: exit-handler
   synchronization:
     semaphores:
-      configMapKeyRef:
-        name: semaphores
-        key: standardising
+      - configMapKeyRef:
+          name: semaphores
+          key: standardising
   workflowMetadata:
     labelsFrom:
       linz.govt.nz/user-group:

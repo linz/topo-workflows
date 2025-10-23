@@ -13,9 +13,9 @@ spec:
   onExit: exit-handler
   synchronization:
     semaphores:
-      configMapKeyRef:
-        name: semaphores
-        key: basemaps_import
+      - configMapKeyRef:
+          name: semaphores
+          key: basemaps_import
   templateDefaults:
     container:
       imagePullPolicy: Always

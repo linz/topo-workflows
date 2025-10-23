@@ -15,9 +15,9 @@ spec:
   onExit: exit-handler
   synchronization:
     semaphores:
-      configMapKeyRef:
-        name: semaphores
-        key: bulkcopy
+      - configMapKeyRef:
+          name: semaphores
+          key: bulkcopy
   workflowMetadata:
     labelsFrom:
       linz.govt.nz/ticket:
