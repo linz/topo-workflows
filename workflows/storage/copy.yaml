@@ -11,7 +11,7 @@ spec:
   entrypoint: main
   onExit: exit-handler
   synchronization:
-    semaphore:
+    semaphores:
       configMapKeyRef:
         name: semaphores
         key: bulkcopy
