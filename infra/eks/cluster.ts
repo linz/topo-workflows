@@ -113,28 +113,28 @@ export class LinzEksCluster extends Stack {
     new CfnOutput(this, CfnOutputKeys.ArgoDbEndpoint, { value: this.argoDb.dbInstanceEndpointAddress });
 
     // Set up CloudWatch alarms to Slack for RDS free disk space and CPU utilization
-    const rdsTopic = new sns.Topic(this, 'RDSAlertsTopic', {
-      displayName: 'RDS Slack Notification',
-    });
-    const slackChannel = new chatbot.SlackChannelConfiguration(this, 'AlertArgoWorkflowDev', {
-      slackChannelConfigurationName: props.slackChannelConfigurationName,
-      slackWorkspaceId: props.slackWorkspaceId,
-      slackChannelId: props.slackChannelId,
-    });
-    slackChannel.addNotificationTopic(rdsTopic);
+    // const rdsTopic = new sns.Topic(this, 'RDSAlertsTopic', {
+    //   displayName: 'RDS Slack Notification',
+    // });
+    // const slackChannel = new chatbot.SlackChannelConfiguration(this, 'AlertArgoWorkflowDev', {
+    //   slackChannelConfigurationName: props.slackChannelConfigurationName,
+    //   slackWorkspaceId: props.slackWorkspaceId,
+    //   slackChannelId: props.slackChannelId,
+    // });
+    // slackChannel.addNotificationTopic(rdsTopic);
     // https://docs.aws.amazon.com/cdk/api/v2/docs/aws-cdk-lib.aws_cloudwatch.MetricOptions.html
-    const alarmStorage = this.argoDb
-      .metricFreeStorageSpace({ period: Duration.minutes(5) })
-      .createAlarm(this, 'FreeStorageSpace', {
-        threshold: Size.gibibytes(2).toBytes(),
-        evaluationPeriods: 2,
-        comparisonOperator: cloudwatch.ComparisonOperator.LESS_THAN_THRESHOLD,
-      });
-    const alarmCpu = this.argoDb
-      .metricCPUUtilization({ period: Duration.minutes(5) })
-      .createAlarm(this, 'CPUUtilization', { threshold: 75, evaluationPeriods: 2 });
-    alarmStorage.addAlarmAction(new actions.SnsAction(rdsTopic));
-    alarmCpu.addAlarmAction(new actions.SnsAction(rdsTopic));
+    // const alarmStorage = this.argoDb
+    //   .metricFreeStorageSpace({ period: Duration.minutes(5) })
+    //   .createAlarm(this, 'FreeStorageSpace', {
+    //     threshold: Size.gibibytes(2).toBytes(),
+    //     evaluationPeriods: 2,
+    //     comparisonOperator: cloudwatch.ComparisonOperator.LESS_THAN_THRESHOLD,
+    //   });
+    // const alarmCpu = this.argoDb
+    //   .metricCPUUtilization({ period: Duration.minutes(5) })
+    //   .createAlarm(this, 'CPUUtilization', { threshold: 75, evaluationPeriods: 2 });
+    // alarmStorage.addAlarmAction(new actions.SnsAction(rdsTopic));
+    // alarmCpu.addAlarmAction(new actions.SnsAction(rdsTopic));
 
     const nodeGroup = this.cluster.addNodegroupCapacity('ClusterDefault', {
       /**

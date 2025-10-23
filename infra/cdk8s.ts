@@ -22,10 +22,10 @@ async function main(): Promise<void> {
     getCfnOutputs(ClusterName),
     fetchSsmParameters({
       // Config for Cloudflared to access argo-server
-      cloudflaredTunnelId: '/eks/cloudflared/argo/tunnelId',
-      cloudflaredTunnelSecret: '/eks/cloudflared/argo/tunnelSecret',
-      cloudflaredTunnelName: '/eks/cloudflared/argo/tunnelName',
-      cloudflaredAccountId: '/eks/cloudflared/argo/accountId',
+      // cloudflaredTunnelId: '/eks/cloudflared/argo/tunnelId',
+      // cloudflaredTunnelSecret: '/eks/cloudflared/argo/tunnelSecret',
+      // cloudflaredTunnelName: '/eks/cloudflared/argo/tunnelName',
+      // cloudflaredAccountId: '/eks/cloudflared/argo/accountId',
 
       // Personal access token to gain access to linz-li-bot github user
       githubPat: '/eks/github/linz-li-bot/pat',
@@ -34,9 +34,9 @@ async function main(): Promise<void> {
       argoDbPassword: '/eks/argo/postgres/password',
 
       // Argo Workflows secrets for S3 Batch Operations Restore
-      s3BatchRestoreAccountIdHydro: '/eks/S3BatchRestore/accountIdHydro',
-      s3BatchRestoreAccountIdTopo: '/eks/S3BatchRestore/accountIdTopo',
-      s3BatchRestoreRoleArn: '/eks/S3BatchRestore/roleArn',
+      // s3BatchRestoreAccountIdHydro: '/eks/S3BatchRestore/accountIdHydro',
+      // s3BatchRestoreAccountIdTopo: '/eks/S3BatchRestore/accountIdTopo',
+      // s3BatchRestoreRoleArn: '/eks/S3BatchRestore/roleArn',
     }),
     describeCluster(ClusterName),
   ]);
@@ -94,19 +94,19 @@ async function main(): Promise<void> {
     secrets: [{ name: 'github-linz-li-bot-pat', data: { pat: ssmConfig.githubPat } }],
   });
 
-  new ArgoSecretsChart(app, 'argo-secrets', {
-    accountIdHydro: ssmConfig.s3BatchRestoreAccountIdHydro,
-    accountIdTopo: ssmConfig.s3BatchRestoreAccountIdTopo,
-    s3BatchRestoreRoleArn: ssmConfig.s3BatchRestoreRoleArn,
-  });
+  // new ArgoSecretsChart(app, 'argo-secrets', {
+  //   accountIdHydro: ssmConfig.s3BatchRestoreAccountIdHydro,
+  //   accountIdTopo: ssmConfig.s3BatchRestoreAccountIdTopo,
+  //   s3BatchRestoreRoleArn: ssmConfig.s3BatchRestoreRoleArn,
+  // });
 
-  new Cloudflared(app, 'cloudflared', {
-    namespace: 'cloudflared',
-    tunnelId: ssmConfig.cloudflaredTunnelId,
-    tunnelSecret: ssmConfig.cloudflaredTunnelSecret,
-    tunnelName: ssmConfig.cloudflaredTunnelName,
-    accountId: ssmConfig.cloudflaredAccountId,
-  });
+  // new Cloudflared(app, 'cloudflared', {
+  //   namespace: 'cloudflared',
+  //   tunnelId: ssmConfig.cloudflaredTunnelId,
+  //   tunnelSecret: ssmConfig.cloudflaredTunnelSecret,
+  //   tunnelName: ssmConfig.cloudflaredTunnelName,
+  //   accountId: ssmConfig.cloudflaredAccountId,
+  // });
 
   new EventExporter(app, 'event-exporter', { namespace: 'event-exporter' });
 
