@@ -6,7 +6,8 @@ metadata:
   labels:
     linz.govt.nz/category: stac
 spec:
-  schedule: '0 15 * * 1-5' # At 3:00 PM, Monday through Friday
+  schedules:
+    - '0 15 * * 1-5' # At 3:00 PM, Monday through Friday
   timezone: 'NZ'
   startingDeadlineSeconds: 3600 # Allow 1 hour delay if the workflow-controller clashes during the starting time.
   concurrencyPolicy: 'Allow'
