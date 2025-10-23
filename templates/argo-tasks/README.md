@@ -230,7 +230,7 @@ arguments:
 ## argo-tasks/stac-collection-output
 
 Template to read a STAC collection from the ODR and write STAC metadata as workflow output parameters; can add more outputs as required. Currently outputs `scale`
-See (https://github.com/linz/argo-tasks#stac-read-collection)
+See (https://github.com/linz/argo-tasks#stac-collection-output)
 
 ### Template Usage
 
