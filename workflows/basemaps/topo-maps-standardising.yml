@@ -253,6 +253,8 @@ spec:
                   value: ''
                 - name: background
                   value: '#d0e7f4ff'
+                - name: color_interpretation
+                  value: 'rgba'
 
     # List of the topographic tiles from source and import into target bucket
     - name: topo-stac-creation
