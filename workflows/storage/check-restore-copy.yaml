@@ -122,6 +122,8 @@ spec:
             when: '{{steps.read-copy-manifest.status}} == Succeeded'
 
     - name: copy-and-notify
+      retryStrategy:
+        limit: '2'
       inputs:
         parameters:
           - name: version_argo_tasks
