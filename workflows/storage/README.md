@@ -123,7 +123,7 @@ Access permissions are controlled by the [Bucket Sharing Config](https://github.
 
 ### Description
 
-Check for the status of S3 Glacier Batch Restore jobs triggered by the [`unarchive` workflow](#unarchive), and initiate a file copy of restored files if the batch job has completed.
+Check for the status of S3 Glacier Batch Restore jobs triggered by the [`unarchive` workflow](#unarchive), and initiate a file copy of restored files if the batch job has completed. It marks the restore manifest to `.done` once the copy is achieved to avoid future job to pick it up.
 Write notification information to the logs so that an Elasticsearch watcher can send a Slack alert.
 
 It will copy files from archive buckets to sharing buckets as follows:
@@ -144,8 +144,9 @@ graph TD
   end
 
   subgraph copy-and-notify
-    D1[copy-restored-files] --> D2[read-restore-details]
-    D2 --> D3[notify]
+    D1[copy-restored-files] --> D2[mark-restore-manifest-done]
+    D2 --> D3[read-restore-details]
+    D3 --> D4[notify]
   end
 
   C --> C1
