@@ -144,9 +144,9 @@ graph TD
   end
 
   subgraph copy-and-notify
-    D1[copy-restored-files] --> D2[mark-restore-manifest-done]
-    D2 --> D3[read-restore-details]
-    D3 --> D4[notify]
+    D1[copy-restored-files] --> mark-restore-manifest-done
+    D1[copy-restored-files] --> D2[read-restore-details]
+    D2 --> D3[notify]
   end
 
   C --> C1

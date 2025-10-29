@@ -159,7 +159,7 @@ spec:
               parameters:
                 - name: location
                   value: "{{= sprig.replace('manifest.json', 'restore-details', inputs.parameters.restore_manifest)}}"
-            depends: 'mark-restore-manifest-done.Succeeded'
+            depends: 'copy-restored-files.Succeeded'
           - name: notify
             templateRef:
               name: tpl-log-notification
