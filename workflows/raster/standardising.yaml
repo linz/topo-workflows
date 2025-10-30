@@ -96,19 +96,11 @@ spec:
           - '50000'
           - 'auto'
       - name: validate
-        description: 'Validate the tiles match LINZ map sheet tile index and there are no duplicate tiles, and that the TIFF resolution (GSD) matches across all files. "auto" skips GSD check and the validation when retiling.'
-        value: 'auto'
+        description: 'Validate that all input TIFFs perfectly align to tile grid. Also verify that there is no more than one input TIFF per output tile which will avoid re-tiling multiple input TIFFs to a larger output tile.'
+        value: 'false'
         enum:
-          - 'true'
           - 'false'
-          - 'auto'
-      - name: retile
-        description: 'Retile the dataset to the output scale specified in the "scale" parameter and GSD of the source imagery. "auto" decides re-tiling based on source and target scales. Use "true" to merge multiple sources.'
-        value: 'auto'
-        enum:
           - 'true'
-          - 'false'
-          - 'auto'
       - name: source_epsg
         description: 'EPSG of the source files'
         value: '2193'
