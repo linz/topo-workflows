@@ -124,6 +124,7 @@ spec:
     - name: copy-and-notify
       retryStrategy:
         limit: '2'
+        retryPolicy: 'Always'
       inputs:
         parameters:
           - name: version_argo_tasks
