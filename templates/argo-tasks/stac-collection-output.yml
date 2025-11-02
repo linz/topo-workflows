@@ -17,7 +17,7 @@ spec:
             default: ''
           - name: version
             description: 'argo-tasks container version to use'
-            default: 'v4'
+            default: 'v5'
 
       container:
         image: '019359803926.dkr.ecr.ap-southeast-2.amazonaws.com/argo-tasks:{{=inputs.parameters.version}}'
