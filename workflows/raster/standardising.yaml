@@ -355,7 +355,7 @@ spec:
         tasks:
           - name: tile-index-validate
             templateRef:
-              name: test-p-tpl-at-tile-index-validate
+              name: tpl-at-tile-index-validate
               template: main
             arguments:
               parameters:
