@@ -28,7 +28,7 @@ spec:
         args:
           - 'stac'
           - 'collection-output'
-          - "{{ '--odr-url=' + inputs.parameters.odr_url }}"
+          - '--odr-url={{=inputs.parameters.odr_url}}'
 
       outputs:
         parameters:
