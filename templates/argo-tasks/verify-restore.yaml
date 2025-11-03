@@ -14,7 +14,7 @@ spec:
         parameters:
           - name: version_argo_tasks
             description: Version of argo-tasks to use
-            default: 'v4'
+            default: 'v5'
           - name: restore_manifest
             description: S3 path to the restore manifest file
             default: ''

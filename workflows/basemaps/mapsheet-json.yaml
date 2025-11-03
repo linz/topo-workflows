@@ -18,7 +18,7 @@ spec:
   arguments:
     parameters:
       - name: version_argo_tasks
-        value: 'v4'
+        value: 'v5'
       - name: layer
         value: '104687'
       - name: config

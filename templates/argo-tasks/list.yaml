@@ -17,7 +17,7 @@ spec:
 
           - name: version_argo_tasks
             description: version of argo-tasks to use
-            default: 'v4'
+            default: 'v5'
 
           - name: include
             description: A regular expression to match object path(s) or name(s) to include in the list

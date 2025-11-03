@@ -36,8 +36,8 @@ spec:
   arguments:
     parameters:
       - name: version_argo_tasks
-        description: 'Specify a version of the argo-tasks image to use, e.g. "v4.1" or "latest"'
-        value: 'v4'
+        description: 'Specify a version of the argo-tasks image to use, e.g. "v5.1" or "latest"'
+        value: 'v5'
       - name: version_basemaps_cli
         description: 'Specify a version of the basemaps-cli image to use, e.g. "v8" or "latest"'
         value: 'v8'
@@ -95,12 +95,6 @@ spec:
           - '10000'
           - '50000'
           - 'auto'
-      - name: validate
-        description: 'Validate that all input TIFFs perfectly align to tile grid. Also verify that there is no more than one input TIFF per output tile which will avoid re-tiling multiple input TIFFs to a larger output tile.'
-        value: 'false'
-        enum:
-          - 'false'
-          - 'true'
       - name: source_epsg
         description: 'EPSG of the source files'
         value: '2193'
@@ -129,6 +123,12 @@ spec:
       - name: odr_url
         description: '(Optional) If an existing dataset add the S3 path to the dataset here to load existing metadata e.g. "s3://nz-imagery/taranaki/new-plymouth_2017_0.1m/rgb/2193/"'
         value: ''
+      - name: validate_gsd
+        description: 'Validate input GSD against the dataset at (optional) odr_url'
+        value: 'false'
+        enum:
+          - 'true'
+          - 'false'
       - name: supplied_capture_area
         description: '(Optional) location of a supplied GeoJSON capture area file. Must be EPSG:4326. This will be used instead of generating a capture area from the TIFFs. If odr-url is provided, the existing and supplied capture areas will be merged.'
         value: ''
@@ -355,7 +355,7 @@ spec:
         tasks:
           - name: tile-index-validate
             templateRef:
-              name: tpl-at-tile-index-validate
+              name: test-p-tpl-at-tile-index-validate
               template: main
             arguments:
               parameters:
@@ -367,10 +367,6 @@ spec:
                   value: '{{=sprig.trim(inputs.parameters.source)}}'
                 - name: source_epsg
                   value: '{{=sprig.trim(workflow.parameters.source_epsg)}}'
-                - name: validate
-                  value: '{{= workflow.parameters.validate}}'
-                - name: retile
-                  value: '{{= workflow.parameters.retile}}'
                 - name: preset
                   value: '{{= workflow.parameters.compression}}'
                 - name: version
@@ -389,7 +385,7 @@ spec:
                 - name: gsd
                   value: '{{ tasks.tile-index-validate.outputs.parameters.gsd }}'
                 - name: validate
-                  value: '{{= workflow.parameters.validate}}'
+                  value: '{{= workflow.parameters.validate_gsd}}'
                 - name: region
                   value: '{{=sprig.trim(workflow.parameters.region)}}'
                 - name: geographic_description
@@ -448,10 +444,7 @@ spec:
                 - name: gsd
                   value: '{{ tasks.tile-index-validate.outputs.parameters.gsd }}'
                 - name: scale_to_resolution
-                  value:
-                    '{{=sprig.trim(workflow.parameters.retile) == "true" || sprig.trim(workflow.parameters.retile) == "auto" ?
-                    sprig.trim(tasks["tile-index-validate"].outputs.parameters.gsd) + "," + sprig.trim(tasks["tile-index-validate"].outputs.parameters.gsd)
-                    : ""}}'
+                  value: '{{=sprig.trim(tasks["tile-index-validate"].outputs.parameters.gsd) + "," + sprig.trim(tasks["tile-index-validate"].outputs.parameters.gsd)}}'
                 - name: source_epsg
                   value: '{{=sprig.trim(workflow.parameters.source_epsg)}}'
                 - name: target_epsg

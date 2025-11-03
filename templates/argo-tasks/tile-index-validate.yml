@@ -36,17 +36,13 @@ spec:
             description: Sets includeDerived=true/false in file-list.json
             default: 'false'
 
-          - name: validate
-            description: Validate that all input TIFFs perfectly align to tile grid. Also verify that there is no more than one input TIFF per output tile which will avoid re-tiling multiple input TIFFs to a larger output tile.
-            default: 'false'
-
           - name: preset
             description: Compression type of dataset e.g. webp, lzw, dem_lerc
             default: 'webp'
 
           - name: version
             description: container version to use
-            default: 'v4'
+            default: 'v5'
 
       outputs:
         parameters:
@@ -86,7 +82,6 @@ spec:
           - 'tileindex-validate'
           - '--verbose'
           - '--scale={{= inputs.parameters.scale }}'
-          - '--validate={{= inputs.parameters.validate }}'
           - '--preset={{= inputs.parameters.preset }}'
           - "{{= sprig.empty(inputs.parameters.source_epsg) ? '' : '--source-epsg=' + inputs.parameters.source_epsg }}"
           - "{{= sprig.empty(inputs.parameters.include) ? '' : '--include=' + inputs.parameters.include }}"

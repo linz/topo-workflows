@@ -24,7 +24,7 @@ spec:
             description: Parameters of the workflow or custom parameters
           - name: version_argo_tasks
             description: Version of argo-tasks to use
-            default: 'v4'
+            default: 'v5'
       script:
         image: '019359803926.dkr.ecr.ap-southeast-2.amazonaws.com/argo-tasks:{{=sprig.trim(inputs.parameters.version_argo_tasks)}}'
         command: [node]

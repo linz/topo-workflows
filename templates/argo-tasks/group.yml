@@ -32,7 +32,7 @@ spec:
 
           - name: version
             description: argo-task Container version to use
-            default: 'v4'
+            default: 'v5'
 
       outputs:
         parameters:
