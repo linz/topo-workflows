@@ -8,6 +8,7 @@
 - [List](#argo-taskslist---tpl-at-list)
 - [Push to Github](#argo-taskspush-to-github---tpl-push-to-github)
 - [Generate Path](#argo-tasksgenerate-path)
+- [STAC collection output](#argo-tasksstac-collection-output)
 - [STAC setup](#argo-tasksstac-setup)
 - [STAC validate](#argo-tasksstac-validate)
 - [Identify updated items](#argo-tasksidentify-updated-items)
@@ -224,6 +225,27 @@ arguments:
       value: '{{inputs.parameters.target_bucket_name}}'
     - name: source
       value: '{{inputs.parameters.source}}'
+```
+
+## argo-tasks/stac-collection-output
+
+Template to read a STAC collection from the ODR and write STAC metadata as workflow output parameters; can add more outputs as required. Currently outputs `scale`
+See (https://github.com/linz/argo-tasks#stac-collection-output)
+
+### Template Usage
+
+```yaml
+- name: get-scale
+  templateRef:
+    name: tpl-at-stac-collection-output
+    template: main
+  arguments:
+    parameters:
+      - name: odr_url
+        value: '{{workflow.parameters.odr_url}}'
+      - name: version
+        value: '{{workflow.parameters.version_argo_tasks}}'
+  when: "'{{workflow.parameters.odr_url}}' != ''"
 ```
 
 ## argo-tasks/stac-setup

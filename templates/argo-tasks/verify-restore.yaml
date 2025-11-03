@@ -32,7 +32,6 @@ spec:
         args:
           - 'verify-restore'
           - '--verbose'
-          - '--mark-done'
           - '--output'
           - '/tmp/all-files-restored-result'
           - '{{inputs.parameters.restore_manifest}}'

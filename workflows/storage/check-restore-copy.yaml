@@ -122,6 +122,9 @@ spec:
             when: '{{steps.read-copy-manifest.status}} == Succeeded'
 
     - name: copy-and-notify
+      retryStrategy:
+        limit: '2'
+        retryPolicy: 'Always'
       inputs:
         parameters:
           - name: version_argo_tasks
@@ -144,6 +147,13 @@ spec:
                 - name: aws_role_config_path
                   value: 's3://linz-bucket-config/config-write.topographic.json,s3://linz-bucket-config/config-write.hydrographic.json'
             withParam: '{{inputs.parameters.copy_manifests}}'
+          - name: mark-restore-manifest-done
+            template: mark-restore-manifest-done
+            arguments:
+              parameters:
+                - name: restore_manifest
+                  value: '{{inputs.parameters.restore_manifest}}'
+            depends: 'copy-restored-files.Succeeded'
           - name: read-restore-details
             templateRef:
               name: tpl-read-file
@@ -166,6 +176,17 @@ spec:
                 - name: workflow_parameters
                   value: '{{tasks.read-restore-details.outputs.parameters.content}}'
             depends: 'read-restore-details.Succeeded'
+
+    - name: mark-restore-manifest-done
+      inputs:
+        parameters:
+          - name: restore_manifest
+      container:
+        image: public.ecr.aws/aws-cli/aws-cli:2.27.62
+        imagePullPolicy: IfNotPresent
+        command: [sh, '-c']
+        args:
+          - aws s3 mv "{{inputs.parameters.restore_manifest}}" "{{= inputs.parameters.restore_manifest + '.done' }}"
 
     - name: exit-handler
       retryStrategy:
