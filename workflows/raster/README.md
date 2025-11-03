@@ -1,12 +1,12 @@
 # Contents
 
-- [Standardising](#Standardising)
-- [publish-odr](#Publish-odr)
+- [Standardising](#standardising)
+- [publish-odr](#publish-odr)
 - [National Elevation](#national-elevation)
 - [Merge Layers](#merge-layers)
 - [Hillshade](#hillshade)
 - [Hillshade Combinations](#hillshade-combinations)
-- [tests](#Tests)
+- [Tests](#tests)
 
 # Standardising
 
@@ -26,12 +26,12 @@ Publishing to the AWS Registry of Open Data is an optional step [publish-odr](#P
 | source                    | str   | s3://linz-imagery-staging/test/sample | the uri (path) to the input tiffs                                                                                                                                                                                                                                 |
 | include                   | regex | .tiff?$                               | A regular expression to match object path(s) or name(s) from within the source path to include in standardising\*.                                                                                                                                                |
 | scale                     | enum  | auto                                  | The scale of the TIFFs                                                                                                                                                                                                                                            |
-| validate                  | enum  | false                                 | Validate the TIFF files with `tileindex-validate`.                                                                                                                                                                                                                |
 | group                     | int   | 50                                    | The number of files to group into the pods (testing has recommended using 50 for large datasets).                                                                                                                                                                 |
 | compression               | enum  | webp                                  | Standardised file format                                                                                                                                                                                                                                          |
 | create_capture_area       | enum  | true                                  | Create a GeoJSON capture area for the dataset                                                                                                                                                                                                                     |
 | cutline                   | str   |                                       | (Optional) location of a cutline file to cut the imagery to `.fgb` or `.geojson` (leave blank if no cutline)                                                                                                                                                      |
 | odr_url                   | str   |                                       | (Optional) If an existing dataset add the S3 path to the dataset here to load existing metadata.                                                                                                                                                                  |
+| validate_gsd              | enum  | false                                 | Validate input GSD against the dataset at (optional) `odr_url`.                                                                                                                                                                                                   |
 | supplied_capture_area     | str   |                                       | (Optional) location of a supplied GeoJSON capture area file. Must be EPSG:4326. This will be used instead of generating a capture area from the TIFFs. If odr-url is provided, the existing and supplied capture areas will be merged.                            |
 | delete_all_existing_items | enum  | false                                 | Delete all existing items in the collection before adding new items. Only when re-supplying existing datasets.                                                                                                                                                    |
 | category                  | enum  | urban-aerial-photos                   | Dataset type for collection metadata, also used to Build Dataset title & description                                                                                                                                                                              |
@@ -63,7 +63,6 @@ Publishing to the AWS Registry of Open Data is an optional step [publish-odr](#P
 | source                 | s3://linz-imagery-upload/PRJ39741_BOPLASS_Imagery_2021-22/PRJ39741_03/01_GeoTiff/ |
 | include                | .tiff?$                                                                           |
 | scale                  | auto                                                                              |
-| validate               | false                                                                             |
 | group                  | 50                                                                                |
 | compression            | webp                                                                              |
 | create_capture_area    | true                                                                              |
@@ -123,8 +122,13 @@ uri: https://basemaps.linz.govt.nz?config=...
 
 ```mermaid
 graph TD;
+    init-->stac-setup;
+    init-->get-location;
+    init-->|odr_url == ''|tileindex-validate;
+    init-->|odr_url != ''|stac-collection-output;
     stac-setup-->standardise-validate;
     get-location-->standardise-validate;
+    stac-collection-output-->|scale|tileindex-validate;
     tileindex-validate-->standardise-validate;
     standardise-validate-->create-collection;
     standardise-validate-->create-overview;
@@ -150,7 +154,7 @@ Output parameters are `collection_id` and `linz_slug`.
 
 ### [tileindex-validate](https://github.com/linz/argo-tasks/blob/master/src/commands/tileindex-validate/)
 
-Lists tiffs from source input, validates they match a LINZ Mapsheet tile index and asserts that there will be no duplicates. Checks `webp` files are 8-bit. Extracts GSD from the first file (and ensures all files match the same GSD if `validate` is true).
+Lists tiffs from source input, validates they match a LINZ Mapsheet tile index. Checks `webp` files are 8-bit. Extracts GSD from the first file and ensures all files match the same GSD.
 
 ### [standardise-validate](https://github.com/linz/topo-imagery/blob/master/scripts/standardise_validate.py)
 

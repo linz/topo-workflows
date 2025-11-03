@@ -353,6 +353,18 @@ spec:
           - name: source
       dag:
         tasks:
+          - name: stac-collection-output
+            templateRef:
+              name: tpl-at-stac-collection-output
+              template: main
+            arguments:
+              parameters:
+                - name: odr_url
+                  value: '{{workflow.parameters.odr_url}}'
+                - name: version
+                  value: '{{= workflow.parameters.version_argo_tasks}}'
+            when: "'{{workflow.parameters.odr_url}}' != ''"
+
           - name: tile-index-validate
             templateRef:
               name: tpl-at-tile-index-validate
@@ -360,7 +372,7 @@ spec:
             arguments:
               parameters:
                 - name: scale
-                  value: '{{workflow.parameters.scale}}'
+                  value: '{{=tasks["stac-collection-output"].status == "Succeeded" ? sprig.trim(tasks["stac-collection-output"].outputs.parameters.scale) : workflow.parameters.scale}}'
                 - name: include
                   value: '{{workflow.parameters.include}}'
                 - name: source
@@ -371,6 +383,7 @@ spec:
                   value: '{{= workflow.parameters.compression}}'
                 - name: version
                   value: '{{= workflow.parameters.version_argo_tasks}}'
+            depends: 'stac-collection-output.Succeeded || stac-collection-output.Skipped'
 
           - name: stac-setup
             templateRef:
