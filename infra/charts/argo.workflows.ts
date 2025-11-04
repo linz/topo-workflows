@@ -43,14 +43,14 @@ export interface ArgoWorkflowsProps {
  *
  * (Do not mix up with Argo Workflows application version)
  */
-const chartVersion = '0.41.0';
+const chartVersion = '0.45.20';
 
 /**
  * This is the version of Argo Workflows for the `chartVersion` we're using
  * https://github.com/argoproj/argo-helm/blob/2730dc24c7ad69b98d3206705a5ebf5cb34dd96b/charts/argo-workflows/Chart.yaml#L2
  *
  */
-const appVersion = 'v3.5.5';
+const appVersion = 'v3.6.12';
 
 export class ArgoWorkflows extends Chart {
   constructor(scope: Construct, id: string, props: ArgoWorkflowsProps & ChartProps) {
@@ -108,6 +108,11 @@ export class ArgoWorkflows extends Chart {
       namespace: 'argo',
       version: chartVersion,
       values: {
+        global: {
+          image: {
+            tag: '3.6.12',
+          },
+        },
         server: {
           replicas: 2,
           priorityClassName: 'high-priority',
