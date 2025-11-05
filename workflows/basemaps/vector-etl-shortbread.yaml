@@ -174,7 +174,6 @@ spec:
 
           - name: tile-join
             depends: 'create-large-layers && create-small-layers'
-            when: '{{tasks.extract.outputs.parameters.updateRequired}} == true'
             template: tile-join
             arguments:
               parameters:
@@ -186,7 +185,7 @@ spec:
 
           - name: analyse
             depends: 'tile-join'
-            when: '{{tasks.extract.outputs.parameters.updateRequired}} == true && {{ workflow.parameters.analyse }} == true'
+            when: '{{ workflow.parameters.analyse }} == true'
             template: analyse
             arguments:
               parameters:
@@ -197,7 +196,7 @@ spec:
 
           - name: stac-validate
             depends: 'analyse'
-            when: '{{tasks.extract.outputs.parameters.updateRequired}} == true && {{ workflow.parameters.analyse }} == true'
+            when: '{{ workflow.parameters.analyse }} == true'
             templateRef:
               name: tpl-at-stac-validate
               template: main
