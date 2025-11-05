@@ -24,9 +24,6 @@ spec:
             default: ''
           - name: gsd
             description: 'Dataset GSD in metres'
-          - name: validate
-            description: 'Validate input GSD against the dataset at (optional) odr_url'
-            default: 'true'
           - name: region
             description: 'Region of the dataset'
           - name: geographic_description
@@ -60,7 +57,6 @@ spec:
           - "{{= sprig.empty(inputs.parameters.geographic_description) ? '' : '--geographic-description=' + inputs.parameters.geographic_description }}"
           - "{{= sprig.empty(inputs.parameters.survey_id) ? '' : '--survey-id=' + inputs.parameters.survey_id }}"
           - "{{= sprig.empty(inputs.parameters.odr_url) ? '' : '--odr-url=' + inputs.parameters.odr_url }}"
-          - '--validate={{inputs.parameters.validate}}'
 
       outputs:
         parameters:

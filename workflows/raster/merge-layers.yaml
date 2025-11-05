@@ -184,8 +184,6 @@ spec:
               parameters:
                 - name: gsd
                   value: '{{=sprig.trim(inputs.parameters.gsd)}}'
-                - name: validate
-                  value: 'true'
                 - name: region
                   value: '{{=sprig.trim(inputs.parameters.region)}}'
                 - name: geospatial_category

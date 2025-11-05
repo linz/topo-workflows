@@ -123,12 +123,6 @@ spec:
       - name: odr_url
         description: '(Optional) If an existing dataset add the S3 path to the dataset here to load existing metadata e.g. "s3://nz-imagery/taranaki/new-plymouth_2017_0.1m/rgb/2193/"'
         value: ''
-      - name: validate_gsd
-        description: 'Validate input GSD against the dataset at (optional) odr_url'
-        value: 'false'
-        enum:
-          - 'true'
-          - 'false'
       - name: supplied_capture_area
         description: '(Optional) location of a supplied GeoJSON capture area file. Must be EPSG:4326. This will be used instead of generating a capture area from the TIFFs. If odr-url is provided, the existing and supplied capture areas will be merged.'
         value: ''
@@ -397,8 +391,6 @@ spec:
                   value: '{{=sprig.trim(workflow.parameters.end_datetime)}}'
                 - name: gsd
                   value: '{{ tasks.tile-index-validate.outputs.parameters.gsd }}'
-                - name: validate
-                  value: '{{= workflow.parameters.validate_gsd}}'
                 - name: region
                   value: '{{=sprig.trim(workflow.parameters.region)}}'
                 - name: geographic_description

@@ -250,7 +250,7 @@ See (https://github.com/linz/argo-tasks#stac-collection-output)
 
 ## argo-tasks/stac-setup
 
-Template to set up STAC metadata; outputs `collection-id` and `linz-slug` and optionally verifies the GSD matches any existing data.
+Template to set up STAC metadata; outputs `collection-id` and `linz-slug` and verifies the GSD matches any existing data.
 See (<https://github.com/linz/argo-tasks#stac-setup>)
 
 ### Template Usage
@@ -268,8 +268,6 @@ See (<https://github.com/linz/argo-tasks#stac-setup>)
         value: '{{workflow.parameters.end_datetime}}'
       - name: gsd
         value: '{{workflow.parameters.gsd}}'
-      - name: validate
-        value: '{{workflow.parameters.validate}}'
       - name: region
         value: '{{workflow.parameters.region}}'
       - name: geographic_description
