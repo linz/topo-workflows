@@ -200,8 +200,8 @@ spec:
               --query 'JobId' \
               --output text)
 
-            # Check if JOB_ID is empty or null
-            if [ -z "$JOB_ID" ] || [ "$JOB_ID" = "null" ]; then
+            # Check if JOB_ID is empty
+            if [ -z "$JOB_ID" ]; then
               echo "Error: Failed to create restore job." >&2
               exit 1
             fi
