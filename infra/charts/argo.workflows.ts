@@ -44,7 +44,6 @@ export interface ArgoWorkflowsProps {
  * (Do not mix up with Argo Workflows application version)
  */
 const chartVersion = '0.45.20';
-// const chartVersion = '0.41.0';
 
 /**
  * This is the version of Argo Workflows for the `chartVersion` we're using
@@ -52,7 +51,6 @@ const chartVersion = '0.45.20';
  *
  */
 const appVersion = 'v3.6.12';
-// const appVersion = 'v3.5.5';
 
 export class ArgoWorkflows extends Chart {
   constructor(scope: Construct, id: string, props: ArgoWorkflowsProps & ChartProps) {
