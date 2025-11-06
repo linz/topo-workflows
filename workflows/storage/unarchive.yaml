@@ -200,6 +200,12 @@ spec:
               --query 'JobId' \
               --output text)
 
+            # Check if JOB_ID is empty or null
+            if [ -z "$JOB_ID" ] || [ "$JOB_ID" = "null" ]; then
+              echo "Error: Failed to create restore job." >&2
+              exit 1
+            fi
+
             # Upload the copy manifests list at the same location as the report manifest
             aws s3 cp /tmp/copy-manifests.json "s3://{{inputs.parameters.request_output_bucket}}/restore/requests/${REQUEST_LOCATION}/job-${JOB_ID}/copy-manifests.json"
 
