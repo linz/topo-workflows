@@ -44,6 +44,7 @@ export interface ArgoWorkflowsProps {
  * (Do not mix up with Argo Workflows application version)
  */
 const chartVersion = '0.45.20';
+// const chartVersion = '0.41.0';
 
 /**
  * This is the version of Argo Workflows for the `chartVersion` we're using
@@ -51,6 +52,7 @@ const chartVersion = '0.45.20';
  *
  */
 const appVersion = 'v3.6.12';
+// const appVersion = 'v3.5.5';
 
 export class ArgoWorkflows extends Chart {
   constructor(scope: Construct, id: string, props: ArgoWorkflowsProps & ChartProps) {
@@ -110,10 +112,15 @@ export class ArgoWorkflows extends Chart {
       values: {
         global: {
           image: {
-            tag: '3.6.12',
+            repository: 'quay.io/argoproj/workflow-controller',
+            tag: 'v3.6.12',
           },
         },
         server: {
+          image: {
+            repository: 'quay.io/argoproj/argocli',
+            tag: 'v3.6.12',
+          },
           replicas: 2,
           priorityClassName: 'high-priority',
           extraEnv: [
@@ -126,7 +133,17 @@ export class ArgoWorkflows extends Chart {
           extraArgs: ['--auth-mode=server'],
         },
         artifactRepository,
+        executor: {
+          image: {
+            repository: 'quay.io/argoproj/argoexec',
+            tag: 'v3.6.12',
+          },
+        },
         controller: {
+          image: {
+            repository: 'quay.io/argoproj/workflow-controller',
+            tag: 'v3.6.12',
+          },
           /* Tells Fluent Bit to not send Argo Controller log to CloudWatch
            *  https://github.com/argoproj/argo-workflows/issues/11657 is spamming the logs
            *  and increase our logs storage cost.
@@ -135,7 +152,6 @@ export class ArgoWorkflows extends Chart {
           nodeSelector: { ...DefaultNodeSelector },
           workflowNamespaces: ['argo'],
           extraArgs: [],
-          // FIXME: workaround for https://github.com/argoproj/argo-workflows/issues/11657
           extraEnv: [{ name: 'WATCH_CONTROLLER_SEMAPHORE_CONFIGMAPS', value: 'false' }],
           persistence,
           replicas: 2,
