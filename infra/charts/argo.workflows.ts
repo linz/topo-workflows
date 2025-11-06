@@ -111,13 +111,13 @@ export class ArgoWorkflows extends Chart {
         global: {
           image: {
             repository: 'quay.io/argoproj/workflow-controller',
-            tag: 'v3.6.12',
+            tag: appVersion,
           },
         },
         server: {
           image: {
             repository: 'argoproj/argocli',
-            tag: 'v3.6.12',
+            tag: appVersion,
           },
           replicas: 2,
           priorityClassName: 'high-priority',
@@ -134,13 +134,13 @@ export class ArgoWorkflows extends Chart {
         executor: {
           image: {
             repository: 'argoproj/argoexec',
-            tag: 'v3.6.12',
+            tag: appVersion,
           },
         },
         controller: {
           image: {
             repository: 'argoproj/workflow-controller',
-            tag: 'v3.6.12',
+            tag: appVersion,
           },
           /* Tells Fluent Bit to not send Argo Controller log to CloudWatch
            *  https://github.com/argoproj/argo-workflows/issues/11657 is spamming the logs
