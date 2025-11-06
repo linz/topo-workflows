@@ -118,7 +118,7 @@ export class ArgoWorkflows extends Chart {
         },
         server: {
           image: {
-            repository: 'quay.io/argoproj/argocli',
+            repository: 'argoproj/argocli',
             tag: 'v3.6.12',
           },
           replicas: 2,
@@ -135,13 +135,13 @@ export class ArgoWorkflows extends Chart {
         artifactRepository,
         executor: {
           image: {
-            repository: 'quay.io/argoproj/argoexec',
+            repository: 'argoproj/argoexec',
             tag: 'v3.6.12',
           },
         },
         controller: {
           image: {
-            repository: 'quay.io/argoproj/workflow-controller',
+            repository: 'argoproj/workflow-controller',
             tag: 'v3.6.12',
           },
           /* Tells Fluent Bit to not send Argo Controller log to CloudWatch
