@@ -128,6 +128,7 @@ graph TD;
     stac-setup-->standardise-validate;
     get-location-->standardise-validate;
     tileindex-validate-->standardise-validate;
+    tileindex-validate-->|fails|create-config;
     standardise-validate-->create-collection;
     standardise-validate-->create-overview;
 

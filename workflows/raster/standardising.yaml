@@ -574,13 +574,15 @@ spec:
             arguments:
               parameters:
                 - name: location
-                  value: '{{tasks.get-location.outputs.parameters.location}}'
+                  value: '{{=tasks["tile-index-validate"].status == "Failed" ? sprig.trim(workflow.parameters.source) : sprig.trimSuffix("/",tasks["get-location"].outputs.parameters.location) + "/flat/"}}'
+                - name: target
+                  value: '{{=sprig.trimSuffix("/", tasks["get-location"].outputs.parameters.location)}}/flat/'
                 - name: bucket
                   value: '{{tasks.get-location.outputs.parameters.bucket}}'
                 - name: key
                   value: '{{tasks.get-location.outputs.parameters.key}}'
             template: create-config
-            depends: 'create-overview'
+            depends: 'create-overview || tile-index-validate.Failed'
 
           - name: publish-odr
             templateRef:
@@ -638,6 +640,8 @@ spec:
         parameters:
           - name: location
             description: 'Location of the imagery to create config for'
+          - name: target
+            description: 'Target location of the config created'
           - name: bucket
           - name: key
       container:
@@ -645,11 +649,13 @@ spec:
         command: [node, index.cjs]
         env:
           - name: AWS_ROLE_CONFIG_PATH
-            value: s3://linz-bucket-config/config.basemaps.json
+            value: s3://linz-bucket-config/config.basemaps.json, s3://linz-bucket-config/config.json
         args:
           - 'config'
           - 'create-config'
-          - '{{=sprig.trimSuffix("/", inputs.parameters.location)}}/flat/'
+          - '--target'
+          - '{{inputs.parameters.target}}'
+          - '{{inputs.parameters.location}}'
       outputs:
         parameters:
           - name: url
