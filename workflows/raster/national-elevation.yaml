@@ -27,8 +27,8 @@ spec:
   arguments:
     parameters:
       - name: version_argo_tasks
-        description: 'Specify a version of the argo-tasks image to use, e.g. "v4.1" or "latest"'
-        value: 'v4'
+        description: 'Specify a version of the argo-tasks image to use, e.g. "v5.1" or "latest"'
+        value: 'v5'
       - name: version_basemaps_cli
         description: 'Specify a version of the basemaps-cli image to use, e.g. "v8" or "latest"'
         value: 'v8'
@@ -132,8 +132,6 @@ spec:
               parameters:
                 - name: gsd
                   value: '1'
-                - name: validate
-                  value: 'true'
                 - name: region
                   value: 'new zealand'
                 - name: geospatial_category

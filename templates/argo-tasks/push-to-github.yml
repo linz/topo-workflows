@@ -23,7 +23,7 @@ spec:
 
           - name: version_argo_tasks
             description: version of argo-tasks to use
-            default: 'v4'
+            default: 'v5'
 
           - name: repository
             description: Repository Name

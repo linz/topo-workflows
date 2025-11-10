@@ -17,7 +17,7 @@ spec:
         parameters:
           - name: version_argo_tasks
             description: Version of argo-tasks to use
-            default: 'v4'
+            default: 'v5'
       outputs:
         parameters:
           - name: location

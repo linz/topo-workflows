@@ -28,8 +28,6 @@ The script run by this template as an exit handler is generating a log, includin
     "source": "s3://linz-imagery-staging/test/sample/",
     "include": ".tiff?$",
     "scale": "500",
-    "validate": "false",
-    "retile": "false",
     "source_epsg": "2193",
     "target_epsg": "2193",
     "group": "50",

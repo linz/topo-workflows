@@ -36,8 +36,8 @@ spec:
   arguments:
     parameters:
       - name: version_argo_tasks
-        description: 'Specify a version of the argo-tasks image to use, e.g. "v4.1" or "latest"'
-        value: 'v4'
+        description: 'Specify a version of the argo-tasks image to use, e.g. "v5.1" or "latest"'
+        value: 'v5'
       - name: version_basemaps_cli
         description: 'Specify a version of the basemaps-cli image to use, e.g. "v8" or "latest"'
         value: 'v8'
@@ -85,8 +85,8 @@ spec:
         description: 'Regular expression pattern match for paths/files to include e.g ".tiff?$"'
         value: '.tiff?$'
       - name: scale
-        description: 'Scale of the standardised output imagery'
-        value: '500'
+        description: 'Scale of the standardised output imagery. "auto" determines appropriate scale based on source TIFFs GSD and preset.'
+        value: 'auto'
         enum:
           - '500'
           - '1000'
@@ -94,19 +94,7 @@ spec:
           - '5000'
           - '10000'
           - '50000'
-          - 'None'
-      - name: validate
-        description: 'Validate the tiles match LINZ map sheet tile index and there are no duplicate tiles, and that the TIFF resolution (GSD) matches across all files'
-        value: 'true'
-        enum:
-          - 'false'
-          - 'true'
-      - name: retile
-        description: 'Retile the dataset to the output scale specified in the "scale" parameter and GSD of the source imagery'
-        value: 'false'
-        enum:
-          - 'true'
-          - 'false'
+          - 'auto'
       - name: source_epsg
         description: 'EPSG of the source files'
         value: '2193'
@@ -359,6 +347,18 @@ spec:
           - name: source
       dag:
         tasks:
+          - name: stac-collection-output
+            templateRef:
+              name: tpl-at-stac-collection-output
+              template: main
+            arguments:
+              parameters:
+                - name: odr_url
+                  value: '{{workflow.parameters.odr_url}}'
+                - name: version
+                  value: '{{= workflow.parameters.version_argo_tasks}}'
+            when: "'{{workflow.parameters.odr_url}}' != ''"
+
           - name: tile-index-validate
             templateRef:
               name: tpl-at-tile-index-validate
@@ -366,21 +366,18 @@ spec:
             arguments:
               parameters:
                 - name: scale
-                  value: '{{workflow.parameters.scale}}'
+                  value: '{{=tasks["stac-collection-output"].status == "Succeeded" ? sprig.trim(tasks["stac-collection-output"].outputs.parameters.scale) : workflow.parameters.scale}}'
                 - name: include
                   value: '{{workflow.parameters.include}}'
                 - name: source
                   value: '{{=sprig.trim(inputs.parameters.source)}}'
                 - name: source_epsg
                   value: '{{=sprig.trim(workflow.parameters.source_epsg)}}'
-                - name: validate
-                  value: '{{= workflow.parameters.validate}}'
-                - name: retile
-                  value: '{{= workflow.parameters.retile}}'
                 - name: preset
                   value: '{{= workflow.parameters.compression}}'
                 - name: version
                   value: '{{= workflow.parameters.version_argo_tasks}}'
+            depends: 'stac-collection-output.Succeeded || stac-collection-output.Skipped'
 
           - name: stac-setup
             templateRef:
@@ -394,8 +391,6 @@ spec:
                   value: '{{=sprig.trim(workflow.parameters.end_datetime)}}'
                 - name: gsd
                   value: '{{ tasks.tile-index-validate.outputs.parameters.gsd }}'
-                - name: validate
-                  value: '{{= workflow.parameters.validate}}'
                 - name: region
                   value: '{{=sprig.trim(workflow.parameters.region)}}'
                 - name: geographic_description
@@ -454,9 +449,7 @@ spec:
                 - name: gsd
                   value: '{{ tasks.tile-index-validate.outputs.parameters.gsd }}'
                 - name: scale_to_resolution
-                  value: '{{=sprig.trim(workflow.parameters.retile) == "true" ?
-                    sprig.trim(tasks["tile-index-validate"].outputs.parameters.gsd) + "," + sprig.trim(tasks["tile-index-validate"].outputs.parameters.gsd)
-                    : ""}}'
+                  value: '{{=sprig.trim(tasks["tile-index-validate"].outputs.parameters.gsd) + "," + sprig.trim(tasks["tile-index-validate"].outputs.parameters.gsd)}}'
                 - name: source_epsg
                   value: '{{=sprig.trim(workflow.parameters.source_epsg)}}'
                 - name: target_epsg
