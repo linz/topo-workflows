@@ -18,6 +18,9 @@ spec:
           - name: version_argo_tasks
             description: Version of argo-tasks to use
             default: 'v5'
+          - name: artifact_key
+            description: Key of the artifact in S3. Must match the `keyFormat` (without pod name) used in Argo Workflows artifact repository configuration.
+            default: '{{workflow.creationTimestamp.Y}}-{{workflow.creationTimestamp.m}}/{{workflow.creationTimestamp.d}}-{{workflow.name}}'
       outputs:
         parameters:
           - name: location
@@ -31,14 +34,15 @@ spec:
               path: '/tmp/key'
       script:
         image: '019359803926.dkr.ecr.ap-southeast-2.amazonaws.com/argo-tasks:{{=sprig.trim(inputs.parameters.version_argo_tasks)}}'
+        envFrom:
+          - configMapRef:
+              name: artifact-config
         command: [node]
         source: |
           const fs = require('node:fs');
 
-          const argoTemplate = JSON.parse(process.env['ARGO_TEMPLATE']);
-          const podArchiveLoc = argoTemplate.archiveLocation.s3;
-          const key = podArchiveLoc.key.substr(0, podArchiveLoc.key.lastIndexOf('/'));
-          const bucket = podArchiveLoc.bucket;
+          const key = '{{inputs.parameters.artifact_key}}';
+          const bucket = process.env.ARTIFACT_BUCKET;
           const location = `s3://${bucket}/${key}/`
 
           fs.writeFileSync('/tmp/location', location);

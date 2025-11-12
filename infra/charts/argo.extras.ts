@@ -3,6 +3,7 @@ import * as kplus from 'cdk8s-plus-32';
 import { Construct } from 'constructs';
 
 import { applyDefaultLabels } from '../util/labels.js';
+import { ScratchBucketName } from '../constants.js';
 
 /**
  * Extra configuration for the workflows themselves
@@ -30,6 +31,13 @@ export class ArgoExtras extends Chart {
         bulkcopy: '8',
         // Limit of how many basemaps import workflow instances can run at the same time
         basemaps_import: '10',
+      },
+    });
+
+    new kplus.ConfigMap(this, 'artifactConfig', {
+      metadata: { name: 'artifact-config' },
+      data: {
+        ARTIFACT_BUCKET: ScratchBucketName,
       },
     });
 
