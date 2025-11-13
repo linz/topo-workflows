@@ -423,7 +423,7 @@ spec:
 
           - name: standardise-validate
             templateRef:
-              name: test-tpl-ti-standardise-validate
+              name: tpl-ti-standardise-validate
               template: main
             arguments:
               parameters:
