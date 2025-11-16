@@ -4,36 +4,35 @@ apiVersion: argoproj.io/v1alpha1
 kind: WorkflowTemplate
 metadata:
   # Template from linz/argo-tasks
-  # see https://github.com/linz/argo-tasks#archive-setup
-  name: tpl-at-archive-setup
+  # see https://github.com/linz/argo-tasks#stac-collection-output
+  name: tpl-at-stac-collection-output
 spec:
-  templateDefaults:
-    container:
-      imagePullPolicy: Always
-      image: ''
   entrypoint: main
   templates:
     - name: main
       inputs:
         parameters:
-          - name: source
-            description: 'S3 path to the files to be archived'
+          - name: odr_url
+            description: 'S3 path to existing dataset collection.json'
             default: ''
           - name: version
-            description: 'argo-task Container version to use'
-            default: 'v4'
+            description: 'argo-tasks container version to use'
+            default: 'v5'
 
       container:
         image: '019359803926.dkr.ecr.ap-southeast-2.amazonaws.com/argo-tasks:{{=inputs.parameters.version}}'
+        imagePullPolicy: Always
         env:
           - name: AWS_ROLE_CONFIG_PATH
             value: s3://linz-bucket-config-nonprod/config.json
         args:
-          - 'archive-setup'
-          - '{{inputs.parameters.source}}'
+          - 'stac'
+          - 'collection-output'
+          - '--odr-url={{=inputs.parameters.odr_url}}'
+
       outputs:
         parameters:
-          - name: archive_location
-            description: Location to use to archive the source files
+          - name: scale
+            description: Scale of the ODR dataset
             valueFrom:
-              path: '/tmp/archive-setup/archive-location'
+              path: '/tmp/stac-collection-output/scale'

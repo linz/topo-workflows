@@ -12,7 +12,7 @@ spec:
   concurrencyPolicy: 'Allow'
   successfulJobsHistoryLimit: 3
   failedJobsHistoryLimit: 3
-  suspend: false
+  suspend: true
   workflowMetadata:
     labels:
       linz.govt.nz/ticket: 'TDE-1571'

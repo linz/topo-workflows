@@ -12,7 +12,7 @@ spec:
   concurrencyPolicy: 'Allow'
   successfulJobsHistoryLimit: 3
   failedJobsHistoryLimit: 3
-  suspend: false
+  suspend: true
   workflowSpec:
     entrypoint: main
     onExit: exit-handler
