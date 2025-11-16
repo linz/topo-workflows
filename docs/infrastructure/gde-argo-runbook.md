@@ -11,7 +11,7 @@ Rebuild the Argo Workflows cluster from scratch, restoring existing database con
 1. [`node`](https://nodejs.org/)
 2. [`helm`](https://helm.sh/docs/intro/install/)
 3. [`kubectl`](https://kubernetes.io/docs/tasks/tools/install-kubectl-linux/) - should be the same version as the EKS version of the original cluster. At time of writing, this is only available by looking for `KubernetesVersion.Vx_yy` in the code (for example, `KubernetesVersion.V1_32')`).
-4. [`argo`](https://github.com/argoproj/argo-workflows/releases/) - should be the same version as the Argo Workflows Server version of the original cluster. At time of writing, this is only available by looking for `appVersion = 'vVERSION'` in the code (for example, `appVersion = 'v3.5.5'`).
+4. [`argo`](https://github.com/argoproj/argo-workflows/releases/) - should be the same version as the Argo Workflows Server version of the original cluster. At time of writing, this is only available by looking for `appVersion = 'vVERSION'` in the code (for example, `appVersion = 'v3.6.12'`).
 5. You need to be able to log in using the following AWS accounts and roles to restore production:
    - LI Topo production account as admin
    - ODR access account as admin using the admin profile
