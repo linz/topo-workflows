@@ -12,15 +12,12 @@ describe('get-location script template', () => {
       './templates/common/get.location.yml',
       [
         {
-          toReplace: `JSON.parse(process.env['ARGO_TEMPLATE'])`,
-          replaceWith: JSON.stringify({
-            archiveLocation: {
-              s3: {
-                key: '2024-10/02-test-get-location-29l4x/test-get-location-29l4x-get-location-3125883809',
-                bucket: 'linz-workflows-scratch',
-              },
-            },
-          }),
+          toReplace: '{{inputs.parameters.artifact_key}}',
+          replaceWith: '2024-10/02-test-get-location-29l4x',
+        },
+        {
+          toReplace: 'process.env.ARTIFACT_BUCKET',
+          replaceWith: `'linz-workflows-scratch'`,
         },
       ],
       (req) => {

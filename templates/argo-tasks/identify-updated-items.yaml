@@ -24,7 +24,7 @@ spec:
             default: ''
           - name: version
             description: 'Specify a version of the argo-tasks image to use, e.g. "v1.0" or "latest"'
-            default: 'v4'
+            default: 'v5'
 
       outputs:
         parameters:

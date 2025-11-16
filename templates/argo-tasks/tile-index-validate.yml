@@ -17,7 +17,8 @@ spec:
       inputs:
         parameters:
           - name: scale
-            description: Tile Index scale to validate against or target scale for retiling
+            description: Tile Index scale to validate against or target scale for retiling. "auto" determines the appropriate scale based on input TIFFs GSD and preset
+            default: 'auto'
 
           - name: source_epsg
             description: Force source EPSG, "" will attempt to load EPSG from the source tiffs
@@ -35,21 +36,13 @@ spec:
             description: Sets includeDerived=true/false in file-list.json
             default: 'false'
 
-          - name: validate
-            description: Validate that all input tiffs perfectly align to tile grid
-            default: 'true'
-
-          - name: retile
-            description: Output tile configuration for retiling
-            default: 'false'
-
           - name: preset
             description: Compression type of dataset e.g. webp, lzw, dem_lerc
             default: 'webp'
 
           - name: version
             description: container version to use
-            default: 'v4'
+            default: 'v5'
 
       outputs:
         parameters:
@@ -89,8 +82,6 @@ spec:
           - 'tileindex-validate'
           - '--verbose'
           - '--scale={{= inputs.parameters.scale }}'
-          - '--validate={{= inputs.parameters.validate }}'
-          - '--retile={{= inputs.parameters.retile }}'
           - '--preset={{= inputs.parameters.preset }}'
           - "{{= sprig.empty(inputs.parameters.source_epsg) ? '' : '--source-epsg=' + inputs.parameters.source_epsg }}"
           - "{{= sprig.empty(inputs.parameters.include) ? '' : '--include=' + inputs.parameters.include }}"

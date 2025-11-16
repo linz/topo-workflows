@@ -1,12 +1,12 @@
 # Contents
 
-- [Standardising](#Standardising)
-- [publish-odr](#Publish-odr)
+- [Standardising](#standardising)
+- [publish-odr](#publish-odr)
 - [National Elevation](#national-elevation)
 - [Merge Layers](#merge-layers)
 - [Hillshade](#hillshade)
 - [Hillshade Combinations](#hillshade-combinations)
-- [tests](#Tests)
+- [Tests](#tests)
 
 # Standardising
 
@@ -25,9 +25,7 @@ Publishing to the AWS Registry of Open Data is an optional step [publish-odr](#P
 | region                    | enum  |                                       | Region of the dataset                                                                                                                                                                                                                                             |
 | source                    | str   | s3://linz-imagery-staging/test/sample | the uri (path) to the input tiffs                                                                                                                                                                                                                                 |
 | include                   | regex | .tiff?$                               | A regular expression to match object path(s) or name(s) from within the source path to include in standardising\*.                                                                                                                                                |
-| scale                     | enum  | 500                                   | The scale of the TIFFs                                                                                                                                                                                                                                            |
-| validate                  | enum  | true                                  | Validate the TIFF files with `tileindex-validate`.                                                                                                                                                                                                                |
-| retile                    | enum  | false                                 | Prepare the data for retiling TIFF files to `scale` and matching GSD with `tileindex-validate`.                                                                                                                                                                   |
+| scale                     | enum  | auto                                  | The scale of the TIFFs                                                                                                                                                                                                                                            |
 | group                     | int   | 50                                    | The number of files to group into the pods (testing has recommended using 50 for large datasets).                                                                                                                                                                 |
 | compression               | enum  | webp                                  | Standardised file format                                                                                                                                                                                                                                          |
 | create_capture_area       | enum  | true                                  | Create a GeoJSON capture area for the dataset                                                                                                                                                                                                                     |
@@ -63,9 +61,7 @@ Publishing to the AWS Registry of Open Data is an optional step [publish-odr](#P
 | region                 | bay-of-plenty                                                                     |
 | source                 | s3://linz-imagery-upload/PRJ39741_BOPLASS_Imagery_2021-22/PRJ39741_03/01_GeoTiff/ |
 | include                | .tiff?$                                                                           |
-| scale                  | 2000                                                                              |
-| validate               | true                                                                              |
-| retile                 | false                                                                             |
+| scale                  | auto                                                                              |
 | group                  | 50                                                                                |
 | compression            | webp                                                                              |
 | create_capture_area    | true                                                                              |
@@ -125,8 +121,13 @@ uri: https://basemaps.linz.govt.nz?config=...
 
 ```mermaid
 graph TD;
+    init-->stac-setup;
+    init-->get-location;
+    init-->|odr_url == ''|tileindex-validate;
+    init-->|odr_url != ''|stac-collection-output;
     stac-setup-->standardise-validate;
     get-location-->standardise-validate;
+    stac-collection-output-->|scale|tileindex-validate;
     tileindex-validate-->standardise-validate;
     standardise-validate-->create-collection;
     standardise-validate-->create-overview;
@@ -152,7 +153,7 @@ Output parameters are `collection_id` and `linz_slug`.
 
 ### [tileindex-validate](https://github.com/linz/argo-tasks/blob/master/src/commands/tileindex-validate/)
 
-Lists tiffs from source input, validates they match a LINZ Mapsheet tile index and asserts that there will be no duplicates. Checks `webp` files are 8-bit. Extracts GSD from the first file (and ensures all files match the same GSD if `validate` is true).
+Lists tiffs from source input, validates they match a LINZ Mapsheet tile index. Checks `webp` files are 8-bit. Extracts GSD from the first file and ensures all files match the same GSD.
 
 ### [standardise-validate](https://github.com/linz/topo-imagery/blob/master/scripts/standardise_validate.py)
 

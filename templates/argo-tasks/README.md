@@ -1,18 +1,18 @@
 # ArgoTasks Templates
 
-## Contents:
+## Contents
 
-- [Group](##argo-tasks/group)
-- [Copy](##argo-tasks/copy)
-- [Create Manifest](##argo-tasks/create-manifest)
-- [List](##argo-tasks/list)
-- [Push to Github](##argo-tasks/push-to-github)
-- [Generate Path](##argo-tasks/generate-path)
-- [STAC collection output](##argo-tasks/stac-collection-output)
-- [STAC setup](##argo-tasks/stac-setup)
-- [STAC validate](##argo-tasks/stac-validate)
-- [Identify updated items](##argo-tasks/identify-updated-items)
-- [Verify Restore](##argo-tasks/verify-restore)
+- [Group](#argo-tasksgroup---tpl-at-group)
+- [Copy](#argo-taskscopy---tpl-copy)
+- [Create Manifest](#argo-taskscreate-manifest---tpl-create-manifest)
+- [List](#argo-taskslist---tpl-at-list)
+- [Push to Github](#argo-taskspush-to-github---tpl-push-to-github)
+- [Generate Path](#argo-tasksgenerate-path)
+- [STAC collection output](#argo-tasksstac-collection-output)
+- [STAC setup](#argo-tasksstac-setup)
+- [STAC validate](#argo-tasksstac-validate)
+- [Identify updated items](#argo-tasksidentify-updated-items)
+- [Verify Restore](#argo-tasksverify-restore---tpl-at-verify-restore)
 
 ## argo-tasks/group - `tpl-at-group`
 
@@ -95,7 +95,7 @@ steps:
 ## argo-tasks/copy - `tpl-copy`
 
 Template for copying a manifest of files between two locations.  
-See https://github.com/linz/argo-tasks#copy
+See <https://github.com/linz/argo-tasks#copy>
 
 ### Template usage
 
@@ -121,7 +121,7 @@ Copy the input parameter manifest file without overriding.
 ## argo-tasks/create-manifest - `tpl-create-manifest`
 
 Template for creating a manifest to be copied and their target path.  
-See https://github.com/linz/argo-tasks#create-manifest
+See <https://github.com/linz/argo-tasks#create-manifest>
 
 ### Template usage
 
@@ -155,7 +155,7 @@ Create a manifest file for a user specified source and target that includes `.ti
 ## argo-tasks/list - `tpl-at-list`
 
 Template for listing and grouping files into a parameter containing a list of a list of files.
-See https://github.com/linz/argo-tasks#list
+See <https://github.com/linz/argo-tasks#list>
 
 ### Template usage
 
@@ -179,7 +179,7 @@ List files in a location that end with `manifest.json`:
 ## argo-tasks/push-to-github - `tpl-push-to-github`
 
 Template for Formatting and Pushing STAC Collections to Github
-See https://github.com/linz/argo-tasks#stac-github-import
+See <https://github.com/linz/argo-tasks#stac-github-import>
 
 ### Template usage
 
@@ -208,7 +208,7 @@ See https://github.com/linz/argo-tasks#stac-github-import
 ## argo-tasks/generate-path
 
 Template to build ODR target paths using collection metadata.
-See https://github.com/linz/argo-tasks#generate-paths
+See <https://github.com/linz/argo-tasks#generate-paths>
 
 ### Template Usage
 
@@ -250,8 +250,8 @@ See (https://github.com/linz/argo-tasks#stac-collection-output)
 
 ## argo-tasks/stac-setup
 
-Template to set up STAC metadata; outputs `collection-id` and `linz-slug` and optionally verifies the GSD matches any existing data.
-See (https://github.com/linz/argo-tasks#stac-setup)
+Template to set up STAC metadata; outputs `collection-id` and `linz-slug` and verifies the GSD matches any existing data.
+See (<https://github.com/linz/argo-tasks#stac-setup>)
 
 ### Template Usage
 
@@ -268,8 +268,6 @@ See (https://github.com/linz/argo-tasks#stac-setup)
         value: '{{workflow.parameters.end_datetime}}'
       - name: gsd
         value: '{{workflow.parameters.gsd}}'
-      - name: validate
-        value: '{{workflow.parameters.validate}}'
       - name: region
         value: '{{workflow.parameters.region}}'
       - name: geographic_description
@@ -285,7 +283,7 @@ See (https://github.com/linz/argo-tasks#stac-setup)
 ## argo-tasks/stac-validate
 
 Template to validate STAC Collections and Items against [STAC](https://stacspec.org/) schemas and STAC Extension schemas.
-See (https://github.com/linz/argo-tasks#stac-validate)
+See (<https://github.com/linz/argo-tasks#stac-validate>)
 
 ### Template Usage
 
@@ -352,7 +350,7 @@ Sample output:
 ## argo-tasks/verify-restore - `tpl-at-verify-restore`
 
 Template for listing and grouping files into collections of tasks.  
-See https://github.com/linz/argo-tasks/tree/master/src/commands/verify-restore
+See <https://github.com/linz/argo-tasks/tree/master/src/commands/verify-restore>
 
 ### Template usage
 

@@ -25,7 +25,7 @@ spec:
 
           - name: version
             description: container version to use
-            default: 'v4'
+            default: 'v5'
 
           - name: aws_role_config_path
             description: s3 URL or comma-separated list of s3 URLs allowing the workflow to write to a target(s)

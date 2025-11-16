@@ -28,8 +28,6 @@ The script run by this template as an exit handler is generating a log, includin
     "source": "s3://linz-imagery-staging/test/sample/",
     "include": ".tiff?$",
     "scale": "500",
-    "validate": "false",
-    "retile": "false",
     "source_epsg": "2193",
     "target_epsg": "2193",
     "group": "50",
@@ -180,7 +178,7 @@ spec:
 ## Get Location - `tpl-get-location`
 
 Template to output the S3 Archive location for the workflow (example: `s3://linz-workflows-scratch/2024-10/02-my-workflow-29l4x/`).
-In some cases, we need this location to write output files by the workflow in a specific and consistent "folder" within the archive bucket.
+In some cases, we need this location to write output files by the workflow in a specific and consistent "folder" within the archive bucket. The location is based on the artifact repository configuration (see `infra/charts/argo.workflows.ts`).
 
 ## Read File - `tpl-read-file`
 

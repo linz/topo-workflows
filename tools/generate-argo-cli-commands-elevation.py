@@ -1,5 +1,6 @@
 import csv
-from typing import List, Dict, Tuple
+from typing import Dict, List, Tuple
+
 import yaml
 
 PARAMETERS_CSV = "./data/elevation-31-07-23.csv"
@@ -62,8 +63,11 @@ def _valid_params(params: Dict[str, str]) -> Tuple[bool, str]:
             return (False, "TODO Noted")
     return (True, "")
 
+
 def _tmp_target_edit(target: str) -> str:
-    return target.replace("s3://linz-elevation/", "s3://linz-workflows-scratch/linz-elevation/")
+    return target.replace(
+        "s3://linz-elevation/", "s3://linz-workflows-scratch/linz-elevation/"
+    )
 
 
 with open(PARAMETERS_CSV, "r") as csv_file:
@@ -89,8 +93,6 @@ with open(PARAMETERS_CSV, "r") as csv_file:
             "source_epsg": row[index["horizontalEPSG"]],
             "target_epsg": "2193",
             "compression": "dem_lerc",
-            "retile": "true",
-            "validate": "false",
             "group": "5",
         }
 
@@ -102,11 +104,15 @@ with open(PARAMETERS_CSV, "r") as csv_file:
         formatted_file_name = file_name.replace("_", "-").replace(".", "-")
 
         valid = _valid_params(params)
-        
+
         if not valid[0]:
-            not_valid.append(f"# {formatted_file_name}.yaml not written to bash as further action required: {valid[1]}\n")
+            not_valid.append(
+                f"# {formatted_file_name}.yaml not written to bash as further action required: {valid[1]}\n"
+            )
         else:
-            parameter_list.append(COMMAND.format(formatted_file_name, formatted_file_name))
+            parameter_list.append(
+                COMMAND.format(formatted_file_name, formatted_file_name)
+            )
 
         del params["comments"]
         _write_params(params, formatted_file_name)
