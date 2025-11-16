@@ -14,10 +14,10 @@ spec:
   entrypoint: main
   onExit: exit-handler
   synchronization:
-    semaphore:
-      configMapKeyRef:
-        name: semaphores
-        key: standardising
+    semaphores:
+      - configMapKeyRef:
+          name: semaphores
+          key: standardising
   workflowMetadata:
     labelsFrom:
       linz.govt.nz/user-group:
