@@ -62,6 +62,14 @@ spec:
     - name: main
       dag:
         tasks:
+          - name: get-location
+            templateRef:
+              name: tpl-get-location
+              template: main
+            arguments:
+              parameters:
+                - name: version_argo_tasks
+                  value: '{{workflow.parameters.version_argo_tasks}}'
           - name: create-manifest
             templateRef:
               name: tpl-create-manifest
@@ -72,6 +80,8 @@ spec:
                   value: 's3://{{workflow.parameters.archive_bucket}}/{{=sprig.trimPrefix("/",workflow.parameters.archive_directory)}}'
                 - name: target
                   value: 's3://{{= workflow.parameters.archive_bucket == "linz-topographic-archive" ? "linz-topographic-shared" : workflow.parameters.archive_bucket == "linz-hydrographic-archive" ? "linz-hydrographic-shared" : "unknown-bucket" }}/{{workflow.parameters.consumer}}/{{=sprig.trimPrefix("/",workflow.parameters.archive_directory)}}'
+                - name: action_location
+                  value: '{{=sprig.trimSuffix("/", tasks["get-location"].outputs.parameters.location)}}/actions/'
                 - name: include
                   value: '.*'
                 - name: group
@@ -80,10 +90,7 @@ spec:
                   value: '{{workflow.parameters.group_size}}'
                 - name: aws_role_config_path
                   value: 's3://linz-bucket-config/config-write.topographic.json, s3://linz-bucket-config/config-write.hydrographic.json'
-          - name: get-location
-            templateRef:
-              name: tpl-get-location
-              template: main
+            depends: 'get-location.Succeeded'
           - name: restore
             template: restore
             arguments:

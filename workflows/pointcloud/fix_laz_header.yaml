@@ -31,8 +31,8 @@ spec:
   arguments:
     parameters:
       - name: version_argo_tasks
-        description: 'Specify a version of the argo-tasks image to use, e.g. "v4.1" or "latest"'
-        value: 'v4'
+        description: 'Specify a version of the argo-tasks image to use, e.g. "v.1" or "latest"'
+        value: 'v5'
       - name: version_topo_imagery
         description: 'Specify a version of the topo-imagery image to use, e.g. "v4.8" or "latest". Note: This image needs to contain PDAL.'
         value: 'v7'
@@ -109,6 +109,14 @@ spec:
         expression: 'false'
       dag:
         tasks:
+          - name: get-location
+            templateRef:
+              name: tpl-get-location
+              template: main
+            arguments:
+              parameters:
+                - name: version_argo_tasks
+                  value: '{{workflow.parameters.version_argo_tasks}}'
           - name: list-source
             templateRef:
               name: tpl-create-manifest
@@ -119,6 +127,8 @@ spec:
                   value: '{{workflow.parameters.source}}'
                 - name: target
                   value: '{{workflow.parameters.source}}'
+                - name: action_location
+                  value: '{{=sprig.trimSuffix("/", tasks["get-location"].outputs.parameters.location)}}/actions/'
                 - name: include
                   value: '{{workflow.parameters.include}}'
                 - name: exclude
@@ -133,10 +143,7 @@ spec:
                   value: '{{workflow.parameters.group_size}}'
                 - name: version_argo_tasks
                   value: '{{workflow.parameters.version_argo_tasks}}'
-          - name: get-location
-            templateRef:
-              name: tpl-get-location
-              template: main
+            depends: 'get-location.Succeeded'
 
           - name: fix-laz-header
             template: fix-laz-header

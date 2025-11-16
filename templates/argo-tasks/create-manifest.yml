@@ -22,6 +22,9 @@ spec:
           - name: target
             description: location to publish data to
 
+          - name: action_location
+            description: 'Location to store manifests of actions'
+
           - name: version_argo_tasks
             description: version of argo-tasks to use
             default: 'v5'
@@ -92,4 +95,6 @@ spec:
             '{{=sprig.trim(inputs.parameters.source)}}',
             '--transform',
             '{{=sprig.trim(inputs.parameters.transform)}}',
+            '--action-location',
+            '{{=sprig.trim(inputs.parameters.action_location)}}',
           ]
