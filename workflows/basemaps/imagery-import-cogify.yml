@@ -12,10 +12,10 @@ spec:
   entrypoint: main
   onExit: exit-handler
   synchronization:
-    semaphore:
-      configMapKeyRef:
-        name: semaphores
-        key: basemaps_import
+    semaphores:
+      - configMapKeyRef:
+          name: semaphores
+          key: basemaps_import
   templateDefaults:
     container:
       imagePullPolicy: Always

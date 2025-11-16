@@ -6,7 +6,8 @@ metadata:
   labels:
     linz.govt.nz/category: stac
 spec:
-  schedule: '0 05 1 * *' # 5 AM every 1st of the month
+  schedules:
+    - '0 05 1 * *' # 5 AM every 1st of the month
   timezone: 'NZ'
   startingDeadlineSeconds: 3600 # Allow 1 hour delay if the workflow-controller clashes during the starting time.
   concurrencyPolicy: 'Allow'

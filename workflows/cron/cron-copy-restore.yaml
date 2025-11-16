@@ -6,7 +6,8 @@ metadata:
   labels:
     linz.govt.nz/category: storage
 spec:
-  schedule: '0 7,13 * * *' # At 7am and 1pm every day
+  schedules:
+    - '0 7,13 * * *' # At 7am and 1pm every day
   timezone: 'NZ'
   startingDeadlineSeconds: 3600 # Allow 1 hour delay if the workflow-controller clashes during the starting time.
   concurrencyPolicy: 'Allow'

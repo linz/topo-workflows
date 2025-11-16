@@ -9,13 +9,13 @@ metadata:
     linz.govt.nz/data-type: raster
 spec:
   parallelism: 100
+  synchronization:
+    semaphores:
+      - configMapKeyRef:
+          name: semaphores
+          key: basemaps_import
   entrypoint: main
   onExit: exit-handler
-  synchronization:
-    semaphore:
-      configMapKeyRef:
-        name: semaphores
-        key: basemaps_import
   templateDefaults:
     container:
       imagePullPolicy: Always
