@@ -128,7 +128,7 @@ export class ArgoWorkflows extends Chart {
             { name: 'NEW_VERSION_MODAL', value: 'false' },
           ],
           nodeSelector: { ...DefaultNodeSelector },
-          extraArgs: ['--auth-mode=server'],
+          extraArgs: ['--auth-mode=server', '--base-href=/'],
         },
         artifactRepository,
         executor: {
