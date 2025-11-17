@@ -68,6 +68,7 @@ spec:
         args:
           - python
           - '/app/scripts/generate_hillshade.py'
+          - '--is-argo'
           - '--from-file'
           - '/tmp/input/{{inputs.parameters.group_id}}.json'
           - '--target'
