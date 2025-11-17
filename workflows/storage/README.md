@@ -1,9 +1,9 @@
 # Contents
 
-- [Archive](##archive)
-- [Unarchive](##unarchive)
-- [Copy](##copy)
-- [Check Restore and Copy](##check-restore-and-copy)
+- [Archive](#archive)
+- [Unarchive](#unarchive)
+- [Copy](#copy)
+- [Check Restore and Copy](#check-restore-and-copy)
 
 ## Archive
 
@@ -55,8 +55,8 @@ The `unarchive` workflow also writes the restore_location, archive_bucket and co
 
 ```mermaid
 graph TD;
+    get-location-->create-manifest
     create-manifest-->|files != ''|restore;
-    get-location-->|files != ''|restore;
 ```
 
 ## Copy
@@ -70,7 +70,7 @@ Copy files from one S3 location to another. This workflow is intended to be used
 
 ```mermaid
 graph TD;
-  create-manifest-->copy-->|set_status == 'true'|copy-status;
+  get-location-->create-manifest-->copy-->|set_status == 'true'|copy-status;
 ```
 
 This is a workflow that uses the [argo-tasks](https://github.com/linz/argo-tasks#create-manifest) container `create-manifest` (list of source and target file paths) and `copy` (the actual file copy) commands.
