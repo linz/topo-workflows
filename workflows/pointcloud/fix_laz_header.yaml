@@ -248,6 +248,7 @@ spec:
         args:
           - python
           - '/app/scripts/fix_laz_header.py'
+          - '--is-argo'
           - '--from-file'
           - '{{inputs.parameters.from_file}}'
           - '--from-manifest'
