@@ -21,10 +21,10 @@ which refers to the ConfigMap name and key:
 
 ```yaml
 synchronization:
-  semaphore:
-    configMapKeyRef:
-      name: semaphores
-      key: standardising
+  semaphores:
+    - configMapKeyRef:
+        name: semaphores
+        key: standardising
 ```
 
 Now Argo will only allow two instances of the workflow to run concurrently.

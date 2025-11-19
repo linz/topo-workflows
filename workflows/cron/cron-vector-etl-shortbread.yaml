@@ -1,4 +1,4 @@
-# yaml-language-server: $schema=https://raw.githubusercontent.com/argoproj/argo-workflows/v3.5.5/api/jsonschema/schema.json
+# yaml-language-server: $schema=https://raw.githubusercontent.com/argoproj/argo-workflows/v3.6.12/api/jsonschema/schema.json
 apiVersion: argoproj.io/v1alpha1
 kind: CronWorkflow
 metadata:
@@ -7,7 +7,8 @@ metadata:
     linz.govt.nz/category: basemaps
     linz.govt.nz/data-type: vector
 spec:
-  schedule: '0 06 * * 3' # 6 AM every Wednesday
+  schedules:
+    - '0 06 * * 3' # 6 AM every Wednesday
   timezone: 'NZ'
   startingDeadlineSeconds: 3600 # Allow 1 hour delay if the workflow-controller clashes during the starting time.
   concurrencyPolicy: 'Allow'

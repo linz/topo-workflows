@@ -43,14 +43,14 @@ export interface ArgoWorkflowsProps {
  *
  * (Do not mix up with Argo Workflows application version)
  */
-const chartVersion = '0.41.0';
+const chartVersion = '0.45.20';
 
 /**
  * This is the version of Argo Workflows for the `chartVersion` we're using
  * https://github.com/argoproj/argo-helm/blob/2730dc24c7ad69b98d3206705a5ebf5cb34dd96b/charts/argo-workflows/Chart.yaml#L2
  *
  */
-const appVersion = 'v3.5.5';
+const appVersion = 'v3.6.12';
 
 export class ArgoWorkflows extends Chart {
   constructor(scope: Construct, id: string, props: ArgoWorkflowsProps & ChartProps) {
@@ -108,7 +108,17 @@ export class ArgoWorkflows extends Chart {
       namespace: 'argo',
       version: chartVersion,
       values: {
+        global: {
+          image: {
+            repository: 'quay.io/argoproj/workflow-controller',
+            tag: appVersion,
+          },
+        },
         server: {
+          image: {
+            repository: 'argoproj/argocli',
+            tag: appVersion,
+          },
           replicas: 2,
           priorityClassName: 'high-priority',
           extraEnv: [
@@ -118,10 +128,20 @@ export class ArgoWorkflows extends Chart {
             { name: 'NEW_VERSION_MODAL', value: 'false' },
           ],
           nodeSelector: { ...DefaultNodeSelector },
-          extraArgs: ['--auth-mode=server'],
+          extraArgs: ['--auth-mode=server', '--base-href=/'],
         },
         artifactRepository,
+        executor: {
+          image: {
+            repository: 'argoproj/argoexec',
+            tag: appVersion,
+          },
+        },
         controller: {
+          image: {
+            repository: 'argoproj/workflow-controller',
+            tag: appVersion,
+          },
           /* Tells Fluent Bit to not send Argo Controller log to CloudWatch
            *  https://github.com/argoproj/argo-workflows/issues/11657 is spamming the logs
            *  and increase our logs storage cost.
@@ -130,7 +150,6 @@ export class ArgoWorkflows extends Chart {
           nodeSelector: { ...DefaultNodeSelector },
           workflowNamespaces: ['argo'],
           extraArgs: [],
-          // FIXME: workaround for https://github.com/argoproj/argo-workflows/issues/11657
           extraEnv: [{ name: 'WATCH_CONTROLLER_SEMAPHORE_CONFIGMAPS', value: 'false' }],
           persistence,
           replicas: 2,

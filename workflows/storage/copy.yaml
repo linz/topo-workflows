@@ -1,4 +1,4 @@
-# yaml-language-server: $schema=https://raw.githubusercontent.com/argoproj/argo-workflows/v3.5.5/api/jsonschema/schema.json
+# yaml-language-server: $schema=https://raw.githubusercontent.com/argoproj/argo-workflows/v3.6.12/api/jsonschema/schema.json
 
 apiVersion: argoproj.io/v1alpha1
 kind: WorkflowTemplate
@@ -11,10 +11,10 @@ spec:
   entrypoint: main
   onExit: exit-handler
   synchronization:
-    semaphore:
-      configMapKeyRef:
-        name: semaphores
-        key: bulkcopy
+    semaphores:
+      - configMapKeyRef:
+          name: semaphores
+          key: bulkcopy
   workflowMetadata:
     labelsFrom:
       linz.govt.nz/user-group:
