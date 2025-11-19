@@ -129,6 +129,7 @@ graph TD;
     get-location-->standardise-validate;
     stac-collection-output-->|scale|tileindex-validate;
     tileindex-validate-->standardise-validate;
+    tileindex-validate-->|fails|create-config;
     standardise-validate-->create-collection;
     standardise-validate-->create-overview;
 
