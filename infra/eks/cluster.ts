@@ -1,19 +1,18 @@
 import { KubectlV32Layer } from '@aws-cdk/lambda-layer-kubectl-v32';
-import { Aws, CfnOutput, Duration, RemovalPolicy, SecretValue, Size, Stack, StackProps } from 'aws-cdk-lib';
-import * as chatbot from 'aws-cdk-lib/aws-chatbot';
-import * as cloudwatch from 'aws-cdk-lib/aws-cloudwatch';
-import * as actions from 'aws-cdk-lib/aws-cloudwatch-actions';
+import { Aws, CfnOutput, Duration, RemovalPolicy, SecretValue, Stack, StackProps } from 'aws-cdk-lib';
 import {
   InstanceClass,
   InstanceSize,
   InstanceType,
+  ISecurityGroup,
   IVpc,
+  Peer,
   Port,
   SecurityGroup,
   SubnetType,
   Vpc,
 } from 'aws-cdk-lib/aws-ec2';
-import { Cluster, ClusterLoggingTypes, IpFamily, KubernetesVersion, NodegroupAmiType } from 'aws-cdk-lib/aws-eks';
+import { Cluster, ClusterLoggingTypes, EndpointAccess, IpFamily, KubernetesVersion, NodegroupAmiType } from 'aws-cdk-lib/aws-eks';
 import {
   CfnInstanceProfile,
   Effect,
@@ -26,11 +25,11 @@ import {
 import * as iam from 'aws-cdk-lib/aws-iam';
 import { Credentials, DatabaseInstance, DatabaseInstanceEngine, PostgresEngineVersion } from 'aws-cdk-lib/aws-rds';
 import { Bucket, IBucket } from 'aws-cdk-lib/aws-s3';
-import * as sns from 'aws-cdk-lib/aws-sns';
 import { Construct } from 'constructs';
 import { createHash } from 'crypto';
 
 import { ArgoDbInstanceName, ArgoDbName, ArgoDbUser, CfnOutputKeys, ScratchBucketName } from '../constants.js';
+import {IPeer} from "aws-cdk-lib/aws-ec2/lib/peer.js";
 
 interface EksClusterProps extends StackProps {
   /** List of role ARNs to grant access to the cluster */
@@ -57,6 +56,7 @@ export class LinzEksCluster extends Stack {
   /* Bucket where read/write roles config files are stored */
   configBucket: IBucket;
   vpc: IVpc;
+  controlPlaneSecurityGroup: ISecurityGroup;
   cluster: Cluster;
   nodeRole: Role;
   s3BatchRestoreRoleArn: string;
@@ -71,12 +71,19 @@ export class LinzEksCluster extends Stack {
 
     this.vpc = Vpc.fromLookup(this, 'Vpc', { tags: { BaseVPC: 'true' } });
 
+    this.controlPlaneSecurityGroup = new SecurityGroup(this, 'ControlPlaneSecurityGroup', {
+      vpc: this.vpc,
+      allowAllOutbound: true})
+    this.controlPlaneSecurityGroup.addIngressRule(Peer.anyIpv4(), Port.allTraffic(), 'Ingress Rule for Kubectl access');
+
     this.s3BatchRestoreRoleArn = props.s3BatchRestoreRoleArn;
 
     this.cluster = new Cluster(this, `Eks${id}`, {
       clusterName: id,
       version: this.version,
       vpc: this.vpc,
+      securityGroup: this.controlPlaneSecurityGroup,
+      endpointAccess: EndpointAccess.PRIVATE,
       defaultCapacity: 0,
       vpcSubnets: [{ subnetType: SubnetType.PRIVATE_WITH_EGRESS }],
       /** This must align to Cluster version: {@link version} */
@@ -113,28 +120,28 @@ export class LinzEksCluster extends Stack {
     new CfnOutput(this, CfnOutputKeys.ArgoDbEndpoint, { value: this.argoDb.dbInstanceEndpointAddress });
 
     // Set up CloudWatch alarms to Slack for RDS free disk space and CPU utilization
-    const rdsTopic = new sns.Topic(this, 'RDSAlertsTopic', {
-      displayName: 'RDS Slack Notification',
-    });
-    const slackChannel = new chatbot.SlackChannelConfiguration(this, 'AlertArgoWorkflowDev', {
-      slackChannelConfigurationName: props.slackChannelConfigurationName,
-      slackWorkspaceId: props.slackWorkspaceId,
-      slackChannelId: props.slackChannelId,
-    });
-    slackChannel.addNotificationTopic(rdsTopic);
-    // https://docs.aws.amazon.com/cdk/api/v2/docs/aws-cdk-lib.aws_cloudwatch.MetricOptions.html
-    const alarmStorage = this.argoDb
-      .metricFreeStorageSpace({ period: Duration.minutes(5) })
-      .createAlarm(this, 'FreeStorageSpace', {
-        threshold: Size.gibibytes(2).toBytes(),
-        evaluationPeriods: 2,
-        comparisonOperator: cloudwatch.ComparisonOperator.LESS_THAN_THRESHOLD,
-      });
-    const alarmCpu = this.argoDb
-      .metricCPUUtilization({ period: Duration.minutes(5) })
-      .createAlarm(this, 'CPUUtilization', { threshold: 75, evaluationPeriods: 2 });
-    alarmStorage.addAlarmAction(new actions.SnsAction(rdsTopic));
-    alarmCpu.addAlarmAction(new actions.SnsAction(rdsTopic));
+    // const rdsTopic = new sns.Topic(this, 'RDSAlertsTopic', {
+    //   displayName: 'RDS Slack Notification',
+    // });
+    // const slackChannel = new chatbot.SlackChannelConfiguration(this, 'AlertArgoWorkflowDev', {
+    //   slackChannelConfigurationName: props.slackChannelConfigurationName,
+    //   slackWorkspaceId: props.slackWorkspaceId,
+    //   slackChannelId: props.slackChannelId,
+    // });
+    // slackChannel.addNotificationTopic(rdsTopic);
+    // // https://docs.aws.amazon.com/cdk/api/v2/docs/aws-cdk-lib.aws_cloudwatch.MetricOptions.html
+    // const alarmStorage = this.argoDb
+    //   .metricFreeStorageSpace({ period: Duration.minutes(5) })
+    //   .createAlarm(this, 'FreeStorageSpace', {
+    //     threshold: Size.gibibytes(2).toBytes(),
+    //     evaluationPeriods: 2,
+    //     comparisonOperator: cloudwatch.ComparisonOperator.LESS_THAN_THRESHOLD,
+    //   });
+    // const alarmCpu = this.argoDb
+    //   .metricCPUUtilization({ period: Duration.minutes(5) })
+    //   .createAlarm(this, 'CPUUtilization', { threshold: 75, evaluationPeriods: 2 });
+    // alarmStorage.addAlarmAction(new actions.SnsAction(rdsTopic));
+    // alarmCpu.addAlarmAction(new actions.SnsAction(rdsTopic));
 
     const nodeGroup = this.cluster.addNodegroupCapacity('ClusterDefault', {
       /**
@@ -143,7 +150,7 @@ export class LinzEksCluster extends Stack {
        * Instances are requested in order listed.
        * https://docs.aws.amazon.com/eks/latest/userguide/managed-node-groups.html#managed-node-group-capacity-types
        **/
-      instanceTypes: ['c6i.large', 'c6a.large'].map((f) => new InstanceType(f)),
+      instanceTypes: ['t3.medium'].map((f) => new InstanceType(f)),
       minSize: 2,
       amiType: NodegroupAmiType.BOTTLEROCKET_X86_64,
       subnets: { subnetType: SubnetType.PRIVATE_WITH_EGRESS },
