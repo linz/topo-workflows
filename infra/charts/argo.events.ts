@@ -2,6 +2,7 @@ import { Chart, ChartProps, Helm } from 'cdk8s';
 import { Construct } from 'constructs';
 
 import { applyDefaultLabels } from '../util/labels.js';
+import { Namespace } from 'cdk8s-plus-32';
 
 export interface ArgoEventsProps {}
 
@@ -22,6 +23,10 @@ const appVersion = 'v1.9.8';
 export class ArgoEvents extends Chart {
   constructor(scope: Construct, id: string, props: ArgoEventsProps & ChartProps) {
     super(scope, id, applyDefaultLabels(props, 'argo-events', appVersion, 'logs', 'events'));
+
+    new Namespace(this, 'ArgoEventsNamespace', {
+      metadata: { name: 'argo-events' },
+    });
 
     new Helm(this, 'argo-events', {
       chart: 'argo-events',
