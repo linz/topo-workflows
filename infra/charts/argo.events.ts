@@ -2,7 +2,8 @@ import { Chart, ChartProps, Helm } from 'cdk8s';
 import { Construct } from 'constructs';
 
 import { applyDefaultLabels } from '../util/labels.js';
-import { Namespace } from 'cdk8s-plus-32';
+import { Namespace, ServiceAccount } from 'cdk8s-plus-32';
+import { KubeClusterRole, KubeClusterRoleBinding } from 'cdk8s-plus-32/lib/imports/k8s.js';
 
 export interface ArgoEventsProps {}
 
@@ -20,6 +21,8 @@ const chartVersion = '2.4.17';
  */
 const appVersion = 'v1.9.8';
 
+const namespace = 'argo-events';
+
 export class ArgoEvents extends Chart {
   constructor(scope: Construct, id: string, props: ArgoEventsProps & ChartProps) {
     super(scope, id, applyDefaultLabels(props, 'argo-events', appVersion, 'logs', 'events'));
@@ -28,11 +31,46 @@ export class ArgoEvents extends Chart {
       metadata: { name: 'argo-events' },
     });
 
+    const operateWorkflowSa = new ServiceAccount(this, 'OperateWorkflowSa', {
+      metadata: {
+        name: 'operate-workflow-sa',
+        namespace,
+      },
+      automountToken: true,
+    });
+
+    const cr = new KubeClusterRole(this, 'WorkflowsTriggerCR', {
+      metadata: { name: 'workflows-trigger-cr' },
+      rules: [
+        {
+          verbs: ['create', 'get', 'list'],
+          apiGroups: ['argoproj.io'],
+          resources: ['workflows'],
+        },
+      ],
+    });
+
+    new KubeClusterRoleBinding(this, 'WorkflowsTriggerCRB', {
+      metadata: { name: 'workflows-trigger-crb' },
+      roleRef: {
+        apiGroup: 'rbac.authorization.k8s.io',
+        kind: 'ClusterRole',
+        name: cr.name,
+      },
+      subjects: [
+        {
+          kind: 'ServiceAccount',
+          name: operateWorkflowSa.name,
+          namespace: operateWorkflowSa.metadata.namespace,
+        },
+      ],
+    });
+
     new Helm(this, 'argo-events', {
       chart: 'argo-events',
       releaseName: 'argo-events',
       repo: 'https://argoproj.github.io/argo-helm',
-      namespace: 'argo-events',
+      namespace,
       version: chartVersion,
       values: {},
     });
