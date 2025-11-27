@@ -1,7 +1,6 @@
 import { App } from 'cdk8s';
 
 import { ArgoExtras } from './charts/argo.extras.js';
-import { ArgoSecretsChart } from './charts/argo.secrets.js';
 import { ArgoWorkflows } from './charts/argo.workflows.js';
 import { Cloudflared } from './charts/cloudflared.js';
 import { EventExporter } from './charts/event.exporter.js';
@@ -90,14 +89,18 @@ async function main(): Promise<void> {
 
   new ArgoExtras(app, 'argo-extras', {
     namespace: 'argo',
-    /** Argo workflows interacts with github give it access to github bot user*/
-    secrets: [{ name: 'github-linz-li-bot-pat', data: { pat: ssmConfig.githubPat } }],
-  });
-
-  new ArgoSecretsChart(app, 'argo-secrets', {
-    accountIdHydro: ssmConfig.s3BatchRestoreAccountIdHydro,
-    accountIdTopo: ssmConfig.s3BatchRestoreAccountIdTopo,
-    s3BatchRestoreRoleArn: ssmConfig.s3BatchRestoreRoleArn,
+    secrets: [
+      /** Argo workflows interacts with github give it access to github bot user */
+      { name: 'github-linz-li-bot-pat', data: { pat: ssmConfig.githubPat } },
+      {
+        name: 's3-batch-restore-secrets',
+        data: {
+          ACCOUNT_ID_HYDRO: ssmConfig.s3BatchRestoreAccountIdHydro,
+          ACCOUNT_ID_TOPO: ssmConfig.s3BatchRestoreAccountIdTopo,
+          ROLE_ARN: ssmConfig.s3BatchRestoreRoleArn,
+        },
+      },
+    ],
   });
 
   new Cloudflared(app, 'cloudflared', {
