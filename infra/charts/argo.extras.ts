@@ -24,9 +24,7 @@ export class ArgoExtras extends Chart {
       metadata: { name: 'semaphores' },
       data: {
         // Limit of how many standardising workflow instances can run at the same time
-        standardising: '2',
-        // Limit of how many bulk workflow instances can run at the same time
-        bulk: '4',
+        standardising: '8',
         // Limit of how many `copy` or `publish-odr` workflow instances can run at the same time
         bulkcopy: '8',
         // Limit of how many basemaps import workflow instances can run at the same time
