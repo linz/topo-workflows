@@ -34,7 +34,7 @@ spec:
     - name: map-produce
       container:
         image: ghcr.io/linz/topographic-system/map:v0.2.0
-        command: produce
+        command: [produce]
         env:
           - name: AWS_ROLE_CONFIG_PATH
             value: s3://linz-bucket-config/config.json
