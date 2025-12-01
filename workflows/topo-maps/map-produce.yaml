@@ -1,0 +1,62 @@
+# yaml-language-server: $schema=https://raw.githubusercontent.com/argoproj/argo-workflows/v3.6.12/api/jsonschema/schema.json
+
+apiVersion: argoproj.io/v1alpha1
+kind: WorkflowTemplate
+metadata:
+  name: map-produce
+  labels:
+    linz.govt.nz/category: topo-maps
+    linz.govt.nz/data-type: raster
+spec:
+  entrypoint: main
+  onExit: exit-handler
+  podMetadata:
+    labels:
+      linz.govt.nz/category: topo-maps
+      linz.govt.nz/data-type: raster
+  arguments:
+    parameters:
+
+  templateDefaults:
+    container:
+      imagePullPolicy: Always
+      image: ''
+
+  templates:
+    - name: main
+      retryStrategy:
+        expression: 'false'
+      dag:
+        tasks:
+          - name: map-produce
+            template: map-produce
+
+    - name: map-produce
+      container:
+        image: ghcr.io/linz/topographic-system/map:v0.2.0
+        command: produce
+        env:
+          - name: AWS_ROLE_CONFIG_PATH
+            value: s3://linz-bucket-config/config.json
+        args:
+          - '--source s3://linz-topography-nonprod/topo/test/2025-02-05/'
+          - '--project s3://linz-topography-nonprod/carto/test/latest/topo50-map.qgz'
+          - '--output s3://linz-topography-scratch-nonprod/topo50map/test/'
+          - '--format tiff'
+          - '--dpi 200'
+          - 'AV30'
+
+    - name: exit-handler
+      retryStrategy:
+        limit: '0' # `tpl-log-notification` retries itself
+      steps:
+        - - name: exit
+            templateRef:
+              name: tpl-log-notification
+              template: main
+            arguments:
+              parameters:
+                - name: workflow_status
+                  value: '{{workflow.status}}'
+                - name: workflow_parameters
+                  value: '{{workflow.parameters}}'
