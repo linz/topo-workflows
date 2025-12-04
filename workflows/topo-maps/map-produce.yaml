@@ -15,6 +15,10 @@ spec:
       linz.govt.nz/data-type: raster
   arguments:
     parameters:
+      - name: version_map_produce_cli
+        description: Version of the map produce CLI docker container to use
+        value: v0.2.0
+
       - name: source
         description: Path or s3 of source parquet vector layers to use for generate map sheets.
         value: 's3://linz-topography-nonprod/topo/test/2025-02-05/'
@@ -40,13 +44,8 @@ spec:
         value: '300'
 
       - name: map-sheets
-        description: Map Sheet Codes to process
-        value: ''
-
-  templateDefaults:
-    container:
-      imagePullPolicy: Always
-      image: ''
+        description: Map Sheet Codes to process, single space separated list
+        value: 'AT24 AT25'
 
   templates:
     - name: main
@@ -59,7 +58,8 @@ spec:
 
     - name: map-produce
       container:
-        image: ghcr.io/linz/topographic-system/map:v0.2.0
+        image: ghcr.io/linz/topographic-system/map:{{ workflow.parameters.version_map_produce_cli }}
+        imagePullPolicy: Always
         env:
           - name: AWS_ROLE_CONFIG_PATH
             value: s3://linz-bucket-config/config-write.topography.json
