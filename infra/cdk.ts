@@ -1,7 +1,8 @@
 import { applyTags, SecurityClassification } from '@linzjs/cdk-tags';
 import { App } from 'aws-cdk-lib';
 
-import { ClusterName, DefaultRegion } from './constants.js';
+import { ArgoDbInstanceName, ClusterName, DefaultRegion } from './constants.js';
+import { ArgoDatabase } from './eks/argo.db.js';
 import { tryGetContextArns } from './eks/arn.js';
 import { LinzEksCluster } from './eks/cluster.js';
 import { fetchSsmParameters } from './util/ssm.js';
@@ -11,6 +12,16 @@ const app = new App();
 async function main(): Promise<void> {
   const accountId = (app.node.tryGetContext('aws-account-id') as unknown) ?? process.env['CDK_DEFAULT_ACCOUNT'];
   const maintainerRoleArns = tryGetContextArns(app.node, 'maintainer-arns');
+  const rdsAlerts = (app.node.tryGetContext('rds-alerts') as boolean) ?? false;
+  if (maintainerRoleArns.length === 0) {
+    console.warn(
+      `Warning: No maintainer role ARNs specified in context maintainer-arns. Must be provided to deploy ${ClusterName}.`,
+    );
+  }
+  if (typeof rdsAlerts !== 'boolean') {
+    throw new Error('Invalid context value for rds-alerts, must be boolean (true|false)');
+  }
+
   const ssmConfig = await fetchSsmParameters({
     slackChannelConfigurationName: '/rds/alerts/slack/channel/name',
     slackWorkspaceId: '/rds/alerts/slack/workspace/id',
@@ -18,19 +29,25 @@ async function main(): Promise<void> {
     s3BatchRestoreRoleArn: '/eks/S3BatchRestore/roleArn',
   });
 
-  if (maintainerRoleArns == null) throw new Error('Missing context: maintainer-arns');
   if (typeof accountId !== 'string') {
     throw new Error("Missing AWS Account information, set with either '-c aws-account-id' or $CDK_DEFAULT_ACCOUNT");
   }
 
-  const cluster = new LinzEksCluster(app, ClusterName, {
+  const argoDbStack = new ArgoDatabase(app, ArgoDbInstanceName, {
     env: { region: DefaultRegion, account: accountId },
-    maintainerRoleArns,
+    alerts: rdsAlerts,
     slackChannelConfigurationName: ssmConfig.slackChannelConfigurationName,
     slackWorkspaceId: ssmConfig.slackWorkspaceId,
     slackChannelId: ssmConfig.slackChannelId,
+  });
+
+  const cluster = new LinzEksCluster(app, ClusterName, {
+    env: { region: DefaultRegion, account: accountId },
+    maintainerRoleArns,
     s3BatchRestoreRoleArn: ssmConfig.s3BatchRestoreRoleArn,
   });
+
+  cluster.addDependency(argoDbStack);
 
   applyTags(cluster, {
     application: 'argo',
