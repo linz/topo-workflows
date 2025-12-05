@@ -1,9 +1,10 @@
+const environmentSuffix = ''; // e.g. 'Dev', 'NP'
 /** Cluster name */
-export const ClusterName = 'Workflows';
+export const ClusterName = `Workflows${environmentSuffix}`;
 /** LINZ conventional name for Argo Workflows artifact bucket */
 export const ScratchBucketName = `linz-${ClusterName.toLowerCase()}-scratch`;
 /** Argo Database Instance name */
-export const ArgoDbInstanceName = 'ArgoDb';
+export const ArgoDbInstanceName = `ArgoDb${environmentSuffix}`;
 /** Argo Database name */
 export const ArgoDbName = 'argo';
 /** Argo Database user */
@@ -23,6 +24,7 @@ export const CfnOutputKeys = {
   ClusterEndpoint: 'ClusterEndpoint',
 
   ArgoDbEndpoint: 'ArgoDbEndpoint',
+  ArgoDbSecurityGroupId: 'ArgoDbSecurityGroupId',
 
   KarpenterServiceAccountName: 'KarpenterServiceAccountName',
   KarpenterServiceAccountRoleArn: 'KarpenterServiceAccountRoleArn',

@@ -1,18 +1,6 @@
 import { KubectlV32Layer } from '@aws-cdk/lambda-layer-kubectl-v32';
-import { Aws, CfnOutput, Duration, RemovalPolicy, SecretValue, Size, Stack, StackProps } from 'aws-cdk-lib';
-import * as chatbot from 'aws-cdk-lib/aws-chatbot';
-import * as cloudwatch from 'aws-cdk-lib/aws-cloudwatch';
-import * as actions from 'aws-cdk-lib/aws-cloudwatch-actions';
-import {
-  InstanceClass,
-  InstanceSize,
-  InstanceType,
-  IVpc,
-  Port,
-  SecurityGroup,
-  SubnetType,
-  Vpc,
-} from 'aws-cdk-lib/aws-ec2';
+import { Aws, CfnOutput, Fn, Stack, StackProps } from 'aws-cdk-lib';
+import { InstanceType, IVpc, Port, SecurityGroup, SubnetType, Vpc } from 'aws-cdk-lib/aws-ec2';
 import { Cluster, ClusterLoggingTypes, IpFamily, KubernetesVersion, NodegroupAmiType } from 'aws-cdk-lib/aws-eks';
 import {
   CfnInstanceProfile,
@@ -24,25 +12,17 @@ import {
   ServicePrincipal,
 } from 'aws-cdk-lib/aws-iam';
 import * as iam from 'aws-cdk-lib/aws-iam';
-import { Credentials, DatabaseInstance, DatabaseInstanceEngine, PostgresEngineVersion } from 'aws-cdk-lib/aws-rds';
 import { Bucket, IBucket } from 'aws-cdk-lib/aws-s3';
-import * as sns from 'aws-cdk-lib/aws-sns';
 import { Construct } from 'constructs';
 import { createHash } from 'crypto';
 
-import { ArgoDbInstanceName, ArgoDbName, ArgoDbUser, CfnOutputKeys, ScratchBucketName } from '../constants.js';
+import { CfnOutputKeys, ScratchBucketName } from '../constants.js';
 
 interface EksClusterProps extends StackProps {
   /** List of role ARNs to grant access to the cluster */
   maintainerRoleArns: string[];
   /** S3 Batch Restore Role ARN */
   s3BatchRestoreRoleArn: string;
-  /** Slack channel configuration for RDS alerts */
-  slackChannelConfigurationName: string;
-  /** Slack workspace ID for RDS alerts */
-  slackWorkspaceId: string;
-  /** Slack channel ID for RDS alerts */
-  slackChannelId: string;
 }
 
 export class LinzEksCluster extends Stack {
@@ -50,8 +30,6 @@ export class LinzEksCluster extends Stack {
   id: string;
   /** Version of EKS to use, this must be aligned to the `kubectlLayer` */
   version = KubernetesVersion.V1_32;
-  /** Argo needs a database for workflow archive */
-  argoDb: DatabaseInstance;
   /** Argo needs a temporary bucket to store objects */
   tempBucket: IBucket;
   /* Bucket where read/write roles config files are stored */
@@ -85,56 +63,6 @@ export class LinzEksCluster extends Stack {
       ipFamily: IpFamily.IP_V6,
       clusterLogging: [ClusterLoggingTypes.API, ClusterLoggingTypes.CONTROLLER_MANAGER, ClusterLoggingTypes.SCHEDULER],
     });
-
-    // TODO: setup up a database CNAME for changing Argo DB without updating Argo config
-    // TODO: run a Disaster Recovery test to recover database data
-    this.argoDb = new DatabaseInstance(this, ArgoDbInstanceName, {
-      engine: DatabaseInstanceEngine.postgres({ version: PostgresEngineVersion.VER_15_12 }),
-      instanceType: InstanceType.of(InstanceClass.T3, InstanceSize.SMALL),
-      vpc: this.vpc,
-      databaseName: ArgoDbName,
-      credentials: Credentials.fromPassword(ArgoDbUser, SecretValue.ssmSecure('/eks/argo/postgres/password')),
-      storageEncrypted: false,
-      publiclyAccessible: false,
-      allocatedStorage: 10,
-      maxAllocatedStorage: 40,
-      multiAz: true,
-      enablePerformanceInsights: true,
-      deletionProtection: false,
-      removalPolicy: RemovalPolicy.SNAPSHOT,
-      backupRetention: Duration.days(35),
-      deleteAutomatedBackups: false,
-    });
-
-    // Allow Argo Workflows to connect to the RDS Instances on port 5432 (Postgres default port)
-    const eksSG = SecurityGroup.fromSecurityGroupId(this, 'ArgoSG', this.cluster.clusterSecurityGroupId, {});
-    this.argoDb.connections.allowFrom(eksSG, Port.tcp(5432), 'EKS to Argo Database');
-
-    new CfnOutput(this, CfnOutputKeys.ArgoDbEndpoint, { value: this.argoDb.dbInstanceEndpointAddress });
-
-    // Set up CloudWatch alarms to Slack for RDS free disk space and CPU utilization
-    const rdsTopic = new sns.Topic(this, 'RDSAlertsTopic', {
-      displayName: 'RDS Slack Notification',
-    });
-    const slackChannel = new chatbot.SlackChannelConfiguration(this, 'AlertArgoWorkflowDev', {
-      slackChannelConfigurationName: props.slackChannelConfigurationName,
-      slackWorkspaceId: props.slackWorkspaceId,
-      slackChannelId: props.slackChannelId,
-    });
-    slackChannel.addNotificationTopic(rdsTopic);
-    // https://docs.aws.amazon.com/cdk/api/v2/docs/aws-cdk-lib.aws_cloudwatch.MetricOptions.html
-    const alarmStorage = this.argoDb
-      .metricFreeStorageSpace({ period: Duration.minutes(5) })
-      .createAlarm(this, 'FreeStorageSpace', {
-        threshold: Size.gibibytes(2).toBytes(),
-        evaluationPeriods: 2,
-        comparisonOperator: cloudwatch.ComparisonOperator.LESS_THAN_THRESHOLD,
-      });
-    const alarmCpu = this.argoDb
-      .metricCPUUtilization({ period: Duration.minutes(5) })
-      .createAlarm(this, 'CPUUtilization', { threshold: 75, evaluationPeriods: 2 });
-    alarmStorage.addAlarmAction(new actions.SnsAction(rdsTopic));
-    alarmCpu.addAlarmAction(new actions.SnsAction(rdsTopic));
 
     const nodeGroup = this.cluster.addNodegroupCapacity('ClusterDefault', {
       /**
@@ -286,6 +214,20 @@ export class LinzEksCluster extends Stack {
     new CfnOutput(this, CfnOutputKeys.FluentBitServiceAccountName, { value: fluentBitSa.serviceAccountName });
 
     // Argo Workflows
+
+    // Database
+    const argoDbSecurityGroup = SecurityGroup.fromSecurityGroupId(
+      this,
+      'ImportedArgoDbSG',
+      Fn.importValue(CfnOutputKeys.ArgoDbSecurityGroupId),
+    );
+    // Allow the cluster SG to connect to Argo DB SG
+    argoDbSecurityGroup.addIngressRule(
+      SecurityGroup.fromSecurityGroupId(this, 'EksSG', this.cluster.clusterSecurityGroupId),
+      Port.tcp(5432),
+      'EKS to Argo Database',
+    );
+
     const argoNs = this.cluster.addManifest('ArgoNameSpace', {
       apiVersion: 'v1',
       kind: 'Namespace',
