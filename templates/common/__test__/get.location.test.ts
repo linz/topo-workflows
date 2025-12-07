@@ -2,7 +2,7 @@ import assert from 'node:assert';
 import fs from 'node:fs';
 import { describe, it } from 'node:test';
 
-import { runTestFunction } from './function.helper.js';
+import { runTestFunction } from './function.helper.ts';
 
 describe('get-location script template', () => {
   it('should output workflow artifact location', (t) => {

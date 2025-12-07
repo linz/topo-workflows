@@ -1,19 +1,9 @@
 import { Chart, ChartProps } from 'cdk8s';
-import { ConfigMap, Namespace } from 'cdk8s-plus-32';
-import {
-  IntOrString,
-  KubeClusterRole,
-  KubeClusterRoleBinding,
-  KubeDeployment,
-  KubeNetworkPolicy,
-  KubePodDisruptionBudget,
-  KubeServiceAccount,
-  Quantity,
-} from 'cdk8s-plus-32/lib/imports/k8s.js';
+import { ConfigMap, k8s, Namespace } from 'cdk8s-plus-32';
 import { Construct } from 'constructs';
 
-import { ClusterName } from '../constants.js';
-import { applyDefaultLabels } from '../util/labels.js';
+import { ClusterName } from '../constants.ts';
+import { applyDefaultLabels } from '../util/labels.ts';
 
 const appName = 'event-exporter';
 const appVersion = '1.7';
@@ -49,7 +39,7 @@ export class EventExporter extends Chart {
       },
     });
 
-    const sa = new KubeServiceAccount(this, 'service-account', {
+    const sa = new k8s.KubeServiceAccount(this, 'service-account', {
       metadata: {
         name: appName,
         namespace,
@@ -58,7 +48,7 @@ export class EventExporter extends Chart {
     });
 
     // Most of these config has been taken from Bitnami Helm chart (https://github.com/bitnami/charts/blob/e07d3319b61f49ddf6f431da3ed7ec0e0be3d5d0/bitnami/kubernetes-event-exporter/values.yaml)
-    new KubeDeployment(this, 'event-exporter-deployment', {
+    new k8s.KubeDeployment(this, 'event-exporter-deployment', {
       metadata: {
         name: appName,
         namespace,
@@ -99,14 +89,14 @@ export class EventExporter extends Chart {
                 ],
                 resources: {
                   requests: {
-                    cpu: Quantity.fromString('100m'),
-                    memory: Quantity.fromString('128Mi'),
-                    'ephemeral-storage': Quantity.fromString('50Mi'),
+                    cpu: k8s.Quantity.fromString('100m'),
+                    memory: k8s.Quantity.fromString('128Mi'),
+                    'ephemeral-storage': k8s.Quantity.fromString('50Mi'),
                   },
                   limits: {
-                    cpu: Quantity.fromString('150m'),
-                    memory: Quantity.fromString('192Mi'),
-                    'ephemeral-storage': Quantity.fromString('2Gi'),
+                    cpu: k8s.Quantity.fromString('150m'),
+                    memory: k8s.Quantity.fromString('192Mi'),
+                    'ephemeral-storage': k8s.Quantity.fromString('2Gi'),
                   },
                 },
                 securityContext: {
@@ -121,7 +111,7 @@ export class EventExporter extends Chart {
                   seccompProfile: { type: 'RuntimeDefault' },
                 },
                 livenessProbe: {
-                  httpGet: { path: '/-/healthy', port: IntOrString.fromString('http') },
+                  httpGet: { path: '/-/healthy', port: k8s.IntOrString.fromString('http') },
                   initialDelaySeconds: 5,
                   periodSeconds: 5,
                   successThreshold: 1,
@@ -129,7 +119,7 @@ export class EventExporter extends Chart {
                   timeoutSeconds: 2,
                 },
                 readinessProbe: {
-                  httpGet: { path: '/-/ready', port: IntOrString.fromString('http') },
+                  httpGet: { path: '/-/ready', port: k8s.IntOrString.fromString('http') },
                   initialDelaySeconds: 5,
                   periodSeconds: 5,
                   successThreshold: 1,
@@ -166,7 +156,7 @@ export class EventExporter extends Chart {
       },
     });
 
-    new KubeNetworkPolicy(this, 'network-policy', {
+    new k8s.KubeNetworkPolicy(this, 'network-policy', {
       metadata: {
         name: appName,
         namespace,
@@ -176,25 +166,25 @@ export class EventExporter extends Chart {
         policyTypes: ['Ingress', 'Egress'],
         ingress: [
           {
-            ports: [{ port: IntOrString.fromNumber(2112) }],
+            ports: [{ port: k8s.IntOrString.fromNumber(2112) }],
           },
         ],
         egress: [{}],
       },
     });
 
-    new KubePodDisruptionBudget(this, 'pdb', {
+    new k8s.KubePodDisruptionBudget(this, 'pdb', {
       metadata: {
         name: appName,
         namespace,
       },
       spec: {
-        maxUnavailable: IntOrString.fromNumber(1), // matches Helm
+        maxUnavailable: k8s.IntOrString.fromNumber(1), // matches Helm
         selector: { matchLabels: super.labels },
       },
     });
 
-    new KubeClusterRole(this, 'cluster-role', {
+    new k8s.KubeClusterRole(this, 'cluster-role', {
       metadata: { name: appName },
       rules: [
         {
@@ -205,7 +195,7 @@ export class EventExporter extends Chart {
       ],
     });
 
-    new KubeClusterRoleBinding(this, 'cluster-role-binding', {
+    new k8s.KubeClusterRoleBinding(this, 'cluster-role-binding', {
       metadata: { name: appName },
       roleRef: {
         apiGroup: 'rbac.authorization.k8s.io',

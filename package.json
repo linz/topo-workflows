@@ -14,13 +14,13 @@
   },
   "private": true,
   "engines": {
-    "node": "^20.13.1"
+    "node": "^24.11.1"
   },
   "scripts": {
     "build": "tsc",
     "lint": "npx eslint . --ignore-path .gitignore",
     "format": "npx prettier . -w",
-    "test": "node --import tsx --test infra/**/*.test.ts templates/common/__test__/*.test.ts"
+    "test": "node --test infra/**/*.test.ts templates/common/__test__/*.test.ts"
   },
   "devDependencies": {
     "@aws-cdk/lambda-layer-kubectl-v32": "^2.1.0",
@@ -29,7 +29,7 @@
     "@aws-sdk/client-ssm": "3.823.0",
     "@linzjs/cdk-tags": "^1.9.1",
     "@linzjs/style": "^5.4.0",
-    "@types/node": "^22.7.3",
+    "@types/node": "^24.10.1",
     "aws-cdk": "^2.1018.0",
     "aws-cdk-lib": "^2.200.1",
     "cdk8s": "^2.69.72",

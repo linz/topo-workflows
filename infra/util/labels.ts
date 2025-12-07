@@ -1,4 +1,4 @@
-import { getGitBuildInfo } from './build.js';
+import { getGitBuildInfo } from './build.ts';
 
 /**
  * Generate a collection of standard labels for all components
