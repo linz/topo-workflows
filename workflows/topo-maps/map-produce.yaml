@@ -43,9 +43,9 @@ spec:
         description: Path or s3 of the output directory to write generated map sheets.
         value: '300'
 
-      - name: map-sheets
-        description: Map Sheet Codes to process, single space separated list
-        value: 'AT24 AT25'
+      - name: map-sheet
+        description: Map Sheet Code to process
+        value: 'AT24'
 
   templates:
     - name: main
@@ -70,4 +70,4 @@ spec:
           - '--output={{ workflow.parameters.output }}'
           - '--format={{ workflow.parameters.format }}'
           - '--dpi={{ workflow.parameters.dpi }}'
-          - '{{ workflow.parameters.map-sheets }}'
+          - '{{ workflow.parameters.map-sheet }}'
