@@ -3,7 +3,7 @@ import { describe, it } from 'node:test';
 
 import { App } from 'aws-cdk-lib';
 
-import { tryGetContextArn, tryGetContextArns, validateRoleArn } from '../eks/arn.js';
+import { tryGetContextArn, tryGetContextArns, validateRoleArn } from '../eks/arn.ts';
 
 describe('roleArnValidator', () => {
   it('should error if arn is not a valid role', () => {

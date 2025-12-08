@@ -2,7 +2,7 @@ import { Chart, ChartProps } from 'cdk8s';
 import * as kplus from 'cdk8s-plus-32';
 import { Construct } from 'constructs';
 
-import { applyDefaultLabels } from '../util/labels.js';
+import { applyDefaultLabels } from '../util/labels.ts';
 
 /** Configure CoreDNS to output a JSON object for its log files */
 export const CoreFileJsonLogFormat = `{"remoteIp":"{remote}","remotePort":{port},"protocol":"{proto}","queryId":"{>id}","queryType":"{type}","queryClass":"{class}","queryName":"{name}","querySize":{size},"dnsSecOk":"{>do}","responseCode":"{rcode}","responseFlags":"{>rflags}","responseSize":{rsize}}`;

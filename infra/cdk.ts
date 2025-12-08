@@ -1,10 +1,10 @@
 import { applyTags, SecurityClassification } from '@linzjs/cdk-tags';
 import { App } from 'aws-cdk-lib';
 
-import { ClusterName, DefaultRegion } from './constants.js';
-import { tryGetContextArns } from './eks/arn.js';
-import { LinzEksCluster } from './eks/cluster.js';
-import { fetchSsmParameters } from './util/ssm.js';
+import { ClusterName, DefaultRegion } from './constants.ts';
+import { tryGetContextArns } from './eks/arn.ts';
+import { LinzEksCluster } from './eks/cluster.ts';
+import { fetchSsmParameters } from './util/ssm.ts';
 
 const app = new App();
 

@@ -30,7 +30,7 @@ import * as sns from 'aws-cdk-lib/aws-sns';
 import { Construct } from 'constructs';
 import { createHash } from 'crypto';
 
-import { ArgoDbInstanceName, ArgoDbName, ArgoDbUser, CfnOutputKeys, ScratchBucketName } from '../constants.js';
+import { ArgoDbInstanceName, ArgoDbName, ArgoDbUser, CfnOutputKeys, ScratchBucketName } from '../constants.ts';
 
 interface EksClusterProps extends StackProps {
   /** List of role ARNs to grant access to the cluster */

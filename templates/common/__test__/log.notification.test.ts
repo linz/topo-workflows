@@ -1,7 +1,7 @@
 import assert from 'node:assert';
 import { describe, it } from 'node:test';
 
-import { runTestFunction } from './function.helper.js';
+import { runTestFunction } from './function.helper.ts';
 
 describe('notification script template', () => {
   it('should log workflow status and parameters', (t) => {

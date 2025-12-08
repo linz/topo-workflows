@@ -1,8 +1,8 @@
 import { Chart, ChartProps, Helm } from 'cdk8s';
 import { Construct } from 'constructs';
 
-import { DefaultRegion } from '../constants.js';
-import { applyDefaultLabels } from '../util/labels.js';
+import { DefaultRegion } from '../constants.ts';
+import { applyDefaultLabels } from '../util/labels.ts';
 
 /**
  * version of the Helm chart (not FluentBit app)

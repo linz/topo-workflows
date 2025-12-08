@@ -6,9 +6,9 @@ jobs:
     name: Build, Format and Test
     runs-on: ubuntu-latest
     steps:
-      - uses: linz/action-typescript@9bf69b0f313b3525d3ba3116f26b1aff7eb7a6c0 # v3.1.0
+      - uses: linz/action-typescript@47be81e60ed1d891c696c3fb7f558876ba9a2b57 # v3.2.0
         with:
-          node-version: 20.x
+          node-version: 24.x
 
       - name: Check formatting
         run: npx prettier --check .
@@ -46,9 +46,9 @@ jobs:
       CLUSTER_NAME: Workflows
 
     steps:
-      - uses: linz/action-typescript@9bf69b0f313b3525d3ba3116f26b1aff7eb7a6c0 # v3.1.0
+      - uses: linz/action-typescript@47be81e60ed1d891c696c3fb7f558876ba9a2b57 # v3.2.0
         with:
-          node-version: 20.x
+          node-version: 24.x
 
       # Configure access to AWS / EKS
       - name: Setup kubectl
