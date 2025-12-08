@@ -2,8 +2,8 @@ import { Chart, ChartProps, Duration, Helm } from 'cdk8s';
 import { Secret } from 'cdk8s-plus-32';
 import { Construct } from 'constructs';
 
-import { ArgoDbName, ArgoDbUser, DefaultRegion } from '../constants.js';
-import { applyDefaultLabels } from '../util/labels.js';
+import { ArgoDbName, ArgoDbUser, DefaultRegion } from '../constants.ts';
+import { applyDefaultLabels } from '../util/labels.ts';
 
 export interface ArgoWorkflowsProps {
   /**

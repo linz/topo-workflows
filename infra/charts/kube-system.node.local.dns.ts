@@ -2,8 +2,8 @@ import { ApiObject, Chart, ChartProps, JsonPatch, Size } from 'cdk8s';
 import * as kplus from 'cdk8s-plus-32';
 import { Construct } from 'constructs';
 
-import { applyDefaultLabels } from '../util/labels.js';
-import { CoreFileJsonLogFormat } from './kube-system.coredns.js';
+import { applyDefaultLabels } from '../util/labels.ts';
+import { CoreFileJsonLogFormat } from './kube-system.coredns.ts';
 
 export interface NodeLocalDnsProps extends ChartProps {
   /** cluster networking configuration */

@@ -1,25 +1,17 @@
 import { App } from 'cdk8s';
 
-import { ArgoExtras } from './charts/argo.extras.js';
-import { ArgoSecretsChart } from './charts/argo.secrets.js';
-import { ArgoWorkflows } from './charts/argo.workflows.js';
-import { Cloudflared } from './charts/cloudflared.js';
-import { EventExporter } from './charts/event.exporter.js';
-import { FluentBit } from './charts/fluentbit.js';
-import { Karpenter, KarpenterNodePool } from './charts/karpenter.js';
-import { CoreDns } from './charts/kube-system.coredns.js';
-import { NodeLocalDns } from './charts/kube-system.node.local.dns.js';
-import { PriorityClasses } from './charts/priority.class.js';
-import {
-  ArgoDbInstanceName,
-  CfnOutputKeys,
-  ClusterName,
-  ScratchBucketName,
-  UseNodeLocalDns,
-  validateKeys,
-} from './constants.js';
-import { describeCluster, getCfnOutputs } from './util/cloud.formation.js';
-import { fetchSsmParameters } from './util/ssm.js';
+import { ArgoExtras } from './charts/argo.extras.ts';
+import { ArgoWorkflows } from './charts/argo.workflows.ts';
+import { Cloudflared } from './charts/cloudflared.ts';
+import { EventExporter } from './charts/event.exporter.ts';
+import { FluentBit } from './charts/fluentbit.ts';
+import { Karpenter, KarpenterNodePool } from './charts/karpenter.ts';
+import { CoreDns } from './charts/kube-system.coredns.ts';
+import { NodeLocalDns } from './charts/kube-system.node.local.dns.ts';
+import { PriorityClasses } from './charts/priority.class.ts';
+import { ArgoDbInstanceName, CfnOutputKeys, ClusterName, ScratchBucketName, UseNodeLocalDns, validateKeys } from './constants.ts';
+import { describeCluster, getCfnOutputs } from './util/cloud.formation.ts';
+import { fetchSsmParameters } from './util/ssm.ts';
 
 const app = new App();
 
@@ -99,14 +91,18 @@ async function main(): Promise<void> {
 
   new ArgoExtras(app, 'argo-extras', {
     namespace: 'argo',
-    /** Argo workflows interacts with github give it access to github bot user*/
-    secrets: [{ name: 'github-linz-li-bot-pat', data: { pat: ssmConfig.githubPat } }],
-  });
-
-  new ArgoSecretsChart(app, 'argo-secrets', {
-    accountIdHydro: ssmConfig.s3BatchRestoreAccountIdHydro,
-    accountIdTopo: ssmConfig.s3BatchRestoreAccountIdTopo,
-    s3BatchRestoreRoleArn: ssmConfig.s3BatchRestoreRoleArn,
+    secrets: [
+      /** Argo workflows interacts with github give it access to github bot user */
+      { name: 'github-linz-li-bot-pat', data: { pat: ssmConfig.githubPat } },
+      {
+        name: 's3-batch-restore-secrets',
+        data: {
+          ACCOUNT_ID_HYDRO: ssmConfig.s3BatchRestoreAccountIdHydro,
+          ACCOUNT_ID_TOPO: ssmConfig.s3BatchRestoreAccountIdTopo,
+          ROLE_ARN: ssmConfig.s3BatchRestoreRoleArn,
+        },
+      },
+    ],
   });
 
   new Cloudflared(app, 'cloudflared', {

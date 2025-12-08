@@ -2,8 +2,8 @@ import { Chart, ChartProps } from 'cdk8s';
 import * as kplus from 'cdk8s-plus-32';
 import { Construct } from 'constructs';
 
-import { ScratchBucketName } from '../constants.js';
-import { applyDefaultLabels } from '../util/labels.js';
+import { ScratchBucketName } from '../constants.ts';
+import { applyDefaultLabels } from '../util/labels.ts';
 
 /**
  * Extra configuration for the workflows themselves
@@ -24,9 +24,7 @@ export class ArgoExtras extends Chart {
       metadata: { name: 'semaphores' },
       data: {
         // Limit of how many standardising workflow instances can run at the same time
-        standardising: '2',
-        // Limit of how many bulk workflow instances can run at the same time
-        bulk: '4',
+        standardising: '8',
         // Limit of how many `copy` or `publish-odr` workflow instances can run at the same time
         bulkcopy: '8',
         // Limit of how many basemaps import workflow instances can run at the same time

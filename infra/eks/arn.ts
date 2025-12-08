@@ -1,4 +1,5 @@
-import { Arn, ArnComponents, ArnFormat } from 'aws-cdk-lib';
+import type { ArnComponents } from 'aws-cdk-lib';
+import { Arn, ArnFormat } from 'aws-cdk-lib';
 import { Node } from 'constructs';
 
 /**

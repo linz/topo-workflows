@@ -16,7 +16,7 @@ import { Bucket, IBucket } from 'aws-cdk-lib/aws-s3';
 import { Construct } from 'constructs';
 import { createHash } from 'crypto';
 
-import { CfnOutputKeys, ScratchBucketName } from '../constants.js';
+import { CfnOutputKeys, ScratchBucketName } from '../constants.ts';
 
 interface EksClusterProps extends StackProps {
   /** List of role ARNs to grant access to the cluster */
