@@ -4,11 +4,11 @@ The infrastructure running the workflows is mainly based on a Kubernetes (AWS EK
 
 Generally all Kubernetes resources are defined with [`cdk8s`](https://cdk8s.io/) and anything that needs AWS interactions such as service accounts are defined with [`aws-cdk`](https://aws.amazon.com/cdk/).
 
-## EKS Cluster / AWS CDK
+## EKS cluster / RDS database (AWS CDK)
 
-The EKS Cluster base configuration is defined in [./cdk.ts](./cdk.ts) using [`aws-cdk`](https://aws.amazon.com/cdk/).
+The EKS cluster base configuration and its RDS database are defined in [./cdk.ts](./cdk.ts) using [`aws-cdk`](https://aws.amazon.com/cdk/).
 
-## Kubernetes resources / CDK8s
+## Kubernetes resources (CDK8s)
 
 The additional components (or Kubernetes resources) running on the EKS cluster are defined in [./cdk8s.ts](./cdk8s.ts) using [`cdk8s`](https://cdk8s.io/).
 
@@ -33,11 +33,27 @@ Main entry point: [app](./cdk8s.ts)
 
 - Login to AWS
 
-### Deploy CDK
+### Deploy EKS cluster and RDS database via CDK
 
-_AWS CDK is used to manage the AWS EKS cluster creation/update._
+_AWS CDK is used to manage the AWS EKS cluster creation/update and the RDS database used by Argo Workflows._
 
-To deploy with AWS CDK a few context values need to be set:
+#### RDS database
+
+The RDS database needs to be deployed prior to the EKS cluster as it has dependency on it.
+
+To deploy the RDS database with AWS CDK, the following context value needs to be set:
+
+- `aws-account-id`: Account ID to deploy into. This can be set with `export CDK_DEFAULT_ACCOUNT="$(aws sts get-caller-identity --query Account --output text)"`.
+
+Then a deployment can be made with `cdk`:
+
+```shell
+npx cdk deploy ArgoDb
+```
+
+#### EKS cluster
+
+To deploy the EKS cluster with AWS CDK a few context values need to be set:
 
 - `aws-account-id`: Account ID to deploy into. This can be set with `export CDK_DEFAULT_ACCOUNT="$(aws sts get-caller-identity --query Account --output text)"`.
 - `maintainer-arns`: Comma-separated list of AWS Role ARNs for the stack maintainers.
@@ -51,7 +67,7 @@ workflow_maintainer_role="$(aws cloudformation describe-stacks --stack-name=Topo
 npx cdk deploy --context=maintainer-arns="${ci_role},${admin_role},${workflow_maintainer_role}" Workflows
 ```
 
-### Deploy CDK8s
+### Deploy k8s components via CDK8s
 
 _CDK8s is used to manage Kubernetes resources on the cluster previously created._
 
