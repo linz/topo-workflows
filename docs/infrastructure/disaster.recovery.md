@@ -2,13 +2,7 @@
 
 **Warning:** If going through this process when the cluster is still functional, make sure to agree on a time for the deployment with the end users. Teardown and restore should not take more than 4 hours.
 
-## EKS Cluster
-
-### Purpose
-
-Rebuild the EKS cluster and Argo Workflows from scratch.
-
-### Prerequisites
+## Prerequisites
 
 1. [`node`](https://nodejs.org/)
 2. [`helm`](https://helm.sh/docs/intro/install/)
@@ -17,6 +11,12 @@ Rebuild the EKS cluster and Argo Workflows from scratch.
 5. You need to be able to log in using the following AWS accounts and roles to restore production:
    - LI Topo production account as admin
    - ODR access account as admin using the admin profile
+
+## EKS cluster
+
+### Purpose
+
+Rebuild the EKS cluster and Argo Workflows from scratch, while keeping the RDS database up.
 
 ### Setup
 
@@ -99,14 +99,18 @@ If any of the cluster infrastructure exists but is not functional, see the above
 
 ## RDS database
 
-### Update database version if necessary
+### Purpose
+
+If there is any issue on the RDS instance that can't be recovered, we might have to destroy it and the EKS cluster, and recreate both.
+
+### Update database version (if necessary)
 
 1. Get the details of the most recent production database snapshot: `aws rds describe-db-snapshots --output json --query="sort_by(DBSnapshots[?contains(DBSnapshotIdentifier,'workflows-argodb')], &SnapshotCreateTime)[-1]"`
 2. Compare `EngineVersion` from the above output to `PostgresEngineVersion.VER_` in the code.
 3. Update `PostgresEngineVersion.VER_` in the code with the snapshot `EngineVersion`.
 4. Git commit and push the change above (if applicable).
 
-### Delete the database and the EKS cluster
+### Delete EKS cluster and the RDS database
 
 **The cluster has a dependency on the database so if the database is deleted, the cluster needs to be deleted too.**
 
@@ -115,7 +119,7 @@ If any of the cluster infrastructure exists but is not functional, see the above
 
 ### Recreate the RDS database and the EKS cluster
 
-1. Create a temporary RDS database from the snapshot identified when finding the engine version above:
+1. Create a temporary RDS database from the snapshot identified when [finding the engine version above](#update-database-version-if-necessary):
 
    1. Get details of the new cluster database: `aws rds describe-db-instances --query="DBInstances[?DBName=='argo'].{EndpointAddress: Endpoint.Address, DBSubnetGroupName: DBSubnetGroup.DBSubnetGroupName, VpcSecurityGroupIds: VpcSecurityGroups[].VpcSecurityGroupId}"`.
    2. Go to https://ap-southeast-2.console.aws.amazon.com/rds/home?region=ap-southeast-2#db-snapshot:engine=postgres;id=ID, replacing "ID" with the `DBSnapshotIdentifier`.

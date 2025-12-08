@@ -31,6 +31,8 @@ The reason we don't use the CLI for the last step is that the logical ID of the 
 
 ## Destroy RDS
 
-You need to destroy the EKS cluster prior.
+You need to destroy the EKS cluster prior to destroy the RDS stack.
+
+From this repository:
 
 `npx cdk destroy [ARGO_DB_STACK]`
