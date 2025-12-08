@@ -23,28 +23,15 @@ export function validateRoleArn(arn: unknown): ArnComponents {
 }
 
 /**
- * Lookup a role ARN from context
- *
- * @returns arn if its valid, null otherwise
- * @throws {Error} If arn is invalid
- */
-export function tryGetContextArn(node: Node, context: string): string | null {
-  const ctx = node.tryGetContext(context) as unknown;
-  if (ctx == null) return null;
-  validateRoleArn(ctx);
-  return ctx as string;
-}
-
-/**
  *
  * Lookup a list of role ARNs from context
  *
  * @throws {Error} If any arn is invalid
  * @returns arns if they are valid, null otherwise
  */
-export function tryGetContextArns(node: Node, context: string): string[] | null {
+export function tryGetContextArns(node: Node, context: string): string[] {
   let ctx = node.tryGetContext(context) as unknown;
-  if (ctx == null) return null;
+  if (ctx == null) return [];
   if (typeof ctx === 'string') {
     ctx = ctx.split(',');
   }
