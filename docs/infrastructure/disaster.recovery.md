@@ -94,7 +94,7 @@ If any of the cluster infrastructure exists but is not functional, see the above
 
 1. Let the users know that Argo is once again available.
 2. Tidy up
-   1. Delete the _temporary_ database in the AWS web console → RDS or with `aws rds delete-db-instance --db-instance-identifier=ID --skip-final-snapshot`
+   1. (ONLY IF [RECREATING DATABASE](#rds-database)) Delete the _temporary_ database in the AWS web console → RDS or with `aws rds delete-db-instance --db-instance-identifier=ID --skip-final-snapshot`
    2. Terminate the sleep workflow: `argo --namespace=argo stop "$(argo --namespace=argo list --output=name)"`
 
 ## RDS database
