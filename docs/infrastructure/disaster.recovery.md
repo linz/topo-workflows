@@ -1,4 +1,4 @@
-# Disaster recovery runbook
+# Disaster Recovery runbook
 
 **Warning:** If going through this process when the cluster is still functional, make sure to agree on a time for the deployment with the end users. Teardown and restore should not take more than 4 hours.
 
@@ -55,7 +55,24 @@ If any of the cluster infrastructure exists but is not functional, see the above
 
    1. Connect AWS CLI to the new cluster: `aws eks update-kubeconfig --name=Workflows`.
    2. Create the Argo Workflows configuration files: `npx cdk8s synth`.
-   3. Apply the configuration files twice (may fail the first time due to [CRD async behaviour](initial.deployment.md#custom-resource-definitions)): `kubectl apply --filename=dist/`.
+   3. (ONLY IF [RECREATING DATABASE](#rds-database)) Remove the `persistence` section of `dist/0005-argo-workflows.k8s.yaml` to disable workflow archiving to database. For example:
+
+      ```patch
+      --- dist/0005-argo-workflows.k8s.yaml.orig
+      +++ dist/0005-argo-workflows.k8s.yaml
+      @@ -88,26 +88,6 @@
+               keyFormat: "{{workflow.creationTimestamp.Y}}-{{workflow.creationTimestamp.m}}/{{workflow.creationTimestamp.d}}-{{workflow.name}}/{{pod.name}}"
+               region: ap-southeast-2
+               useSDKCreds: true
+      -    persistence:
+      -      [redacted]
+      -        tableName: argo_workflows
+           workflowDefaults:
+             spec:
+               parallelism: 3
+      ```
+
+   4. Apply the configuration files twice (may fail the first time due to [CRD async behaviour](initial.deployment.md#custom-resource-definitions)): `kubectl apply --filename=dist/`.
 
 4. Trigger deployment of Argo workflows. If you created a pull request [above](#update-database-version-if-necessary), merging it will trigger the job. Otherwise you have to trigger the [main workflow](https://github.com/linz/topo-workflows/actions/workflows/main.yml) manually.
 
@@ -93,10 +110,10 @@ If any of the cluster infrastructure exists but is not functional, see the above
 
 **The cluster has a dependency on the database so if the database is deleted, the cluster needs to be deleted too.**
 
-1. [Teardown existing EKS cluster](./destroy.md)
-2. TODO destroy ArgoDb stack
+1. [Teardown existing EKS cluster](./destroy.md/#destroy-eks-cluster)
+2. [Destroy the RDS database stack](./destroy.md/#destroy-rds)
 
-### Recreate the database
+### Recreate the RDS database and the EKS cluster
 
 1. Create a temporary RDS database from the snapshot identified when finding the engine version above:
 
@@ -111,7 +128,9 @@ If any of the cluster infrastructure exists but is not functional, see the above
    9. Click _Restore DB instance_.
    10. Wait for the temporary DB to get to the "Available" state.
 
-2. Dump the temporary database to the new Argo database:
+2. [Deploy the EKS cluster](#deployment-of-new-cluster)
+
+3. Dump the temporary database to the new Argo database:
 
    1. Submit a ["sleep" workflow](../../workflows/test/sleep.yml) to the new Argo Workflows installation to spin up a pod:
       `argo submit --namespace=argo workflows/test/sleep.yml`. This will be used to connect to RDS to dump the database to a file.
@@ -136,6 +155,13 @@ If any of the cluster infrastructure exists but is not functional, see the above
       `psql --host=ENDPOINT --username=argo_user --dbname=argo < argodbdump`.
       You will be prompted for a password, get the password from the [AWS Systems Manager Parameter Store](https://ap-southeast-2.console.aws.amazon.com/systems-manager/parameters/%252Feks%252Fargo%252Fpostgres%252Fpassword/description?region=ap-southeast-2&tab=Table).
 
-### Recreate the EKS cluster
+4. Redeploy the cluster configuration files to enable the connection to the database and turn on workflow archiving:
 
-TODO
+   1. Run `npx cdk8s synth` to recreate the `persistence` section in `dist/0005-argo-workflows.k8s.yaml`.
+   2. Redeploy the Argo config file: `kubectl replace --filename=dist/0005-argo-workflows.k8s.yaml`.
+   3. Restart the workflow controller and the server:
+
+      ```
+      kubectl --namespace=argo rollout restart deployment argo-workflows-workflow-controller
+      kubectl --namespace=argo rollout restart deployment argo-workflows-server
+      ```

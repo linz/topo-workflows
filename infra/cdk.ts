@@ -2,10 +2,10 @@ import { applyTags, SecurityClassification } from '@linzjs/cdk-tags';
 import { App } from 'aws-cdk-lib';
 
 import { ArgoDbInstanceName, ClusterName, DefaultRegion } from './constants.ts';
+import { ArgoDatabase } from './eks/argo.db.ts';
 import { tryGetContextArns } from './eks/arn.ts';
 import { LinzEksCluster } from './eks/cluster.ts';
 import { fetchSsmParameters } from './util/ssm.ts';
-import { ArgoDatabase } from './eks/argo.db.ts';
 
 const app = new App();
 

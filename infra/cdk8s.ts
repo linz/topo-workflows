@@ -9,7 +9,14 @@ import { Karpenter, KarpenterNodePool } from './charts/karpenter.ts';
 import { CoreDns } from './charts/kube-system.coredns.ts';
 import { NodeLocalDns } from './charts/kube-system.node.local.dns.ts';
 import { PriorityClasses } from './charts/priority.class.ts';
-import { ArgoDbInstanceName, CfnOutputKeys, ClusterName, ScratchBucketName, UseNodeLocalDns, validateKeys } from './constants.ts';
+import {
+  ArgoDbInstanceName,
+  CfnOutputKeys,
+  ClusterName,
+  ScratchBucketName,
+  UseNodeLocalDns,
+  validateKeys,
+} from './constants.ts';
 import { describeCluster, getCfnOutputs } from './util/cloud.formation.ts';
 import { fetchSsmParameters } from './util/ssm.ts';
 
