@@ -23,8 +23,8 @@ export const UseNodeLocalDns = true;
 export const CfnOutputKeys = {
   ClusterEndpoint: 'ClusterEndpoint',
 
-  ArgoDbEndpoint: 'ArgoDbEndpoint',
-  ArgoDbSecurityGroupId: 'ArgoDbSecurityGroupId',
+  ArgoDbEndpoint: `ArgoDbEndpoint${environmentSuffix}`,
+  ArgoDbSecurityGroupId: `ArgoDbSecurityGroupId${environmentSuffix}`,
 
   KarpenterServiceAccountName: 'KarpenterServiceAccountName',
   KarpenterServiceAccountRoleArn: 'KarpenterServiceAccountRoleArn',
