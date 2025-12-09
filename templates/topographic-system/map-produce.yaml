@@ -71,7 +71,6 @@ spec:
         tasks:
           - name: map-produce
             template: map-produce
-            withParam: '{{ inputs.parameters.map-sheets }}'
             arguments:
               parameters:
                 - name: version_map_produce_cli
@@ -86,8 +85,8 @@ spec:
                   value: '{{ inputs.parameters.format }}'
                 - name: dpi
                   value: '{{ inputs.parameters.dpi }}'
-                - name: sheet
-                  value: '{{ item }}'
+                - name: map-sheets
+                  value: '{{ inputs.parameters.map-sheets }}'
 
     - name: map-produce
       inputs:
@@ -98,18 +97,15 @@ spec:
           - name: output
           - name: format
           - name: dpi
-          - name: sheet
+          - name: map-sheets
       container:
         image: ghcr.io/linz/topographic-system/map:{{ inputs.parameters.version_map_produce_cli }}
         imagePullPolicy: Always
         env:
           - name: AWS_ROLE_CONFIG_PATH
             value: s3://linz-bucket-config/config-write.topography.json
+        command: [bash, -c]
         args:
-          - 'produce'
-          - '--source={{ inputs.parameters.source }}'
-          - '--project={{ inputs.parameters.project }}'
-          - '--output={{ inputs.parameters.output }}'
-          - '--format={{ inputs.parameters.format }}'
-          - '--dpi={{ inputs.parameters.dpi }}'
-          - '{{ inputs.parameters.sheet }}'
+          - |
+            echo '{{ inputs.parameters.map-sheets }}' > map-sheets.json
+            node src/index.ts produce --from-file=map-sheets.json --source='{{ inputs.parameters.source }}' --project='{{ inputs.parameters.project }}' --output='{{ inputs.parameters.output }}' --format='{{ inputs.parameters.format }}' --dpi='{{ inputs.parameters.dpi }}'
