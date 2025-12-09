@@ -1,0 +1,115 @@
+# yaml-language-server: $schema=https://raw.githubusercontent.com/argoproj/argo-workflows/v3.6.12/api/jsonschema/schema.json
+
+apiVersion: argoproj.io/v1alpha1
+kind: WorkflowTemplate
+metadata:
+  name: tpl-topographic-map-produce
+  labels:
+    linz.govt.nz/category: topo-maps
+    linz.govt.nz/data-type: raster
+spec:
+  entrypoint: main
+  podMetadata:
+    labels:
+      linz.govt.nz/category: topo-maps
+      linz.govt.nz/data-type: raster
+  arguments:
+    parameters:
+      - name: version_map_produce_cli
+        description: Version of the map produce CLI docker container to use
+        value: v0.2.0
+
+      - name: source
+        description: Path or s3 of source parquet vector layers to use for generate map sheets.
+        value: 's3://linz-topography-nonprod/topo/test/2025-02-05/'
+
+      - name: project
+        description: Path or s3 of QGIS Project to use for generate map sheets.
+        value: 's3://linz-topography-nonprod/carto/test/latest/topo50-map.qgz'
+
+      - name: output
+        description: Path or s3 of the output directory to write generated map sheets.
+        value: 's3://linz-topography-scratch-nonprod/'
+
+      - name: format
+        description: Export format as pdf, tiff, or geotiff
+        value: 'tiff'
+        enum:
+          - 'pdf'
+          - 'tiff'
+          - 'geotiff'
+
+      - name: dpi
+        description: Path or s3 of the output directory to write generated map sheets.
+        value: '300'
+
+      - name: map-sheets
+        description: Map Sheet Codes to process, json array
+        value: '["AX29", "AX30", "AX31"]'
+
+  templates:
+    - name: main
+      inputs:
+          parameters:
+            - name: version_map_produce_cli
+              value: '{{ workflow.parameters.version_map_produce_cli }}'
+            - name: source
+              value: '{{ workflow.parameters.source }}'
+            - name: project
+              value: '{{ workflow.parameters.project }}'
+            - name: output
+              value: '{{ workflow.parameters.output }}'
+            - name: format
+              value: '{{ workflow.parameters.format }}'
+            - name: dpi
+              value: '{{ workflow.parameters.dpi }}'
+            - name: map-sheets
+              value: '{{ workflow.parameters.map-sheets }}'
+      retryStrategy:
+        expression: 'false'
+      dag:
+        tasks:
+          - name: map-produce
+            template: map-produce
+            withParam: '{{ inputs.parameters.map-sheets }}'
+            arguments:
+              parameters:
+              - name: version_map_produce_cli
+                value: '{{ inputs.parameters.version_map_produce_cli }}'
+              - name: source
+                value: '{{ inputs.parameters.source }}'
+              - name: project
+                value: '{{ inputs.parameters.project }}'
+              - name: output
+                value: '{{ inputs.parameters.output }}'
+              - name: format
+                value: '{{ inputs.parameters.format }}'
+              - name: dpi
+                value: '{{ inputs.parameters.dpi }}'
+              - name: sheet
+                value: "{{ item }}"
+
+    - name: map-produce
+      inputs:
+        parameters:
+        - name: version_map_produce_cli
+        - name: source
+        - name: project
+        - name: output
+        - name: format
+        - name: dpi
+        - name: sheet
+      container:
+        image: ghcr.io/linz/topographic-system/map:{{ inputs.parameters.version_map_produce_cli }}
+        imagePullPolicy: Always
+        env:
+          - name: AWS_ROLE_CONFIG_PATH
+            value: s3://linz-bucket-config/config-write.topography.json
+        args:
+          - 'produce'
+          - '--source={{ inputs.parameters.source }}'
+          - '--project={{ inputs.parameters.project }}'
+          - '--output={{ inputs.parameters.output }}'
+          - '--format={{ inputs.parameters.format }}'
+          - '--dpi={{ inputs.parameters.dpi }}'
+          - '{{ inputs.parameters.sheet }}'
