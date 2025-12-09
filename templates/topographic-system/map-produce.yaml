@@ -50,21 +50,21 @@ spec:
   templates:
     - name: main
       inputs:
-          parameters:
-            - name: version_map_produce_cli
-              value: '{{ workflow.parameters.version_map_produce_cli }}'
-            - name: source
-              value: '{{ workflow.parameters.source }}'
-            - name: project
-              value: '{{ workflow.parameters.project }}'
-            - name: output
-              value: '{{ workflow.parameters.output }}'
-            - name: format
-              value: '{{ workflow.parameters.format }}'
-            - name: dpi
-              value: '{{ workflow.parameters.dpi }}'
-            - name: map-sheets
-              value: '{{ workflow.parameters.map-sheets }}'
+        parameters:
+          - name: version_map_produce_cli
+            value: '{{ workflow.parameters.version_map_produce_cli }}'
+          - name: source
+            value: '{{ workflow.parameters.source }}'
+          - name: project
+            value: '{{ workflow.parameters.project }}'
+          - name: output
+            value: '{{ workflow.parameters.output }}'
+          - name: format
+            value: '{{ workflow.parameters.format }}'
+          - name: dpi
+            value: '{{ workflow.parameters.dpi }}'
+          - name: map-sheets
+            value: '{{ workflow.parameters.map-sheets }}'
       retryStrategy:
         expression: 'false'
       dag:
@@ -74,31 +74,31 @@ spec:
             withParam: '{{ inputs.parameters.map-sheets }}'
             arguments:
               parameters:
-              - name: version_map_produce_cli
-                value: '{{ inputs.parameters.version_map_produce_cli }}'
-              - name: source
-                value: '{{ inputs.parameters.source }}'
-              - name: project
-                value: '{{ inputs.parameters.project }}'
-              - name: output
-                value: '{{ inputs.parameters.output }}'
-              - name: format
-                value: '{{ inputs.parameters.format }}'
-              - name: dpi
-                value: '{{ inputs.parameters.dpi }}'
-              - name: sheet
-                value: "{{ item }}"
+                - name: version_map_produce_cli
+                  value: '{{ inputs.parameters.version_map_produce_cli }}'
+                - name: source
+                  value: '{{ inputs.parameters.source }}'
+                - name: project
+                  value: '{{ inputs.parameters.project }}'
+                - name: output
+                  value: '{{ inputs.parameters.output }}'
+                - name: format
+                  value: '{{ inputs.parameters.format }}'
+                - name: dpi
+                  value: '{{ inputs.parameters.dpi }}'
+                - name: sheet
+                  value: '{{ item }}'
 
     - name: map-produce
       inputs:
         parameters:
-        - name: version_map_produce_cli
-        - name: source
-        - name: project
-        - name: output
-        - name: format
-        - name: dpi
-        - name: sheet
+          - name: version_map_produce_cli
+          - name: source
+          - name: project
+          - name: output
+          - name: format
+          - name: dpi
+          - name: sheet
       container:
         image: ghcr.io/linz/topographic-system/map:{{ inputs.parameters.version_map_produce_cli }}
         imagePullPolicy: Always
