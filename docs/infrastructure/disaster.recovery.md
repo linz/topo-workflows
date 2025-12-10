@@ -44,7 +44,7 @@ If any of the cluster infrastructure exists but is not functional, see the above
 1. Set AWS Account ID for CDK: `export CDK_DEFAULT_ACCOUNT="$(aws sts get-caller-identity --query Account --output text)"`.
 2. Deploy prod cluster using all the relevant roles as maintainers:
 
-   ```
+   ```shell
    ci_role="$(aws iam list-roles --output=text --query="Roles[?starts_with(RoleName, 'CiTopoProd-CiRole')].Arn")"
    admin_role="arn:aws:iam::$(aws sts get-caller-identity --query Account --output text):role/AccountAdminRole"
    workflow_maintainer_role="$(aws cloudformation describe-stacks --output=text --query="Stacks[].Outputs[].OutputValue" --stack-name=TopographicSharedResourcesProd)"
@@ -140,14 +140,14 @@ If there is any issue on the RDS instance that can't be recovered, we might have
       `argo submit --namespace=argo workflows/test/sleep.yml`. This will be used to connect to RDS to dump the database to a file.
    2. Connect to the sleep pod (it can take a while for the pod to spin up, so you might have to retry the second command):
 
-      ```
+      ```shell
       pod_name="$(kubectl --namespace=argo get pods --output=name | grep --only-matching 'test-sleep-.*')"
       kubectl --namespace=argo exec --stdin --tty "$pod_name" -- /bin/bash
       ```
 
    3. Install the PostgreSQL client:
 
-      ```
+      ```shell
       apt update
       apt install -y postgresql-client
       ```
@@ -165,7 +165,7 @@ If there is any issue on the RDS instance that can't be recovered, we might have
    2. Redeploy the Argo config file: `kubectl replace --filename=dist/0005-argo-workflows.k8s.yaml`.
    3. Restart the workflow controller and the server:
 
-      ```
+      ```shell
       kubectl --namespace=argo rollout restart deployment argo-workflows-workflow-controller
       kubectl --namespace=argo rollout restart deployment argo-workflows-server
       ```
