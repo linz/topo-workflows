@@ -92,10 +92,8 @@ If any of the cluster infrastructure exists but is not functional, see the above
 
 ### Finalise
 
-1. Let the users know that Argo is once again available.
-2. Tidy up
-   1. (ONLY IF [RECREATING DATABASE](#rds-database)) Delete the _temporary_ database in the AWS web console → RDS or with `aws rds delete-db-instance --db-instance-identifier=ID --skip-final-snapshot`
-   2. Terminate the sleep workflow: `argo --namespace=argo stop "$(argo --namespace=argo list --output=name)"`
+1. Ask EPT to whitelist the new EKS cluster API endpoint.
+2. Let the users know that Argo is once again available.
 
 ## RDS database
 
@@ -105,8 +103,8 @@ If there is any issue on the RDS instance that can't be recovered, we might have
 
 ### Update database version (if necessary)
 
-1. Get the details of the most recent production database snapshot: `aws rds describe-db-snapshots --output json --query="sort_by(DBSnapshots[?contains(DBSnapshotIdentifier,'workflows-argodb')], &SnapshotCreateTime)[-1]"`
-2. Compare `EngineVersion` from the above output to `PostgresEngineVersion.VER_` in the code.
+1. Create a manual snapshot of the database instance, using the AWS Web Console: "Aurora and RDS" > "Databases" > Click on the prod DB (`argodb-*`) > "Maintenance & backups" > "Snapshots - Take snapshot"
+2. Compare `EngineVersion` from the snapshot to `PostgresEngineVersion.VER_` in the code.
 3. Update `PostgresEngineVersion.VER_` in the code with the snapshot `EngineVersion`.
 4. Git commit and push the change above (if applicable).
 
@@ -119,12 +117,16 @@ If there is any issue on the RDS instance that can't be recovered, we might have
 
 ### Recreate the RDS database and the EKS cluster
 
-1. Create a temporary RDS database from the snapshot identified when [finding the engine version above](#update-database-version-if-necessary):
+1. Deploy the Database: `npx cdk deploy ArgoDb -c aws-account-id=[AWS_ACCOUNT]`
+
+2. [Deploy the EKS cluster](#deployment-of-new-cluster)
+
+3. Create a temporary RDS database from [the manual snapshot created](#update-database-version-if-necessary):
 
    1. Get details of the new cluster database: `aws rds describe-db-instances --query="DBInstances[?DBName=='argo'].{EndpointAddress: Endpoint.Address, DBSubnetGroupName: DBSubnetGroup.DBSubnetGroupName, VpcSecurityGroupIds: VpcSecurityGroups[].VpcSecurityGroupId}"`.
-   2. Go to https://ap-southeast-2.console.aws.amazon.com/rds/home?region=ap-southeast-2#db-snapshot:engine=postgres;id=ID, replacing "ID" with the `DBSnapshotIdentifier`.
+   2. Go to https://ap-southeast-2.console.aws.amazon.com/rds/home?region=ap-southeast-2#db-snapshot:engine=postgres;id=ID, replacing "ID" with the `DBSnapshotIdentifier` of the manual snapshot.
    3. Click on _Actions_ → _Restore snapshot_.
-   4. Under _Availability and durability_: select _Single DB Instance_.
+   4. Under _Availability and durability_: select _Single-AZ DB Instance deployment_.
    5. Under _Settings_ set _DB instance identifier_ to "temp-argo-db".
    6. Under _Instance configuration_: select _Burstable classes_ and _db.t3.micro_.
    7. Under _Connectivity_ → _DB subnet group_: select the DB subnet group of the new cluster.
@@ -132,9 +134,7 @@ If there is any issue on the RDS instance that can't be recovered, we might have
    9. Click _Restore DB instance_.
    10. Wait for the temporary DB to get to the "Available" state.
 
-2. [Deploy the EKS cluster](#deployment-of-new-cluster)
-
-3. Dump the temporary database to the new Argo database:
+4. Dump the temporary database to the new Argo database:
 
    1. Submit a ["sleep" workflow](../../workflows/test/sleep.yml) to the new Argo Workflows installation to spin up a pod:
       `argo submit --namespace=argo workflows/test/sleep.yml`. This will be used to connect to RDS to dump the database to a file.
@@ -159,7 +159,7 @@ If there is any issue on the RDS instance that can't be recovered, we might have
       `psql --host=ENDPOINT --username=argo_user --dbname=argo < argodbdump`.
       You will be prompted for a password, get the password from the [AWS Systems Manager Parameter Store](https://ap-southeast-2.console.aws.amazon.com/systems-manager/parameters/%252Feks%252Fargo%252Fpostgres%252Fpassword/description?region=ap-southeast-2&tab=Table).
 
-4. Redeploy the cluster configuration files to enable the connection to the database and turn on workflow archiving:
+5. Redeploy the cluster configuration files to enable the connection to the database and turn on workflow archiving:
 
    1. Run `npx cdk8s synth` to recreate the `persistence` section in `dist/0005-argo-workflows.k8s.yaml`.
    2. Redeploy the Argo config file: `kubectl replace --filename=dist/0005-argo-workflows.k8s.yaml`.
@@ -169,3 +169,11 @@ If there is any issue on the RDS instance that can't be recovered, we might have
       kubectl --namespace=argo rollout restart deployment argo-workflows-workflow-controller
       kubectl --namespace=argo rollout restart deployment argo-workflows-server
       ```
+
+### Finalise
+
+1. Ask EPT to whitelist the new EKS cluster API endpoint.
+2. Let the users know that Argo is once again available.
+3. Tidy up
+   1. Delete the _temporary_ database in the AWS web console → RDS or with `aws rds delete-db-instance --db-instance-identifier=ID --skip-final-snapshot`
+   2. Terminate the sleep workflow: `argo --namespace=argo stop "$(argo --namespace=argo list --output=name)"`
