@@ -44,6 +44,7 @@ jobs:
 
     env:
       CLUSTER_NAME: Workflows
+      DB_NAME: ArgoDb
 
     steps:
       - uses: linz/action-typescript@47be81e60ed1d891c696c3fb7f558876ba9a2b57 # v3.2.0
@@ -73,7 +74,17 @@ jobs:
             echo "run_infra=false" >> "$GITHUB_OUTPUT"
           fi
 
-      - name: (CDK) Deploy
+      - name: (CDK) Deploy RDS database
+        if: steps.get-infra-changes.outputs.run_infra == 'true'
+        run: |
+          npx cdk deploy ${{ env.DB_NAME }} \
+            -c aws-account-id=${{ secrets.AWS_ACCOUNT_ID }} \
+            -c rds-alerts=true \
+            --require-approval never
+        env:
+          NODE_ENV: production
+
+      - name: (CDK) Deploy EKS cluster
         if: steps.get-infra-changes.outputs.run_infra == 'true'
         run: |
           npx cdk deploy ${{ env.CLUSTER_NAME }} \

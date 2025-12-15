@@ -9,7 +9,14 @@ import { Karpenter, KarpenterNodePool } from './charts/karpenter.ts';
 import { CoreDns } from './charts/kube-system.coredns.ts';
 import { NodeLocalDns } from './charts/kube-system.node.local.dns.ts';
 import { PriorityClasses } from './charts/priority.class.ts';
-import { CfnOutputKeys, ClusterName, ScratchBucketName, UseNodeLocalDns, validateKeys } from './constants.ts';
+import {
+  ArgoDbInstanceName,
+  CfnOutputKeys,
+  ClusterName,
+  ScratchBucketName,
+  UseNodeLocalDns,
+  validateKeys,
+} from './constants.ts';
 import { describeCluster, getCfnOutputs } from './util/cloud.formation.ts';
 import { fetchSsmParameters } from './util/ssm.ts';
 
@@ -17,8 +24,9 @@ const app = new App();
 
 async function main(): Promise<void> {
   // Get cloudformation outputs
-  const [cfnOutputs, ssmConfig, clusterConfig] = await Promise.all([
+  const [clusterCfnOutputs, argoDbCfnOutputs, ssmConfig, clusterConfig] = await Promise.all([
     getCfnOutputs(ClusterName),
+    getCfnOutputs(ArgoDbInstanceName),
     fetchSsmParameters({
       // Config for Cloudflared to access argo-server
       cloudflaredTunnelId: '/eks/cloudflared/argo/tunnelId',
@@ -39,6 +47,7 @@ async function main(): Promise<void> {
     }),
     describeCluster(ClusterName),
   ]);
+  const cfnOutputs = { ...clusterCfnOutputs, ...argoDbCfnOutputs };
   validateKeys(cfnOutputs);
 
   new PriorityClasses(app, 'priority-classes');
