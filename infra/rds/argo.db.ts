@@ -70,7 +70,7 @@ export class ArgoDatabase extends Stack {
     const rdsTopic = new sns.Topic(this, 'RDSAlertsTopic', {
       displayName: 'RDS Slack Notification',
     });
-    const slackChannel = new chatbot.SlackChannelConfiguration(this, 'AlertArgoWorkflowDev', {
+    const slackChannel = new chatbot.SlackChannelConfiguration(this, 'AlertArgoWorkflow', {
       slackChannelConfigurationName: props.slackChannelConfigurationName,
       slackWorkspaceId: props.slackWorkspaceId,
       slackChannelId: props.slackChannelId,
