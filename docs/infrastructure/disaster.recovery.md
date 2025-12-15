@@ -93,7 +93,11 @@ If any of the cluster infrastructure exists but is not functional, see the above
 ### Finalise
 
 1. Ask EPT to whitelist the new EKS cluster API endpoint.
-2. Let the users know that Argo is once again available.
+2. Let the users know that Argo is once again available, and ask them to update their configuration:
+
+   ```shell
+   aws --region=ap-southeast-2 eks update-kubeconfig --name=Workflows
+   ```
 
 ## RDS database
 
@@ -173,7 +177,12 @@ If there is any issue on the RDS instance that can't be recovered, we might have
 ### Finalise
 
 1. Ask EPT to whitelist the new EKS cluster API endpoint.
-2. Let the users know that Argo is once again available.
+2. Let the users know that Argo is once again available, and ask them to update their configuration:
+
+   ```shell
+   aws --region=ap-southeast-2 eks update-kubeconfig --name=Workflows
+   ```
+
 3. Tidy up
    1. Delete the _temporary_ database in the AWS web console → RDS or with `aws rds delete-db-instance --db-instance-identifier=ID --skip-final-snapshot`
    2. Terminate the sleep workflow: `argo --namespace=argo stop "$(argo --namespace=argo list --output=name)"`
