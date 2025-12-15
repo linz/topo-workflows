@@ -117,7 +117,7 @@ If there is any issue on the RDS instance that can't be recovered, we might have
 
 ### Recreate the RDS database and the EKS cluster
 
-1. Deploy the Database: `npx cdk deploy ArgoDb -c aws-account-id=[AWS_ACCOUNT]`
+1. Deploy the Database: `npx cdk deploy ArgoDb -c aws-account-id=[AWS_ACCOUNT] -c rds-alerts=true`
 
 2. [Deploy the EKS cluster](#deployment-of-new-cluster)
 
