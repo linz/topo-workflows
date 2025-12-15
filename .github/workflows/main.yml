@@ -55,7 +55,7 @@ jobs:
       - name: Setup kubectl
         uses: azure/setup-kubectl@3e0aec4d80787158d308d7b364cb1b702e7feb7f # v3
         with:
-          version: 'latest'
+          version: "latest"
 
       - name: AWS Configure
         uses: aws-actions/configure-aws-credentials@010d0da01d0b5a38af31e9c3470dbfdabdecca3a # v4
@@ -79,6 +79,7 @@ jobs:
         run: |
           npx cdk deploy ${{ env.DB_NAME }} \
             -c aws-account-id=${{ secrets.AWS_ACCOUNT_ID }} \
+            -c rds-alerts=true \ 
             --require-approval never
         env:
           NODE_ENV: production

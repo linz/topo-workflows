@@ -12,14 +12,17 @@ const app = new App();
 async function main(): Promise<void> {
   const accountId = (app.node.tryGetContext('aws-account-id') as unknown) ?? process.env['CDK_DEFAULT_ACCOUNT'];
   const maintainerRoleArns = tryGetContextArns(app.node, 'maintainer-arns');
-  const rdsAlerts = (app.node.tryGetContext('rds-alerts') as boolean) ?? false;
+  const rdsAlertsCtx = (app.node.tryGetContext('rds-alerts') as string | undefined) ?? 'false';
+  let rdsAlerts: boolean = false;
+  if (rdsAlertsCtx.toLowerCase() === 'true') {
+    rdsAlerts = true;
+  } else if (rdsAlertsCtx.toLowerCase() !== 'false') {
+    throw new Error('Invalid context value for rds-alerts, must be string "true" or "false"');
+  }
   if (maintainerRoleArns.length === 0) {
     console.warn(
       `Warning: No maintainer role ARNs specified in context maintainer-arns. Must be provided to deploy ${ClusterName}.`,
     );
-  }
-  if (typeof rdsAlerts !== 'boolean') {
-    throw new Error('Invalid context value for rds-alerts, must be boolean (true|false)');
   }
 
   const ssmConfig = await fetchSsmParameters({
