@@ -80,15 +80,15 @@ If any of the cluster infrastructure exists but is not functional, see the above
 
 **Warning:** This section is for _production only._ When developing in non-prod environments, skip to the next section.
 
+When deploying a new EKS cluster stack, a new Argo Runner Service Account IAM role gets created. We need to give it permissions to write on the ODR bucket.
+
 1. Go to the repo with the ODR configuration: `cd ../topo-aws-infrastructure`.
-2. Copy the [LINZ Open Data Registry account](https://github.com/linz/topo-aws-infrastructure/blob/master/src/accounts/odr/README.md) CDK context declaration here: `cp ../topo-aws-infrastructure/src/accounts/odr/cdk.context.json .`.
+2. Open the [LINZ Open Data Registry account](https://github.com/linz/topo-aws-infrastructure/blob/master/src/accounts/odr/README.md) CDK context declaration here: `src/accounts/odr/cdk.context.json`.
 3. Update the ARN of the role with a name starting with "Workflows-EksWorkflowsArgoRunnerServiceAccountRole" in `cdk.context.json` to the output of `aws iam list-roles --output=text --query="Roles[?contains(RoleName, 'Workflows-EksWorkflowsArgoRunnerServiceAccountRole')].RoleName"`.
-4. Log into ODR access account as admin using the admin profile.
-5. Deploy the ODR datasets stack: `npx cdk deploy Datasets`.
-6. Commit the updated CDK context:
-   1. `cp cdk.context.json ../topo-aws-infrastructure/src/accounts/odr/cdk.context.json`
-   2. `cd ../topo-aws-infrastructure`
-   3. Commit, push, and create a pull request for this branch.
+4. Copy the updated `cdk.context.json` file at the root level of the `linz/open-data-registry-cdk` repository.
+5. Log into ODR access account as admin using the admin profile.
+6. Deploy the ODR datasets stack: `npx cdk deploy Datasets`.
+7. Create a PR with the updated CDK context in the `linz/topo-aws-infrastructure` repository.
 
 ### Finalise
 
