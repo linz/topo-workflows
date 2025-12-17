@@ -7,8 +7,14 @@ This documentation does not include Argo Workflows upgrade.
 ## Pre-upgrade
 
 - Identify current and target Kubernetes version
-- Review compatibility matrix for the k8s components (`infra/charts/`). ([Karpenter example](https://karpenter.sh/docs/upgrading/compatibility/))
 - Check for [any breaking change in Kubernetes](https://github.com/kubernetes/kubernetes/releases)
+- Check if there is a `cdk8s+` version [compatible with the target Kubernetes version](https://cdk8s.io/docs/latest/plus/#i-operate-kubernetes-version-1xx-which-cdk8s-library-should-i-be-using)
+- Review compatibility matrix for the k8s components (`infra/charts/`):
+  - [Argo Workflows](https://argo-workflows.readthedocs.io/en/latest/releases/#notes-on-compatibility)
+  - Cloudflared runs as a container, so it should be compatible with any K8s version supporting standard container runtimes.
+  - [Event Exporter](https://github.com/resmoio/kubernetes-event-exporter) does not seem to provide information. This has to be tested case by case.
+  - [AWS for Fluent Bit](https://github.com/aws/aws-for-fluent-bit) does not seem to provide information. [Fluent Bit does not seem to have a matrix neither](https://github.com/fluent/fluent-bit/discussions/10860#discussioncomment-14371268).
+  - [Karpenter](https://karpenter.sh/docs/upgrading/compatibility/)
 - TODO: backup cluster state + configuration. _This process has not been implemented yet._
 
 ## Upgrade Process
