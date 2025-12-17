@@ -111,6 +111,7 @@ spec:
           - 'webp'
           - 'lzw'
           - 'dem_lerc'
+          - 'rgbnir_zstd'
       - name: create_capture_area
         description: 'Create a capture area GeoJSON file for the standardised dataset'
         value: 'true'
@@ -137,12 +138,14 @@ spec:
         value: 'urban-aerial-photos'
         enum:
           - 'aerial-photos'
+          - 'near-infrared-aerial-photos'
           - 'urban-aerial-photos'
           - 'rural-aerial-photos'
           - 'scanned-aerial-photos'
           - 'dem'
           - 'dsm'
           - 'satellite-imagery'
+          - 'near-infrared-satellite-imagery'
       - name: domain
         description: 'domain of the dataset, e.g. "land", "coastal"'
         value: 'land'
