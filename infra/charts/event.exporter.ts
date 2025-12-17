@@ -1,5 +1,5 @@
 import { Chart, ChartProps } from 'cdk8s';
-import { ConfigMap, k8s, Namespace } from 'cdk8s-plus-32';
+import { ConfigMap, k8s, Namespace } from 'cdk8s-plus-33';
 import { Construct } from 'constructs';
 
 import { ClusterName } from '../constants.ts';
