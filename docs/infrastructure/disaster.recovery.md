@@ -47,8 +47,9 @@ If any of the cluster infrastructure exists but is not functional, see the above
    ```shell
    ci_role="$(aws iam list-roles --output=text --query="Roles[?starts_with(RoleName, 'CiTopoProd-CiRole')].Arn")"
    admin_role="arn:aws:iam::$(aws sts get-caller-identity --query Account --output text):role/AccountAdminRole"
+   admin_sso_role="arn:aws:iam::$(aws sts get-caller-identity --query Account --output text):role/aws-reserved/sso.amazonaws.com/ap-southeast-2/AWSReservedSSO_LINZ_Prod_Admin_698e0e3a3c406ce5"
    workflow_maintainer_role="$(aws cloudformation describe-stacks --output=text --query="Stacks[].Outputs[].OutputValue" --stack-name=TopographicSharedResourcesProd)"
-   npx cdk deploy --context=maintainer-arns="${ci_role},${admin_role},${workflow_maintainer_role}" Workflows
+   npx cdk deploy -c maintainer-arns="${ci_role},${admin_role},${admin_sso_role},${workflow_maintainer_role}" -c rds-alerts=true Workflows
    ```
 
 3. Deploy Kubernetes components:
