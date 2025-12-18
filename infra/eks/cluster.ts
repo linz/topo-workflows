@@ -1,4 +1,4 @@
-import { KubectlV32Layer } from '@aws-cdk/lambda-layer-kubectl-v32';
+import { KubectlV33Layer } from '@aws-cdk/lambda-layer-kubectl-v33';
 import { Aws, CfnOutput, Fn, Stack, StackProps } from 'aws-cdk-lib';
 import { InstanceType, IVpc, Port, SecurityGroup, SubnetType, Vpc } from 'aws-cdk-lib/aws-ec2';
 import { Cluster, ClusterLoggingTypes, IpFamily, KubernetesVersion, NodegroupAmiType } from 'aws-cdk-lib/aws-eks';
@@ -29,7 +29,7 @@ export class LinzEksCluster extends Stack {
   /* Cluster ID */
   id: string;
   /** Version of EKS to use, this must be aligned to the `kubectlLayer` */
-  version = KubernetesVersion.V1_32;
+  version = KubernetesVersion.V1_33;
   /** Argo needs a temporary bucket to store objects */
   tempBucket: IBucket;
   /* Bucket where read/write roles config files are stored */
@@ -58,7 +58,7 @@ export class LinzEksCluster extends Stack {
       defaultCapacity: 0,
       vpcSubnets: [{ subnetType: SubnetType.PRIVATE_WITH_EGRESS }],
       /** This must align to Cluster version: {@link version} */
-      kubectlLayer: new KubectlV32Layer(this, 'KubeCtlLayer'),
+      kubectlLayer: new KubectlV33Layer(this, 'KubeCtlLayer'),
       /** To prevent IP exhaustion when running huge workflows run using ipv6 */
       ipFamily: IpFamily.IP_V6,
       clusterLogging: [ClusterLoggingTypes.API, ClusterLoggingTypes.CONTROLLER_MANAGER, ClusterLoggingTypes.SCHEDULER],
