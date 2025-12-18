@@ -2,6 +2,8 @@
 
 Cloudflare provides Zero Trust Network (ZTN) access to the Argo Workflow service. `cloudflared` is the daemon that is part of Cloudflare's Tunnel feature.
 
+![cloudflared for Kubernetes](static/cloudflared.png)
+
 All of the cloudflare configuration is managed by a web control pane [https://dash.teams.cloudflare.com](https://dash.teams.cloudflare.com).
 
 ## Tunnel configuration
