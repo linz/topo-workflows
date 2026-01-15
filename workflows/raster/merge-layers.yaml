@@ -79,18 +79,22 @@ spec:
           - 'dsm-hillshade'
           - 'dsm-hillshade-igor'
       - name: create_capture_area
+        description: 'Create a capture area GeoJSON file for the standardised dataset'
         value: 'true'
         enum:
           - 'false'
           - 'true'
       - name: gsd
+        description: 'Dataset GSD in metres, e.g., "1" for 1 metre'
         value: '1'
       - name: scale_to_resolution
         description: 'Scale output TIFFs to x,y resolution (e.g. 1,1 - leave blank for no scaling)'
         value: '1,1'
       - name: source_epsg
+        description: 'EPSG of the source files'
         value: '2193'
       - name: target_epsg
+        description: 'EPSG of the target files'
         value: '2193'
       - name: include
         description: 'Regular expression pattern match for paths/files to include e.g ".tiff?$"'
@@ -114,8 +118,10 @@ spec:
           - 'nz-elevation'
           - 'nz-coastal'
       - name: region
+        description: 'Region of the dataset, e.g. "new-zealand"'
         value: 'new-zealand'
       - name: gdal_compression_preset
+        description: 'Standardising preset'
         value: 'dem_lerc'
   templateDefaults:
     container:

@@ -55,8 +55,10 @@ spec:
           - 'true'
           - 'false'
       - name: group
+        description: 'Number of files to include in each manifest group for the restore request.'
         value: '1000'
       - name: group_size
+        description: 'Maximum size (in MB) of each manifest group for the restore request.'
         value: '100Gi'
   templates:
     - name: main
