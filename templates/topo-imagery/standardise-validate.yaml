@@ -76,6 +76,10 @@ spec:
             description: 'EPSG of the standardised output files'
             default: '2193'
 
+          - name: simplify_footprints
+            description: 'Simplify footprints of the standardised output files'
+            default: 'false'
+
         artifacts:
           - name: group_data
             path: /tmp/input/
@@ -117,6 +121,8 @@ spec:
           - '{{inputs.parameters.current_datetime}}'
           - '--scale-to-resolution'
           - '{{=sprig.trim(inputs.parameters.scale_to_resolution)}}'
+          - '--simplify-footprints'
+          - '{{=sprig.trim(inputs.parameters.simplify_footprints)}}'
         resources:
           requests:
             memory: 7.8Gi
