@@ -31,6 +31,7 @@ spec:
   arguments:
     parameters:
       - name: version_argo_tasks
+        description: 'Specify a version of the argo-tasks image to use, e.g. "v5.1" or "latest"'
         value: 'v5'
       - name: user_group
         description: Group of users running the workflow
@@ -67,14 +68,19 @@ spec:
           - 'wellington'
           - 'west-coast'
       - name: source
+        description: Source location of the files to copy
         value: 's3://linz-imagery-staging/test/sample/'
       - name: target
+        description: Target location where the files will be copied to
         value: 's3://linz-imagery-staging/test/sample_target/'
       - name: include
+        description: Regular expression pattern match for paths/files to include
         value: '\.tiff?$|\.json$|\.tfw$|/capture-area\.geojson$|/capture-dates\.geojson$'
       - name: exclude
+        description: Regular expression pattern match for paths/files to exclude
         value: ''
       - name: copy_option
+        description: Copy option to use
         value: '--no-clobber'
         enum:
           - '--no-clobber'
@@ -87,10 +93,13 @@ spec:
           - 'true'
           - 'false'
       - name: group
+        description: Number of files to include in each manifest group for the copy request
         value: '1000'
       - name: group_size
+        description: Maximum size (in MB) of each manifest group for the copy request
         value: '100Gi'
       - name: transform
+        description: Transform option to use
         value: 'f'
       - name: aws_role_config_path
         description: s3 URL or comma-separated list of s3 URLs allowing the workflow to write to a target(s)

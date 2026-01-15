@@ -16,12 +16,16 @@ spec:
   arguments:
     parameters:
       - name: version_argo_tasks
+        description: 'Specify a version of the argo-tasks image to use, e.g. "v5.1" or "latest"'
         value: 'v5'
       - name: version_topo_imagery
+        description: 'Specify a version of the topo-imagery image to use, e.g. "v7.0" or "latest"'
         value: 'v7'
       - name: source
+        description: 'Source location of the maps'
         value: 's3://linz-topographic-upload/maps/topo50/'
       - name: include
+        description: 'Regular expression pattern match for paths/files to include e.g ".tiff?$"'
         value: '.*.tiff?$'
   templateDefaults:
     container:
