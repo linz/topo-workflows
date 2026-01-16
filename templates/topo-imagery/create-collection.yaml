@@ -119,7 +119,7 @@ spec:
             default: ''
 
           - name: simplified_capture_area
-            description: 'Wether the capture area is generated from simplified footprints of the input TIFFs.'
+            description: 'Whether the capture area is generated from simplified footprints of the input TIFFs.'
             default: 'false'
 
       outputs:
