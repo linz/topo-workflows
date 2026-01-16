@@ -118,6 +118,10 @@ spec:
             description: '(Optional) location of a supplied GeoJSON capture area file. Must be EPSG:4326. This will be used instead of generating a capture area from the TIFFs. If odr-url is provided, the existing and supplied capture areas will be merged.'
             default: ''
 
+          - name: simplified_capture_area
+            description: 'Whether the capture area is generated from simplified footprints of the input TIFFs.'
+            default: 'false'
+
       outputs:
         artifacts:
           - name: capture-area
@@ -141,6 +145,8 @@ spec:
           - '{{=sprig.trim(inputs.parameters.odr_url)}}'
           - '--supplied-capture-area'
           - '{{=sprig.trim(inputs.parameters.supplied_capture_area)}}'
+          - '--simplified-capture-area'
+          - '{{inputs.parameters.simplified_capture_area}}'
           - '--delete-all-existing-items'
           - '{{=sprig.trim(inputs.parameters.delete_all_existing_items)}}'
           - '--category'
