@@ -455,6 +455,8 @@ spec:
                   value: '{{=sprig.trim(workflow.parameters.source_epsg)}}'
                 - name: target_epsg
                   value: '{{=sprig.trim(workflow.parameters.target_epsg)}}'
+                - name: simplify_footprints
+                  value: '{{=workflow.parameters.domain == "coastal" ? "true" : "false"}}'
                 - name: version_topo_imagery
                   value: '{{= workflow.parameters.version_topo_imagery}}'
               artifacts:
@@ -509,6 +511,8 @@ spec:
                   value: '{{workflow.parameters.licensor}}'
                 - name: licensor_list
                   value: '{{=sprig.trim(workflow.parameters.licensor_list)}}'
+                - name: simplified_capture_area
+                  value: '{{=workflow.parameters.domain == "coastal" ? "true" : "false"}}'
                 - name: version_topo_imagery
                   value: '{{= workflow.parameters.version_topo_imagery}}'
             depends: 'standardise-validate'
