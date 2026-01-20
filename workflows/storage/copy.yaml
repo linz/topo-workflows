@@ -96,7 +96,7 @@ spec:
         description: Number of files to include in each manifest group for the copy request
         value: '1000'
       - name: group_size
-        description: Maximum size (in MB) of each manifest group for the copy request
+        description: Maximum size (in GiB) of each manifest group for the copy request
         value: '100Gi'
       - name: transform
         description: Transform option to use
