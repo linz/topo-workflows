@@ -62,6 +62,11 @@ spec:
         expression: 'false'
       dag:
         tasks:
+          - name: get-location
+            templateRef:
+              name: tpl-get-location
+              template: main
+
           - name: list-mapsheets
             template: list-mapsheets
             arguments:
@@ -77,7 +82,7 @@ spec:
             templateRef:
               name: tpl-at-group
               template: main
-            depends: 'list-mapsheets'
+            depends: list-mapsheets
             arguments:
               parameters:
                 - name: size
@@ -90,7 +95,7 @@ spec:
 
           - name: produce
             template: produce
-            depends: 'group'
+            depends: group && get-location
             withParam: '{{ tasks.group.outputs.parameters.output }}'
             arguments:
               parameters:
@@ -101,7 +106,7 @@ spec:
                 - name: project
                   value: '{{ workflow.parameters.project }}'
                 - name: output
-                  value: '{{ workflow.parameters.output }}'
+                  value: '{{ tasks.get-location.outputs.parameters.location }}'
                 - name: format
                   value: '{{ workflow.parameters.format }}'
                 - name: dpi
@@ -111,6 +116,20 @@ spec:
               artifacts:
                 - name: grouped
                   from: '{{ tasks.group.outputs.artifacts.output }}'
+
+          - name: copy
+            templateRef:
+              name: copy
+              template: main
+            arguments:
+              parameters:
+                - name: source
+                  value: '{{ tasks.get-location.outputs.parameters.location }}/'
+                - name: target
+                  value: '{{ workflow.parameters.output }}'
+                - name: include
+                  value: '\.{{ workflow.parameters.format }}$'
+            depends: produce
 
     - name: list-mapsheets
       inputs:
