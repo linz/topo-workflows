@@ -24,6 +24,7 @@ spec:
   arguments:
     parameters:
       - name: version_argo_tasks
+        description: 'Specify a version of the argo-tasks image to use, e.g. "v5.1" or "latest"'
         value: 'v5'
       - name: user_group
         description: Group of users running the workflow
@@ -42,8 +43,10 @@ spec:
         description: Custom target path that the files will be archived to
         value: ''
       - name: group
+        description: Number of files to include in each manifest archive group
         value: '1000'
       - name: group_size
+        description: Maximum size (in GiB) of each manifest archive group
         value: '100Gi'
       - name: check_source_path
         description: Check that the source path is safe to archive i.e. not the whole bucket or top-level folder
