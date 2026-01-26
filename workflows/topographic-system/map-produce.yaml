@@ -51,11 +51,6 @@ spec:
         description: Number of sheets grouped together, default to 100
         value: '100'
 
-  templateDefaults:
-    container:
-      imagePullPolicy: Always
-      image: ''
-
   templates:
     - name: main
       retryStrategy:
