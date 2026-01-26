@@ -124,11 +124,25 @@ spec:
             arguments:
               parameters:
                 - name: source
-                  value: '{{ tasks.get-location.outputs.parameters.location }}/'
+                  value: '{{ tasks.get-location.outputs.parameters.location }}'
                 - name: target
                   value: '{{ workflow.parameters.output }}'
                 - name: include
                   value: '\.{{ workflow.parameters.format }}$'
+                - name: exclude
+                  value: ''
+                - name: flatten
+                  value: 'false'
+                - name: group
+                  value: '1000'
+                - name: group_size
+                  value: '100Gi'
+                - name: transform
+                  value: 'f'
+                - name: copy_option
+                  value: '--force-no-clobber'
+                - name: aws_role_config_path
+                  value: s3://linz-bucket-config/config-write.topography.json
             depends: produce
 
     - name: list-mapsheets
