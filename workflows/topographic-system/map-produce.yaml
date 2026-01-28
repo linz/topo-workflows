@@ -123,7 +123,7 @@ spec:
                 - name: target
                   value: '{{ workflow.parameters.output }}'
                 - name: include
-                  value: '\.{{ workflow.parameters.format }}$'
+                  value: '\.{{ workflow.parameters.format }}$|\.json$'
                 - name: exclude
                   value: ''
                 - name: flatten
