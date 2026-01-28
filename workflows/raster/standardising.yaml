@@ -119,7 +119,7 @@ spec:
           - 'false'
           - 'true'
       - name: cutline
-        description: '(Optional) location of a cutline file to cut the imagery to .fgb or .geojson'
+        description: '(Optional) location of a cutline file to cut the imagery to. Must be EPSG:2193 and .fgb or .geojson'
         value: ''
       - name: odr_url
         description: '(Optional) If an existing dataset add the S3 path to the dataset here to load existing metadata e.g. "s3://nz-imagery/taranaki/new-plymouth_2017_0.1m/rgb/2193/"'
