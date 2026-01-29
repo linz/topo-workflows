@@ -66,7 +66,7 @@ export class LinzEksCluster extends Stack {
 
     const nodeGroup = this.cluster.addNodegroupCapacity('ClusterDefault', {
       /**
-       * c6i.large: ~$70/month, t3.small: ~$12/month.
+       * c6i.large: ~US$60/month, t3.small: ~US$15/month.
        * Compare instance types and costs at https://instances.vantage.sh/
        * Instances are requested in order listed.
        * https://docs.aws.amazon.com/eks/latest/userguide/managed-node-groups.html#managed-node-group-capacity-types
