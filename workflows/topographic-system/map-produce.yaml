@@ -17,7 +17,7 @@ spec:
     parameters:
       - name: version_map_cli
         description: Version of the map produce CLI docker container to use
-        value: v0.3.0
+        value: 'v0.3.0'
 
       - name: version_argo_tasks
         description: Version of the Argo Tasks CLI docker container to use

@@ -17,7 +17,7 @@ spec:
     parameters:
       - name: version_map_produce_cli
         description: Version of the map produce CLI docker container to use
-        value: v0.3.0
+        value: 'v0.3.0'
 
       - name: source
         description: Path or s3 of source parquet vector layers to use for generate map sheets.
