@@ -1,5 +1,6 @@
 import { App } from 'cdk8s';
 
+import { ArgoEvents } from './charts/argo.events.ts';
 import { ArgoExtras } from './charts/argo.extras.ts';
 import { ArgoWorkflows } from './charts/argo.workflows.ts';
 import { Cloudflared } from './charts/cloudflared.ts';
@@ -94,6 +95,10 @@ async function main(): Promise<void> {
     tempBucketName: ScratchBucketName,
     argoDbEndpoint: cfnOutputs[CfnOutputKeys.ArgoDbEndpoint],
     argoDbPassword: ssmConfig.argoDbPassword,
+  });
+
+  new ArgoEvents(app, 'argo-events', {
+    namespace: 'argo-events',
   });
 
   new ArgoExtras(app, 'argo-extras', {
