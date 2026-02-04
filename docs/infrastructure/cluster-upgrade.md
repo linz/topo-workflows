@@ -118,7 +118,7 @@ This process is necessary to avoid being blocked for a future Kubernetes version
 3. Update the node group version to match the EKS version you updated to e.g. current node group version is 1.32 and you want to update to 1.33
 
    ```bash
-   aws eks update-nodegroup-version --cluster-name=Workflows --nodegroup-name="$node_group_name" --version=1.33
+   aws eks update-nodegroup-version --cluster-name=Workflows --nodegroup-name="$node_group_name" --kubernetes-version=1.33
    ```
 
    This step takes some time to run. You can wait for it to finish with this command:
