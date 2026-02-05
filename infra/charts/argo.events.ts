@@ -1,5 +1,6 @@
 import { Chart, ChartProps, Helm } from 'cdk8s';
-import { Namespace } from 'cdk8s-plus-33';
+import { Namespace, ServiceAccount } from 'cdk8s-plus-33';
+import { KubeClusterRole, KubeClusterRoleBinding } from 'cdk8s-plus-33/lib/imports/k8s.js';
 import { Construct } from 'constructs';
 
 import { applyDefaultLabels } from '../util/labels.js';
@@ -28,6 +29,42 @@ export class ArgoEvents extends Chart {
 
     new Namespace(this, 'ArgoEventsNamespace', {
       metadata: { name: 'argo-events' },
+    });
+
+    const operateWorkflowSa = new ServiceAccount(this, 'OperateWorkflowSa', {
+      metadata: {
+        name: 'operate-workflow-sa',
+        namespace,
+      },
+      automountToken: true,
+    });
+
+    // Create a cluster role so it can operate workflows in any namespace
+    const operateWorkflowCr = new KubeClusterRole(this, 'OperateWorkflowCr', {
+      metadata: { name: 'operate-workflow-role' },
+      rules: [
+        {
+          verbs: ['create', 'get', 'list'],
+          apiGroups: ['argoproj.io'],
+          resources: ['workflows', 'workflowtemplates', 'cronworkflows', 'clusterworkflowtemplates'],
+        },
+      ],
+    });
+
+    new KubeClusterRoleBinding(this, 'OperateWorkflowCrb', {
+      metadata: { name: 'operate-workflow-role-binding' },
+      roleRef: {
+        apiGroup: 'rbac.authorization.k8s.io',
+        kind: 'ClusterRole',
+        name: operateWorkflowCr.name,
+      },
+      subjects: [
+        {
+          kind: 'ServiceAccount',
+          name: operateWorkflowSa.name,
+          namespace: operateWorkflowSa.metadata.namespace,
+        },
+      ],
     });
 
     new Helm(this, 'argo-events', {
