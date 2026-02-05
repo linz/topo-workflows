@@ -101,13 +101,13 @@ Below is an example of upgrading from v1.27 to v1.28
 
 This process is necessary to avoid being blocked for a future Kubernetes version upgrade. For example, if Kubernetes get upgraded from `1.27` to `1.28` and the nodes remain in `1.27`, the next time Kubernetes will be upgraded to `1.29`, the upgrade will fail.
 
-1. Find the nodegroup name for the cluster
+1. Find the node group name for the cluster
 
    ```bash
    node_group_name="$(aws eks list-nodegroups --cluster-name=Workflows | jq --raw-output '.nodegroups[]')"
    ```
 
-2. Describe the nodegroup to validate the versions
+2. Describe the node group to validate the current node group version
 
    By describing the node group you can check the current version, or you can use `k get nodes` to see what version is currently running
 
@@ -115,10 +115,10 @@ This process is necessary to avoid being blocked for a future Kubernetes version
    aws eks describe-nodegroup --cluster-name=Workflows --nodegroup-name="$node_group_name" | jq --raw-output .nodegroup.version
    ```
 
-3. Update the version to match
+3. Update the node group version to match the EKS version you updated to e.g. current node group version is 1.32 and you want to update to 1.33
 
    ```bash
-   aws eks update-nodegroup-version --cluster-name=Workflows --nodegroup-name="$node_group_name"
+   aws eks update-nodegroup-version --cluster-name=Workflows --nodegroup-name="$node_group_name" --kubernetes-version=1.33
    ```
 
    This step takes some time to run. You can wait for it to finish with this command:
