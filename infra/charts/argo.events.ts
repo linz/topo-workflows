@@ -1,4 +1,4 @@
-import { Chart, ChartProps, Helm } from 'cdk8s';
+import { ApiObject, Chart, ChartProps, Helm } from 'cdk8s';
 import { Namespace, ServiceAccount } from 'cdk8s-plus-33';
 import { KubeClusterRole, KubeClusterRoleBinding } from 'cdk8s-plus-33/lib/imports/k8s.js';
 import { Construct } from 'constructs';
@@ -65,6 +65,22 @@ export class ArgoEvents extends Chart {
           namespace: operateWorkflowSa.metadata.namespace,
         },
       ],
+    });
+
+    new ApiObject(this, 'EventBusDefault', {
+      apiVersion: 'argoproj.io/v1alpha1',
+      kind: 'EventBus',
+      metadata: {
+        name: 'default',
+      },
+      spec: {
+        nats: {
+          native: {
+            replicas: 3,
+            auth: 'token',
+          },
+        },
+      },
     });
 
     new Helm(this, 'argo-events', {
