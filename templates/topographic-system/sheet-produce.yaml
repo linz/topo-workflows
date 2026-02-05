@@ -3,7 +3,7 @@
 apiVersion: argoproj.io/v1alpha1
 kind: WorkflowTemplate
 metadata:
-  name: tpl-topographic-map-produce
+  name: tpl-topographic-sheet-produce
   labels:
     linz.govt.nz/category: topo-maps
     linz.govt.nz/data-type: raster
@@ -17,15 +17,15 @@ spec:
     parameters:
       - name: version_map_produce_cli
         description: Version of the map produce CLI docker container to use
-        value: v0.2.0
+        value: 'v0.3.0'
 
       - name: source
         description: Path or s3 of source parquet vector layers to use for generate map sheets.
-        value: 's3://linz-topography-nonprod/topo/test/2025-02-05/'
+        value: 's3://linz-topography-nonprod/topo/test/2025-12-01/'
 
       - name: project
         description: Path or s3 of QGIS Project to use for generate map sheets.
-        value: 's3://linz-topography-nonprod/carto/test/latest/topo50-map.qgz'
+        value: 's3://linz-topography-nonprod/qgis/latest/topo50map/topo50-map.qgs'
 
       - name: output
         description: Path or s3 of the output directory to write generated map sheets.
@@ -69,8 +69,8 @@ spec:
         expression: 'false'
       dag:
         tasks:
-          - name: map-produce
-            template: map-produce
+          - name: sheet-produce
+            template: sheet-produce
             arguments:
               parameters:
                 - name: version_map_produce_cli
@@ -88,7 +88,7 @@ spec:
                 - name: map-sheets
                   value: '{{ inputs.parameters.map-sheets }}'
 
-    - name: map-produce
+    - name: sheet-produce
       inputs:
         parameters:
           - name: version_map_produce_cli

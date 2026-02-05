@@ -1,0 +1,193 @@
+# yaml-language-server: $schema=https://raw.githubusercontent.com/argoproj/argo-workflows/v3.6.12/api/jsonschema/schema.json
+
+apiVersion: argoproj.io/v1alpha1
+kind: WorkflowTemplate
+metadata:
+  name: topographic-map-produce
+  labels:
+    linz.govt.nz/category: topo-maps
+    linz.govt.nz/data-type: raster
+spec:
+  entrypoint: main
+  podMetadata:
+    labels:
+      linz.govt.nz/category: topo-maps
+      linz.govt.nz/data-type: raster
+  arguments:
+    parameters:
+      - name: version_map_cli
+        description: Version of the map produce CLI docker container to use
+        value: 'v0.3.0'
+
+      - name: version_argo_tasks
+        description: Version of the Argo Tasks CLI docker container to use
+        value: 'v5'
+
+      - name: source
+        description: Path or s3 of source parquet vector layers to use for generate map sheets.
+        value: 's3://linz-topography-nonprod/topo/test/2025-12-01/'
+
+      - name: project
+        description: Path or s3 of QGIS Project to use for generate map sheets.
+        value: 's3://linz-topography-nonprod/qgis/latest/topo50map/topo50-map.qgs'
+
+      - name: output
+        description: Path or s3 of the output directory to write generated map sheets.
+        value: 's3://linz-topography-scratch-nonprod/test/'
+
+      - name: format
+        description: Export format as pdf, tiff, or geotiff
+        value: 'tiff'
+        enum:
+          - 'pdf'
+          - 'tiff'
+          - 'geotiff'
+
+      - name: dpi
+        description: Path or s3 of the output directory to write generated map sheets.
+        value: '300'
+
+      - name: group_size
+        description: Number of sheets grouped together, default to 100
+        value: '100'
+
+  templates:
+    - name: main
+      retryStrategy:
+        expression: 'false'
+      dag:
+        tasks:
+          - name: get-location
+            templateRef:
+              name: tpl-get-location
+              template: main
+
+          - name: list-mapsheets
+            template: list-mapsheets
+            arguments:
+              parameters:
+                - name: version_map_cli
+                  value: '{{ workflow.parameters.version_map_cli }}'
+                - name: project
+                  value: '{{ workflow.parameters.project }}'
+                - name: source
+                  value: '{{ workflow.parameters.source }}'
+
+          - name: group
+            templateRef:
+              name: tpl-at-group
+              template: main
+            depends: list-mapsheets
+            arguments:
+              parameters:
+                - name: size
+                  value: '{{ workflow.parameters.group_size }}'
+                - name: version
+                  value: '{{= workflow.parameters.version_argo_tasks }}'
+              artifacts:
+                - name: input
+                  from: '{{ tasks.list-mapsheets.outputs.artifacts.mapsheets }}'
+
+          - name: produce
+            template: produce
+            depends: group && get-location
+            withParam: '{{ tasks.group.outputs.parameters.output }}'
+            arguments:
+              parameters:
+                - name: version_map_cli
+                  value: '{{ workflow.parameters.version_map_cli }}'
+                - name: source
+                  value: '{{ workflow.parameters.source }}'
+                - name: project
+                  value: '{{ workflow.parameters.project }}'
+                - name: output
+                  value: '{{ tasks.get-location.outputs.parameters.location }}'
+                - name: format
+                  value: '{{ workflow.parameters.format }}'
+                - name: dpi
+                  value: '{{ workflow.parameters.dpi }}'
+                - name: grouped_id
+                  value: '{{ item }}'
+              artifacts:
+                - name: grouped
+                  from: '{{ tasks.group.outputs.artifacts.output }}'
+
+          - name: copy
+            templateRef:
+              name: copy
+              template: main
+            arguments:
+              parameters:
+                - name: source
+                  value: '{{ tasks.get-location.outputs.parameters.location }}'
+                - name: target
+                  value: '{{ workflow.parameters.output }}'
+                - name: include
+                  value: '\.{{ workflow.parameters.format }}$|\.json$'
+                - name: exclude
+                  value: ''
+                - name: flatten
+                  value: 'false'
+                - name: group
+                  value: '1000'
+                - name: group_size
+                  value: '100Gi'
+                - name: transform
+                  value: 'f'
+                - name: copy_option
+                  value: '--force-no-clobber'
+                - name: aws_role_config_path
+                  value: s3://linz-bucket-config/config-write.topography.json
+            depends: produce
+
+    - name: list-mapsheets
+      inputs:
+        parameters:
+          - name: version_map_cli
+          - name: project
+          - name: source
+      outputs:
+        artifacts:
+          - name: mapsheets
+            path: /tmp/mapsheets.json
+      container:
+        image: ghcr.io/linz/topographic-system/map:{{ inputs.parameters.version_map_cli }}
+        env:
+          - name: AWS_ROLE_CONFIG_PATH
+            value: s3://linz-bucket-config/config-write.topography.json
+        args:
+          - 'list-mapsheets'
+          - '--project={{ inputs.parameters.project }}'
+          - '--source={{ inputs.parameters.source }}'
+
+    - name: produce
+      inputs:
+        artifacts:
+          - name: grouped
+            path: /tmp/group/grouped/
+        parameters:
+          - name: version_map_cli
+          - name: source
+          - name: project
+          - name: output
+          - name: format
+          - name: dpi
+          - name: grouped_id
+      container:
+        image: ghcr.io/linz/topographic-system/map:{{ inputs.parameters.version_map_cli }}
+        resources:
+          requests:
+            memory: 7.8Gi
+            cpu: 15000m
+        imagePullPolicy: Always
+        env:
+          - name: AWS_ROLE_CONFIG_PATH
+            value: s3://linz-bucket-config/config-write.topography.json
+        args:
+          - 'produce'
+          - '--project={{ inputs.parameters.project }}'
+          - '--source={{ inputs.parameters.source }}'
+          - '--output={{ inputs.parameters.output }}'
+          - '--format={{ inputs.parameters.format }}'
+          - '--dpi={{ inputs.parameters.dpi }}'
+          - '--from-file={{= inputs.artifacts.grouped.path }}{{inputs.parameters.grouped_id}}.json'

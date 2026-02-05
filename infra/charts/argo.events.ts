@@ -25,7 +25,7 @@ const namespace = 'argo-events';
 
 export class ArgoEvents extends Chart {
   constructor(scope: Construct, id: string, props: ArgoEventsProps & ChartProps) {
-    super(scope, id, applyDefaultLabels(props, 'argo-events', appVersion, 'logs', 'events'));
+    super(scope, id, applyDefaultLabels(props, 'argo-events', appVersion, 'argo', 'events'));
 
     new Namespace(this, 'ArgoEventsNamespace', {
       metadata: { name: 'argo-events' },
