@@ -1,4 +1,4 @@
-const environmentSuffix = 'AF'; // e.g. 'Dev', 'NP'
+const environmentSuffix = ''; // e.g. 'Dev', 'NP'
 /** Cluster name */
 export const ClusterName = `Workflows${environmentSuffix}`;
 /** LINZ conventional name for Argo Workflows artifact bucket */
