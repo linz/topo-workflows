@@ -1,4 +1,4 @@
-const environmentSuffix = ''; // e.g. 'Dev', 'NP'
+const environmentSuffix = 'AF'; // e.g. 'Dev', 'NP'
 /** Cluster name */
 export const ClusterName = `Workflows${environmentSuffix}`;
 /** LINZ conventional name for Argo Workflows artifact bucket */
@@ -9,6 +9,8 @@ export const ArgoDbInstanceName = `ArgoDb${environmentSuffix}`;
 export const ArgoDbName = 'argo';
 /** Argo Database user */
 export const ArgoDbUser = 'argo_user';
+/** SQS Queue name */
+export const ArgoEventsSQSName = `ArgoEventsSQS${environmentSuffix}`;
 /** AWS default region for our stack */
 export const DefaultRegion = 'ap-southeast-2';
 
