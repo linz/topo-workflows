@@ -9,8 +9,6 @@ export interface ArgoEventsProps {}
 
 /**
  * This is the version of the Helm chart for Argo Events https://github.com/argoproj/argo-helm/blob/b8fc7466465c617f270256ded8d6c6d3d57ea524/charts/argo-events/Chart.yaml#L5C10-L5C16
- *
- * (Do not mix up with Argo Workflows application version)
  */
 const chartVersion = '2.4.20';
 
@@ -74,10 +72,20 @@ export class ArgoEvents extends Chart {
         name: 'default',
       },
       spec: {
-        nats: {
-          native: {
-            replicas: 3,
-            auth: 'token',
+        jetstream: {
+          version: '2.10.10',
+          containerTemplate: {
+            priorityClassName: 'high-priority',
+            resources: {
+              requests: {
+                cpu: '50m',
+                memory: '128Mi',
+              },
+              limits: {
+                cpu: '200m',
+                memory: '256Mi',
+              },
+            },
           },
         },
       },
