@@ -1,4 +1,4 @@
-const environmentSuffix = ''; // e.g. 'Dev', 'NP'
+const environmentSuffix = 'SQS'; // e.g. 'Dev', 'NP'
 /** Cluster name */
 export const ClusterName = `Workflows${environmentSuffix}`;
 /** LINZ conventional name for Argo Workflows artifact bucket */
@@ -25,6 +25,8 @@ export const CfnOutputKeys = {
 
   ArgoDbEndpoint: `ArgoDbEndpoint${environmentSuffix}`,
   ArgoDbSecurityGroupId: `ArgoDbSecurityGroupId${environmentSuffix}`,
+
+  ArgoEventsSQSArn: `ArgoEventsSQSArn`,
 
   KarpenterServiceAccountName: 'KarpenterServiceAccountName',
   KarpenterServiceAccountRoleArn: 'KarpenterServiceAccountRoleArn',

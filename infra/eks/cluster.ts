@@ -1,5 +1,5 @@
 import { KubectlV33Layer } from '@aws-cdk/lambda-layer-kubectl-v33';
-import { Aws, CfnOutput, Fn, Stack, StackProps } from 'aws-cdk-lib';
+import { Aws, CfnOutput, Duration, Fn, RemovalPolicy, Stack, StackProps } from 'aws-cdk-lib';
 import { InstanceType, IVpc, Port, SecurityGroup, SubnetType, Vpc } from 'aws-cdk-lib/aws-ec2';
 import { Cluster, ClusterLoggingTypes, IpFamily, KubernetesVersion, NodegroupAmiType } from 'aws-cdk-lib/aws-eks';
 import {
@@ -13,6 +13,7 @@ import {
 } from 'aws-cdk-lib/aws-iam';
 import * as iam from 'aws-cdk-lib/aws-iam';
 import { Bucket, IBucket } from 'aws-cdk-lib/aws-s3';
+import { Queue } from 'aws-cdk-lib/aws-sqs';
 import { Construct } from 'constructs';
 import { createHash } from 'crypto';
 
@@ -71,7 +72,7 @@ export class LinzEksCluster extends Stack {
        * Instances are requested in order listed.
        * https://docs.aws.amazon.com/eks/latest/userguide/managed-node-groups.html#managed-node-group-capacity-types
        **/
-      instanceTypes: ['c6i.large', 'c6a.large'].map((f) => new InstanceType(f)),
+      instanceTypes: ['c6i.medium', 'c6a.medium'].map((f) => new InstanceType(f)),
       minSize: 2,
       amiType: NodegroupAmiType.BOTTLEROCKET_X86_64,
       subnets: { subnetType: SubnetType.PRIVATE_WITH_EGRESS },
@@ -258,6 +259,13 @@ export class LinzEksCluster extends Stack {
         resources: [this.s3BatchRestoreRoleArn],
       }),
     );
+
+    // Add an SQS Queue for receiving file creation events from the Argo Workflows Scratch Bucket.
+    const sqs = new Queue(this, 'FileCreatedQueue', {
+      visibilityTimeout: Duration.seconds(30),
+      queueName: `${this.cluster.clusterName}-${ScratchBucketName}-events`,
+    });
+    sqs.applyRemovalPolicy(RemovalPolicy.DESTROY);
 
     /* Gives read access on ODR public buckets.
      * While those are public buckets, we still need to give permission to Argo
