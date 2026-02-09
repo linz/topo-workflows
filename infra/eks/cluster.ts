@@ -267,23 +267,5 @@ export class LinzEksCluster extends Stack {
     Bucket.fromBucketName(this, 'OdrNzElevation', 'nz-elevation').grantRead(argoRunnerSa.role);
     Bucket.fromBucketName(this, 'OdrNzImagery', 'nz-imagery').grantRead(argoRunnerSa.role);
     Bucket.fromBucketName(this, 'OdrNzTopography', 'nz-topography').grantRead(argoRunnerSa.role);
-
-    this.createServiceAccountArgoEvents();
-  }
-
-  createServiceAccountArgoEvents(): void {
-    const argoEventsNsName = 'argo-events';
-    const argoEventsNs = this.cluster.addManifest('ArgoEventsNameSpace', {
-      apiVersion: 'v1',
-      kind: 'Namespace',
-      metadata: { name: argoEventsNsName },
-    });
-    const argoEventsSa = this.cluster.addServiceAccount('ArgoEventsServiceAccount', {
-      name: 'argo-events-sa',
-      namespace: argoEventsNsName,
-    });
-
-    argoEventsSa.node.addDependency(argoEventsNs);
-    new CfnOutput(this, CfnOutputKeys.ArgoEventsServiceAccountName, { value: argoEventsSa.serviceAccountName });
   }
 }
