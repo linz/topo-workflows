@@ -72,7 +72,7 @@ export class LinzEksCluster extends Stack {
        * Instances are requested in order listed.
        * https://docs.aws.amazon.com/eks/latest/userguide/managed-node-groups.html#managed-node-group-capacity-types
        **/
-      instanceTypes: ['c6i.medium', 'c6a.medium'].map((f) => new InstanceType(f)),
+      instanceTypes: ['c6i.large', 'c6a.large'].map((f) => new InstanceType(f)),
       minSize: 2,
       amiType: NodegroupAmiType.BOTTLEROCKET_X86_64,
       subnets: { subnetType: SubnetType.PRIVATE_WITH_EGRESS },
