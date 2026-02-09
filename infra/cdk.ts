@@ -1,5 +1,5 @@
 import { applyTags, SecurityClassification } from '@linzjs/cdk-tags';
-import { App, Duration, RemovalPolicy } from 'aws-cdk-lib';
+import { App } from 'aws-cdk-lib';
 
 import { ArgoDbInstanceName, ArgoEventsSQSName, ClusterName, DefaultRegion } from './constants.ts';
 import { tryGetContextArns } from './eks/arn.ts';

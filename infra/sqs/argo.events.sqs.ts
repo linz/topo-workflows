@@ -10,7 +10,7 @@ export class ArgoEventsSQS extends Stack {
   constructor(scope: Construct, id: string, props: {}) {
     super(scope, id, props);
 
-    this.argoEventsSqs = new Queue(this, ArgoEventsSQS, {
+    this.argoEventsSqs = new Queue(this, id, {
       visibilityTimeout: Duration.seconds(30),
       queueName: `${ScratchBucketName}-events`,
     });
