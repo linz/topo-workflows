@@ -45,7 +45,7 @@ async function main(): Promise<void> {
     slackChannelId: ssmConfig.slackChannelId,
   });
 
-  /* Add an SQS Queue for receiving parameter file creation events from the Argo Workflows Scratch Bucket.*/
+  /* Add an SQS Queue for receiving parameter file creation events from the Argo Workflows scratch bucket.*/
   const argoEventsSQSStack = new ArgoEventsSQS(app, ArgoEventsSQSName, {
     env: { region: DefaultRegion, account: accountId },
     queueName: `${ScratchBucketName}-events`,
