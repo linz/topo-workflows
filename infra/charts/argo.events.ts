@@ -29,6 +29,7 @@ export class ArgoEvents extends Chart {
       metadata: { name: 'argo-events' },
     });
 
+    //https://github.com/argoproj/argo-events/tree/master/examples#examples
     const operateWorkflowSa = new ServiceAccount(this, 'OperateWorkflowSa', {
       metadata: {
         name: 'operate-workflow-sa',
