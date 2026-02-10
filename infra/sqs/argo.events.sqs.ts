@@ -7,7 +7,6 @@ import { Construct } from 'constructs';
 import { CfnOutputKeys, ScratchBucketName } from '../constants.ts';
 
 interface ArgoEventsSQSProps extends StackProps {
-  /** Whether to enable Slack alerts for the database */
   queueName: string;
 }
 
