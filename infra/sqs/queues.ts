@@ -7,6 +7,7 @@ import { Construct } from 'constructs';
 import { CfnOutputKeys, ScratchBucketName } from '../constants.ts';
 
 export class SqsQueues extends Stack {
+  /** SQS Queue for Argo Events to use to receive file creation events from Argo Workflows scratch bucket */
   scratchPublishSqsQueue: Queue;
   constructor(scope: Construct, id: string, props: StackProps) {
     super(scope, id, props);
