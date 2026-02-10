@@ -10,7 +10,7 @@ export const ArgoDbName = 'argo';
 /** Argo Database user */
 export const ArgoDbUser = 'argo_user';
 /** SQS Queue name */
-export const ArgoEventsSQSName = `ArgoEventsSQS${environmentSuffix}`;
+export const SqsQueuesName = `SqsQueues${environmentSuffix}`;
 /** AWS default region for our stack */
 export const DefaultRegion = 'ap-southeast-2';
 
@@ -28,7 +28,7 @@ export const CfnOutputKeys = {
   ArgoDbEndpoint: `ArgoDbEndpoint${environmentSuffix}`,
   ArgoDbSecurityGroupId: `ArgoDbSecurityGroupId${environmentSuffix}`,
 
-  ArgoEventsSQSArn: `ArgoEventsSQSArn`,
+  ScratchPublishSqsQueueArn: `ScratchPublishSqsQueueArn`,
 
   KarpenterServiceAccountName: 'KarpenterServiceAccountName',
   KarpenterServiceAccountRoleArn: 'KarpenterServiceAccountRoleArn',

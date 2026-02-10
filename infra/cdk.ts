@@ -1,11 +1,11 @@
 import { applyTags, SecurityClassification } from '@linzjs/cdk-tags';
 import { App } from 'aws-cdk-lib';
 
-import { ArgoDbInstanceName, ArgoEventsSQSName, ClusterName, DefaultRegion, ScratchBucketName } from './constants.ts';
+import { ArgoDbInstanceName, ClusterName, DefaultRegion, SqsQueuesName } from './constants.ts';
 import { tryGetContextArns } from './eks/arn.ts';
 import { LinzEksCluster } from './eks/cluster.ts';
 import { ArgoDatabase } from './rds/argo.db.ts';
-import { ArgoEventsSQS } from './sqs/argo.events.sqs.ts';
+import { SqsQueues } from './sqs/queues.ts';
 import { fetchSsmParameters } from './util/ssm.ts';
 
 const app = new App();
@@ -46,9 +46,8 @@ async function main(): Promise<void> {
   });
 
   /* Add an SQS Queue for receiving parameter file creation events from the Argo Workflows scratch bucket.*/
-  const argoEventsSQSStack = new ArgoEventsSQS(app, ArgoEventsSQSName, {
+  const sqsQueuesStack = new SqsQueues(app, SqsQueuesName, {
     env: { region: DefaultRegion, account: accountId },
-    queueName: `${ScratchBucketName}-events`,
   });
 
   const cluster = new LinzEksCluster(app, ClusterName, {
@@ -58,7 +57,7 @@ async function main(): Promise<void> {
   });
 
   cluster.addDependency(argoDbStack);
-  cluster.addDependency(argoEventsSQSStack);
+  cluster.addDependency(sqsQueuesStack);
 
   applyTags(cluster, {
     application: 'argo',

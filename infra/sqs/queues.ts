@@ -6,23 +6,17 @@ import { Construct } from 'constructs';
 
 import { CfnOutputKeys, ScratchBucketName } from '../constants.ts';
 
-interface ArgoEventsSQSProps extends StackProps {
-  queueName: string;
-}
-
-export class ArgoEventsSQS extends Stack {
-  argoEventsSqs: Queue;
-  constructor(scope: Construct, id: string, props: ArgoEventsSQSProps) {
+export class SqsQueues extends Stack {
+  scratchPublishSqsQueue: Queue;
+  constructor(scope: Construct, id: string, props: StackProps) {
     super(scope, id, props);
 
-    this.argoEventsSqs = new Queue(this, id, {
+    this.scratchPublishSqsQueue = new Queue(this, id, {
       visibilityTimeout: Duration.seconds(30),
-      queueName: props.queueName,
+      queueName: `${ScratchBucketName}-publish-queue`,
     });
-
-    this.argoEventsSqs.applyRemovalPolicy(RemovalPolicy.RETAIN);
-
-    this.argoEventsSqs.grantSendMessages(
+    this.scratchPublishSqsQueue.applyRemovalPolicy(RemovalPolicy.RETAIN);
+    this.scratchPublishSqsQueue.grantSendMessages(
       new ServicePrincipal('s3.amazonaws.com', {
         conditions: {
           ArnLike: { 'aws:SourceArn': Bucket.fromBucketName(this, 'Scratch', ScratchBucketName).bucketArn },
@@ -30,9 +24,9 @@ export class ArgoEventsSQS extends Stack {
       }),
     );
 
-    new CfnOutput(this, CfnOutputKeys.ArgoEventsSQSArn, {
-      value: this.argoEventsSqs.queueArn,
-      exportName: CfnOutputKeys.ArgoEventsSQSArn,
+    new CfnOutput(this, CfnOutputKeys.ScratchPublishSqsQueueArn, {
+      value: this.scratchPublishSqsQueue.queueArn,
+      exportName: CfnOutputKeys.ScratchPublishSqsQueueArn,
     });
   }
 }
