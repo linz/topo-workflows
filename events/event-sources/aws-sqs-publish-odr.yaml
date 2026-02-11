@@ -3,10 +3,11 @@ kind: EventSource
 metadata:
   name: aws-sqs-publish-odr
 spec:
+  template:
+    serviceAccountName: event-sa
   sqs:
-   publish-odr:
-     # If AWS access credentials are already present on the Pod's IAM role running the EventSource,
-     # the AWS session will utilize the existing config and hence we do not need to provide explicit credentials.
-     region: "ap-southeast-2"
-     queue: "publish-odr-queue"
-     waitTimeSeconds: 20
+    publish-odr:
+      jsonBody: true
+      region: 'ap-southeast-2'
+      queue: 'linz-workflows-scratch-publish-queue'
+      waitTimeSeconds: 20

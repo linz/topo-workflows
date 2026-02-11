@@ -1,0 +1,36 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Sensor
+metadata:
+  name: sqs-to-wf-publish-odr
+  namespace: argo-events
+spec:
+  template:
+    serviceAccountName: operate-workflow-sa
+  dependencies:
+    - name: publish-odr
+      eventSourceName: aws-sqs-publish-odr
+      eventName: publish-odr
+  triggers:
+    - template:
+        name: trigger-wf-publish-odr
+        argoWorkflow:
+          operation: submit
+          source:
+            resource:
+              apiVersion: argoproj.io/v1alpha1
+              kind: Workflow
+              metadata:
+                generateName: test-print-
+                namespace: argo
+              spec:
+                arguments:
+                  parameters:
+                    - name: message
+                      value: ''
+                workflowTemplateRef:
+                  name: test-print
+          parameters:
+            - src:
+                dependencyName: publish-odr
+                dataKey: body
+              dest: spec.arguments.parameters.0.value
