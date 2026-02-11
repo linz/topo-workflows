@@ -1,11 +1,28 @@
-import { ApiObject, Chart, ChartProps, Helm } from 'cdk8s';
+import { Chart, ChartProps, Helm } from 'cdk8s';
 import { Namespace, ServiceAccount } from 'cdk8s-plus-33';
 import { KubeClusterRole, KubeClusterRoleBinding } from 'cdk8s-plus-33/lib/imports/k8s.js';
 import { Construct } from 'constructs';
 
 import { applyDefaultLabels } from '../util/labels.js';
+import { EventBus } from './imports/argo-events/argoproj.io.eventbus.ts';
+import { EventSource } from './imports/argo-events/argoproj.io.eventsources.ts';
+import { Sensor } from './imports/argo-events/argoproj.io.sensors.ts';
 
-export interface ArgoEventsProps {}
+export interface ArgoEventsProps {
+  /**
+   * Name of the Service Account used to manage events
+   *
+   * @example "event-sa"
+   */
+  saName: string;
+
+  /**
+   * Name of the SQS queue to listen to for events
+   *
+   * @example "linz-workflows-scratch-publish-odr-queue"
+   */
+  sqsQueueName: string;
+}
 
 /**
  * This is the version of the Helm chart for Argo Events https://github.com/argoproj/argo-helm/blob/b8fc7466465c617f270256ded8d6c6d3d57ea524/charts/argo-events/Chart.yaml#L5C10-L5C16
@@ -24,21 +41,25 @@ const namespace = 'argo-events';
 export class ArgoEvents extends Chart {
   constructor(scope: Construct, id: string, props: ArgoEventsProps & ChartProps) {
     super(scope, id, applyDefaultLabels(props, 'argo-events', appVersion, 'argo', 'events'));
+    const operateWorkflowSaName = 'operate-workflow-sa';
+    this.createServiceAccountsAndRoles(operateWorkflowSaName);
+    this.createResources(props, operateWorkflowSaName);
+    this.createArgoEventBase();
+  }
 
+  private createServiceAccountsAndRoles(operateWorkflowSaName: string): void {
     new Namespace(this, 'ArgoEventsNamespace', {
       metadata: { name: 'argo-events' },
     });
 
-    //https://github.com/argoproj/argo-events/tree/master/examples#examples
     const operateWorkflowSa = new ServiceAccount(this, 'OperateWorkflowSa', {
       metadata: {
-        name: 'operate-workflow-sa',
+        name: operateWorkflowSaName,
         namespace,
       },
       automountToken: true,
     });
 
-    // Create a cluster role so it can operate workflows in any namespace
     const operateWorkflowCr = new KubeClusterRole(this, 'OperateWorkflowCr', {
       metadata: { name: 'operate-workflow-role' },
       rules: [
@@ -65,10 +86,10 @@ export class ArgoEvents extends Chart {
         },
       ],
     });
+  }
 
-    new ApiObject(this, 'EventBusDefault', {
-      apiVersion: 'argoproj.io/v1alpha1',
-      kind: 'EventBus',
+  private createResources(props: ArgoEventsProps, operateWorkflowSaName: string): void {
+    new EventBus(this, 'EventBusDefault', {
       metadata: {
         name: 'default',
       },
@@ -92,6 +113,87 @@ export class ArgoEvents extends Chart {
       },
     });
 
+    new EventSource(this, 'AwsSqsPublishOdrEventSource', {
+      metadata: {
+        name: 'aws-sqs-publish-odr',
+      },
+      spec: {
+        template: {
+          serviceAccountName: props.saName,
+        },
+        sqs: {
+          'publish-odr': {
+            jsonBody: true,
+            region: 'ap-southeast-2',
+            queue: props.sqsQueueName,
+            waitTimeSeconds: 20,
+          },
+        },
+      },
+    });
+
+    new Sensor(this, 'WfPublishOdrSensor', {
+      metadata: {
+        name: 'wf-publish-odr',
+      },
+      spec: {
+        template: {
+          serviceAccountName: operateWorkflowSaName,
+        },
+        dependencies: [
+          {
+            name: 'publish-odr',
+            eventSourceName: 'aws-sqs-publish-odr',
+            eventName: 'publish-odr',
+          },
+        ],
+        triggers: [
+          {
+            template: {
+              name: 'trigger-wf-publish-odr',
+              argoWorkflow: {
+                operation: 'submit',
+                source: {
+                  resource: {
+                    apiVersion: 'argoproj.io/v1alpha1',
+                    kind: 'Workflow',
+                    metadata: {
+                      generateName: 'test-print-',
+                      namespace: 'argo',
+                    },
+                    spec: {
+                      arguments: {
+                        parameters: [
+                          {
+                            name: 'message',
+                            value: '',
+                          },
+                        ],
+                      },
+                      workflowTemplateRef: {
+                        name: 'test-print',
+                      },
+                    },
+                  },
+                },
+                parameters: [
+                  {
+                    src: {
+                      dependencyName: 'publish-odr',
+                      dataKey: 'body',
+                    },
+                    dest: 'spec.arguments.parameters.0.value',
+                  },
+                ],
+              },
+            },
+          },
+        ],
+      },
+    });
+  }
+
+  private createArgoEventBase(): void {
     new Helm(this, 'argo-events', {
       chart: 'argo-events',
       releaseName: 'argo-events',

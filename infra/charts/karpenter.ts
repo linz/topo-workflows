@@ -2,14 +2,17 @@ import { Chart, ChartProps, Helm } from 'cdk8s';
 import { Construct } from 'constructs';
 
 import { applyDefaultLabels } from '../util/labels.ts';
-import { Ec2NodeClass, Ec2NodeClassSpecBlockDeviceMappingsEbsVolumeType } from './imports/karpenter.k8s.aws.ts';
+import {
+  Ec2NodeClass,
+  Ec2NodeClassSpecBlockDeviceMappingsEbsVolumeType,
+} from './imports/karpenter/karpenter.k8s.aws.ts';
 import {
   NodePool,
   NodePoolSpecDisruptionConsolidationPolicy,
   NodePoolSpecLimits,
   NodePoolSpecTemplateSpecRequirementsOperator,
   NodePoolSpecTemplateSpecTaintsEffect,
-} from './imports/karpenter.sh.ts';
+} from './imports/karpenter/karpenter.sh.ts';
 
 // import * as kplus from 'cdk8s-plus-32';
 
