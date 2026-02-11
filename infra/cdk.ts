@@ -1,10 +1,11 @@
 import { applyTags, SecurityClassification } from '@linzjs/cdk-tags';
 import { App } from 'aws-cdk-lib';
 
-import { ArgoDbInstanceName, ClusterName, DefaultRegion } from './constants.ts';
+import { ArgoDbInstanceName, ClusterName, DefaultRegion, SqsQueuesName } from './constants.ts';
 import { tryGetContextArns } from './eks/arn.ts';
 import { LinzEksCluster } from './eks/cluster.ts';
 import { ArgoDatabase } from './rds/argo.db.ts';
+import { SqsQueues } from './sqs/queues.ts';
 import { fetchSsmParameters } from './util/ssm.ts';
 
 const app = new App();
@@ -44,6 +45,10 @@ async function main(): Promise<void> {
     slackChannelId: ssmConfig.slackChannelId,
   });
 
+  const sqsQueuesStack = new SqsQueues(app, SqsQueuesName, {
+    env: { region: DefaultRegion, account: accountId },
+  });
+
   const cluster = new LinzEksCluster(app, ClusterName, {
     env: { region: DefaultRegion, account: accountId },
     maintainerRoleArns,
@@ -51,6 +56,7 @@ async function main(): Promise<void> {
   });
 
   cluster.addDependency(argoDbStack);
+  cluster.addDependency(sqsQueuesStack);
 
   applyTags(cluster, {
     application: 'argo',
