@@ -12,7 +12,7 @@ export class SqsQueues extends Stack {
   constructor(scope: Construct, id: string, props: StackProps) {
     super(scope, id, props);
 
-    this.scratchPublishSqsQueue = new Queue(this, 'ScratchPublishSqsQueue', {
+    this.scratchPublishSqsQueue = new Queue(this, `${id}-publish-queue`, {
       visibilityTimeout: Duration.seconds(30),
       queueName: `${ScratchBucketName}-publish-queue`,
     });
