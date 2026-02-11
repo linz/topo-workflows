@@ -25,9 +25,10 @@ const app = new App();
 
 async function main(): Promise<void> {
   // Get cloudformation outputs
-  const [clusterCfnOutputs, argoDbCfnOutputs, ssmConfig, clusterConfig] = await Promise.all([
+  const [clusterCfnOutputs, argoDbCfnOutputs, sqsQueuesCfnOutputs, ssmConfig, clusterConfig] = await Promise.all([
     getCfnOutputs(ClusterName),
     getCfnOutputs(ArgoDbInstanceName),
+    getCfnOutputs(SqsQueuesName),
     fetchSsmParameters({
       // Config for Cloudflared to access argo-server
       cloudflaredTunnelId: '/eks/cloudflared/argo/tunnelId',
@@ -48,7 +49,7 @@ async function main(): Promise<void> {
     }),
     describeCluster(ClusterName),
   ]);
-  const cfnOutputs = { ...clusterCfnOutputs, ...argoDbCfnOutputs };
+  const cfnOutputs = { ...clusterCfnOutputs, ...argoDbCfnOutputs, ...sqsQueuesCfnOutputs };
   validateKeys(cfnOutputs);
 
   new PriorityClasses(app, 'priority-classes');
