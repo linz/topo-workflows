@@ -15,6 +15,7 @@ import {
   CfnOutputKeys,
   ClusterName,
   ScratchBucketName,
+  SqsQueuesName,
   UseNodeLocalDns,
   validateKeys,
 } from './constants.ts';
