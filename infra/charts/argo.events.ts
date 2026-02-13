@@ -17,11 +17,11 @@ export interface ArgoEventsProps {
   saName: string;
 
   /**
-   * Name of the SQS queue to listen to for events
+   * Name of the SQS queue to listen to for events about publishing data
    *
    * @example "linz-workflows-scratch-publish-odr-queue"
    */
-  sqsQueueName: string;
+  sqsPublishQueueName: string;
 }
 
 /**
@@ -125,7 +125,7 @@ export class ArgoEvents extends Chart {
           'publish-odr': {
             jsonBody: true,
             region: 'ap-southeast-2',
-            queue: props.sqsQueueName,
+            queue: props.sqsPublishQueueName,
             waitTimeSeconds: 20,
           },
         },
