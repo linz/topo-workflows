@@ -288,17 +288,7 @@ export class LinzEksCluster extends Stack {
 
     argoEventsSa.role.addToPrincipalPolicy(
       new PolicyStatement({
-        actions: [
-          'sqs:ListQueues',
-          'sqs:GetQueueUrl',
-          'sqs:ListDeadLetterSourceQueues',
-          'sqs:ListMessageMoveTasks',
-          'sqs:ReceiveMessage',
-          'sqs:SendMessage',
-          'sqs:DeleteMessage',
-          'sqs:GetQueueAttributes',
-          'sqs:ListQueueTags',
-        ],
+        actions: ['sqs:GetQueueUrl', 'sqs:ReceiveMessage', 'sqs:DeleteMessage', 'sqs:GetQueueAttributes'],
         resources: [sqsQueueArn],
       }),
     );
