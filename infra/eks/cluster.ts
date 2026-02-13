@@ -267,5 +267,32 @@ export class LinzEksCluster extends Stack {
     Bucket.fromBucketName(this, 'OdrNzElevation', 'nz-elevation').grantRead(argoRunnerSa.role);
     Bucket.fromBucketName(this, 'OdrNzImagery', 'nz-imagery').grantRead(argoRunnerSa.role);
     Bucket.fromBucketName(this, 'OdrNzTopography', 'nz-topography').grantRead(argoRunnerSa.role);
+
+    this.createArgoEventsServiceAccount();
+  }
+
+  createArgoEventsServiceAccount(): void {
+    const sqsPublishQueueArn = Fn.importValue(CfnOutputKeys.ScratchPublishSqsQueueArn);
+    const argoEventsNamespaceName = 'argo-events';
+    const argoEventsSaName = 'event-sa';
+    const argoEventsNs = this.cluster.addManifest('ArgoEventsNameSpace', {
+      apiVersion: 'v1',
+      kind: 'Namespace',
+      metadata: { name: argoEventsNamespaceName },
+    });
+    const argoEventsSa = this.cluster.addServiceAccount('ArgoEventsServiceAccount', {
+      name: argoEventsSaName,
+      namespace: argoEventsNamespaceName,
+    });
+    argoEventsSa.node.addDependency(argoEventsNs);
+
+    argoEventsSa.role.addToPrincipalPolicy(
+      new PolicyStatement({
+        actions: ['sqs:GetQueueUrl', 'sqs:ReceiveMessage', 'sqs:DeleteMessage', 'sqs:GetQueueAttributes'],
+        resources: [sqsPublishQueueArn],
+      }),
+    );
+
+    new CfnOutput(this, CfnOutputKeys.ArgoEventsServiceAccountName, { value: argoEventsSa.serviceAccountName });
   }
 }

@@ -1,6 +1,7 @@
 import { CfnOutput, Duration, RemovalPolicy, Stack, StackProps } from 'aws-cdk-lib';
 import { ServicePrincipal } from 'aws-cdk-lib/aws-iam';
-import { Bucket } from 'aws-cdk-lib/aws-s3';
+import { Bucket, EventType } from 'aws-cdk-lib/aws-s3';
+import { SqsDestination } from 'aws-cdk-lib/aws-s3-notifications';
 import { Queue } from 'aws-cdk-lib/aws-sqs';
 import { Construct } from 'constructs';
 
@@ -12,6 +13,10 @@ export class SqsQueues extends Stack {
   constructor(scope: Construct, id: string, props: StackProps) {
     super(scope, id, props);
 
+    const scratchBucket = Bucket.fromBucketAttributes(this, 'ScratchBucket', {
+      bucketName: ScratchBucketName,
+    });
+
     this.scratchPublishSqsQueue = new Queue(this, `${ScratchBucketName}-publish-queue`, {
       visibilityTimeout: Duration.seconds(30),
       queueName: `${ScratchBucketName}-publish-queue`,
@@ -20,10 +25,15 @@ export class SqsQueues extends Stack {
     this.scratchPublishSqsQueue.grantSendMessages(
       new ServicePrincipal('s3.amazonaws.com', {
         conditions: {
-          ArnLike: { 'aws:SourceArn': Bucket.fromBucketName(this, 'Scratch', ScratchBucketName).bucketArn },
+          ArnLike: { 'aws:SourceArn': scratchBucket.bucketArn },
         },
       }),
     );
+
+    scratchBucket.addEventNotification(EventType.OBJECT_CREATED, new SqsDestination(this.scratchPublishSqsQueue), {
+      prefix: 'to-publish/',
+      suffix: 'collection.json',
+    });
 
     new CfnOutput(this, CfnOutputKeys.ScratchPublishSqsQueueArn, {
       value: this.scratchPublishSqsQueue.queueArn,

@@ -1,0 +1,19 @@
+# yaml-language-server: $schema=https://raw.githubusercontent.com/argoproj/argo-workflows/v3.6.12/api/jsonschema/schema.json
+
+apiVersion: argoproj.io/v1alpha1
+kind: WorkflowTemplate
+metadata:
+  name: test-print
+  labels:
+    linz.govt.nz/category: test
+spec:
+  entrypoint: print
+  templates:
+    - name: print
+      inputs:
+        parameters:
+          - name: message
+      container:
+        image: 019359803926.dkr.ecr.ap-southeast-2.amazonaws.com/topo-imagery:latest
+        command: [echo]
+        args: ['{{inputs.parameters.message}}']
