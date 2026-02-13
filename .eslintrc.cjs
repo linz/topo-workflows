@@ -7,7 +7,7 @@ cfg.ignorePatterns = [...(cfg.ignorePatterns || []), 'infra/charts/imports/**'];
 cfg.overrides = [
   ...(cfg.overrides || []),
   {
-    files: ['infra/charts/**/*.ts'],
+    files: ['infra/charts/imports/**/*.ts'],
     rules: {
       'prettier/prettier': 'off',
     },
