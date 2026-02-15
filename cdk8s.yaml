@@ -3,3 +3,6 @@ language: typescript
 imports:
   - https://raw.githubusercontent.com/aws/karpenter/main/pkg/apis/crds/karpenter.sh_provisioners.yaml
   - https://raw.githubusercontent.com/aws/karpenter/main/pkg/apis/crds/karpenter.k8s.aws_awsnodetemplates.yaml
+  - https://raw.githubusercontent.com/argoproj/argo-events/refs/tags/v1.9.10/manifests/base/crds/argoproj.io_eventbus.yaml
+  - https://raw.githubusercontent.com/argoproj/argo-events/refs/tags/v1.9.10/manifests/base/crds/argoproj.io_eventsources.yaml
+  - https://raw.githubusercontent.com/argoproj/argo-events/refs/tags/v1.9.10/manifests/base/crds/argoproj.io_sensors.yaml

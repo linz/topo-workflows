@@ -101,6 +101,8 @@ async function main(): Promise<void> {
 
   new ArgoEvents(app, 'argo-events', {
     namespace: 'argo-events',
+    saName: cfnOutputs[CfnOutputKeys.ArgoEventsServiceAccountName],
+    sqsPublishQueueName: getNameFromArn(cfnOutputs[CfnOutputKeys.ScratchPublishSqsQueueArn]),
   });
 
   new ArgoExtras(app, 'argo-extras', {
@@ -130,6 +132,10 @@ async function main(): Promise<void> {
   new EventExporter(app, 'event-exporter', { namespace: 'event-exporter' });
 
   app.synth();
+}
+
+function getNameFromArn(arn: string): string {
+  return arn.split(':').pop()!;
 }
 
 void main();
