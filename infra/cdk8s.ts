@@ -102,7 +102,7 @@ async function main(): Promise<void> {
   new ArgoEvents(app, 'argo-events', {
     namespace: 'argo-events',
     saName: cfnOutputs[CfnOutputKeys.ArgoEventsServiceAccountName],
-    sqsQueueName: getNameFromArn(cfnOutputs[CfnOutputKeys.ScratchPublishSqsQueueArn]),
+    sqsPublishQueueName: getNameFromArn(cfnOutputs[CfnOutputKeys.ScratchPublishSqsQueueArn]),
   });
 
   new ArgoExtras(app, 'argo-extras', {
