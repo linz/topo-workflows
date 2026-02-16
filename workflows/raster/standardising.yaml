@@ -350,6 +350,8 @@ spec:
       inputs:
         parameters:
           - name: source
+          - name: rgb_odr_url
+            default: ''
       dag:
         tasks:
           - name: stac-collection-output
@@ -406,6 +408,8 @@ spec:
                   value: '{{=sprig.trim(workflow.parameters.historic_survey_number)}}'
                 - name: odr_url
                   value: '{{=sprig.trim(workflow.parameters.odr_url)}}'
+                - name: rgb_odr_url
+                  value: '{{=sprig.trim(workflow.parameters.rgb_odr_url)}}'
                 - name: version
                   value: '{{=sprig.trim(workflow.parameters.version_argo_tasks)}}'
             depends: tile-index-validate
