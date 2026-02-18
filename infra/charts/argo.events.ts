@@ -165,7 +165,11 @@ export class ArgoEvents extends Chart {
                       arguments: {
                         parameters: [
                           {
-                            name: 'message',
+                            name: 'bucket',
+                            value: '',
+                          },
+                          {
+                            name: 'collection_key',
                             value: '',
                           },
                         ],
@@ -180,9 +184,16 @@ export class ArgoEvents extends Chart {
                   {
                     src: {
                       dependencyName: 'publish-odr',
-                      dataKey: 'body',
+                      dataKey: 'body.Records.0.s3.bucket.name',
                     },
                     dest: 'spec.arguments.parameters.0.value',
+                  },
+                  {
+                    src: {
+                      dependencyName: 'publish-odr',
+                      dataKey: 'body.Records.0.s3.object.key',
+                    },
+                    dest: 'spec.arguments.parameters.1.value',
                   },
                 ],
               },
