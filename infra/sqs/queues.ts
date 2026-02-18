@@ -9,7 +9,7 @@ import { CfnOutputKeys, ScratchBucketName } from '../constants.ts';
 
 export class SqsQueues extends Stack {
   /** SQS Queue for Argo Events to use to receive file creation events from Argo Workflows scratch bucket */
-  scratchPublishSqsQueue: Queue;
+  scratchCopyOdrSqsQueue: Queue;
   constructor(scope: Construct, id: string, props: StackProps) {
     super(scope, id, props);
 
@@ -17,12 +17,12 @@ export class SqsQueues extends Stack {
       bucketName: ScratchBucketName,
     });
 
-    this.scratchPublishSqsQueue = new Queue(this, `${ScratchBucketName}-publish-queue`, {
+    this.scratchCopyOdrSqsQueue = new Queue(this, `${ScratchBucketName}-copy-odr-queue`, {
       visibilityTimeout: Duration.seconds(30),
-      queueName: `${ScratchBucketName}-publish-queue`,
+      queueName: `${ScratchBucketName}-copy-odr-queue`,
     });
-    this.scratchPublishSqsQueue.applyRemovalPolicy(RemovalPolicy.RETAIN);
-    this.scratchPublishSqsQueue.grantSendMessages(
+    this.scratchCopyOdrSqsQueue.applyRemovalPolicy(RemovalPolicy.RETAIN);
+    this.scratchCopyOdrSqsQueue.grantSendMessages(
       new ServicePrincipal('s3.amazonaws.com', {
         conditions: {
           ArnLike: { 'aws:SourceArn': scratchBucket.bucketArn },
@@ -30,14 +30,14 @@ export class SqsQueues extends Stack {
       }),
     );
 
-    scratchBucket.addEventNotification(EventType.OBJECT_CREATED, new SqsDestination(this.scratchPublishSqsQueue), {
-      prefix: 'to-publish/',
-      suffix: 'publish-config.json',
+    scratchBucket.addEventNotification(EventType.OBJECT_CREATED, new SqsDestination(this.scratchCopyOdrSqsQueue), {
+      prefix: 'copy-odr/',
+      suffix: 'copy-config.json',
     });
 
-    new CfnOutput(this, CfnOutputKeys.ScratchPublishSqsQueueArn, {
-      value: this.scratchPublishSqsQueue.queueArn,
-      exportName: CfnOutputKeys.ScratchPublishSqsQueueArn,
+    new CfnOutput(this, CfnOutputKeys.ScratchCopyOdrSqsQueueArn, {
+      value: this.scratchCopyOdrSqsQueue.queueArn,
+      exportName: CfnOutputKeys.ScratchCopyOdrSqsQueueArn,
     });
   }
 }
