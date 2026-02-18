@@ -3,7 +3,7 @@
 apiVersion: argoproj.io/v1alpha1
 kind: WorkflowTemplate
 metadata:
-  name: topographic-map-produce
+  name: test-topographic-map-produce
   labels:
     linz.govt.nz/category: topo-maps
     linz.govt.nz/data-type: raster
@@ -17,19 +17,23 @@ spec:
     parameters:
       - name: version_map_cli
         description: Version of the map produce CLI docker container to use
-        value: 'v0.3.0'
+        value: 'pr-47'
 
       - name: version_argo_tasks
         description: Version of the Argo Tasks CLI docker container to use
         value: 'v5'
 
-      - name: source
-        description: Path or s3 of source parquet vector layers to use for generate map sheets.
-        value: 's3://linz-topography-nonprod/topo/test/2025-12-01/'
-
       - name: project
         description: Path or s3 of QGIS Project to use for generate map sheets.
-        value: 's3://linz-topography-nonprod/qgis/latest/topo50map/topo50-map.qgs'
+        value: 's3://linz-topography-nonprod/qgis/latest/nztopo50map/nz-topo50-map.json'
+
+      - name: layout
+        description: Qgis project Layout name to use for export.
+        value: 'tiff-50'
+
+      - name: map_sheet_layer
+        description: Topo Map Sheet Layer name to use.
+        value: 'nz_topo50_map_sheet'
 
       - name: output
         description: Path or s3 of the output directory to write generated map sheets.
@@ -70,8 +74,8 @@ spec:
                   value: '{{ workflow.parameters.version_map_cli }}'
                 - name: project
                   value: '{{ workflow.parameters.project }}'
-                - name: source
-                  value: '{{ workflow.parameters.source }}'
+                - name: map_sheet_layer
+                  value: '{{ workflow.parameters.map_sheet_layer }}'
 
           - name: group
             templateRef:
@@ -96,10 +100,12 @@ spec:
               parameters:
                 - name: version_map_cli
                   value: '{{ workflow.parameters.version_map_cli }}'
-                - name: source
-                  value: '{{ workflow.parameters.source }}'
                 - name: project
                   value: '{{ workflow.parameters.project }}'
+                - name: layout
+                  value: '{{ workflow.parameters.layout }}'
+                - name: map_sheet_layer
+                  value: '{{ workflow.parameters.map_sheet_layer }}'
                 - name: output
                   value: '{{ tasks.get-location.outputs.parameters.location }}'
                 - name: format
@@ -145,7 +151,7 @@ spec:
         parameters:
           - name: version_map_cli
           - name: project
-          - name: source
+          - name: map_sheet_layer
       outputs:
         artifacts:
           - name: mapsheets
@@ -158,7 +164,7 @@ spec:
         args:
           - 'list-mapsheets'
           - '--project={{ inputs.parameters.project }}'
-          - '--source={{ inputs.parameters.source }}'
+          - '--map-sheet-layer={{ inputs.parameters.map_sheet_layer }}'
 
     - name: produce
       inputs:
@@ -167,8 +173,9 @@ spec:
             path: /tmp/group/grouped/
         parameters:
           - name: version_map_cli
-          - name: source
           - name: project
+          - name: layout
+          - name: map_sheet_layer
           - name: output
           - name: format
           - name: dpi
@@ -186,7 +193,8 @@ spec:
         args:
           - 'produce'
           - '--project={{ inputs.parameters.project }}'
-          - '--source={{ inputs.parameters.source }}'
+          - '--layout={{ inputs.parameters.layout }}'
+          - '--map-sheet-layer={{ inputs.parameters.map_sheet_layer }}'
           - '--output={{ inputs.parameters.output }}'
           - '--format={{ inputs.parameters.format }}'
           - '--dpi={{ inputs.parameters.dpi }}'
