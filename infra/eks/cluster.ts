@@ -272,7 +272,7 @@ export class LinzEksCluster extends Stack {
   }
 
   createArgoEventsServiceAccount(): void {
-    const sqsPublishQueueArn = Fn.importValue(CfnOutputKeys.ScratchPublishSqsQueueArn);
+    const sqsCopyOdrQueueArn = Fn.importValue(CfnOutputKeys.ScratchCopyOdrSqsQueueArn);
     const argoEventsNamespaceName = 'argo-events';
     const argoEventsSaName = 'event-sa';
     const argoEventsNs = this.cluster.addManifest('ArgoEventsNameSpace', {
@@ -289,7 +289,7 @@ export class LinzEksCluster extends Stack {
     argoEventsSa.role.addToPrincipalPolicy(
       new PolicyStatement({
         actions: ['sqs:GetQueueUrl', 'sqs:ReceiveMessage', 'sqs:DeleteMessage', 'sqs:GetQueueAttributes'],
-        resources: [sqsPublishQueueArn],
+        resources: [sqsCopyOdrQueueArn],
       }),
     );
 
