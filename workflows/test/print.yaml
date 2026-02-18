@@ -13,8 +13,8 @@ spec:
       inputs:
         parameters:
           - name: bucket
-          - name: collection_key
+          - name: config_key
       container:
         image: 019359803926.dkr.ecr.ap-southeast-2.amazonaws.com/topo-imagery:latest
         command: [echo]
-        args: ['{{inputs.parameters.bucket}}', '{{inputs.parameters.collection_key}}']
+        args: ['{{inputs.parameters.bucket}}', '{{inputs.parameters.config_key}}']

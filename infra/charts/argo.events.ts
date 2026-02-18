@@ -169,7 +169,7 @@ export class ArgoEvents extends Chart {
                             value: '',
                           },
                           {
-                            name: 'collection_key',
+                            name: 'config_key',
                             value: '',
                           },
                         ],
