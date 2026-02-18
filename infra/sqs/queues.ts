@@ -32,7 +32,7 @@ export class SqsQueues extends Stack {
 
     scratchBucket.addEventNotification(EventType.OBJECT_CREATED, new SqsDestination(this.scratchPublishSqsQueue), {
       prefix: 'to-publish/',
-      suffix: 'collection.json',
+      suffix: 'publish-config.json',
     });
 
     new CfnOutput(this, CfnOutputKeys.ScratchPublishSqsQueueArn, {
