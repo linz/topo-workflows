@@ -29,6 +29,7 @@ export const CfnOutputKeys = {
   ArgoDbSecurityGroupId: `ArgoDbSecurityGroupId${environmentSuffix}`,
 
   ScratchCopyOdrSqsQueueArn: `ScratchCopyOdrSqsQueueArn${environmentSuffix}`,
+  ScratchPublishSqsQueueArn: `ScratchPublishSqsQueueArn${environmentSuffix}`,
 
   KarpenterServiceAccountName: 'KarpenterServiceAccountName',
   KarpenterServiceAccountRoleArn: 'KarpenterServiceAccountRoleArn',

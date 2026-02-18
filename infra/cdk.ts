@@ -56,7 +56,7 @@ async function main(): Promise<void> {
   });
 
   cluster.addDependency(argoDbStack);
-  cluster.addDependency(sqsQueuesStack);
+  // cluster.addDependency(sqsQueuesStack);
 
   applyTags(cluster, {
     application: 'argo',
