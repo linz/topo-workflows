@@ -17,15 +17,19 @@ spec:
     parameters:
       - name: version_map_produce_cli
         description: Version of the map produce CLI docker container to use
-        value: 'v0.3.0'
-
-      - name: source
-        description: Path or s3 of source parquet vector layers to use for generate map sheets.
-        value: 's3://linz-topography-nonprod/topo/test/2025-12-01/'
+        value: 'latest'
 
       - name: project
         description: Path or s3 of QGIS Project to use for generate map sheets.
-        value: 's3://linz-topography-nonprod/qgis/latest/topo50map/topo50-map.qgs'
+        value: 's3://linz-topography-nonprod/qgis/latest/nztopo50map/nz-topo50-map.json'
+
+      - name: layout
+        description: Qgis project Layout name to use for export.
+        value: 'tiff-50'
+
+      - name: map_sheet_layer
+        description: Topo Map Sheet Layer name to use.
+        value: 'nz_topo50_map_sheet'
 
       - name: output
         description: Path or s3 of the output directory to write generated map sheets.
@@ -53,10 +57,12 @@ spec:
         parameters:
           - name: version_map_produce_cli
             value: '{{ workflow.parameters.version_map_produce_cli }}'
-          - name: source
-            value: '{{ workflow.parameters.source }}'
           - name: project
             value: '{{ workflow.parameters.project }}'
+          - name: layout
+            value: '{{ workflow.parameters.layout }}'
+          - name: map_sheet_layer
+            value: '{{ workflow.parameters.map_sheet_layer }}'
           - name: output
             value: '{{ workflow.parameters.output }}'
           - name: format
@@ -75,10 +81,12 @@ spec:
               parameters:
                 - name: version_map_produce_cli
                   value: '{{ inputs.parameters.version_map_produce_cli }}'
-                - name: source
-                  value: '{{ inputs.parameters.source }}'
                 - name: project
                   value: '{{ inputs.parameters.project }}'
+                - name: layout
+                  value: '{{ inputs.parameters.layout }}'
+                - name: map_sheet_layer
+                  value: '{{ inputs.parameters.map_sheet_layer }}'
                 - name: output
                   value: '{{ inputs.parameters.output }}'
                 - name: format
@@ -92,8 +100,9 @@ spec:
       inputs:
         parameters:
           - name: version_map_produce_cli
-          - name: source
           - name: project
+          - name: layout
+          - name: map_sheet_layer
           - name: output
           - name: format
           - name: dpi
@@ -108,4 +117,4 @@ spec:
         args:
           - |
             echo '{{ inputs.parameters.map-sheets }}' > map-sheets.json
-            node src/index.ts produce --from-file=map-sheets.json --source='{{ inputs.parameters.source }}' --project='{{ inputs.parameters.project }}' --output='{{ inputs.parameters.output }}' --format='{{ inputs.parameters.format }}' --dpi='{{ inputs.parameters.dpi }}'
+            node src/index.ts produce --from-file=map-sheets.json --project='{{ inputs.parameters.project }}' --layout='{{ inputs.parameters.layout }}' --map-sheet-layer='{{ inputs.parameters.map_sheet_layer }}' --output='{{ inputs.parameters.output }}' --format='{{ inputs.parameters.format }}' --dpi='{{ inputs.parameters.dpi }}'
