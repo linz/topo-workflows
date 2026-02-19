@@ -3,7 +3,7 @@
 apiVersion: argoproj.io/v1alpha1
 kind: WorkflowTemplate
 metadata:
-  name: test-topographic-map-produce
+  name: topographic-map-produce
   labels:
     linz.govt.nz/category: topo-maps
     linz.govt.nz/data-type: raster
@@ -17,7 +17,7 @@ spec:
     parameters:
       - name: version_map_cli
         description: Version of the map produce CLI docker container to use
-        value: 'pr-47'
+        value: 'latest'
 
       - name: version_argo_tasks
         description: Version of the Argo Tasks CLI docker container to use
