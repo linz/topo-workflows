@@ -49,6 +49,13 @@ spec:
           - 'topo50'
           - 'topo250'
 
+      - name: format
+        description: gridded or gridless
+        value: 'gridless'
+        enum:
+          - 'gridded'
+          - 'gridless'
+
       - name: latest_only
         description: Only process the latest version of each map sheet
         value: 'false'
@@ -105,6 +112,7 @@ spec:
           - name: source
           - name: target
           - name: map_series
+          - name: format
           - name: latest_only
           - name: group_size
       dag:
@@ -125,6 +133,8 @@ spec:
                   value: '{{ tasks.get-location.outputs.parameters.location }}'
                 - name: map_series
                   value: '{{ inputs.parameters.map_series }}'
+                - name: format
+                  value: '{{ inputs.parameters.format }}'
                 - name: latest-only
                   value: '{{ inputs.parameters.latest_only }}'
             depends: get-location
@@ -263,6 +273,7 @@ spec:
           - name: source
           - name: target
           - name: map_series
+          - name: format
           - name: latest-only
       container:
         image: ghcr.io/linz/basemaps/cli:{{ workflow.parameters.version_basemaps_cli }}
@@ -275,6 +286,7 @@ spec:
           - 'topo'
           - '--target={{ inputs.parameters.target }}'
           - '--map-series={{ inputs.parameters.map_series }}'
+          - '--format={{ inputs.parameters.format }}'
           - '--latest-only={{ inputs.parameters.latest-only }}'
           - '{{ inputs.parameters.source }}'
       outputs:
