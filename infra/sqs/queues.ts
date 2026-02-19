@@ -9,6 +9,7 @@ import { CfnOutputKeys, ScratchBucketName } from '../constants.ts';
 
 export class SqsQueues extends Stack {
   /** SQS Queue for Argo Events to use to receive file creation events from Argo Workflows scratch bucket */
+  scratchCopyOdrSqsQueue: Queue;
   scratchPublishSqsQueue: Queue;
   constructor(scope: Construct, id: string, props: StackProps) {
     super(scope, id, props);
@@ -16,6 +17,19 @@ export class SqsQueues extends Stack {
     const scratchBucket = Bucket.fromBucketAttributes(this, 'ScratchBucket', {
       bucketName: ScratchBucketName,
     });
+
+    this.scratchCopyOdrSqsQueue = new Queue(this, `${ScratchBucketName}-copy-odr-queue`, {
+      visibilityTimeout: Duration.seconds(30),
+      queueName: `${ScratchBucketName}-copy-odr-queue`,
+    });
+    this.scratchCopyOdrSqsQueue.applyRemovalPolicy(RemovalPolicy.RETAIN);
+    this.scratchCopyOdrSqsQueue.grantSendMessages(
+      new ServicePrincipal('s3.amazonaws.com', {
+        conditions: {
+          ArnLike: { 'aws:SourceArn': scratchBucket.bucketArn },
+        },
+      }),
+    );
 
     this.scratchPublishSqsQueue = new Queue(this, `${ScratchBucketName}-publish-queue`, {
       visibilityTimeout: Duration.seconds(30),
@@ -30,9 +44,14 @@ export class SqsQueues extends Stack {
       }),
     );
 
-    scratchBucket.addEventNotification(EventType.OBJECT_CREATED, new SqsDestination(this.scratchPublishSqsQueue), {
-      prefix: 'to-publish/',
-      suffix: 'collection.json',
+    scratchBucket.addEventNotification(EventType.OBJECT_CREATED, new SqsDestination(this.scratchCopyOdrSqsQueue), {
+      prefix: 'copy-odr/',
+      suffix: 'copy-config.json',
+    });
+
+    new CfnOutput(this, CfnOutputKeys.ScratchCopyOdrSqsQueueArn, {
+      value: this.scratchCopyOdrSqsQueue.queueArn,
+      exportName: CfnOutputKeys.ScratchCopyOdrSqsQueueArn,
     });
 
     new CfnOutput(this, CfnOutputKeys.ScratchPublishSqsQueueArn, {
