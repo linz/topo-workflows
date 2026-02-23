@@ -170,6 +170,8 @@ spec:
                   value: '2193'
                 - name: target_epsg
                   value: '2193'
+                - name: simplify_footprints
+                  value: '{{=workflow.parameters.domain == "coastal" ? "true" : "false"}}'
                 - name: version_topo_imagery
                   value: '{{= workflow.parameters.version_topo_imagery}}'
               artifacts:
@@ -208,6 +210,8 @@ spec:
                   value: 'Toitū Te Whenua Land Information New Zealand'
                 - name: licensor
                   value: 'Toitū Te Whenua Land Information New Zealand'
+                - name: simplified_capture_area
+                  value: '{{=workflow.parameters.domain == "coastal" ? "true" : "false"}}'
                 - name: create_capture_dates
                   value: 'true'
                 - name: keep_title
