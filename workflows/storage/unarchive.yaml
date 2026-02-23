@@ -43,6 +43,9 @@ spec:
       - name: archive_directory
         description: 'The directory in the archive bucket where the data to unarchive is stored. Does not include the bucket name. Example: "aerialsurveys/Invercargill2022_Pgrm3016/".'
         value: ''
+      - name: include
+        description: Regular expression pattern match for paths/files to include
+        value: '.*'
       - name: consumer
         description: 'The consumer for who the data is being unarchived. The unarchive data will be copied to the consumer shared location.'
         value: 'linz'
@@ -85,7 +88,7 @@ spec:
                 - name: action_location
                   value: '{{=sprig.trimSuffix("/", tasks["get-location"].outputs.parameters.location)}}/actions/'
                 - name: include
-                  value: '.*'
+                  value: '{{workflow.parameters.include}}'
                 - name: group
                   value: '{{workflow.parameters.group}}'
                 - name: group_size
