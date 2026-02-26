@@ -12,7 +12,7 @@ const StacFilter = SubscriptionFilter.stringFilter({
 
 const BucketEvents = [
   { arn: 'arn:aws:sns:ap-southeast-2:838278294040:nz-imagery-object_created', filter: StacFilter },
-  { arn: 'arn:aws:sns:ap-southeast-2:838278294040:nz-topography-object_created', filter: StacFilter },
+  { arn: 'arn:aws:sns:ap-southeast-2:838278294040:nz-elevation-object_created', filter: StacFilter },
 ];
 
 export class SqsQueues extends Stack {
