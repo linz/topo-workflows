@@ -237,7 +237,6 @@ spec:
             - '--format={{ inputs.parameters.format }}'
             - '--dpi={{ inputs.parameters.dpi }}'
             - '--output={{ inputs.parameters.output }}'
-            
 
     - name: produce
       inputs:
