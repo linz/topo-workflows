@@ -3,7 +3,7 @@
 apiVersion: argoproj.io/v1alpha1
 kind: WorkflowTemplate
 metadata:
-  name: topographic-map-produce
+  name: test-topographic-map-produce-v2
   labels:
     linz.govt.nz/category: topo-maps
     linz.govt.nz/data-type: raster
@@ -17,19 +17,45 @@ spec:
     parameters:
       - name: version_map_cli
         description: Version of the map produce CLI docker container to use
-        value: 'v0.3.0'
+        value: 'pr-51'
 
       - name: version_argo_tasks
         description: Version of the Argo Tasks CLI docker container to use
         value: 'v5'
 
-      - name: source
-        description: Path or s3 of source parquet vector layers to use for generate map sheets.
-        value: 's3://linz-topography-nonprod/topo/test/2025-12-01/'
-
       - name: project
         description: Path or s3 of QGIS Project to use for generate map sheets.
-        value: 's3://linz-topography-nonprod/qgis/latest/topo50map/topo50-map.qgs'
+        value: 's3://linz-topography-nonprod/qgis/latest/nztopo50map/nz-topo50-map.json'
+      
+      - name: map_sheets
+        description: Map Sheet Codes to process, json array.
+        value: '["AX29", "AX30", "AX31"]'
+
+      - name: produce_all
+        description: produce all the map sheets if true.
+        value: 'false'
+        enum:
+          - 'true'
+          - 'false'
+
+      - name: layout
+        description: Qgis project Layout name to use for export.
+        value: 'tiff-50'
+
+      - name: map_sheet_layer
+        description: Topo Map Sheet Layer name to use.
+        value: 'nz_topo50_map_sheet'
+
+      - name: data_tags
+        description: Comma separated list of data tags to override the existing data from project, for example, 'airport/pull_request/pr-18/,contours/pull_request/pr-18/'.
+        value: ''
+
+      - name: source
+        description: Source data location that contains the data from data_tags.
+        value: 's3://linz-topography-nonprod/data/catalog.json'
+        enum:
+          - 's3://linz-topography-nonprod/data/catalog.json'
+          - 's3://linz-topography/data/catalog.json'
 
       - name: output
         description: Path or s3 of the output directory to write generated map sheets.
@@ -62,22 +88,46 @@ spec:
               name: tpl-get-location
               template: main
 
-          - name: list-mapsheets
-            template: list-mapsheets
+          - name: generate-map-sheets
+            template: generate-map-sheets
+            arguments:
+              parameters:
+                - name: map_sheets
+                  value: '{{ workflow.parameters.map_sheets }}'
+
+          - name: map-produce-cover
+            template: map-produce-cover
+            depends: generate-map-sheets && get-location
             arguments:
               parameters:
                 - name: version_map_cli
                   value: '{{ workflow.parameters.version_map_cli }}'
                 - name: project
                   value: '{{ workflow.parameters.project }}'
+                - name: map_sheets
+                  value: '{{ workflow.parameters.map_sheets }}'
+                - name: produce_all
+                  value: '{{ workflow.parameters.produce_all }}'
+                - name: layout
+                  value: '{{ workflow.parameters.layout }}'
+                - name: map_sheet_layer
+                  value: '{{ workflow.parameters.map_sheet_layer }}'
+                - name: data_tags
+                  value: '{{ workflow.parameters.data_tags }}'
                 - name: source
                   value: '{{ workflow.parameters.source }}'
+                - name: format
+                  value: '{{ workflow.parameters.format }}'
+                - name: dpi
+                  value: '{{ workflow.parameters.dpi }}'
+                - name: output
+                  value: '{{ tasks.get-location.outputs.parameters.location }}'
+              artifacts:
+                - name: map-sheets-json
+                  from: '{{ tasks.generate-map-sheets.outputs.artifacts.map-sheets-json }}'
 
+          # Group covering output into chunks to pass to create-cog
           - name: group
-            templateRef:
-              name: tpl-at-group
-              template: main
-            depends: list-mapsheets
             arguments:
               parameters:
                 - name: size
@@ -86,7 +136,11 @@ spec:
                   value: '{{= workflow.parameters.version_argo_tasks }}'
               artifacts:
                 - name: input
-                  from: '{{ tasks.list-mapsheets.outputs.artifacts.mapsheets }}'
+                  from: '{{ tasks.map-produce-cover.outputs.artifacts.cover-items }}'
+            templateRef:
+              name: tpl-at-group
+              template: main
+            depends: map-produce-cover
 
           - name: produce
             template: produce
@@ -96,16 +150,6 @@ spec:
               parameters:
                 - name: version_map_cli
                   value: '{{ workflow.parameters.version_map_cli }}'
-                - name: source
-                  value: '{{ workflow.parameters.source }}'
-                - name: project
-                  value: '{{ workflow.parameters.project }}'
-                - name: output
-                  value: '{{ tasks.get-location.outputs.parameters.location }}'
-                - name: format
-                  value: '{{ workflow.parameters.format }}'
-                - name: dpi
-                  value: '{{ workflow.parameters.dpi }}'
                 - name: grouped_id
                   value: '{{ item }}'
               artifacts:
@@ -140,25 +184,59 @@ spec:
                   value: s3://linz-bucket-config/config-write.topography.json
             depends: produce
 
-    - name: list-mapsheets
+
+    - name: generate-map-sheets
+      inputs:
+        parameters:
+          - name: map_sheets
+      outputs:
+        artifacts:
+          - name: map-sheets-json
+            path: /tmp/map-sheets.json
+      container:
+        image: alpine:latest
+        command: [sh, -c]
+        args:
+          - |
+            echo '{{ inputs.parameters.map_sheets }}' > /tmp/map-sheets.json
+
+    - name: map-produce-cover
       inputs:
         parameters:
           - name: version_map_cli
           - name: project
+          - name: map_sheets
+          - name: produce_all
+          - name: layout
+          - name: map_sheet_layer
+          - name: data_tags
           - name: source
+          - name: format
+          - name: dpi
+          - name: output
+        artifacts:
+          - name: map-sheets-json
+            path: /tmp/map-sheets.json
       outputs:
         artifacts:
-          - name: mapsheets
-            path: /tmp/mapsheets.json
+          - name: cover-items
+            path: /tmp/produce/cover-items.json
       container:
         image: ghcr.io/linz/topographic-system/map:{{ inputs.parameters.version_map_cli }}
         env:
           - name: AWS_ROLE_CONFIG_PATH
             value: s3://linz-bucket-config/config-write.topography.json
         args:
-          - 'list-mapsheets'
-          - '--project={{ inputs.parameters.project }}'
-          - '--source={{ inputs.parameters.source }}'
+            - 'produce-cover'
+            - '--project={{ inputs.parameters.project }}'
+            - '--all={{ inputs.parameters.produce_all }}'
+            - '--layout={{ inputs.parameters.layout }}'
+            - '--from-file=/tmp/map-sheets.json'
+            - "{{= sprig.empty(inputs.parameters.data_tags) ? '' : '--data-tags=' + inputs.parameters.data_tags }}"
+            - '--source={{ inputs.parameters.source }}'
+            - '--format={{ inputs.parameters.format }}'
+            - '--dpi={{ inputs.parameters.dpi }}'
+            - '--output={{ inputs.parameters.output }}'
 
     - name: produce
       inputs:
@@ -167,11 +245,6 @@ spec:
             path: /tmp/group/grouped/
         parameters:
           - name: version_map_cli
-          - name: source
-          - name: project
-          - name: output
-          - name: format
-          - name: dpi
           - name: grouped_id
       container:
         image: ghcr.io/linz/topographic-system/map:{{ inputs.parameters.version_map_cli }}
@@ -185,9 +258,4 @@ spec:
             value: s3://linz-bucket-config/config-write.topography.json
         args:
           - 'produce'
-          - '--project={{ inputs.parameters.project }}'
-          - '--source={{ inputs.parameters.source }}'
-          - '--output={{ inputs.parameters.output }}'
-          - '--format={{ inputs.parameters.format }}'
-          - '--dpi={{ inputs.parameters.dpi }}'
           - '--from-file={{= inputs.artifacts.grouped.path }}{{inputs.parameters.grouped_id}}.json'
