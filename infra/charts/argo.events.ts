@@ -21,7 +21,7 @@ export interface ArgoEventsProps {
    *
    * @example "linz-workflows-scratch-publish-odr-queue"
    */
-  sqsPublishQueueName: string;
+  objectCreatedQueueName: string;
 }
 
 /**
@@ -122,19 +122,19 @@ export class ArgoEvents extends Chart {
           serviceAccountName: props.saName,
         },
         sqs: {
-          'publish-odr': {
+          'object-created': {
             jsonBody: true,
             region: 'ap-southeast-2',
-            queue: props.sqsPublishQueueName,
+            queue: props.objectCreatedQueueName,
             waitTimeSeconds: 20,
           },
         },
       },
     });
 
-    new Sensor(this, 'WfPublishOdrSensor', {
+    new Sensor(this, 'WfObjectCreatedSensor', {
       metadata: {
-        name: 'wf-publish-odr',
+        name: 'wf-object-created',
       },
       spec: {
         template: {
@@ -142,15 +142,15 @@ export class ArgoEvents extends Chart {
         },
         dependencies: [
           {
-            name: 'publish-odr',
-            eventSourceName: 'aws-sqs-publish-odr',
-            eventName: 'publish-odr',
+            name: 'object-created',
+            eventSourceName: 'aws-sqs-object-created',
+            eventName: 'object-created',
           },
         ],
         triggers: [
           {
             template: {
-              name: 'trigger-wf-publish-odr',
+              name: 'trigger-wf-object-created',
               argoWorkflow: {
                 operation: 'submit',
                 source: {
