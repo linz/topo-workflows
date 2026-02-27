@@ -1,43 +1,40 @@
-import { CfnOutput, Duration, RemovalPolicy, Stack, StackProps } from 'aws-cdk-lib';
-import { ServicePrincipal } from 'aws-cdk-lib/aws-iam';
-import { Bucket, EventType } from 'aws-cdk-lib/aws-s3';
-import { SqsDestination } from 'aws-cdk-lib/aws-s3-notifications';
+import { CfnOutput, Duration, Stack, StackProps } from 'aws-cdk-lib';
+import { SubscriptionFilter, Topic } from 'aws-cdk-lib/aws-sns';
+import { SqsSubscription } from 'aws-cdk-lib/aws-sns-subscriptions';
 import { Queue } from 'aws-cdk-lib/aws-sqs';
 import { Construct } from 'constructs';
 
-import { CfnOutputKeys, ScratchBucketName } from '../constants.ts';
+import { CfnOutputKeys } from '../constants.ts';
+
+const StacFilter = SubscriptionFilter.stringFilter({
+  matchSuffixes: ['collection.json', 'catalog.json'],
+});
+
+const BucketEvents = [
+  { arn: 'arn:aws:sns:ap-southeast-2:838278294040:nz-imagery-object_created', filter: StacFilter },
+  { arn: 'arn:aws:sns:ap-southeast-2:838278294040:nz-elevation-object_created', filter: StacFilter },
+];
 
 export class SqsQueues extends Stack {
-  /** SQS Queue for Argo Events to use to receive file creation events from Argo Workflows scratch bucket */
-  scratchPublishSqsQueue: Queue;
+  /** SQS Queue for Argo Events to use to receive file creation events from public sources */
+  objectCreated: Queue;
   constructor(scope: Construct, id: string, props: StackProps) {
     super(scope, id, props);
 
-    const scratchBucket = Bucket.fromBucketAttributes(this, 'ScratchBucket', {
-      bucketName: ScratchBucketName,
-    });
-
-    this.scratchPublishSqsQueue = new Queue(this, `${ScratchBucketName}-publish-queue`, {
+    this.objectCreated = new Queue(this, `object-created-events`, {
       visibilityTimeout: Duration.seconds(30),
-      queueName: `${ScratchBucketName}-publish-queue`,
-    });
-    this.scratchPublishSqsQueue.applyRemovalPolicy(RemovalPolicy.RETAIN);
-    this.scratchPublishSqsQueue.grantSendMessages(
-      new ServicePrincipal('s3.amazonaws.com', {
-        conditions: {
-          ArnLike: { 'aws:SourceArn': scratchBucket.bucketArn },
-        },
-      }),
-    );
-
-    scratchBucket.addEventNotification(EventType.OBJECT_CREATED, new SqsDestination(this.scratchPublishSqsQueue), {
-      prefix: 'to-publish/',
-      suffix: 'collection.json',
+      retentionPeriod: Duration.days(7),
+      queueName: `object-created-events`,
     });
 
-    new CfnOutput(this, CfnOutputKeys.ScratchPublishSqsQueueArn, {
-      value: this.scratchPublishSqsQueue.queueArn,
-      exportName: CfnOutputKeys.ScratchPublishSqsQueueArn,
+    for (const source of BucketEvents) {
+      const topic = Topic.fromTopicArn(this, `topic-${source.arn.split(':').at(-1)}`, source.arn);
+      topic.addSubscription(new SqsSubscription(this.objectCreated, { filterPolicy: { key: source.filter } }));
+    }
+
+    new CfnOutput(this, CfnOutputKeys.ObjectCreatedSqsQueueArn, {
+      value: this.objectCreated.queueArn,
+      exportName: CfnOutputKeys.ObjectCreatedSqsQueueArn,
     });
   }
 }
