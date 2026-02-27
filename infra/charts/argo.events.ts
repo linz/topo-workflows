@@ -113,9 +113,9 @@ export class ArgoEvents extends Chart {
       },
     });
 
-    new EventSource(this, 'AwsSqsPublishOdrEventSource', {
+    new EventSource(this, 'AwsSqsObjectCreatedEventSource', {
       metadata: {
-        name: 'aws-sqs-publish-odr',
+        name: 'aws-sqs-object-created',
       },
       spec: {
         template: {
