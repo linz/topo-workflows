@@ -13,6 +13,12 @@ const StacFilter = SubscriptionFilter.stringFilter({
 const BucketEvents = [
   { arn: 'arn:aws:sns:ap-southeast-2:838278294040:nz-imagery-object_created', filter: StacFilter },
   { arn: 'arn:aws:sns:ap-southeast-2:838278294040:nz-elevation-object_created', filter: StacFilter },
+
+  // Listen for basemaps configuration changes to happen
+  {
+    arn: 'arn:aws:sns:ap-southeast-2:413910103162:linz-basemaps-object_created',
+    filter: SubscriptionFilter.stringFilter({ matchPrefixes: ['config/'] }),
+  },
 ];
 
 export class SqsQueues extends Stack {
