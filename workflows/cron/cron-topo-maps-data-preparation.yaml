@@ -2,7 +2,7 @@
 apiVersion: argoproj.io/v1alpha1
 kind: CronWorkflow
 metadata:
-  name: cron-topo-maps-data-preparation
+  name: cron-topographic-data-preparation
   labels:
     linz.govt.nz/category: topo-maps
     linz.govt.nz/data-type: raster
@@ -21,7 +21,7 @@ spec:
         linz.govt.nz/category: topo-maps
         linz.govt.nz/data-type: raster
     workflowTemplateRef:
-      name: topo-maps-data-preparation
+      name: topographic-data-preparation
     arguments:
       parameters:
         - name: 'contour'
