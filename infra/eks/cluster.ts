@@ -272,7 +272,7 @@ export class LinzEksCluster extends Stack {
   }
 
   createArgoEventsServiceAccount(): void {
-    const sqsPublishQueueArn = Fn.importValue(CfnOutputKeys.ScratchPublishSqsQueueArn);
+    const sqsPublishQueueArn = Fn.importValue(CfnOutputKeys.ObjectCreatedSqsQueueArn);
     const argoEventsNamespaceName = 'argo-events';
     const argoEventsSaName = 'event-sa';
     const argoEventsNs = this.cluster.addManifest('ArgoEventsNameSpace', {
