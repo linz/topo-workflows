@@ -1,0 +1,80 @@
+# yaml-language-server: $schema=https://raw.githubusercontent.com/argoproj/argo-workflows/v3.6.12/api/jsonschema/schema.json
+
+apiVersion: argoproj.io/v1alpha1
+kind: WorkflowTemplate
+metadata:
+  name: test-topographic-data-preparation
+  labels:
+    linz.govt.nz/category: topo-maps
+    linz.govt.nz/data-type: raster
+spec:
+  entrypoint: main
+  podMetadata:
+    labels:
+      linz.govt.nz/category: topo-maps
+      linz.govt.nz/data-type: raster
+  arguments:
+    parameters:
+      - name: version_map_cli
+        description: Version of the map produce CLI docker container to use
+        value: 'pr-50'
+
+      - name: contour
+        description: S3 path of source parquet contour data stac collection.
+        value: 's3://linz-topography-nonprod/data/contour/latest/collection.json'
+        enum:
+          - 's3://linz-topography-nonprod/data/contour/latest/collection.json'
+          - 's3://linz-topography/data/contour/latest/collection.json'
+
+      - name: landcover
+        description: S3 path of source parquet landcover data stac collection.
+        value: 's3://linz-topography-nonprod/data/landcover/latest/collection.json'
+        enum:
+          - 's3://linz-topography-nonprod/data/landcover/latest/collection.json'
+          - 's3://linz-topography/data/landcover/latest/collection.json'
+
+      - name: output
+        description: Path or s3 of the output directory to write generated map sheets.
+        value: 's3://linz-topography-nonprod/data/'
+        enum:
+          - 's3://linz-topography-nonprod/data/'
+          - 's3://linz-topography/data/'
+
+  templates:
+    - name: main
+      retryStrategy:
+        expression: 'false'
+      dag:
+        tasks:
+          - name: contour-with-landcover
+            template: contour-with-landcover
+            arguments:
+              parameters:
+                - name: version_map_cli
+                  value: '{{ workflow.parameters.version_map_cli }}'
+                - name: contour
+                  value: '{{ workflow.parameters.contour }}'
+                - name: landcover
+                  value: '{{ workflow.parameters.landcover }}'
+                - name: output
+                  value: '{{ workflow.parameters.output }}'
+
+    - name: contour-with-landcover
+      inputs:
+        parameters:
+          - name: version_map_cli
+          - name: contour
+          - name: landcover
+          - name: output
+      container:
+        image: ghcr.io/linz/topographic-system/kart:{{ inputs.parameters.version_map_cli }}
+        env:
+          - name: AWS_ROLE_CONFIG_PATH
+            value: s3://linz-bucket-config/config-write.topography.json
+          - name: ENVIRONMENT
+            value: nonprod
+        args:
+          - 'contour-with-landcover'
+          - '--contour={{ inputs.parameters.contour }}'
+          - '--landcover={{ inputs.parameters.landcover }}'
+          - '--output={{ inputs.parameters.output }}'
