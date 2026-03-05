@@ -183,8 +183,6 @@ spec:
         env:
           - name: AWS_ROLE_CONFIG_PATH
             value: s3://linz-bucket-config/config-write.topography.json
-          - name: ENVIRONMENT
-            value: nonprod
         args:
           - 'produce'
           - '--project={{ inputs.parameters.project }}'
