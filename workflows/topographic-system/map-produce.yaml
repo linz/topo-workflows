@@ -218,7 +218,7 @@ spec:
           - name: cover-items
             path: /tmp/produce/cover-items.json
       container:
-        image: ghcr.io/linz/topographic-system/map:{{ inputs.parameters.version_map_cli }}
+        image: 725496895483.dkr.ecr.ap-southeast-2.amazonaws.com/github/linz/topographic-system/map:{{ inputs.parameters.version_map_cli }}
         env:
           - name: AWS_ROLE_CONFIG_PATH
             value: s3://linz-bucket-config/config-write.topography.json
@@ -243,7 +243,7 @@ spec:
           - name: grouped
             path: /tmp/group/grouped/
       container:
-        image: ghcr.io/linz/topographic-system/map:{{ inputs.parameters.version_map_cli }}
+        image: 725496895483.dkr.ecr.ap-southeast-2.amazonaws.com/github/linz/topographic-system/map:{{ inputs.parameters.version_map_cli }}
         resources:
           requests:
             memory: 7.8Gi

@@ -39,7 +39,7 @@ spec:
           - name: location
             description: Location of the imagery to create config for
       container:
-        image: ghcr.io/linz/basemaps/cli:{{=sprig.trim(workflow.parameters.version_basemaps_cli)}}
+        image: 725496895483.dkr.ecr.ap-southeast-2.amazonaws.com/github/linz/basemaps/cli:{{=sprig.trim(workflow.parameters.version_basemaps_cli)}}
         command: [node, index.cjs]
         env:
           - name: AWS_ROLE_CONFIG_PATH

@@ -195,7 +195,7 @@ spec:
             memory: 30Gi
             cpu: 15000m # AWS gives 2x cpu cores = memory for most instances
             ephemeral-storage: 98Gi # 2 pods per 200GB of storage
-        image: ghcr.io/linz/basemaps/cli:{{ workflow.parameters.version_basemaps_cli }}
+        image: 725496895483.dkr.ecr.ap-southeast-2.amazonaws.com/github/linz/basemaps/cli:{{ workflow.parameters.version_basemaps_cli }}
         command: [node, index.cjs]
         env:
           - name: AWS_ROLE_CONFIG_PATH

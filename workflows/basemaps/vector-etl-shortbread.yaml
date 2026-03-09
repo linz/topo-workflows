@@ -223,7 +223,7 @@ spec:
         parameters:
           - name: tile_matrix
       container:
-        image: ghcr.io/linz/basemaps/cli:{{ workflow.parameters.version_basemaps_cli }}
+        image: 725496895483.dkr.ecr.ap-southeast-2.amazonaws.com/github/linz/basemaps/cli:{{ workflow.parameters.version_basemaps_cli }}
         command: [node, index.cjs]
         env:
           - name: AWS_ROLE_CONFIG_PATH
@@ -260,7 +260,7 @@ spec:
         parameters:
           - name: grouped_id
       container:
-        image: ghcr.io/linz/basemaps/cli:{{ workflow.parameters.version_basemaps_cli }}
+        image: 725496895483.dkr.ecr.ap-southeast-2.amazonaws.com/github/linz/basemaps/cli:{{ workflow.parameters.version_basemaps_cli }}
         resources:
           requests:
             memory: 7.8Gi
@@ -285,7 +285,7 @@ spec:
         parameters:
           - name: path
       container:
-        image: ghcr.io/linz/basemaps/cli:{{ workflow.parameters.version_basemaps_cli }}
+        image: 725496895483.dkr.ecr.ap-southeast-2.amazonaws.com/github/linz/basemaps/cli:{{ workflow.parameters.version_basemaps_cli }}
         resources:
           requests:
             memory: 7.8Gi
@@ -307,7 +307,7 @@ spec:
           - name: input
             path: /tmp/extract/allCaches.json
       container:
-        image: ghcr.io/linz/basemaps/cli:{{ workflow.parameters.version_basemaps_cli }}
+        image: 725496895483.dkr.ecr.ap-southeast-2.amazonaws.com/github/linz/basemaps/cli:{{ workflow.parameters.version_basemaps_cli }}
         resources:
           requests:
             memory: 7.8Gi
@@ -340,7 +340,7 @@ spec:
           - name: mbTilesTarget
           - name: analyseTarget
       container:
-        image: ghcr.io/linz/basemaps/cli:{{ workflow.parameters.version_basemaps_cli }}
+        image: 725496895483.dkr.ecr.ap-southeast-2.amazonaws.com/github/linz/basemaps/cli:{{ workflow.parameters.version_basemaps_cli }}
         resources:
           requests:
             memory: 7.8Gi
