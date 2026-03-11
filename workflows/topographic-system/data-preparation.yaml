@@ -6,13 +6,13 @@ metadata:
   name: topographic-data-preparation
   labels:
     linz.govt.nz/category: topo-maps
-    linz.govt.nz/data-type: raster
+    linz.govt.nz/data-type: vector
 spec:
   entrypoint: main
   podMetadata:
     labels:
       linz.govt.nz/category: topo-maps
-      linz.govt.nz/data-type: raster
+      linz.govt.nz/data-type: vector
   arguments:
     parameters:
       - name: version_kart_cli
@@ -22,16 +22,10 @@ spec:
       - name: contour
         description: S3 path of source parquet contour data stac collection.
         value: 's3://linz-topography-nonprod/data/contour/latest/collection.json'
-        enum:
-          - 's3://linz-topography-nonprod/data/contour/latest/collection.json'
-          - 's3://linz-topography/data/contour/latest/collection.json'
 
       - name: landcover
         description: S3 path of source parquet landcover data stac collection.
         value: 's3://linz-topography-nonprod/data/landcover/latest/collection.json'
-        enum:
-          - 's3://linz-topography-nonprod/data/landcover/latest/collection.json'
-          - 's3://linz-topography/data/landcover/latest/collection.json'
 
       - name: output
         description: Path or s3 of the output directory to write generated map sheets.
