@@ -304,6 +304,8 @@ spec:
                   value: 'Toitū Te Whenua Land Information New Zealand'
                 - name: create_capture_dates
                   value: 'false'
+                - name: supplied_capture_area
+                  value: '{{inputs.parameters.top_layer_source}}/capture-area.geojson'
                 - name: keep_description
                   value: 'true'
                 - name: keep_title
