@@ -3,7 +3,7 @@
 apiVersion: argoproj.io/v1alpha1
 kind: WorkflowTemplate
 metadata:
-  name: test-topographic-data-preparation
+  name: topographic-data-preparation
   labels:
     linz.govt.nz/category: topo-maps
     linz.govt.nz/data-type: raster
@@ -15,9 +15,9 @@ spec:
       linz.govt.nz/data-type: raster
   arguments:
     parameters:
-      - name: version_map_cli
-        description: Version of the map produce CLI docker container to use
-        value: 'pr-50'
+      - name: version_kart_cli
+        description: Version of the kart CLI docker container to use
+        value: 'v0.5.0'
 
       - name: contour
         description: S3 path of source parquet contour data stac collection.
@@ -50,8 +50,8 @@ spec:
             template: contour-with-landcover
             arguments:
               parameters:
-                - name: version_map_cli
-                  value: '{{ workflow.parameters.version_map_cli }}'
+                - name: version_kart_cli
+                  value: '{{ workflow.parameters.version_kart_cli }}'
                 - name: contour
                   value: '{{ workflow.parameters.contour }}'
                 - name: landcover
@@ -62,12 +62,12 @@ spec:
     - name: contour-with-landcover
       inputs:
         parameters:
-          - name: version_map_cli
+          - name: version_kart_cli
           - name: contour
           - name: landcover
           - name: output
       container:
-        image: ghcr.io/linz/topographic-system/kart:{{ inputs.parameters.version_map_cli }}
+        image: ghcr.io/linz/topographic-system/kart:{{ inputs.parameters.version_kart_cli }}
         env:
           - name: AWS_ROLE_CONFIG_PATH
             value: s3://linz-bucket-config/config-write.topography.json
