@@ -88,7 +88,7 @@ spec:
 
     - name: check-updates
       container:
-        image: 725496895483.dkr.ecr.ap-southeast-2.amazonaws.com/github/linz/eks:bm-etl-{{ workflow.parameters.version_basemaps_etl }}
+        image: 019359803926.dkr.ecr.ap-southeast-2.amazonaws.com/eks:bm-etl-{{ workflow.parameters.version_basemaps_etl }}
         command: [node, /app/index.js]
         env:
           - name: AWS_ROLE_CONFIG_PATH
@@ -114,7 +114,7 @@ spec:
       nodeSelector:
         karpenter.sh/capacity-type: 'spot'
       container:
-        image: 725496895483.dkr.ecr.ap-southeast-2.amazonaws.com/github/linz/eks:bm-etl-{{ workflow.parameters.version_basemaps_etl }}
+        image: 019359803926.dkr.ecr.ap-southeast-2.amazonaws.com/eks:bm-etl-{{ workflow.parameters.version_basemaps_etl }}
         resources:
           requests:
             memory: 7.8Gi

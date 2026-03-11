@@ -25,7 +25,7 @@ To to a newer version of `cloudflared`:
 2. Tag the image for AWS ECR
 
    ```shell
-   docker tag cloudflare/cloudflared:2025.6.1 725496895483.dkr.ecr.ap-southeast-2.amazonaws.com/github/linz/cloudflared:2025.6.1
+   docker tag cloudflare/cloudflared:2025.6.1 019359803926.dkr.ecr.ap-southeast-2.amazonaws.com/cloudflared:2025.6.1
    ```
 
 3. Login Docker to the AWS ECR
@@ -37,5 +37,5 @@ To to a newer version of `cloudflared`:
 4. Push the image to ECR
 
    ```shell
-   docker push 725496895483.dkr.ecr.ap-southeast-2.amazonaws.com/github/linz/cloudflared:2025.6.1
+   docker push 019359803926.dkr.ecr.ap-southeast-2.amazonaws.com/cloudflared:2025.6.1
    ```
