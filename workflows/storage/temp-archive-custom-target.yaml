@@ -132,7 +132,7 @@ spec:
           - name: source
           - name: version_argo_tasks
       script:
-        image: '019359803926.dkr.ecr.ap-southeast-2.amazonaws.com/argo-tasks:{{= inputs.parameters.version_argo_tasks }}'
+        image: '725496895483.dkr.ecr.ap-southeast-2.amazonaws.com/github/linz/argo-tasks:{{= inputs.parameters.version_argo_tasks }}'
         command: [node]
         source: |
           import { isSafePath } from '../../app/commands/archive-setup/archive.setup.ts';
