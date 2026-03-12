@@ -41,7 +41,7 @@ spec:
         - name: copy_option
           value: '--force-no-clobber'
         - name: create_capture_area
-          value: 'false'
+          value: 'true'
         - name: gsd
           value: '1'
         - name: scale_to_resolution
