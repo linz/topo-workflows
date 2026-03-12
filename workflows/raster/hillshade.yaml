@@ -55,7 +55,7 @@ spec:
           - 'coastal'
       - name: gsd
         description: 'Dataset GSD in metres, e.g., "1" for 1 metre'
-        default: '1'
+        default: ''
       - name: odr_url
         description: '(Optional) If an existing dataset add the S3 path to the dataset here to load existing metadata e.g. "s3://nz-elevation/new-zealand/new-zealand/dem_1m/2193/"'
         value: ''
@@ -180,8 +180,6 @@ spec:
                   value: '{{=sprig.trimSuffix("/", tasks["get-location"].outputs.parameters.location)}}/{{inputs.parameters.source_geospatial_category}}-{{inputs.parameters.hillshade_preset}}/flat/'
                 - name: collection_id
                   value: '{{tasks.stac-setup-hillshade.outputs.parameters.collection_id}}'
-                - name: gsd
-                  value: '{{=sprig.trim(workflow.parameters.gsd)}}'
                 - name: current_datetime
                   value: '{{tasks.stac-setup-hillshade.finishedAt}}'
                 - name: odr_url
