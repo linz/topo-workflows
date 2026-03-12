@@ -27,7 +27,7 @@ spec:
   templates:
     - name: test-script
       script:
-        image: 019359803926.dkr.ecr.ap-southeast-2.amazonaws.com/topo-imagery:{{workflow.parameters.version_topo_imagery}}
+        image: 725496895483.dkr.ecr.ap-southeast-2.amazonaws.com/github/linz/topo-imagery:{{workflow.parameters.version_topo_imagery}}
         args: [python]
         source: |
           # Put your code below

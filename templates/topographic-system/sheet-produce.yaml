@@ -108,7 +108,7 @@ spec:
           - name: dpi
           - name: map-sheets
       container:
-        image: ghcr.io/linz/topographic-system/map:{{ inputs.parameters.version_map_produce_cli }}
+        image: 725496895483.dkr.ecr.ap-southeast-2.amazonaws.com/github/linz/topographic-system/map:{{ inputs.parameters.version_map_produce_cli }}
         imagePullPolicy: Always
         env:
           - name: AWS_ROLE_CONFIG_PATH
