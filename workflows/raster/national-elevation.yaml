@@ -163,7 +163,7 @@ spec:
                 - name: compression
                   value: 'dem_lerc'
                 - name: create_capture_area
-                  value: 'true'
+                  value: 'false'
                 - name: gsd
                   value: '1'
                 - name: source_epsg
