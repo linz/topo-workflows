@@ -5,7 +5,7 @@ metadata:
   name: cron-topographic-data-preparation
   labels:
     linz.govt.nz/category: topo-maps
-    linz.govt.nz/data-type: raster
+    linz.govt.nz/data-type: vector
 spec:
   schedules:
     - '08 06 * * *' # 6.08 AM every day
@@ -19,7 +19,7 @@ spec:
     podMetadata:
       labels:
         linz.govt.nz/category: topo-maps
-        linz.govt.nz/data-type: raster
+        linz.govt.nz/data-type: vector
     workflowTemplateRef:
       name: topographic-data-preparation
     arguments:
