@@ -17,11 +17,11 @@ export interface ArgoEventsProps {
   saName: string;
 
   /**
-   * Name of the SQS queue to listen to for events about publishing data
+   * Name of the SQS queue to listen to for events about copying ODR data
    *
-   * @example "linz-workflows-scratch-publish-odr-queue"
+   * @example "linz-workflows-scratch-copy-odr-queue"
    */
-  sqsPublishQueueName: string;
+  sqsCopyOdrQueueName: string;
 }
 
 /**
@@ -113,28 +113,28 @@ export class ArgoEvents extends Chart {
       },
     });
 
-    new EventSource(this, 'AwsSqsPublishOdrEventSource', {
+    new EventSource(this, 'AwsSqsCopyOdrEventSource', {
       metadata: {
-        name: 'aws-sqs-publish-odr',
+        name: 'aws-sqs-copy-odr',
       },
       spec: {
         template: {
           serviceAccountName: props.saName,
         },
         sqs: {
-          'publish-odr': {
+          'copy-odr': {
             jsonBody: true,
             region: 'ap-southeast-2',
-            queue: props.sqsPublishQueueName,
+            queue: props.sqsCopyOdrQueueName,
             waitTimeSeconds: 20,
           },
         },
       },
     });
 
-    new Sensor(this, 'WfPublishOdrSensor', {
+    new Sensor(this, 'WfCopyOdrSensor', {
       metadata: {
-        name: 'wf-publish-odr',
+        name: 'wf-copy-odr',
       },
       spec: {
         template: {
@@ -142,15 +142,15 @@ export class ArgoEvents extends Chart {
         },
         dependencies: [
           {
-            name: 'publish-odr',
-            eventSourceName: 'aws-sqs-publish-odr',
-            eventName: 'publish-odr',
+            name: 'copy-odr',
+            eventSourceName: 'aws-sqs-copy-odr',
+            eventName: 'copy-odr',
           },
         ],
         triggers: [
           {
             template: {
-              name: 'trigger-wf-publish-odr',
+              name: 'trigger-wf-copy-odr',
               argoWorkflow: {
                 operation: 'submit',
                 source: {
@@ -179,7 +179,7 @@ export class ArgoEvents extends Chart {
                 parameters: [
                   {
                     src: {
-                      dependencyName: 'publish-odr',
+                      dependencyName: 'copy-odr',
                       dataKey: 'body',
                     },
                     dest: 'spec.arguments.parameters.0.value',
