@@ -180,8 +180,6 @@ spec:
                   value: '{{=sprig.trimSuffix("/", tasks["get-location"].outputs.parameters.location)}}/{{inputs.parameters.source_geospatial_category}}-{{inputs.parameters.hillshade_preset}}/flat/'
                 - name: collection_id
                   value: '{{tasks.stac-setup-hillshade.outputs.parameters.collection_id}}'
-                - name: gsd
-                  value: '{{=sprig.trim(workflow.parameters.gsd)}}'
                 - name: current_datetime
                   value: '{{tasks.stac-setup-hillshade.finishedAt}}'
                 - name: odr_url
@@ -224,6 +222,8 @@ spec:
                   value: 'Toitū Te Whenua Land Information New Zealand'
                 - name: create_capture_dates
                   value: 'false'
+                - name: supplied_capture_area
+                  value: '{{inputs.parameters.source}}/capture-area.geojson'
                 - name: keep_title
                   value: 'true'
                 - name: version_topo_imagery
