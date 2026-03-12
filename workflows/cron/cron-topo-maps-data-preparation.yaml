@@ -8,7 +8,7 @@ metadata:
     linz.govt.nz/data-type: raster
 spec:
   schedules:
-    - '0 0 * * *' # 12 AM every day
+    - '08 06 * * *' # 6.08 AM every day
   timezone: 'NZ'
   startingDeadlineSeconds: 3600 # Allow 1 hour delay if the workflow-controller clashes during the starting time.
   concurrencyPolicy: 'Allow'
