@@ -55,7 +55,7 @@ spec:
           - 'coastal'
       - name: gsd
         description: 'Dataset GSD in metres, e.g., "1" for 1 metre'
-        default: ''
+        default: '1'
       - name: odr_url
         description: '(Optional) If an existing dataset add the S3 path to the dataset here to load existing metadata e.g. "s3://nz-elevation/new-zealand/new-zealand/dem_1m/2193/"'
         value: ''
