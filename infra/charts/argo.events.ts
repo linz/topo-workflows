@@ -6,7 +6,6 @@ import { Construct } from 'constructs';
 import { applyDefaultLabels } from '../util/labels.js';
 import { EventBus } from './imports/argo-events/argoproj.io.eventbus.ts';
 import { EventSource } from './imports/argo-events/argoproj.io.eventsources.ts';
-import { Sensor } from './imports/argo-events/argoproj.io.sensors.ts';
 
 export interface ArgoEventsProps {
   /**
@@ -43,7 +42,7 @@ export class ArgoEvents extends Chart {
     super(scope, id, applyDefaultLabels(props, 'argo-events', appVersion, 'argo', 'events'));
     const operateWorkflowSaName = 'operate-workflow-sa';
     this.createServiceAccountsAndRoles(operateWorkflowSaName);
-    this.createResources(props, operateWorkflowSaName);
+    this.createResources(props);
     this.createArgoEventBase();
   }
 
@@ -88,7 +87,7 @@ export class ArgoEvents extends Chart {
     });
   }
 
-  private createResources(props: ArgoEventsProps, operateWorkflowSaName: string): void {
+  private createResources(props: ArgoEventsProps): void {
     new EventBus(this, 'EventBusDefault', {
       metadata: {
         name: 'default',
@@ -129,66 +128,6 @@ export class ArgoEvents extends Chart {
             waitTimeSeconds: 20,
           },
         },
-      },
-    });
-
-    new Sensor(this, 'WfObjectCreatedSensor', {
-      metadata: {
-        name: 'wf-object-created',
-      },
-      spec: {
-        template: {
-          serviceAccountName: operateWorkflowSaName,
-        },
-        dependencies: [
-          {
-            name: 'object-created',
-            eventSourceName: 'aws-sqs-object-created',
-            eventName: 'object-created',
-          },
-        ],
-        triggers: [
-          {
-            template: {
-              name: 'trigger-wf-object-created',
-              argoWorkflow: {
-                operation: 'submit',
-                source: {
-                  resource: {
-                    apiVersion: 'argoproj.io/v1alpha1',
-                    kind: 'Workflow',
-                    metadata: {
-                      generateName: 'test-print-',
-                      namespace: 'argo',
-                    },
-                    spec: {
-                      arguments: {
-                        parameters: [
-                          {
-                            name: 'message',
-                            value: '',
-                          },
-                        ],
-                      },
-                      workflowTemplateRef: {
-                        name: 'test-print',
-                      },
-                    },
-                  },
-                },
-                parameters: [
-                  {
-                    src: {
-                      dependencyName: 'publish-odr',
-                      dataKey: 'body',
-                    },
-                    dest: 'spec.arguments.parameters.0.value',
-                  },
-                ],
-              },
-            },
-          },
-        ],
       },
     });
   }
