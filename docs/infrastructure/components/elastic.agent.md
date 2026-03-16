@@ -1,13 +1,13 @@
 # Elastic Agent
 
 The agent runs as a DaemonSet and collects:
+
 - Kubernetes logs
 - Container metrics
 - Node metrics
 - System metrics
 
 Each node runs one Elastic Agent pod.
-
 
 ```mermaid
 flowchart LR
@@ -19,6 +19,10 @@ flowchart LR
     B --> C[Elasticsearch]
     C --> D[Kibana\nSearch / Dashboards]
 ```
+
+## Installation
+
+[The official documentation](https://www.elastic.co/docs/reference/fleet/example-kubernetes-fleet-managed-agent-helm#agent-fleet-managed-helm-example-install-agent) has been followed to create the Fleet policy.
 
 ## Investigating the metrics
 

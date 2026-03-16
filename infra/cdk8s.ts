@@ -4,6 +4,7 @@ import { ArgoEvents } from './charts/argo.events.ts';
 import { ArgoExtras } from './charts/argo.extras.ts';
 import { ArgoWorkflows } from './charts/argo.workflows.ts';
 import { Cloudflared } from './charts/cloudflared.ts';
+import { ElasticAgent } from './charts/elastic.agent.ts';
 import { EventExporter } from './charts/event.exporter.ts';
 import { FluentBit } from './charts/fluentbit.ts';
 import { Karpenter, KarpenterNodePool } from './charts/karpenter.ts';
@@ -21,7 +22,6 @@ import {
 } from './constants.ts';
 import { describeCluster, getCfnOutputs } from './util/cloud.formation.ts';
 import { fetchSsmParameters } from './util/ssm.ts';
-import { ElasticAgent } from './charts/elastic.agent.ts';
 
 const app = new App();
 

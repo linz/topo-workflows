@@ -48,8 +48,7 @@ export class Elasticagent extends Construct {
           }
           return item;
         });
-      }
-      else if (typeof props[prop] === 'object' && prop !== 'additionalValues') {
+      } else if (typeof props[prop] === 'object' && prop !== 'additionalValues') {
         props[prop] = this.flattenAdditionalValues(props[prop]);
       }
     }
@@ -134,20 +133,43 @@ export interface ElasticagentValues {
  */
 /* eslint-disable max-len, @stylistic/max-len, quote-props, @stylistic/quote-props */
 export function toJson_ElasticagentValues(obj: ElasticagentValues | undefined): Record<string, any> | undefined {
-  if (obj === undefined) { return undefined; }
+  if (obj === undefined) {
+    return undefined;
+  }
   const result = {
-    'outputs': ((obj.outputs) === undefined) ? undefined : (Object.entries(obj.outputs).reduce((r, i) => (i[1] === undefined) ? r : ({ ...r, [i[0]]: toJson_OutputObject(i[1]) }), {})),
-    'system': toJson_ElasticAgentSystem(obj.system),
-    'kubernetes': toJson_ElasticAgentKubernetes(obj.kubernetes),
-    'autoOps': toJson_ElasticAgentAutoOps(obj.autoOps),
-    'extraIntegrations': ((obj.extraIntegrations) === undefined) ? undefined : (Object.entries(obj.extraIntegrations).reduce((r, i) => (i[1] === undefined) ? r : ({ ...r, [i[0]]: toJson_CustomIntegrationConfig(i[1]) }), {})),
-    'agent': toJson_ElasticAgentAgent(obj.agent),
-    'kube-state-metrics': ((obj.kubeStateMetrics) === undefined) ? undefined : (Object.entries(obj.kubeStateMetrics).reduce((r, i) => (i[1] === undefined) ? r : ({ ...r, [i[0]]: i[1] }), {})),
-    'global': ((obj.global) === undefined) ? undefined : (Object.entries(obj.global).reduce((r, i) => (i[1] === undefined) ? r : ({ ...r, [i[0]]: i[1] }), {})),
-    'additionalValues': ((obj.additionalValues) === undefined) ? undefined : (Object.entries(obj.additionalValues).reduce((r, i) => (i[1] === undefined) ? r : ({ ...r, [i[0]]: i[1] }), {})),
+    outputs:
+      obj.outputs === undefined
+        ? undefined
+        : Object.entries(obj.outputs).reduce(
+            (r, i) => (i[1] === undefined ? r : { ...r, [i[0]]: toJson_OutputObject(i[1]) }),
+            {},
+          ),
+    system: toJson_ElasticAgentSystem(obj.system),
+    kubernetes: toJson_ElasticAgentKubernetes(obj.kubernetes),
+    autoOps: toJson_ElasticAgentAutoOps(obj.autoOps),
+    extraIntegrations:
+      obj.extraIntegrations === undefined
+        ? undefined
+        : Object.entries(obj.extraIntegrations).reduce(
+            (r, i) => (i[1] === undefined ? r : { ...r, [i[0]]: toJson_CustomIntegrationConfig(i[1]) }),
+            {},
+          ),
+    agent: toJson_ElasticAgentAgent(obj.agent),
+    'kube-state-metrics':
+      obj.kubeStateMetrics === undefined
+        ? undefined
+        : Object.entries(obj.kubeStateMetrics).reduce((r, i) => (i[1] === undefined ? r : { ...r, [i[0]]: i[1] }), {}),
+    global:
+      obj.global === undefined
+        ? undefined
+        : Object.entries(obj.global).reduce((r, i) => (i[1] === undefined ? r : { ...r, [i[0]]: i[1] }), {}),
+    additionalValues:
+      obj.additionalValues === undefined
+        ? undefined
+        : Object.entries(obj.additionalValues).reduce((r, i) => (i[1] === undefined ? r : { ...r, [i[0]]: i[1] }), {}),
   };
   // filter undefined values
-  return Object.entries(result).reduce((r, i) => (i[1] === undefined) ? r : ({ ...r, [i[0]]: i[1] }), {});
+  return Object.entries(result).reduce((r, i) => (i[1] === undefined ? r : { ...r, [i[0]]: i[1] }), {});
 }
 /* eslint-enable max-len, @stylistic/max-len, quote-props, @stylistic/quote-props */
 
@@ -311,33 +333,35 @@ export interface OutputObject {
  */
 /* eslint-disable max-len, @stylistic/max-len, quote-props, @stylistic/quote-props */
 export function toJson_OutputObject(obj: OutputObject | undefined): Record<string, any> | undefined {
-  if (obj === undefined) { return undefined; }
+  if (obj === undefined) {
+    return undefined;
+  }
   const result = {
-    'type': obj.type,
-    'hosts': obj.hosts?.map(y => y),
-    'url': obj.url,
-    'username': obj.username,
-    'password': obj.password,
-    'api_key': obj.apiKey,
-    'secretName': obj.secretName,
-    'name': obj.name,
-    'namespace': obj.namespace,
-    'ssl': toJson_SslConfigClient(obj.ssl),
-    'loadbalance': obj.loadbalance,
-    'ttl': obj.ttl,
-    'slow_start': obj.slowStart,
-    'pipelining': obj.pipelining,
-    'workers': obj.workers,
-    'timeout': obj.timeout,
-    'queue': toJson_OutputObjectQueue(obj.queue),
-    'max_retries': obj.maxRetries,
-    'compression_level': obj.compressionLevel,
-    'bulk_max_size': obj.bulkMaxSize,
-    'backoff': toJson_OutputObjectBackoff(obj.backoff),
-    'allow_older_versions': obj.allowOlderVersions,
+    type: obj.type,
+    hosts: obj.hosts?.map((y) => y),
+    url: obj.url,
+    username: obj.username,
+    password: obj.password,
+    api_key: obj.apiKey,
+    secretName: obj.secretName,
+    name: obj.name,
+    namespace: obj.namespace,
+    ssl: toJson_SslConfigClient(obj.ssl),
+    loadbalance: obj.loadbalance,
+    ttl: obj.ttl,
+    slow_start: obj.slowStart,
+    pipelining: obj.pipelining,
+    workers: obj.workers,
+    timeout: obj.timeout,
+    queue: toJson_OutputObjectQueue(obj.queue),
+    max_retries: obj.maxRetries,
+    compression_level: obj.compressionLevel,
+    bulk_max_size: obj.bulkMaxSize,
+    backoff: toJson_OutputObjectBackoff(obj.backoff),
+    allow_older_versions: obj.allowOlderVersions,
   };
   // filter undefined values
-  return Object.entries(result).reduce((r, i) => (i[1] === undefined) ? r : ({ ...r, [i[0]]: i[1] }), {});
+  return Object.entries(result).reduce((r, i) => (i[1] === undefined ? r : { ...r, [i[0]]: i[1] }), {});
 }
 /* eslint-enable max-len, @stylistic/max-len, quote-props, @stylistic/quote-props */
 
@@ -396,18 +420,23 @@ export interface ElasticAgentSystem {
  */
 /* eslint-disable max-len, @stylistic/max-len, quote-props, @stylistic/quote-props */
 export function toJson_ElasticAgentSystem(obj: ElasticAgentSystem | undefined): Record<string, any> | undefined {
-  if (obj === undefined) { return undefined; }
+  if (obj === undefined) {
+    return undefined;
+  }
   const result = {
-    'enabled': obj.enabled,
-    'output': obj.output,
-    'namespace': obj.namespace,
-    'authLogs': toJson_ElasticAgentSystemAuthLogs(obj.authLogs),
-    'syslog': toJson_ElasticAgentSystemSyslog(obj.syslog),
-    'metrics': toJson_ElasticAgentSystemMetrics(obj.metrics),
-    'additionalValues': ((obj.additionalValues) === undefined) ? undefined : (Object.entries(obj.additionalValues).reduce((r, i) => (i[1] === undefined) ? r : ({ ...r, [i[0]]: i[1] }), {})),
+    enabled: obj.enabled,
+    output: obj.output,
+    namespace: obj.namespace,
+    authLogs: toJson_ElasticAgentSystemAuthLogs(obj.authLogs),
+    syslog: toJson_ElasticAgentSystemSyslog(obj.syslog),
+    metrics: toJson_ElasticAgentSystemMetrics(obj.metrics),
+    additionalValues:
+      obj.additionalValues === undefined
+        ? undefined
+        : Object.entries(obj.additionalValues).reduce((r, i) => (i[1] === undefined ? r : { ...r, [i[0]]: i[1] }), {}),
   };
   // filter undefined values
-  return Object.entries(result).reduce((r, i) => (i[1] === undefined) ? r : ({ ...r, [i[0]]: i[1] }), {});
+  return Object.entries(result).reduce((r, i) => (i[1] === undefined ? r : { ...r, [i[0]]: i[1] }), {});
 }
 /* eslint-enable max-len, @stylistic/max-len, quote-props, @stylistic/quote-props */
 
@@ -577,41 +606,48 @@ export interface ElasticAgentKubernetes {
  * Converts an object of type 'ElasticAgentKubernetes' to JSON representation.
  */
 /* eslint-disable max-len, @stylistic/max-len, quote-props, @stylistic/quote-props */
-export function toJson_ElasticAgentKubernetes(obj: ElasticAgentKubernetes | undefined): Record<string, any> | undefined {
-  if (obj === undefined) { return undefined; }
+export function toJson_ElasticAgentKubernetes(
+  obj: ElasticAgentKubernetes | undefined,
+): Record<string, any> | undefined {
+  if (obj === undefined) {
+    return undefined;
+  }
   const result = {
-    'enabled': obj.enabled,
-    'onboardingID': obj.onboardingId,
-    'output': obj.output,
-    'namespace': obj.namespace,
-    'hints': toJson_ElasticAgentKubernetesHints(obj.hints),
-    'state': toJson_ElasticAgentKubernetesState(obj.state),
-    'metrics': toJson_ElasticAgentKubernetesMetrics(obj.metrics),
-    'apiserver': toJson_ElasticAgentKubernetesApiserver(obj.apiserver),
-    'proxy': toJson_ElasticAgentKubernetesProxy(obj.proxy),
-    'scheduler': toJson_ElasticAgentKubernetesScheduler(obj.scheduler),
-    'controller_manager': toJson_ElasticAgentKubernetesControllerManager(obj.controllerManager),
-    'containers': toJson_ElasticAgentKubernetesContainers(obj.containers),
-    'pods': toJson_KubernetesMetricsAndStateConfig(obj.pods),
-    'deployments': toJson_KubernetesStateConfig(obj.deployments),
-    'statefulsets': toJson_KubernetesStateConfig(obj.statefulsets),
-    'daemonsets': toJson_KubernetesStateConfig(obj.daemonsets),
-    'replicasets': toJson_KubernetesStateConfig(obj.replicasets),
-    'namespaces': toJson_KubernetesStateConfig(obj.namespaces),
-    'volumes': toJson_KubernetesMetricsConfig(obj.volumes),
-    'nodes': toJson_KubernetesMetricsAndStateConfig(obj.nodes),
-    'storageclasses': toJson_KubernetesStateConfig(obj.storageclasses),
-    'jobs': toJson_KubernetesStateConfig(obj.jobs),
-    'cronjobs': toJson_KubernetesStateConfig(obj.cronjobs),
-    'persistentvolumes': toJson_KubernetesStateConfig(obj.persistentvolumes),
-    'persistentvolumeclaims': toJson_KubernetesStateConfig(obj.persistentvolumeclaims),
-    'resourcequotas': toJson_KubernetesStateConfig(obj.resourcequotas),
-    'services': toJson_KubernetesStateConfig(obj.services),
-    'system': toJson_KubernetesMetricsConfig(obj.system),
-    'additionalValues': ((obj.additionalValues) === undefined) ? undefined : (Object.entries(obj.additionalValues).reduce((r, i) => (i[1] === undefined) ? r : ({ ...r, [i[0]]: i[1] }), {})),
+    enabled: obj.enabled,
+    onboardingID: obj.onboardingId,
+    output: obj.output,
+    namespace: obj.namespace,
+    hints: toJson_ElasticAgentKubernetesHints(obj.hints),
+    state: toJson_ElasticAgentKubernetesState(obj.state),
+    metrics: toJson_ElasticAgentKubernetesMetrics(obj.metrics),
+    apiserver: toJson_ElasticAgentKubernetesApiserver(obj.apiserver),
+    proxy: toJson_ElasticAgentKubernetesProxy(obj.proxy),
+    scheduler: toJson_ElasticAgentKubernetesScheduler(obj.scheduler),
+    controller_manager: toJson_ElasticAgentKubernetesControllerManager(obj.controllerManager),
+    containers: toJson_ElasticAgentKubernetesContainers(obj.containers),
+    pods: toJson_KubernetesMetricsAndStateConfig(obj.pods),
+    deployments: toJson_KubernetesStateConfig(obj.deployments),
+    statefulsets: toJson_KubernetesStateConfig(obj.statefulsets),
+    daemonsets: toJson_KubernetesStateConfig(obj.daemonsets),
+    replicasets: toJson_KubernetesStateConfig(obj.replicasets),
+    namespaces: toJson_KubernetesStateConfig(obj.namespaces),
+    volumes: toJson_KubernetesMetricsConfig(obj.volumes),
+    nodes: toJson_KubernetesMetricsAndStateConfig(obj.nodes),
+    storageclasses: toJson_KubernetesStateConfig(obj.storageclasses),
+    jobs: toJson_KubernetesStateConfig(obj.jobs),
+    cronjobs: toJson_KubernetesStateConfig(obj.cronjobs),
+    persistentvolumes: toJson_KubernetesStateConfig(obj.persistentvolumes),
+    persistentvolumeclaims: toJson_KubernetesStateConfig(obj.persistentvolumeclaims),
+    resourcequotas: toJson_KubernetesStateConfig(obj.resourcequotas),
+    services: toJson_KubernetesStateConfig(obj.services),
+    system: toJson_KubernetesMetricsConfig(obj.system),
+    additionalValues:
+      obj.additionalValues === undefined
+        ? undefined
+        : Object.entries(obj.additionalValues).reduce((r, i) => (i[1] === undefined ? r : { ...r, [i[0]]: i[1] }), {}),
   };
   // filter undefined values
-  return Object.entries(result).reduce((r, i) => (i[1] === undefined) ? r : ({ ...r, [i[0]]: i[1] }), {});
+  return Object.entries(result).reduce((r, i) => (i[1] === undefined ? r : { ...r, [i[0]]: i[1] }), {});
 }
 /* eslint-enable max-len, @stylistic/max-len, quote-props, @stylistic/quote-props */
 
@@ -704,22 +740,27 @@ export interface ElasticAgentAutoOps {
  */
 /* eslint-disable max-len, @stylistic/max-len, quote-props, @stylistic/quote-props */
 export function toJson_ElasticAgentAutoOps(obj: ElasticAgentAutoOps | undefined): Record<string, any> | undefined {
-  if (obj === undefined) { return undefined; }
+  if (obj === undefined) {
+    return undefined;
+  }
   const result = {
-    'enabled': obj.enabled,
-    'autoops_token': obj.autoopsToken,
-    'autoops_otel_url': obj.autoopsOtelUrl,
-    'autoops_temp_resource_id': obj.autoopsTempResourceId,
-    'es_api_key': obj.esApiKey,
-    'es_username': obj.esUsername,
-    'es_password': obj.esPassword,
-    'autoops_es_url': obj.autoopsEsUrl,
-    'elastic_cloud_connected_mode_api_key': obj.elasticCloudConnectedModeApiKey,
-    'elastic_cloud_connected_mode_api_url': obj.elasticCloudConnectedModeApiUrl,
-    'additionalValues': ((obj.additionalValues) === undefined) ? undefined : (Object.entries(obj.additionalValues).reduce((r, i) => (i[1] === undefined) ? r : ({ ...r, [i[0]]: i[1] }), {})),
+    enabled: obj.enabled,
+    autoops_token: obj.autoopsToken,
+    autoops_otel_url: obj.autoopsOtelUrl,
+    autoops_temp_resource_id: obj.autoopsTempResourceId,
+    es_api_key: obj.esApiKey,
+    es_username: obj.esUsername,
+    es_password: obj.esPassword,
+    autoops_es_url: obj.autoopsEsUrl,
+    elastic_cloud_connected_mode_api_key: obj.elasticCloudConnectedModeApiKey,
+    elastic_cloud_connected_mode_api_url: obj.elasticCloudConnectedModeApiUrl,
+    additionalValues:
+      obj.additionalValues === undefined
+        ? undefined
+        : Object.entries(obj.additionalValues).reduce((r, i) => (i[1] === undefined ? r : { ...r, [i[0]]: i[1] }), {}),
   };
   // filter undefined values
-  return Object.entries(result).reduce((r, i) => (i[1] === undefined) ? r : ({ ...r, [i[0]]: i[1] }), {});
+  return Object.entries(result).reduce((r, i) => (i[1] === undefined ? r : { ...r, [i[0]]: i[1] }), {});
 }
 /* eslint-enable max-len, @stylistic/max-len, quote-props, @stylistic/quote-props */
 
@@ -755,15 +796,19 @@ export interface CustomIntegrationConfig {
  * Converts an object of type 'CustomIntegrationConfig' to JSON representation.
  */
 /* eslint-disable max-len, @stylistic/max-len, quote-props, @stylistic/quote-props */
-export function toJson_CustomIntegrationConfig(obj: CustomIntegrationConfig | undefined): Record<string, any> | undefined {
-  if (obj === undefined) { return undefined; }
+export function toJson_CustomIntegrationConfig(
+  obj: CustomIntegrationConfig | undefined,
+): Record<string, any> | undefined {
+  if (obj === undefined) {
+    return undefined;
+  }
   const result = {
-    'id': obj.id,
-    'preset': obj.preset,
-    'use_output': obj.useOutput,
+    id: obj.id,
+    preset: obj.preset,
+    use_output: obj.useOutput,
   };
   // filter undefined values
-  return Object.entries(result).reduce((r, i) => (i[1] === undefined) ? r : ({ ...r, [i[0]]: i[1] }), {});
+  return Object.entries(result).reduce((r, i) => (i[1] === undefined ? r : { ...r, [i[0]]: i[1] }), {});
 }
 /* eslint-enable max-len, @stylistic/max-len, quote-props, @stylistic/quote-props */
 
@@ -831,19 +876,30 @@ export interface ElasticAgentAgent {
  */
 /* eslint-disable max-len, @stylistic/max-len, quote-props, @stylistic/quote-props */
 export function toJson_ElasticAgentAgent(obj: ElasticAgentAgent | undefined): Record<string, any> | undefined {
-  if (obj === undefined) { return undefined; }
+  if (obj === undefined) {
+    return undefined;
+  }
   const result = {
-    'version': obj.version,
-    'image': toJson_AgentImageConfig(obj.image),
-    'imagePullSecrets': obj.imagePullSecrets?.map(y => y),
-    'engine': obj.engine,
-    'unprivileged': obj.unprivileged,
-    'fleet': toJson_ElasticAgentAgentFleet(obj.fleet),
-    'presets': ((obj.presets) === undefined) ? undefined : (Object.entries(obj.presets).reduce((r, i) => (i[1] === undefined) ? r : ({ ...r, [i[0]]: toJson_AgentPreset(i[1]) }), {})),
-    'additionalValues': ((obj.additionalValues) === undefined) ? undefined : (Object.entries(obj.additionalValues).reduce((r, i) => (i[1] === undefined) ? r : ({ ...r, [i[0]]: i[1] }), {})),
+    version: obj.version,
+    image: toJson_AgentImageConfig(obj.image),
+    imagePullSecrets: obj.imagePullSecrets?.map((y) => y),
+    engine: obj.engine,
+    unprivileged: obj.unprivileged,
+    fleet: toJson_ElasticAgentAgentFleet(obj.fleet),
+    presets:
+      obj.presets === undefined
+        ? undefined
+        : Object.entries(obj.presets).reduce(
+            (r, i) => (i[1] === undefined ? r : { ...r, [i[0]]: toJson_AgentPreset(i[1]) }),
+            {},
+          ),
+    additionalValues:
+      obj.additionalValues === undefined
+        ? undefined
+        : Object.entries(obj.additionalValues).reduce((r, i) => (i[1] === undefined ? r : { ...r, [i[0]]: i[1] }), {}),
   };
   // filter undefined values
-  return Object.entries(result).reduce((r, i) => (i[1] === undefined) ? r : ({ ...r, [i[0]]: i[1] }), {});
+  return Object.entries(result).reduce((r, i) => (i[1] === undefined ? r : { ...r, [i[0]]: i[1] }), {});
 }
 /* eslint-enable max-len, @stylistic/max-len, quote-props, @stylistic/quote-props */
 
@@ -854,17 +910,17 @@ export function toJson_ElasticAgentAgent(obj: ElasticAgentAgent | undefined): Re
  */
 export enum OutputObjectType {
   /** ESPlainAuthBasic */
-  ES_PLAIN_AUTH_BASIC = "ESPlainAuthBasic",
+  ES_PLAIN_AUTH_BASIC = 'ESPlainAuthBasic',
   /** ESPlainAuthAPI */
-  ES_PLAIN_AUTH_API = "ESPlainAuthAPI",
+  ES_PLAIN_AUTH_API = 'ESPlainAuthAPI',
   /** ESSecretAuthBasic */
-  ES_SECRET_AUTH_BASIC = "ESSecretAuthBasic",
+  ES_SECRET_AUTH_BASIC = 'ESSecretAuthBasic',
   /** ESSecretAuthAPI */
-  ES_SECRET_AUTH_API = "ESSecretAuthAPI",
+  ES_SECRET_AUTH_API = 'ESSecretAuthAPI',
   /** ESECKRef */
-  ESECK_REF = "ESECKRef",
+  ESECK_REF = 'ESECKRef',
   /** Logstash */
-  LOGSTASH = "Logstash",
+  LOGSTASH = 'Logstash',
 }
 
 /**
@@ -968,24 +1024,26 @@ export interface SslConfigClient {
  */
 /* eslint-disable max-len, @stylistic/max-len, quote-props, @stylistic/quote-props */
 export function toJson_SslConfigClient(obj: SslConfigClient | undefined): Record<string, any> | undefined {
-  if (obj === undefined) { return undefined; }
+  if (obj === undefined) {
+    return undefined;
+  }
   const result = {
-    'enabled': obj.enabled,
-    'certificateAuthorities': obj.certificateAuthorities?.map(y => toJson_ValueFrom(y)),
-    'certificate': toJson_ValueFrom(obj.certificate),
-    'key': toJson_ValueFrom(obj.key),
-    'key_passphrase': toJson_ValueFrom(obj.keyPassphrase),
-    'renegotiation': obj.renegotiation,
-    'verificationMode': obj.verificationMode,
-    'client_authentication': obj.clientAuthentication,
-    'cipher_suites': obj.cipherSuites?.map(y => y),
-    'curve_types': obj.curveTypes?.map(y => y),
-    'supported_protocols': obj.supportedProtocols?.map(y => y),
-    'ca_sha256': obj.caSha256,
-    'caTrustedFingerprint': obj.caTrustedFingerprint,
+    enabled: obj.enabled,
+    certificateAuthorities: obj.certificateAuthorities?.map((y) => toJson_ValueFrom(y)),
+    certificate: toJson_ValueFrom(obj.certificate),
+    key: toJson_ValueFrom(obj.key),
+    key_passphrase: toJson_ValueFrom(obj.keyPassphrase),
+    renegotiation: obj.renegotiation,
+    verificationMode: obj.verificationMode,
+    client_authentication: obj.clientAuthentication,
+    cipher_suites: obj.cipherSuites?.map((y) => y),
+    curve_types: obj.curveTypes?.map((y) => y),
+    supported_protocols: obj.supportedProtocols?.map((y) => y),
+    ca_sha256: obj.caSha256,
+    caTrustedFingerprint: obj.caTrustedFingerprint,
   };
   // filter undefined values
-  return Object.entries(result).reduce((r, i) => (i[1] === undefined) ? r : ({ ...r, [i[0]]: i[1] }), {});
+  return Object.entries(result).reduce((r, i) => (i[1] === undefined ? r : { ...r, [i[0]]: i[1] }), {});
 }
 /* eslint-enable max-len, @stylistic/max-len, quote-props, @stylistic/quote-props */
 
@@ -1004,12 +1062,14 @@ export interface OutputObjectQueue {
  */
 /* eslint-disable max-len, @stylistic/max-len, quote-props, @stylistic/quote-props */
 export function toJson_OutputObjectQueue(obj: OutputObjectQueue | undefined): Record<string, any> | undefined {
-  if (obj === undefined) { return undefined; }
+  if (obj === undefined) {
+    return undefined;
+  }
   const result = {
-    'mem': toJson_OutputObjectQueueMem(obj.mem),
+    mem: toJson_OutputObjectQueueMem(obj.mem),
   };
   // filter undefined values
-  return Object.entries(result).reduce((r, i) => (i[1] === undefined) ? r : ({ ...r, [i[0]]: i[1] }), {});
+  return Object.entries(result).reduce((r, i) => (i[1] === undefined ? r : { ...r, [i[0]]: i[1] }), {});
 }
 /* eslint-enable max-len, @stylistic/max-len, quote-props, @stylistic/quote-props */
 
@@ -1037,13 +1097,15 @@ export interface OutputObjectBackoff {
  */
 /* eslint-disable max-len, @stylistic/max-len, quote-props, @stylistic/quote-props */
 export function toJson_OutputObjectBackoff(obj: OutputObjectBackoff | undefined): Record<string, any> | undefined {
-  if (obj === undefined) { return undefined; }
+  if (obj === undefined) {
+    return undefined;
+  }
   const result = {
-    'max': obj.max,
-    'init': obj.init,
+    max: obj.max,
+    init: obj.init,
   };
   // filter undefined values
-  return Object.entries(result).reduce((r, i) => (i[1] === undefined) ? r : ({ ...r, [i[0]]: i[1] }), {});
+  return Object.entries(result).reduce((r, i) => (i[1] === undefined ? r : { ...r, [i[0]]: i[1] }), {});
 }
 /* eslint-enable max-len, @stylistic/max-len, quote-props, @stylistic/quote-props */
 
@@ -1075,15 +1137,22 @@ export interface ElasticAgentSystemAuthLogs {
  * Converts an object of type 'ElasticAgentSystemAuthLogs' to JSON representation.
  */
 /* eslint-disable max-len, @stylistic/max-len, quote-props, @stylistic/quote-props */
-export function toJson_ElasticAgentSystemAuthLogs(obj: ElasticAgentSystemAuthLogs | undefined): Record<string, any> | undefined {
-  if (obj === undefined) { return undefined; }
+export function toJson_ElasticAgentSystemAuthLogs(
+  obj: ElasticAgentSystemAuthLogs | undefined,
+): Record<string, any> | undefined {
+  if (obj === undefined) {
+    return undefined;
+  }
   const result = {
-    'enabled': obj.enabled,
-    'vars': toJson_SystemLogsStreamVars(obj.vars),
-    'additionalValues': ((obj.additionalValues) === undefined) ? undefined : (Object.entries(obj.additionalValues).reduce((r, i) => (i[1] === undefined) ? r : ({ ...r, [i[0]]: i[1] }), {})),
+    enabled: obj.enabled,
+    vars: toJson_SystemLogsStreamVars(obj.vars),
+    additionalValues:
+      obj.additionalValues === undefined
+        ? undefined
+        : Object.entries(obj.additionalValues).reduce((r, i) => (i[1] === undefined ? r : { ...r, [i[0]]: i[1] }), {}),
   };
   // filter undefined values
-  return Object.entries(result).reduce((r, i) => (i[1] === undefined) ? r : ({ ...r, [i[0]]: i[1] }), {});
+  return Object.entries(result).reduce((r, i) => (i[1] === undefined ? r : { ...r, [i[0]]: i[1] }), {});
 }
 /* eslint-enable max-len, @stylistic/max-len, quote-props, @stylistic/quote-props */
 
@@ -1115,15 +1184,22 @@ export interface ElasticAgentSystemSyslog {
  * Converts an object of type 'ElasticAgentSystemSyslog' to JSON representation.
  */
 /* eslint-disable max-len, @stylistic/max-len, quote-props, @stylistic/quote-props */
-export function toJson_ElasticAgentSystemSyslog(obj: ElasticAgentSystemSyslog | undefined): Record<string, any> | undefined {
-  if (obj === undefined) { return undefined; }
+export function toJson_ElasticAgentSystemSyslog(
+  obj: ElasticAgentSystemSyslog | undefined,
+): Record<string, any> | undefined {
+  if (obj === undefined) {
+    return undefined;
+  }
   const result = {
-    'enabled': obj.enabled,
-    'vars': toJson_SystemLogsStreamVars(obj.vars),
-    'additionalValues': ((obj.additionalValues) === undefined) ? undefined : (Object.entries(obj.additionalValues).reduce((r, i) => (i[1] === undefined) ? r : ({ ...r, [i[0]]: i[1] }), {})),
+    enabled: obj.enabled,
+    vars: toJson_SystemLogsStreamVars(obj.vars),
+    additionalValues:
+      obj.additionalValues === undefined
+        ? undefined
+        : Object.entries(obj.additionalValues).reduce((r, i) => (i[1] === undefined ? r : { ...r, [i[0]]: i[1] }), {}),
   };
   // filter undefined values
-  return Object.entries(result).reduce((r, i) => (i[1] === undefined) ? r : ({ ...r, [i[0]]: i[1] }), {});
+  return Object.entries(result).reduce((r, i) => (i[1] === undefined ? r : { ...r, [i[0]]: i[1] }), {});
 }
 /* eslint-enable max-len, @stylistic/max-len, quote-props, @stylistic/quote-props */
 
@@ -1150,14 +1226,21 @@ export interface ElasticAgentSystemMetrics {
  * Converts an object of type 'ElasticAgentSystemMetrics' to JSON representation.
  */
 /* eslint-disable max-len, @stylistic/max-len, quote-props, @stylistic/quote-props */
-export function toJson_ElasticAgentSystemMetrics(obj: ElasticAgentSystemMetrics | undefined): Record<string, any> | undefined {
-  if (obj === undefined) { return undefined; }
+export function toJson_ElasticAgentSystemMetrics(
+  obj: ElasticAgentSystemMetrics | undefined,
+): Record<string, any> | undefined {
+  if (obj === undefined) {
+    return undefined;
+  }
   const result = {
-    'enabled': obj.enabled,
-    'additionalValues': ((obj.additionalValues) === undefined) ? undefined : (Object.entries(obj.additionalValues).reduce((r, i) => (i[1] === undefined) ? r : ({ ...r, [i[0]]: i[1] }), {})),
+    enabled: obj.enabled,
+    additionalValues:
+      obj.additionalValues === undefined
+        ? undefined
+        : Object.entries(obj.additionalValues).reduce((r, i) => (i[1] === undefined ? r : { ...r, [i[0]]: i[1] }), {}),
   };
   // filter undefined values
-  return Object.entries(result).reduce((r, i) => (i[1] === undefined) ? r : ({ ...r, [i[0]]: i[1] }), {});
+  return Object.entries(result).reduce((r, i) => (i[1] === undefined ? r : { ...r, [i[0]]: i[1] }), {});
 }
 /* eslint-enable max-len, @stylistic/max-len, quote-props, @stylistic/quote-props */
 
@@ -1184,14 +1267,21 @@ export interface ElasticAgentKubernetesHints {
  * Converts an object of type 'ElasticAgentKubernetesHints' to JSON representation.
  */
 /* eslint-disable max-len, @stylistic/max-len, quote-props, @stylistic/quote-props */
-export function toJson_ElasticAgentKubernetesHints(obj: ElasticAgentKubernetesHints | undefined): Record<string, any> | undefined {
-  if (obj === undefined) { return undefined; }
+export function toJson_ElasticAgentKubernetesHints(
+  obj: ElasticAgentKubernetesHints | undefined,
+): Record<string, any> | undefined {
+  if (obj === undefined) {
+    return undefined;
+  }
   const result = {
-    'enabled': obj.enabled,
-    'additionalValues': ((obj.additionalValues) === undefined) ? undefined : (Object.entries(obj.additionalValues).reduce((r, i) => (i[1] === undefined) ? r : ({ ...r, [i[0]]: i[1] }), {})),
+    enabled: obj.enabled,
+    additionalValues:
+      obj.additionalValues === undefined
+        ? undefined
+        : Object.entries(obj.additionalValues).reduce((r, i) => (i[1] === undefined ? r : { ...r, [i[0]]: i[1] }), {}),
   };
   // filter undefined values
-  return Object.entries(result).reduce((r, i) => (i[1] === undefined) ? r : ({ ...r, [i[0]]: i[1] }), {});
+  return Object.entries(result).reduce((r, i) => (i[1] === undefined ? r : { ...r, [i[0]]: i[1] }), {});
 }
 /* eslint-enable max-len, @stylistic/max-len, quote-props, @stylistic/quote-props */
 
@@ -1232,16 +1322,23 @@ export interface ElasticAgentKubernetesState {
  * Converts an object of type 'ElasticAgentKubernetesState' to JSON representation.
  */
 /* eslint-disable max-len, @stylistic/max-len, quote-props, @stylistic/quote-props */
-export function toJson_ElasticAgentKubernetesState(obj: ElasticAgentKubernetesState | undefined): Record<string, any> | undefined {
-  if (obj === undefined) { return undefined; }
+export function toJson_ElasticAgentKubernetesState(
+  obj: ElasticAgentKubernetesState | undefined,
+): Record<string, any> | undefined {
+  if (obj === undefined) {
+    return undefined;
+  }
   const result = {
-    'enabled': obj.enabled,
-    'host': obj.host,
-    'vars': obj.vars,
-    'additionalValues': ((obj.additionalValues) === undefined) ? undefined : (Object.entries(obj.additionalValues).reduce((r, i) => (i[1] === undefined) ? r : ({ ...r, [i[0]]: i[1] }), {})),
+    enabled: obj.enabled,
+    host: obj.host,
+    vars: obj.vars,
+    additionalValues:
+      obj.additionalValues === undefined
+        ? undefined
+        : Object.entries(obj.additionalValues).reduce((r, i) => (i[1] === undefined ? r : { ...r, [i[0]]: i[1] }), {}),
   };
   // filter undefined values
-  return Object.entries(result).reduce((r, i) => (i[1] === undefined) ? r : ({ ...r, [i[0]]: i[1] }), {});
+  return Object.entries(result).reduce((r, i) => (i[1] === undefined ? r : { ...r, [i[0]]: i[1] }), {});
 }
 /* eslint-enable max-len, @stylistic/max-len, quote-props, @stylistic/quote-props */
 
@@ -1275,15 +1372,22 @@ export interface ElasticAgentKubernetesMetrics {
  * Converts an object of type 'ElasticAgentKubernetesMetrics' to JSON representation.
  */
 /* eslint-disable max-len, @stylistic/max-len, quote-props, @stylistic/quote-props */
-export function toJson_ElasticAgentKubernetesMetrics(obj: ElasticAgentKubernetesMetrics | undefined): Record<string, any> | undefined {
-  if (obj === undefined) { return undefined; }
+export function toJson_ElasticAgentKubernetesMetrics(
+  obj: ElasticAgentKubernetesMetrics | undefined,
+): Record<string, any> | undefined {
+  if (obj === undefined) {
+    return undefined;
+  }
   const result = {
-    'enabled': obj.enabled,
-    'vars': obj.vars,
-    'additionalValues': ((obj.additionalValues) === undefined) ? undefined : (Object.entries(obj.additionalValues).reduce((r, i) => (i[1] === undefined) ? r : ({ ...r, [i[0]]: i[1] }), {})),
+    enabled: obj.enabled,
+    vars: obj.vars,
+    additionalValues:
+      obj.additionalValues === undefined
+        ? undefined
+        : Object.entries(obj.additionalValues).reduce((r, i) => (i[1] === undefined ? r : { ...r, [i[0]]: i[1] }), {}),
   };
   // filter undefined values
-  return Object.entries(result).reduce((r, i) => (i[1] === undefined) ? r : ({ ...r, [i[0]]: i[1] }), {});
+  return Object.entries(result).reduce((r, i) => (i[1] === undefined ? r : { ...r, [i[0]]: i[1] }), {});
 }
 /* eslint-enable max-len, @stylistic/max-len, quote-props, @stylistic/quote-props */
 
@@ -1317,15 +1421,22 @@ export interface ElasticAgentKubernetesApiserver {
  * Converts an object of type 'ElasticAgentKubernetesApiserver' to JSON representation.
  */
 /* eslint-disable max-len, @stylistic/max-len, quote-props, @stylistic/quote-props */
-export function toJson_ElasticAgentKubernetesApiserver(obj: ElasticAgentKubernetesApiserver | undefined): Record<string, any> | undefined {
-  if (obj === undefined) { return undefined; }
+export function toJson_ElasticAgentKubernetesApiserver(
+  obj: ElasticAgentKubernetesApiserver | undefined,
+): Record<string, any> | undefined {
+  if (obj === undefined) {
+    return undefined;
+  }
   const result = {
-    'enabled': obj.enabled,
-    'vars': obj.vars,
-    'additionalValues': ((obj.additionalValues) === undefined) ? undefined : (Object.entries(obj.additionalValues).reduce((r, i) => (i[1] === undefined) ? r : ({ ...r, [i[0]]: i[1] }), {})),
+    enabled: obj.enabled,
+    vars: obj.vars,
+    additionalValues:
+      obj.additionalValues === undefined
+        ? undefined
+        : Object.entries(obj.additionalValues).reduce((r, i) => (i[1] === undefined ? r : { ...r, [i[0]]: i[1] }), {}),
   };
   // filter undefined values
-  return Object.entries(result).reduce((r, i) => (i[1] === undefined) ? r : ({ ...r, [i[0]]: i[1] }), {});
+  return Object.entries(result).reduce((r, i) => (i[1] === undefined ? r : { ...r, [i[0]]: i[1] }), {});
 }
 /* eslint-enable max-len, @stylistic/max-len, quote-props, @stylistic/quote-props */
 
@@ -1359,15 +1470,22 @@ export interface ElasticAgentKubernetesProxy {
  * Converts an object of type 'ElasticAgentKubernetesProxy' to JSON representation.
  */
 /* eslint-disable max-len, @stylistic/max-len, quote-props, @stylistic/quote-props */
-export function toJson_ElasticAgentKubernetesProxy(obj: ElasticAgentKubernetesProxy | undefined): Record<string, any> | undefined {
-  if (obj === undefined) { return undefined; }
+export function toJson_ElasticAgentKubernetesProxy(
+  obj: ElasticAgentKubernetesProxy | undefined,
+): Record<string, any> | undefined {
+  if (obj === undefined) {
+    return undefined;
+  }
   const result = {
-    'enabled': obj.enabled,
-    'vars': obj.vars,
-    'additionalValues': ((obj.additionalValues) === undefined) ? undefined : (Object.entries(obj.additionalValues).reduce((r, i) => (i[1] === undefined) ? r : ({ ...r, [i[0]]: i[1] }), {})),
+    enabled: obj.enabled,
+    vars: obj.vars,
+    additionalValues:
+      obj.additionalValues === undefined
+        ? undefined
+        : Object.entries(obj.additionalValues).reduce((r, i) => (i[1] === undefined ? r : { ...r, [i[0]]: i[1] }), {}),
   };
   // filter undefined values
-  return Object.entries(result).reduce((r, i) => (i[1] === undefined) ? r : ({ ...r, [i[0]]: i[1] }), {});
+  return Object.entries(result).reduce((r, i) => (i[1] === undefined ? r : { ...r, [i[0]]: i[1] }), {});
 }
 /* eslint-enable max-len, @stylistic/max-len, quote-props, @stylistic/quote-props */
 
@@ -1401,15 +1519,22 @@ export interface ElasticAgentKubernetesScheduler {
  * Converts an object of type 'ElasticAgentKubernetesScheduler' to JSON representation.
  */
 /* eslint-disable max-len, @stylistic/max-len, quote-props, @stylistic/quote-props */
-export function toJson_ElasticAgentKubernetesScheduler(obj: ElasticAgentKubernetesScheduler | undefined): Record<string, any> | undefined {
-  if (obj === undefined) { return undefined; }
+export function toJson_ElasticAgentKubernetesScheduler(
+  obj: ElasticAgentKubernetesScheduler | undefined,
+): Record<string, any> | undefined {
+  if (obj === undefined) {
+    return undefined;
+  }
   const result = {
-    'enabled': obj.enabled,
-    'vars': obj.vars,
-    'additionalValues': ((obj.additionalValues) === undefined) ? undefined : (Object.entries(obj.additionalValues).reduce((r, i) => (i[1] === undefined) ? r : ({ ...r, [i[0]]: i[1] }), {})),
+    enabled: obj.enabled,
+    vars: obj.vars,
+    additionalValues:
+      obj.additionalValues === undefined
+        ? undefined
+        : Object.entries(obj.additionalValues).reduce((r, i) => (i[1] === undefined ? r : { ...r, [i[0]]: i[1] }), {}),
   };
   // filter undefined values
-  return Object.entries(result).reduce((r, i) => (i[1] === undefined) ? r : ({ ...r, [i[0]]: i[1] }), {});
+  return Object.entries(result).reduce((r, i) => (i[1] === undefined ? r : { ...r, [i[0]]: i[1] }), {});
 }
 /* eslint-enable max-len, @stylistic/max-len, quote-props, @stylistic/quote-props */
 
@@ -1443,15 +1568,22 @@ export interface ElasticAgentKubernetesControllerManager {
  * Converts an object of type 'ElasticAgentKubernetesControllerManager' to JSON representation.
  */
 /* eslint-disable max-len, @stylistic/max-len, quote-props, @stylistic/quote-props */
-export function toJson_ElasticAgentKubernetesControllerManager(obj: ElasticAgentKubernetesControllerManager | undefined): Record<string, any> | undefined {
-  if (obj === undefined) { return undefined; }
+export function toJson_ElasticAgentKubernetesControllerManager(
+  obj: ElasticAgentKubernetesControllerManager | undefined,
+): Record<string, any> | undefined {
+  if (obj === undefined) {
+    return undefined;
+  }
   const result = {
-    'enabled': obj.enabled,
-    'vars': obj.vars,
-    'additionalValues': ((obj.additionalValues) === undefined) ? undefined : (Object.entries(obj.additionalValues).reduce((r, i) => (i[1] === undefined) ? r : ({ ...r, [i[0]]: i[1] }), {})),
+    enabled: obj.enabled,
+    vars: obj.vars,
+    additionalValues:
+      obj.additionalValues === undefined
+        ? undefined
+        : Object.entries(obj.additionalValues).reduce((r, i) => (i[1] === undefined ? r : { ...r, [i[0]]: i[1] }), {}),
   };
   // filter undefined values
-  return Object.entries(result).reduce((r, i) => (i[1] === undefined) ? r : ({ ...r, [i[0]]: i[1] }), {});
+  return Object.entries(result).reduce((r, i) => (i[1] === undefined ? r : { ...r, [i[0]]: i[1] }), {});
 }
 /* eslint-enable max-len, @stylistic/max-len, quote-props, @stylistic/quote-props */
 
@@ -1491,17 +1623,24 @@ export interface ElasticAgentKubernetesContainers {
  * Converts an object of type 'ElasticAgentKubernetesContainers' to JSON representation.
  */
 /* eslint-disable max-len, @stylistic/max-len, quote-props, @stylistic/quote-props */
-export function toJson_ElasticAgentKubernetesContainers(obj: ElasticAgentKubernetesContainers | undefined): Record<string, any> | undefined {
-  if (obj === undefined) { return undefined; }
+export function toJson_ElasticAgentKubernetesContainers(
+  obj: ElasticAgentKubernetesContainers | undefined,
+): Record<string, any> | undefined {
+  if (obj === undefined) {
+    return undefined;
+  }
   const result = {
-    'metrics': toJson_KubernetesStreamConfig(obj.metrics),
-    'state': toJson_KubernetesStreamConfig(obj.state),
-    'logs': toJson_ElasticAgentKubernetesContainersLogs(obj.logs),
-    'audit_logs': toJson_KubernetesStreamConfig(obj.auditLogs),
-    'additionalValues': ((obj.additionalValues) === undefined) ? undefined : (Object.entries(obj.additionalValues).reduce((r, i) => (i[1] === undefined) ? r : ({ ...r, [i[0]]: i[1] }), {})),
+    metrics: toJson_KubernetesStreamConfig(obj.metrics),
+    state: toJson_KubernetesStreamConfig(obj.state),
+    logs: toJson_ElasticAgentKubernetesContainersLogs(obj.logs),
+    audit_logs: toJson_KubernetesStreamConfig(obj.auditLogs),
+    additionalValues:
+      obj.additionalValues === undefined
+        ? undefined
+        : Object.entries(obj.additionalValues).reduce((r, i) => (i[1] === undefined ? r : { ...r, [i[0]]: i[1] }), {}),
   };
   // filter undefined values
-  return Object.entries(result).reduce((r, i) => (i[1] === undefined) ? r : ({ ...r, [i[0]]: i[1] }), {});
+  return Object.entries(result).reduce((r, i) => (i[1] === undefined ? r : { ...r, [i[0]]: i[1] }), {});
 }
 /* eslint-enable max-len, @stylistic/max-len, quote-props, @stylistic/quote-props */
 
@@ -1524,14 +1663,18 @@ export interface KubernetesMetricsAndStateConfig {
  * Converts an object of type 'KubernetesMetricsAndStateConfig' to JSON representation.
  */
 /* eslint-disable max-len, @stylistic/max-len, quote-props, @stylistic/quote-props */
-export function toJson_KubernetesMetricsAndStateConfig(obj: KubernetesMetricsAndStateConfig | undefined): Record<string, any> | undefined {
-  if (obj === undefined) { return undefined; }
+export function toJson_KubernetesMetricsAndStateConfig(
+  obj: KubernetesMetricsAndStateConfig | undefined,
+): Record<string, any> | undefined {
+  if (obj === undefined) {
+    return undefined;
+  }
   const result = {
-    'metrics': toJson_KubernetesStreamConfig(obj.metrics),
-    'state': toJson_KubernetesStreamConfig(obj.state),
+    metrics: toJson_KubernetesStreamConfig(obj.metrics),
+    state: toJson_KubernetesStreamConfig(obj.state),
   };
   // filter undefined values
-  return Object.entries(result).reduce((r, i) => (i[1] === undefined) ? r : ({ ...r, [i[0]]: i[1] }), {});
+  return Object.entries(result).reduce((r, i) => (i[1] === undefined ? r : { ...r, [i[0]]: i[1] }), {});
 }
 /* eslint-enable max-len, @stylistic/max-len, quote-props, @stylistic/quote-props */
 
@@ -1550,12 +1693,14 @@ export interface KubernetesStateConfig {
  */
 /* eslint-disable max-len, @stylistic/max-len, quote-props, @stylistic/quote-props */
 export function toJson_KubernetesStateConfig(obj: KubernetesStateConfig | undefined): Record<string, any> | undefined {
-  if (obj === undefined) { return undefined; }
+  if (obj === undefined) {
+    return undefined;
+  }
   const result = {
-    'state': toJson_KubernetesStreamConfig(obj.state),
+    state: toJson_KubernetesStreamConfig(obj.state),
   };
   // filter undefined values
-  return Object.entries(result).reduce((r, i) => (i[1] === undefined) ? r : ({ ...r, [i[0]]: i[1] }), {});
+  return Object.entries(result).reduce((r, i) => (i[1] === undefined ? r : { ...r, [i[0]]: i[1] }), {});
 }
 /* eslint-enable max-len, @stylistic/max-len, quote-props, @stylistic/quote-props */
 
@@ -1573,13 +1718,17 @@ export interface KubernetesMetricsConfig {
  * Converts an object of type 'KubernetesMetricsConfig' to JSON representation.
  */
 /* eslint-disable max-len, @stylistic/max-len, quote-props, @stylistic/quote-props */
-export function toJson_KubernetesMetricsConfig(obj: KubernetesMetricsConfig | undefined): Record<string, any> | undefined {
-  if (obj === undefined) { return undefined; }
+export function toJson_KubernetesMetricsConfig(
+  obj: KubernetesMetricsConfig | undefined,
+): Record<string, any> | undefined {
+  if (obj === undefined) {
+    return undefined;
+  }
   const result = {
-    'metrics': toJson_KubernetesStreamConfig(obj.metrics),
+    metrics: toJson_KubernetesStreamConfig(obj.metrics),
   };
   // filter undefined values
-  return Object.entries(result).reduce((r, i) => (i[1] === undefined) ? r : ({ ...r, [i[0]]: i[1] }), {});
+  return Object.entries(result).reduce((r, i) => (i[1] === undefined ? r : { ...r, [i[0]]: i[1] }), {});
 }
 /* eslint-enable max-len, @stylistic/max-len, quote-props, @stylistic/quote-props */
 
@@ -1616,14 +1765,16 @@ export interface AgentImageConfig {
  */
 /* eslint-disable max-len, @stylistic/max-len, quote-props, @stylistic/quote-props */
 export function toJson_AgentImageConfig(obj: AgentImageConfig | undefined): Record<string, any> | undefined {
-  if (obj === undefined) { return undefined; }
+  if (obj === undefined) {
+    return undefined;
+  }
   const result = {
-    'repository': obj.repository,
-    'pullPolicy': obj.pullPolicy,
-    'tag': obj.tag,
+    repository: obj.repository,
+    pullPolicy: obj.pullPolicy,
+    tag: obj.tag,
   };
   // filter undefined values
-  return Object.entries(result).reduce((r, i) => (i[1] === undefined) ? r : ({ ...r, [i[0]]: i[1] }), {});
+  return Object.entries(result).reduce((r, i) => (i[1] === undefined ? r : { ...r, [i[0]]: i[1] }), {});
 }
 /* eslint-enable max-len, @stylistic/max-len, quote-props, @stylistic/quote-props */
 
@@ -1634,9 +1785,9 @@ export function toJson_AgentImageConfig(obj: AgentImageConfig | undefined): Reco
  */
 export enum ElasticAgentAgentEngine {
   /** k8s */
-  K8S = "k8s",
+  K8S = 'k8s',
   /** eck */
-  ECK = "eck",
+  ECK = 'eck',
 }
 
 /**
@@ -1769,29 +1920,36 @@ export interface ElasticAgentAgentFleet {
  * Converts an object of type 'ElasticAgentAgentFleet' to JSON representation.
  */
 /* eslint-disable max-len, @stylistic/max-len, quote-props, @stylistic/quote-props */
-export function toJson_ElasticAgentAgentFleet(obj: ElasticAgentAgentFleet | undefined): Record<string, any> | undefined {
-  if (obj === undefined) { return undefined; }
+export function toJson_ElasticAgentAgentFleet(
+  obj: ElasticAgentAgentFleet | undefined,
+): Record<string, any> | undefined {
+  if (obj === undefined) {
+    return undefined;
+  }
   const result = {
-    'enabled': obj.enabled,
-    'ca': toJson_ValueFrom(obj.ca),
-    'force': obj.force,
-    'agentCert': toJson_ValueFrom(obj.agentCert),
-    'agentCertKey': toJson_ValueFrom(obj.agentCertKey),
-    'kibanaCA': toJson_ValueFrom(obj.kibanaCa),
-    'kibanaServiceToken': obj.kibanaServiceToken,
-    'tokenName': obj.tokenName,
-    'policyName': obj.policyName,
-    'url': obj.url,
-    'token': obj.token,
-    'insecure': obj.insecure,
-    'kibanaHost': obj.kibanaHost,
-    'kibanaUser': obj.kibanaUser,
-    'kibanaPassword': obj.kibanaPassword,
-    'preset': obj.preset,
-    'additionalValues': ((obj.additionalValues) === undefined) ? undefined : (Object.entries(obj.additionalValues).reduce((r, i) => (i[1] === undefined) ? r : ({ ...r, [i[0]]: i[1] }), {})),
+    enabled: obj.enabled,
+    ca: toJson_ValueFrom(obj.ca),
+    force: obj.force,
+    agentCert: toJson_ValueFrom(obj.agentCert),
+    agentCertKey: toJson_ValueFrom(obj.agentCertKey),
+    kibanaCA: toJson_ValueFrom(obj.kibanaCa),
+    kibanaServiceToken: obj.kibanaServiceToken,
+    tokenName: obj.tokenName,
+    policyName: obj.policyName,
+    url: obj.url,
+    token: obj.token,
+    insecure: obj.insecure,
+    kibanaHost: obj.kibanaHost,
+    kibanaUser: obj.kibanaUser,
+    kibanaPassword: obj.kibanaPassword,
+    preset: obj.preset,
+    additionalValues:
+      obj.additionalValues === undefined
+        ? undefined
+        : Object.entries(obj.additionalValues).reduce((r, i) => (i[1] === undefined ? r : { ...r, [i[0]]: i[1] }), {}),
   };
   // filter undefined values
-  return Object.entries(result).reduce((r, i) => (i[1] === undefined) ? r : ({ ...r, [i[0]]: i[1] }), {});
+  return Object.entries(result).reduce((r, i) => (i[1] === undefined ? r : { ...r, [i[0]]: i[1] }), {});
 }
 /* eslint-enable max-len, @stylistic/max-len, quote-props, @stylistic/quote-props */
 
@@ -2009,41 +2167,52 @@ export interface AgentPreset {
  */
 /* eslint-disable max-len, @stylistic/max-len, quote-props, @stylistic/quote-props */
 export function toJson_AgentPreset(obj: AgentPreset | undefined): Record<string, any> | undefined {
-  if (obj === undefined) { return undefined; }
+  if (obj === undefined) {
+    return undefined;
+  }
   const result = {
-    'mode': obj.mode,
-    'replicaCount': obj.replicaCount,
-    'labels': ((obj.labels) === undefined) ? undefined : (Object.entries(obj.labels).reduce((r, i) => (i[1] === undefined) ? r : ({ ...r, [i[0]]: i[1] }), {})),
-    'annotations': ((obj.annotations) === undefined) ? undefined : (Object.entries(obj.annotations).reduce((r, i) => (i[1] === undefined) ? r : ({ ...r, [i[0]]: i[1] }), {})),
-    'command': obj.command?.map(y => y),
-    'args': obj.args?.map(y => y),
-    'otelConfig': obj.otelConfig,
-    'service': toJson_AgentPresetService(obj.service),
-    'ports': obj.ports?.map(y => toJson_AgentPresetPorts(y)),
-    'affinity': obj.affinity,
-    'initContainers': obj.initContainers?.map(y => y),
-    'extraContainers': obj.extraContainers?.map(y => y),
-    'automountServiceAccountToken': obj.automountServiceAccountToken,
-    'hostNetwork': obj.hostNetwork,
-    'hostPID': obj.hostPid,
-    'resources': obj.resources,
-    'securityContext': obj.securityContext,
-    'serviceAccount': toJson_AgentPresetServiceAccount(obj.serviceAccount),
-    'clusterRole': toJson_AgentPresetClusterRole(obj.clusterRole),
-    'priorityClass': toJson_AgentPriorityClass(obj.priorityClass),
-    'envFrom': obj.envFrom?.map(y => y),
-    'nodeSelector': ((obj.nodeSelector) === undefined) ? undefined : (Object.entries(obj.nodeSelector).reduce((r, i) => (i[1] === undefined) ? r : ({ ...r, [i[0]]: i[1] }), {})),
-    'tolerations': obj.tolerations?.map(y => y),
-    'topologySpreadConstraints': obj.topologySpreadConstraints?.map(y => y),
-    'extraEnvs': obj.extraEnvs?.map(y => y),
-    'statePersistence': obj.statePersistence,
-    'extraVolumes': obj.extraVolumes?.map(y => y),
-    'extraVolumeMounts': obj.extraVolumeMounts?.map(y => y),
-    'agent': toJson_AgentPresetAgent(obj.agent),
-    'providers': toJson_AgentPresetProviders(obj.providers),
+    mode: obj.mode,
+    replicaCount: obj.replicaCount,
+    labels:
+      obj.labels === undefined
+        ? undefined
+        : Object.entries(obj.labels).reduce((r, i) => (i[1] === undefined ? r : { ...r, [i[0]]: i[1] }), {}),
+    annotations:
+      obj.annotations === undefined
+        ? undefined
+        : Object.entries(obj.annotations).reduce((r, i) => (i[1] === undefined ? r : { ...r, [i[0]]: i[1] }), {}),
+    command: obj.command?.map((y) => y),
+    args: obj.args?.map((y) => y),
+    otelConfig: obj.otelConfig,
+    service: toJson_AgentPresetService(obj.service),
+    ports: obj.ports?.map((y) => toJson_AgentPresetPorts(y)),
+    affinity: obj.affinity,
+    initContainers: obj.initContainers?.map((y) => y),
+    extraContainers: obj.extraContainers?.map((y) => y),
+    automountServiceAccountToken: obj.automountServiceAccountToken,
+    hostNetwork: obj.hostNetwork,
+    hostPID: obj.hostPid,
+    resources: obj.resources,
+    securityContext: obj.securityContext,
+    serviceAccount: toJson_AgentPresetServiceAccount(obj.serviceAccount),
+    clusterRole: toJson_AgentPresetClusterRole(obj.clusterRole),
+    priorityClass: toJson_AgentPriorityClass(obj.priorityClass),
+    envFrom: obj.envFrom?.map((y) => y),
+    nodeSelector:
+      obj.nodeSelector === undefined
+        ? undefined
+        : Object.entries(obj.nodeSelector).reduce((r, i) => (i[1] === undefined ? r : { ...r, [i[0]]: i[1] }), {}),
+    tolerations: obj.tolerations?.map((y) => y),
+    topologySpreadConstraints: obj.topologySpreadConstraints?.map((y) => y),
+    extraEnvs: obj.extraEnvs?.map((y) => y),
+    statePersistence: obj.statePersistence,
+    extraVolumes: obj.extraVolumes?.map((y) => y),
+    extraVolumeMounts: obj.extraVolumeMounts?.map((y) => y),
+    agent: toJson_AgentPresetAgent(obj.agent),
+    providers: toJson_AgentPresetProviders(obj.providers),
   };
   // filter undefined values
-  return Object.entries(result).reduce((r, i) => (i[1] === undefined) ? r : ({ ...r, [i[0]]: i[1] }), {});
+  return Object.entries(result).reduce((r, i) => (i[1] === undefined ? r : { ...r, [i[0]]: i[1] }), {});
 }
 /* eslint-enable max-len, @stylistic/max-len, quote-props, @stylistic/quote-props */
 
@@ -2067,13 +2236,15 @@ export interface ValueFrom {
  */
 /* eslint-disable max-len, @stylistic/max-len, quote-props, @stylistic/quote-props */
 export function toJson_ValueFrom(obj: ValueFrom | undefined): Record<string, any> | undefined {
-  if (obj === undefined) { return undefined; }
+  if (obj === undefined) {
+    return undefined;
+  }
   const result = {
-    'value': obj.value,
-    'valueFromSecret': toJson_ValueFromValueFromSecret(obj.valueFromSecret),
+    value: obj.value,
+    valueFromSecret: toJson_ValueFromValueFromSecret(obj.valueFromSecret),
   };
   // filter undefined values
-  return Object.entries(result).reduce((r, i) => (i[1] === undefined) ? r : ({ ...r, [i[0]]: i[1] }), {});
+  return Object.entries(result).reduce((r, i) => (i[1] === undefined ? r : { ...r, [i[0]]: i[1] }), {});
 }
 /* eslint-enable max-len, @stylistic/max-len, quote-props, @stylistic/quote-props */
 
@@ -2084,11 +2255,11 @@ export function toJson_ValueFrom(obj: ValueFrom | undefined): Record<string, any
  */
 export enum SslConfigClientRenegotiation {
   /** never */
-  NEVER = "never",
+  NEVER = 'never',
   /** once */
-  ONCE = "once",
+  ONCE = 'once',
   /** freely */
-  FREELY = "freely",
+  FREELY = 'freely',
 }
 
 /**
@@ -2098,13 +2269,13 @@ export enum SslConfigClientRenegotiation {
  */
 export enum SslConfigClientVerificationMode {
   /** full */
-  FULL = "full",
+  FULL = 'full',
   /** strict */
-  STRICT = "strict",
+  STRICT = 'strict',
   /** certificate */
-  CERTIFICATE = "certificate",
+  CERTIFICATE = 'certificate',
   /** none */
-  NONE = "none",
+  NONE = 'none',
 }
 
 /**
@@ -2114,11 +2285,11 @@ export enum SslConfigClientVerificationMode {
  */
 export enum SslConfigClientClientAuthentication {
   /** none */
-  NONE = "none",
+  NONE = 'none',
   /** optional */
-  OPTIONAL = "optional",
+  OPTIONAL = 'optional',
   /** required */
-  REQUIRED = "required",
+  REQUIRED = 'required',
 }
 
 /**
@@ -2143,13 +2314,15 @@ export interface OutputObjectQueueMem {
  */
 /* eslint-disable max-len, @stylistic/max-len, quote-props, @stylistic/quote-props */
 export function toJson_OutputObjectQueueMem(obj: OutputObjectQueueMem | undefined): Record<string, any> | undefined {
-  if (obj === undefined) { return undefined; }
+  if (obj === undefined) {
+    return undefined;
+  }
   const result = {
-    'flush': toJson_OutputObjectQueueMemFlush(obj.flush),
-    'events': obj.events,
+    flush: toJson_OutputObjectQueueMemFlush(obj.flush),
+    events: obj.events,
   };
   // filter undefined values
-  return Object.entries(result).reduce((r, i) => (i[1] === undefined) ? r : ({ ...r, [i[0]]: i[1] }), {});
+  return Object.entries(result).reduce((r, i) => (i[1] === undefined ? r : { ...r, [i[0]]: i[1] }), {});
 }
 /* eslint-enable max-len, @stylistic/max-len, quote-props, @stylistic/quote-props */
 
@@ -2200,16 +2373,18 @@ export interface SystemLogsStreamVars {
  */
 /* eslint-disable max-len, @stylistic/max-len, quote-props, @stylistic/quote-props */
 export function toJson_SystemLogsStreamVars(obj: SystemLogsStreamVars | undefined): Record<string, any> | undefined {
-  if (obj === undefined) { return undefined; }
+  if (obj === undefined) {
+    return undefined;
+  }
   const result = {
-    'paths': obj.paths?.map(y => y),
-    'exclude_files': obj.excludeFiles?.map(y => y),
-    'processors': obj.processors?.map(y => y),
-    'tags': obj.tags?.map(y => y),
-    'ignore_older': obj.ignoreOlder,
+    paths: obj.paths?.map((y) => y),
+    exclude_files: obj.excludeFiles?.map((y) => y),
+    processors: obj.processors?.map((y) => y),
+    tags: obj.tags?.map((y) => y),
+    ignore_older: obj.ignoreOlder,
   };
   // filter undefined values
-  return Object.entries(result).reduce((r, i) => (i[1] === undefined) ? r : ({ ...r, [i[0]]: i[1] }), {});
+  return Object.entries(result).reduce((r, i) => (i[1] === undefined ? r : { ...r, [i[0]]: i[1] }), {});
 }
 /* eslint-enable max-len, @stylistic/max-len, quote-props, @stylistic/quote-props */
 
@@ -2236,14 +2411,18 @@ export interface KubernetesStreamConfig {
  * Converts an object of type 'KubernetesStreamConfig' to JSON representation.
  */
 /* eslint-disable max-len, @stylistic/max-len, quote-props, @stylistic/quote-props */
-export function toJson_KubernetesStreamConfig(obj: KubernetesStreamConfig | undefined): Record<string, any> | undefined {
-  if (obj === undefined) { return undefined; }
+export function toJson_KubernetesStreamConfig(
+  obj: KubernetesStreamConfig | undefined,
+): Record<string, any> | undefined {
+  if (obj === undefined) {
+    return undefined;
+  }
   const result = {
-    'enabled': obj.enabled,
-    'vars': obj.vars,
+    enabled: obj.enabled,
+    vars: obj.vars,
   };
   // filter undefined values
-  return Object.entries(result).reduce((r, i) => (i[1] === undefined) ? r : ({ ...r, [i[0]]: i[1] }), {});
+  return Object.entries(result).reduce((r, i) => (i[1] === undefined ? r : { ...r, [i[0]]: i[1] }), {});
 }
 /* eslint-enable max-len, @stylistic/max-len, quote-props, @stylistic/quote-props */
 
@@ -2284,16 +2463,23 @@ export interface ElasticAgentKubernetesContainersLogs {
  * Converts an object of type 'ElasticAgentKubernetesContainersLogs' to JSON representation.
  */
 /* eslint-disable max-len, @stylistic/max-len, quote-props, @stylistic/quote-props */
-export function toJson_ElasticAgentKubernetesContainersLogs(obj: ElasticAgentKubernetesContainersLogs | undefined): Record<string, any> | undefined {
-  if (obj === undefined) { return undefined; }
+export function toJson_ElasticAgentKubernetesContainersLogs(
+  obj: ElasticAgentKubernetesContainersLogs | undefined,
+): Record<string, any> | undefined {
+  if (obj === undefined) {
+    return undefined;
+  }
   const result = {
-    'enabled': obj.enabled,
-    'rotated_logs': obj.rotatedLogs,
-    'vars': toJson_ElasticAgentKubernetesContainersLogsVars(obj.vars),
-    'additionalValues': ((obj.additionalValues) === undefined) ? undefined : (Object.entries(obj.additionalValues).reduce((r, i) => (i[1] === undefined) ? r : ({ ...r, [i[0]]: i[1] }), {})),
+    enabled: obj.enabled,
+    rotated_logs: obj.rotatedLogs,
+    vars: toJson_ElasticAgentKubernetesContainersLogsVars(obj.vars),
+    additionalValues:
+      obj.additionalValues === undefined
+        ? undefined
+        : Object.entries(obj.additionalValues).reduce((r, i) => (i[1] === undefined ? r : { ...r, [i[0]]: i[1] }), {}),
   };
   // filter undefined values
-  return Object.entries(result).reduce((r, i) => (i[1] === undefined) ? r : ({ ...r, [i[0]]: i[1] }), {});
+  return Object.entries(result).reduce((r, i) => (i[1] === undefined ? r : { ...r, [i[0]]: i[1] }), {});
 }
 /* eslint-enable max-len, @stylistic/max-len, quote-props, @stylistic/quote-props */
 
@@ -2304,11 +2490,11 @@ export function toJson_ElasticAgentKubernetesContainersLogs(obj: ElasticAgentKub
  */
 export enum AgentImageConfigPullPolicy {
   /** Always */
-  ALWAYS = "Always",
+  ALWAYS = 'Always',
   /** IfNotPresent */
-  IF_NOT_PRESENT = "IfNotPresent",
+  IF_NOT_PRESENT = 'IfNotPresent',
   /** Never */
-  NEVER = "Never",
+  NEVER = 'Never',
 }
 
 /**
@@ -2318,11 +2504,11 @@ export enum AgentImageConfigPullPolicy {
  */
 export enum AgentPresetMode {
   /** deployment */
-  DEPLOYMENT = "deployment",
+  DEPLOYMENT = 'deployment',
   /** statefulset */
-  STATEFULSET = "statefulset",
+  STATEFULSET = 'statefulset',
   /** daemonset */
-  DAEMONSET = "daemonset",
+  DAEMONSET = 'daemonset',
 }
 
 /**
@@ -2468,29 +2654,31 @@ export interface AgentPresetService {
  */
 /* eslint-disable max-len, @stylistic/max-len, quote-props, @stylistic/quote-props */
 export function toJson_AgentPresetService(obj: AgentPresetService | undefined): Record<string, any> | undefined {
-  if (obj === undefined) { return undefined; }
+  if (obj === undefined) {
+    return undefined;
+  }
   const result = {
-    'clusterIP': obj.clusterIp,
-    'clusterIPs': obj.clusterIPs?.map(y => y),
-    'type': obj.type,
-    'externalIPs': obj.externalIPs?.map(y => y),
-    'sessionAffinity': obj.sessionAffinity,
-    'loadBalancerIP': obj.loadBalancerIp,
-    'loadBalancerSourceRanges': obj.loadBalancerSourceRanges?.map(y => y),
-    'externalName': obj.externalName,
-    'externalTrafficPolicy': obj.externalTrafficPolicy,
-    'healthCheckNodePort': obj.healthCheckNodePort,
-    'publishNotReadyAddresses': obj.publishNotReadyAddresses,
-    'sessionAffinityConfig': obj.sessionAffinityConfig,
-    'ipFamilies': obj.ipFamilies?.map(y => y),
-    'ipFamilyPolicy': obj.ipFamilyPolicy,
-    'allocateLoadBalancerNodePorts': obj.allocateLoadBalancerNodePorts,
-    'loadBalancerClass': obj.loadBalancerClass,
-    'internalTrafficPolicy': obj.internalTrafficPolicy,
-    'trafficDistribution': obj.trafficDistribution,
+    clusterIP: obj.clusterIp,
+    clusterIPs: obj.clusterIPs?.map((y) => y),
+    type: obj.type,
+    externalIPs: obj.externalIPs?.map((y) => y),
+    sessionAffinity: obj.sessionAffinity,
+    loadBalancerIP: obj.loadBalancerIp,
+    loadBalancerSourceRanges: obj.loadBalancerSourceRanges?.map((y) => y),
+    externalName: obj.externalName,
+    externalTrafficPolicy: obj.externalTrafficPolicy,
+    healthCheckNodePort: obj.healthCheckNodePort,
+    publishNotReadyAddresses: obj.publishNotReadyAddresses,
+    sessionAffinityConfig: obj.sessionAffinityConfig,
+    ipFamilies: obj.ipFamilies?.map((y) => y),
+    ipFamilyPolicy: obj.ipFamilyPolicy,
+    allocateLoadBalancerNodePorts: obj.allocateLoadBalancerNodePorts,
+    loadBalancerClass: obj.loadBalancerClass,
+    internalTrafficPolicy: obj.internalTrafficPolicy,
+    trafficDistribution: obj.trafficDistribution,
   };
   // filter undefined values
-  return Object.entries(result).reduce((r, i) => (i[1] === undefined) ? r : ({ ...r, [i[0]]: i[1] }), {});
+  return Object.entries(result).reduce((r, i) => (i[1] === undefined ? r : { ...r, [i[0]]: i[1] }), {});
 }
 /* eslint-enable max-len, @stylistic/max-len, quote-props, @stylistic/quote-props */
 
@@ -2568,20 +2756,22 @@ export interface AgentPresetPorts {
  */
 /* eslint-disable max-len, @stylistic/max-len, quote-props, @stylistic/quote-props */
 export function toJson_AgentPresetPorts(obj: AgentPresetPorts | undefined): Record<string, any> | undefined {
-  if (obj === undefined) { return undefined; }
+  if (obj === undefined) {
+    return undefined;
+  }
   const result = {
-    'name': obj.name,
-    'hostPort': obj.hostPort,
-    'containerPort': obj.containerPort,
-    'protocol': obj.protocol,
-    'hostIP': obj.hostIp,
-    'servicePort': obj.servicePort,
-    'serviceNodePort': obj.serviceNodePort,
-    'appProtocol': obj.appProtocol,
-    'nodePort': obj.nodePort,
+    name: obj.name,
+    hostPort: obj.hostPort,
+    containerPort: obj.containerPort,
+    protocol: obj.protocol,
+    hostIP: obj.hostIp,
+    servicePort: obj.servicePort,
+    serviceNodePort: obj.serviceNodePort,
+    appProtocol: obj.appProtocol,
+    nodePort: obj.nodePort,
   };
   // filter undefined values
-  return Object.entries(result).reduce((r, i) => (i[1] === undefined) ? r : ({ ...r, [i[0]]: i[1] }), {});
+  return Object.entries(result).reduce((r, i) => (i[1] === undefined ? r : { ...r, [i[0]]: i[1] }), {});
 }
 /* eslint-enable max-len, @stylistic/max-len, quote-props, @stylistic/quote-props */
 
@@ -2615,15 +2805,19 @@ export interface AgentPresetServiceAccount {
  * Converts an object of type 'AgentPresetServiceAccount' to JSON representation.
  */
 /* eslint-disable max-len, @stylistic/max-len, quote-props, @stylistic/quote-props */
-export function toJson_AgentPresetServiceAccount(obj: AgentPresetServiceAccount | undefined): Record<string, any> | undefined {
-  if (obj === undefined) { return undefined; }
+export function toJson_AgentPresetServiceAccount(
+  obj: AgentPresetServiceAccount | undefined,
+): Record<string, any> | undefined {
+  if (obj === undefined) {
+    return undefined;
+  }
   const result = {
-    'create': obj.create,
-    'name': obj.name,
-    'annotations': obj.annotations,
+    create: obj.create,
+    name: obj.name,
+    annotations: obj.annotations,
   };
   // filter undefined values
-  return Object.entries(result).reduce((r, i) => (i[1] === undefined) ? r : ({ ...r, [i[0]]: i[1] }), {});
+  return Object.entries(result).reduce((r, i) => (i[1] === undefined ? r : { ...r, [i[0]]: i[1] }), {});
 }
 /* eslint-enable max-len, @stylistic/max-len, quote-props, @stylistic/quote-props */
 
@@ -2664,16 +2858,20 @@ export interface AgentPresetClusterRole {
  * Converts an object of type 'AgentPresetClusterRole' to JSON representation.
  */
 /* eslint-disable max-len, @stylistic/max-len, quote-props, @stylistic/quote-props */
-export function toJson_AgentPresetClusterRole(obj: AgentPresetClusterRole | undefined): Record<string, any> | undefined {
-  if (obj === undefined) { return undefined; }
+export function toJson_AgentPresetClusterRole(
+  obj: AgentPresetClusterRole | undefined,
+): Record<string, any> | undefined {
+  if (obj === undefined) {
+    return undefined;
+  }
   const result = {
-    'create': obj.create,
-    'name': obj.name,
-    'annotations': obj.annotations,
-    'rules': obj.rules?.map(y => y),
+    create: obj.create,
+    name: obj.name,
+    annotations: obj.annotations,
+    rules: obj.rules?.map((y) => y),
   };
   // filter undefined values
-  return Object.entries(result).reduce((r, i) => (i[1] === undefined) ? r : ({ ...r, [i[0]]: i[1] }), {});
+  return Object.entries(result).reduce((r, i) => (i[1] === undefined ? r : { ...r, [i[0]]: i[1] }), {});
 }
 /* eslint-enable max-len, @stylistic/max-len, quote-props, @stylistic/quote-props */
 
@@ -2729,17 +2927,19 @@ export interface AgentPriorityClass {
  */
 /* eslint-disable max-len, @stylistic/max-len, quote-props, @stylistic/quote-props */
 export function toJson_AgentPriorityClass(obj: AgentPriorityClass | undefined): Record<string, any> | undefined {
-  if (obj === undefined) { return undefined; }
+  if (obj === undefined) {
+    return undefined;
+  }
   const result = {
-    'create': obj.create,
-    'name': obj.name,
-    'value': obj.value,
-    'preemptionPolicy': obj.preemptionPolicy,
-    'globalDefault': obj.globalDefault,
-    'description': obj.description,
+    create: obj.create,
+    name: obj.name,
+    value: obj.value,
+    preemptionPolicy: obj.preemptionPolicy,
+    globalDefault: obj.globalDefault,
+    description: obj.description,
   };
   // filter undefined values
-  return Object.entries(result).reduce((r, i) => (i[1] === undefined) ? r : ({ ...r, [i[0]]: i[1] }), {});
+  return Object.entries(result).reduce((r, i) => (i[1] === undefined ? r : { ...r, [i[0]]: i[1] }), {});
 }
 /* eslint-enable max-len, @stylistic/max-len, quote-props, @stylistic/quote-props */
 
@@ -2750,11 +2950,11 @@ export function toJson_AgentPriorityClass(obj: AgentPriorityClass | undefined): 
  */
 export enum AgentPresetStatePersistence {
   /** HostPath */
-  HOST_PATH = "HostPath",
+  HOST_PATH = 'HostPath',
   /** EmptyDir */
-  EMPTY_DIR = "EmptyDir",
+  EMPTY_DIR = 'EmptyDir',
   /** None */
-  NONE = "None",
+  NONE = 'None',
 }
 
 /**
@@ -2772,12 +2972,14 @@ export interface AgentPresetAgent {
  */
 /* eslint-disable max-len, @stylistic/max-len, quote-props, @stylistic/quote-props */
 export function toJson_AgentPresetAgent(obj: AgentPresetAgent | undefined): Record<string, any> | undefined {
-  if (obj === undefined) { return undefined; }
+  if (obj === undefined) {
+    return undefined;
+  }
   const result = {
-    'monitoring': toJson_AgentPresetAgentMonitoring(obj.monitoring),
+    monitoring: toJson_AgentPresetAgentMonitoring(obj.monitoring),
   };
   // filter undefined values
-  return Object.entries(result).reduce((r, i) => (i[1] === undefined) ? r : ({ ...r, [i[0]]: i[1] }), {});
+  return Object.entries(result).reduce((r, i) => (i[1] === undefined ? r : { ...r, [i[0]]: i[1] }), {});
 }
 /* eslint-enable max-len, @stylistic/max-len, quote-props, @stylistic/quote-props */
 
@@ -2803,13 +3005,15 @@ export interface AgentPresetProviders {
  */
 /* eslint-disable max-len, @stylistic/max-len, quote-props, @stylistic/quote-props */
 export function toJson_AgentPresetProviders(obj: AgentPresetProviders | undefined): Record<string, any> | undefined {
-  if (obj === undefined) { return undefined; }
+  if (obj === undefined) {
+    return undefined;
+  }
   const result = {
-    'kubernetes_leaderelection': toJson_AgentPresetProvidersKubernetesLeaderelection(obj.kubernetesLeaderelection),
-    'kubernetes': toJson_AgentPresetProvidersKubernetes(obj.kubernetes),
+    kubernetes_leaderelection: toJson_AgentPresetProvidersKubernetesLeaderelection(obj.kubernetesLeaderelection),
+    kubernetes: toJson_AgentPresetProvidersKubernetes(obj.kubernetes),
   };
   // filter undefined values
-  return Object.entries(result).reduce((r, i) => (i[1] === undefined) ? r : ({ ...r, [i[0]]: i[1] }), {});
+  return Object.entries(result).reduce((r, i) => (i[1] === undefined ? r : { ...r, [i[0]]: i[1] }), {});
 }
 /* eslint-enable max-len, @stylistic/max-len, quote-props, @stylistic/quote-props */
 
@@ -2832,14 +3036,18 @@ export interface ValueFromValueFromSecret {
  * Converts an object of type 'ValueFromValueFromSecret' to JSON representation.
  */
 /* eslint-disable max-len, @stylistic/max-len, quote-props, @stylistic/quote-props */
-export function toJson_ValueFromValueFromSecret(obj: ValueFromValueFromSecret | undefined): Record<string, any> | undefined {
-  if (obj === undefined) { return undefined; }
+export function toJson_ValueFromValueFromSecret(
+  obj: ValueFromValueFromSecret | undefined,
+): Record<string, any> | undefined {
+  if (obj === undefined) {
+    return undefined;
+  }
   const result = {
-    'name': obj.name,
-    'key': obj.key,
+    name: obj.name,
+    key: obj.key,
   };
   // filter undefined values
-  return Object.entries(result).reduce((r, i) => (i[1] === undefined) ? r : ({ ...r, [i[0]]: i[1] }), {});
+  return Object.entries(result).reduce((r, i) => (i[1] === undefined ? r : { ...r, [i[0]]: i[1] }), {});
 }
 /* eslint-enable max-len, @stylistic/max-len, quote-props, @stylistic/quote-props */
 
@@ -2866,14 +3074,18 @@ export interface OutputObjectQueueMemFlush {
  * Converts an object of type 'OutputObjectQueueMemFlush' to JSON representation.
  */
 /* eslint-disable max-len, @stylistic/max-len, quote-props, @stylistic/quote-props */
-export function toJson_OutputObjectQueueMemFlush(obj: OutputObjectQueueMemFlush | undefined): Record<string, any> | undefined {
-  if (obj === undefined) { return undefined; }
+export function toJson_OutputObjectQueueMemFlush(
+  obj: OutputObjectQueueMemFlush | undefined,
+): Record<string, any> | undefined {
+  if (obj === undefined) {
+    return undefined;
+  }
   const result = {
-    'timeout': obj.timeout,
-    'min_events': obj.minEvents,
+    timeout: obj.timeout,
+    min_events: obj.minEvents,
   };
   // filter undefined values
-  return Object.entries(result).reduce((r, i) => (i[1] === undefined) ? r : ({ ...r, [i[0]]: i[1] }), {});
+  return Object.entries(result).reduce((r, i) => (i[1] === undefined ? r : { ...r, [i[0]]: i[1] }), {});
 }
 /* eslint-enable max-len, @stylistic/max-len, quote-props, @stylistic/quote-props */
 
@@ -2937,19 +3149,26 @@ export interface ElasticAgentKubernetesContainersLogsVars {
  * Converts an object of type 'ElasticAgentKubernetesContainersLogsVars' to JSON representation.
  */
 /* eslint-disable max-len, @stylistic/max-len, quote-props, @stylistic/quote-props */
-export function toJson_ElasticAgentKubernetesContainersLogsVars(obj: ElasticAgentKubernetesContainersLogsVars | undefined): Record<string, any> | undefined {
-  if (obj === undefined) { return undefined; }
+export function toJson_ElasticAgentKubernetesContainersLogsVars(
+  obj: ElasticAgentKubernetesContainersLogsVars | undefined,
+): Record<string, any> | undefined {
+  if (obj === undefined) {
+    return undefined;
+  }
   const result = {
-    'enabledDefaultProcessors': obj.enabledDefaultProcessors,
-    'symlinks': obj.symlinks,
-    'additionalParsersConfig': obj.additionalParsersConfig?.map(y => y),
-    'containerParserStream': obj.containerParserStream,
-    'containerParserFormat': obj.containerParserFormat,
-    'processors': obj.processors?.map(y => y),
-    'additionalValues': ((obj.additionalValues) === undefined) ? undefined : (Object.entries(obj.additionalValues).reduce((r, i) => (i[1] === undefined) ? r : ({ ...r, [i[0]]: i[1] }), {})),
+    enabledDefaultProcessors: obj.enabledDefaultProcessors,
+    symlinks: obj.symlinks,
+    additionalParsersConfig: obj.additionalParsersConfig?.map((y) => y),
+    containerParserStream: obj.containerParserStream,
+    containerParserFormat: obj.containerParserFormat,
+    processors: obj.processors?.map((y) => y),
+    additionalValues:
+      obj.additionalValues === undefined
+        ? undefined
+        : Object.entries(obj.additionalValues).reduce((r, i) => (i[1] === undefined ? r : { ...r, [i[0]]: i[1] }), {}),
   };
   // filter undefined values
-  return Object.entries(result).reduce((r, i) => (i[1] === undefined) ? r : ({ ...r, [i[0]]: i[1] }), {});
+  return Object.entries(result).reduce((r, i) => (i[1] === undefined ? r : { ...r, [i[0]]: i[1] }), {});
 }
 /* eslint-enable max-len, @stylistic/max-len, quote-props, @stylistic/quote-props */
 
@@ -2961,11 +3180,11 @@ export function toJson_ElasticAgentKubernetesContainersLogsVars(obj: ElasticAgen
  */
 export enum AgentPresetServiceType {
   /** ClusterIP */
-  CLUSTER_IP = "ClusterIP",
+  CLUSTER_IP = 'ClusterIP',
   /** NodePort */
-  NODE_PORT = "NodePort",
+  NODE_PORT = 'NodePort',
   /** LoadBalancer */
-  LOAD_BALANCER = "LoadBalancer",
+  LOAD_BALANCER = 'LoadBalancer',
 }
 
 /**
@@ -2976,9 +3195,9 @@ export enum AgentPresetServiceType {
  */
 export enum AgentPresetServiceSessionAffinity {
   /** None */
-  NONE = "None",
+  NONE = 'None',
   /** ClientIP */
-  CLIENT_IP = "ClientIP",
+  CLIENT_IP = 'ClientIP',
 }
 
 /**
@@ -2989,9 +3208,9 @@ export enum AgentPresetServiceSessionAffinity {
  */
 export enum AgentPresetServiceExternalTrafficPolicy {
   /** Cluster */
-  CLUSTER = "Cluster",
+  CLUSTER = 'Cluster',
   /** Local */
-  LOCAL = "Local",
+  LOCAL = 'Local',
 }
 
 /**
@@ -2999,9 +3218,9 @@ export enum AgentPresetServiceExternalTrafficPolicy {
  */
 export enum AgentPresetServiceIpFamilies {
   /** IPv4 */
-  I_PV4 = "IPv4",
+  I_PV4 = 'IPv4',
   /** IPv6 */
-  I_PV6 = "IPv6",
+  I_PV6 = 'IPv6',
 }
 
 /**
@@ -3011,11 +3230,11 @@ export enum AgentPresetServiceIpFamilies {
  */
 export enum AgentPresetServiceIpFamilyPolicy {
   /** SingleStack */
-  SINGLE_STACK = "SingleStack",
+  SINGLE_STACK = 'SingleStack',
   /** PreferDualStack */
-  PREFER_DUAL_STACK = "PreferDualStack",
+  PREFER_DUAL_STACK = 'PreferDualStack',
   /** RequireDualStack */
-  REQUIRE_DUAL_STACK = "RequireDualStack",
+  REQUIRE_DUAL_STACK = 'RequireDualStack',
 }
 
 /**
@@ -3026,9 +3245,9 @@ export enum AgentPresetServiceIpFamilyPolicy {
  */
 export enum AgentPresetServiceInternalTrafficPolicy {
   /** Cluster */
-  CLUSTER = "Cluster",
+  CLUSTER = 'Cluster',
   /** Local */
-  LOCAL = "Local",
+  LOCAL = 'Local',
 }
 
 /**
@@ -3038,9 +3257,9 @@ export enum AgentPresetServiceInternalTrafficPolicy {
  */
 export enum AgentPriorityClassPreemptionPolicy {
   /** Never */
-  NEVER = "Never",
+  NEVER = 'Never',
   /** PreemptLowerPriority */
-  PREEMPT_LOWER_PRIORITY = "PreemptLowerPriority",
+  PREEMPT_LOWER_PRIORITY = 'PreemptLowerPriority',
 }
 
 /**
@@ -3077,17 +3296,21 @@ export interface AgentPresetAgentMonitoring {
  * Converts an object of type 'AgentPresetAgentMonitoring' to JSON representation.
  */
 /* eslint-disable max-len, @stylistic/max-len, quote-props, @stylistic/quote-props */
-export function toJson_AgentPresetAgentMonitoring(obj: AgentPresetAgentMonitoring | undefined): Record<string, any> | undefined {
-  if (obj === undefined) { return undefined; }
+export function toJson_AgentPresetAgentMonitoring(
+  obj: AgentPresetAgentMonitoring | undefined,
+): Record<string, any> | undefined {
+  if (obj === undefined) {
+    return undefined;
+  }
   const result = {
-    'namespace': obj.namespace,
-    'use_output': obj.useOutput,
-    'enabled': obj.enabled,
-    'logs': obj.logs,
-    'metrics': obj.metrics,
+    namespace: obj.namespace,
+    use_output: obj.useOutput,
+    enabled: obj.enabled,
+    logs: obj.logs,
+    metrics: obj.metrics,
   };
   // filter undefined values
-  return Object.entries(result).reduce((r, i) => (i[1] === undefined) ? r : ({ ...r, [i[0]]: i[1] }), {});
+  return Object.entries(result).reduce((r, i) => (i[1] === undefined ? r : { ...r, [i[0]]: i[1] }), {});
 }
 /* eslint-enable max-len, @stylistic/max-len, quote-props, @stylistic/quote-props */
 
@@ -3105,13 +3328,17 @@ export interface AgentPresetProvidersKubernetesLeaderelection {
  * Converts an object of type 'AgentPresetProvidersKubernetesLeaderelection' to JSON representation.
  */
 /* eslint-disable max-len, @stylistic/max-len, quote-props, @stylistic/quote-props */
-export function toJson_AgentPresetProvidersKubernetesLeaderelection(obj: AgentPresetProvidersKubernetesLeaderelection | undefined): Record<string, any> | undefined {
-  if (obj === undefined) { return undefined; }
+export function toJson_AgentPresetProvidersKubernetesLeaderelection(
+  obj: AgentPresetProvidersKubernetesLeaderelection | undefined,
+): Record<string, any> | undefined {
+  if (obj === undefined) {
+    return undefined;
+  }
   const result = {
-    'enabled': obj.enabled,
+    enabled: obj.enabled,
   };
   // filter undefined values
-  return Object.entries(result).reduce((r, i) => (i[1] === undefined) ? r : ({ ...r, [i[0]]: i[1] }), {});
+  return Object.entries(result).reduce((r, i) => (i[1] === undefined ? r : { ...r, [i[0]]: i[1] }), {});
 }
 /* eslint-enable max-len, @stylistic/max-len, quote-props, @stylistic/quote-props */
 
@@ -3139,15 +3366,18 @@ export interface AgentPresetProvidersKubernetes {
  * Converts an object of type 'AgentPresetProvidersKubernetes' to JSON representation.
  */
 /* eslint-disable max-len, @stylistic/max-len, quote-props, @stylistic/quote-props */
-export function toJson_AgentPresetProvidersKubernetes(obj: AgentPresetProvidersKubernetes | undefined): Record<string, any> | undefined {
-  if (obj === undefined) { return undefined; }
+export function toJson_AgentPresetProvidersKubernetes(
+  obj: AgentPresetProvidersKubernetes | undefined,
+): Record<string, any> | undefined {
+  if (obj === undefined) {
+    return undefined;
+  }
   const result = {
-    'enabled': obj.enabled,
-    'node': obj.node,
-    'scope': obj.scope,
+    enabled: obj.enabled,
+    node: obj.node,
+    scope: obj.scope,
   };
   // filter undefined values
-  return Object.entries(result).reduce((r, i) => (i[1] === undefined) ? r : ({ ...r, [i[0]]: i[1] }), {});
+  return Object.entries(result).reduce((r, i) => (i[1] === undefined ? r : { ...r, [i[0]]: i[1] }), {});
 }
 /* eslint-enable max-len, @stylistic/max-len, quote-props, @stylistic/quote-props */
-

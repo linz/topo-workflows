@@ -1,14 +1,14 @@
 import { Chart, ChartProps } from 'cdk8s';
+import { Namespace } from 'cdk8s-plus-33';
 import { Construct } from 'constructs';
+
+import { applyDefaultLabels } from '../util/labels.ts';
 import {
   AgentPresetMode,
   AgentPresetStatePersistence,
   Elasticagent,
   ElasticAgentAgentEngine,
 } from './imports/elastic-agent/elastic.agent.ts';
-
-import { applyDefaultLabels } from '../util/labels.ts';
-import { Namespace } from 'cdk8s-plus-33';
 
 const appVersion = '9.3.1';
 
