@@ -17,7 +17,7 @@ flowchart LR
 
     A --> B[Elastic Fleet]
     B --> C[Elasticsearch]
-    C --> D[Kibana\nSearch / Dashboards]
+    C --> D[Kibana<br>Search / Dashboards]
 ```
 
 ## Installation
