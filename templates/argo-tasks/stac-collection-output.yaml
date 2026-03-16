@@ -20,7 +20,7 @@ spec:
             default: 'v5'
 
       container:
-        image: '019359803926.dkr.ecr.ap-southeast-2.amazonaws.com/argo-tasks:{{=inputs.parameters.version}}'
+        image: '725496895483.dkr.ecr.ap-southeast-2.amazonaws.com/github/linz/argo-tasks:{{=inputs.parameters.version}}'
         imagePullPolicy: Always
         env:
           - name: AWS_ROLE_CONFIG_PATH

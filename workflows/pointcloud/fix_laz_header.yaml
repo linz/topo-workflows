@@ -235,7 +235,7 @@ spec:
 
       container:
         imagePullPolicy: Always
-        image: '019359803926.dkr.ecr.ap-southeast-2.amazonaws.com/topo-imagery:{{=sprig.trim(inputs.parameters.version_topo_imagery)}}'
+        image: '725496895483.dkr.ecr.ap-southeast-2.amazonaws.com/github/linz/topo-imagery:{{=sprig.trim(inputs.parameters.version_topo_imagery)}}'
         resources:
           requests:
             memory: 7.8Gi
