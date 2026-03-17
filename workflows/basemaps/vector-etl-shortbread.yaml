@@ -135,7 +135,7 @@ spec:
 
           - name: group
             depends: extract
-            when: '{{tasks.extract.outputs.parameters.updateRequired}} == true'
+            when: '{{tasks.extract.outputs.parameters.hasSmallLayers}} == true'
             templateRef:
               name: tpl-at-group
               template: main
@@ -151,7 +151,7 @@ spec:
 
           - name: create-small-layers
             depends: 'group'
-            when: '{{tasks.extract.outputs.parameters.updateRequired}} == true'
+            when: '{{tasks.extract.outputs.parameters.hasSmallLayers}} == true'
             template: create-small-layers
             withParam: '{{ tasks.group.outputs.parameters.output }}'
             arguments:
@@ -164,7 +164,7 @@ spec:
 
           - name: create-large-layers
             depends: 'extract'
-            when: '{{tasks.extract.outputs.parameters.updateRequired}} == true'
+            when: '{{tasks.extract.outputs.parameters.hasLargeLayers}} == true'
             template: create-large-layers
             withParam: '{{ tasks.extract.outputs.parameters.largeLayers }}'
             arguments:
@@ -238,6 +238,12 @@ spec:
           - name: updateRequired
             valueFrom:
               path: '/tmp/extract/updateRequired'
+          - name: hasLargeLayers
+            valueFrom:
+              path: '/tmp/extract/hasLargeLayers'
+          - name: hasSmallLayers
+            valueFrom:
+              path: '/tmp/extract/hasSmallLayers'
           - name: largeLayers
             valueFrom:
               path: '/tmp/extract/largeLayers.json'
