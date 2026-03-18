@@ -20,7 +20,7 @@
     "build": "tsc",
     "lint": "npx eslint . --ignore-path .gitignore",
     "format": "npx prettier . -w",
-    "test": "node --test infra/**/*.test.ts templates/common/__test__/*.test.ts"
+    "test": "node --test \"infra/**/*.test.ts\" \"templates/common/__test__/*.test.ts\""
   },
   "devDependencies": {
     "@aws-cdk/lambda-layer-kubectl-v33": "^2.0.0",
