@@ -53,6 +53,7 @@ async function main(): Promise<void> {
     env: { region: DefaultRegion, account: accountId },
     maintainerRoleArns,
     s3BatchRestoreRoleArn: ssmConfig.s3BatchRestoreRoleArn,
+    scratchPublicQueue: sqsQueuesStack.scratchPublishSqsQueue,
   });
 
   cluster.addDependency(argoDbStack);

@@ -13,6 +13,7 @@ import {
 } from 'aws-cdk-lib/aws-iam';
 import * as iam from 'aws-cdk-lib/aws-iam';
 import { Bucket, IBucket } from 'aws-cdk-lib/aws-s3';
+import { Queue } from 'aws-cdk-lib/aws-sqs';
 import { Construct } from 'constructs';
 import { createHash } from 'crypto';
 
@@ -23,6 +24,8 @@ interface EksClusterProps extends StackProps {
   maintainerRoleArns: string[];
   /** S3 Batch Restore Role ARN */
   s3BatchRestoreRoleArn: string;
+  /** SQS Queue ARN for Argo Events to receive file creation events from Argo Workflows scratch bucket */
+  scratchPublicQueue: Queue;
 }
 
 export class LinzEksCluster extends Stack {
@@ -38,6 +41,7 @@ export class LinzEksCluster extends Stack {
   cluster: Cluster;
   nodeRole: Role;
   s3BatchRestoreRoleArn: string;
+  scratchPublicQueue: Queue;
 
   constructor(scope: Construct, id: string, props: EksClusterProps) {
     super(scope, id, props);
@@ -50,7 +54,7 @@ export class LinzEksCluster extends Stack {
     this.vpc = Vpc.fromLookup(this, 'Vpc', { tags: { BaseVPC: 'true' } });
 
     this.s3BatchRestoreRoleArn = props.s3BatchRestoreRoleArn;
-
+    this.scratchPublicQueue = props.scratchPublicQueue;
     this.cluster = new Cluster(this, `Eks${id}`, {
       clusterName: id,
       version: this.version,
@@ -272,7 +276,6 @@ export class LinzEksCluster extends Stack {
   }
 
   createArgoEventsServiceAccount(): void {
-    const sqsPublishQueueArn = Fn.importValue(CfnOutputKeys.ScratchPublishSqsQueueArn);
     const argoEventsNamespaceName = 'argo-events';
     const argoEventsSaName = 'event-sa';
     const argoEventsNs = this.cluster.addManifest('ArgoEventsNameSpace', {
@@ -289,7 +292,7 @@ export class LinzEksCluster extends Stack {
     argoEventsSa.role.addToPrincipalPolicy(
       new PolicyStatement({
         actions: ['sqs:GetQueueUrl', 'sqs:ReceiveMessage', 'sqs:DeleteMessage', 'sqs:GetQueueAttributes'],
-        resources: [sqsPublishQueueArn],
+        resources: [this.scratchPublicQueue.queueArn],
       }),
     );
 
