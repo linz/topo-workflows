@@ -1,5 +1,5 @@
-import { SSM } from '@aws-sdk/client-ssm';
 import type { Parameter } from '@aws-sdk/client-ssm';
+import { SSM } from '@aws-sdk/client-ssm';
 
 /**
  * Attempt to load a collection of SSM parameters throwing if any parameter cannot be found
