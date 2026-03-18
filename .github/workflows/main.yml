@@ -44,8 +44,6 @@ jobs:
 
     env:
       CLUSTER_NAME: Workflows
-      DB_NAME: ArgoDb
-      SQS_NAME: SqsQueues
 
     steps:
       - uses: linz/action-typescript@47be81e60ed1d891c696c3fb7f558876ba9a2b57 # v3.2.0
