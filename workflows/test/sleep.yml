@@ -27,5 +27,5 @@ spec:
           requests:
             memory: 3.9Gi
             cpu: 2000m
-        image: 725496895483.dkr.ecr.ap-southeast-2.amazonaws.com/github/linz/argo-tasks:latest
+        image: 019359803926.dkr.ecr.ap-southeast-2.amazonaws.com/argo-tasks:latest
         command: ['sleep', '3600']

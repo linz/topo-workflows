@@ -14,6 +14,6 @@ spec:
         parameters:
           - name: message
       container:
-        image: 725496895483.dkr.ecr.ap-southeast-2.amazonaws.com/github/linz/topo-imagery:latest
+        image: 019359803926.dkr.ecr.ap-southeast-2.amazonaws.com/topo-imagery:latest
         command: [echo]
         args: ['{{inputs.parameters.message}}']

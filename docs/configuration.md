@@ -73,7 +73,7 @@ Environment variables can be set in the containers as below, which is setting th
 
 ```yaml
 container:
-  image: 725496895483.dkr.ecr.ap-southeast-2.amazonaws.com/github/linz/argo-tasks:latest
+  image: 019359803926.dkr.ecr.ap-southeast-2.amazonaws.com/argo-tasks:latest
   env:
     - name: AWS_ROLE_CONFIG_PATH
       value: s3://linz-bucket-config/config.json
@@ -124,7 +124,7 @@ Two example workflow tasks requesting specific resources (memory and CPU) from t
       - name: file
       - name: collection_id
   container:
-    image: 725496895483.dkr.ecr.ap-southeast-2.amazonaws.com/github/linz/topo-imagery:latest
+    image: 019359803926.dkr.ecr.ap-southeast-2.amazonaws.com/topo-imagery:latest
     resources:
       requests:
         memory: 7.8Gi
@@ -143,7 +143,7 @@ Two example workflow tasks requesting specific resources (memory and CPU) from t
     parameters:
       - name: file
   container:
-    image: 725496895483.dkr.ecr.ap-southeast-2.amazonaws.com/github/linz/argo-tasks:latest
+    image: 019359803926.dkr.ecr.ap-southeast-2.amazonaws.com/argo-tasks:latest
     resources:
       requests:
         memory: 7.8Gi
