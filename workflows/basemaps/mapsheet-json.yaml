@@ -63,7 +63,7 @@ spec:
         parameters:
           - name: layer
       container:
-        image: 725496895483.dkr.ecr.ap-southeast-2.amazonaws.com/github/linz/argo-tasks:{{=sprig.trim(workflow.parameters.version_argo_tasks)}}
+        image: 019359803926.dkr.ecr.ap-southeast-2.amazonaws.com/argo-tasks:{{=sprig.trim(workflow.parameters.version_argo_tasks)}}
         env:
           - name: AWS_ROLE_CONFIG_PATH
             value: s3://linz-bucket-config/config.json
@@ -94,7 +94,7 @@ spec:
           - name: flatGeobuf
             path: /tmp/flatGeobuf.fgb
       container:
-        image: 725496895483.dkr.ecr.ap-southeast-2.amazonaws.com/github/linz/argo-tasks:{{=sprig.trim(workflow.parameters.version_argo_tasks)}}
+        image: 019359803926.dkr.ecr.ap-southeast-2.amazonaws.com/argo-tasks:{{=sprig.trim(workflow.parameters.version_argo_tasks)}}
         env:
           - name: AWS_ROLE_CONFIG_PATH
             value: s3://linz-bucket-config/config.json

@@ -26,7 +26,7 @@ spec:
             description: Version of argo-tasks to use
             default: 'v5'
       script:
-        image: '725496895483.dkr.ecr.ap-southeast-2.amazonaws.com/github/linz/argo-tasks:{{=sprig.trim(inputs.parameters.version_argo_tasks)}}'
+        image: '019359803926.dkr.ecr.ap-southeast-2.amazonaws.com/argo-tasks:{{=sprig.trim(inputs.parameters.version_argo_tasks)}}'
         command: [node]
         source: |
           let parameters = {};

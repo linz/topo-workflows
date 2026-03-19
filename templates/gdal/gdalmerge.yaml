@@ -15,7 +15,7 @@ spec:
       retryStrategy:
         expression: 'false'
       container:
-        image: 725496895483.dkr.ecr.ap-southeast-2.amazonaws.com/github/linz/topo-imagery:{{=sprig.trim(inputs.parameters.version_topo_imagery)}}
+        image: 019359803926.dkr.ecr.ap-southeast-2.amazonaws.com/topo-imagery:{{=sprig.trim(inputs.parameters.version_topo_imagery)}}
         imagePullPolicy: Always
         command: [gdal_merge.py]
         args:
