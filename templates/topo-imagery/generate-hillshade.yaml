@@ -38,10 +38,6 @@ spec:
             description: 'Hillshade preset to use, must be one of "hillshade" or "hillshade-igor"'
             default: ''
 
-          - name: gsd
-            description: 'Dataset GSD in metres, e.g., "0.3" for 30 centimetres'
-            default: '1'
-
           - name: collection_id
             description: 'Collection ID of existing dataset, or else a generated collection ID'
             default: ''
@@ -77,8 +73,6 @@ spec:
           - '{{inputs.parameters.hillshade_preset}}'
           - '--collection-id'
           - '{{inputs.parameters.collection_id}}'
-          - '--gsd'
-          - '{{inputs.parameters.gsd}}'
           - '--current-datetime'
           - '{{inputs.parameters.current_datetime}}'
           - '--odr-url'
