@@ -134,6 +134,11 @@ jobs:
               kubectl apply -f "$cwf" --namespace argo
           done
 
+          EVENTS=$(grep '^kind: Sensor$' -R events/ -H | cut -d ':' -f1)
+          for evt in $EVENTS; do
+              kubectl apply -f "$evt" --namespace argo
+          done
+
       - name: Install Argo
         if: steps.get-infra-changes.outputs.run_infra == 'true'
         run: |
