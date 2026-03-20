@@ -136,10 +136,10 @@ async function main(): Promise<void> {
 
   new EventExporter(app, 'event-exporter', { namespace: 'event-exporter' });
 
-  new ElasticAgent(app, 'elastic-agent', {
-    fleetUrl: ssmConfig.elasticFleetUrl,
-    fleetToken: ssmConfig.elasticFleetToken,
-  });
+  // new ElasticAgent(app, 'elastic-agent', {
+  //   fleetUrl: ssmConfig.elasticFleetUrl,
+  //   fleetToken: ssmConfig.elasticFleetToken,
+  // });
 
   app.synth();
 }
