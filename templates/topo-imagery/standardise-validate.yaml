@@ -24,6 +24,10 @@ spec:
             description: 'The ID of the group of files to use as the input.'
             default: ''
 
+          - name: concurrency
+            description: 'Number of concurrent tiles to standardise.'
+            default: '4'
+
           - name: odr_url
             description: '(Optional) If an existing dataset add the S3 path to the dataset here to load existing metadata e.g. "s3://nz-imagery/taranaki/new-plymouth_2017_0.1m/rgb/2193/"'
             default: ''
@@ -92,9 +96,10 @@ spec:
         args:
           - python
           - '/app/scripts/standardise_validate.py'
-          - '--is-argo'
           - '--from-file'
           - '/tmp/input/{{inputs.parameters.group_id}}.json'
+          - '--concurrency'
+          - '{{inputs.parameters.concurrency}}'
           - '--target'
           - '{{inputs.parameters.target}}'
           - '--preset'

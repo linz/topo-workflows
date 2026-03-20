@@ -104,6 +104,9 @@ spec:
       - name: group
         description: 'How many output tiles to process in each standardise-validate task "pod". Change if you have resource or performance issues when standardising a dataset.'
         value: '50'
+      - name: concurrency
+        description: 'Number of concurrent tiles to standardise. If not specified, defaults to 4, or 1 if compression is rgbnir_zstd.'
+        value: ''
       - name: compression
         description: 'Compression type to use when standardising TIFFs, e.g. "webp" for imagery or "dem_lerc" for elevation data'
         value: 'webp'
@@ -463,6 +466,8 @@ spec:
                   value: '{{=workflow.parameters.domain == "coastal" && workflow.parameters.supplied_capture_area == "" ? "true" : "false"}}'
                 - name: version_topo_imagery
                   value: '{{= workflow.parameters.version_topo_imagery}}'
+                - name: concurrency
+                  value: '{{= workflow.parameters.compression == "rgbnir_zstd" ? "1" : (workflow.parameters.concurrency == "" ? "4" : workflow.parameters.concurrency) }}'
               artifacts:
                 - name: group_data
                   from: '{{ tasks.group.outputs.artifacts.output }}'
