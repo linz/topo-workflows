@@ -9,6 +9,7 @@ metadata:
     linz.govt.nz/data-type: raster
 spec:
   entrypoint: main
+  onExit: exit-handler
   podMetadata:
     labels:
       linz.govt.nz/category: topo-maps
@@ -255,3 +256,18 @@ spec:
         args:
           - produce
           - --from-file={{= inputs.artifacts.grouped.path }}{{inputs.parameters.grouped_id}}.json
+
+    - name: exit-handler
+      retryStrategy:
+        limit: '0' # `tpl-log-notification` retries itself
+      steps:
+        - - name: exit
+            templateRef:
+              name: tpl-log-notification
+              template: main
+            arguments:
+              parameters:
+                - name: workflow_status
+                  value: '{{workflow.status}}'
+                - name: workflow_parameters
+                  value: '{{workflow.parameters}}'
