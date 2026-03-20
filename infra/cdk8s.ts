@@ -4,7 +4,6 @@ import { ArgoEvents } from './charts/argo.events.ts';
 import { ArgoExtras } from './charts/argo.extras.ts';
 import { ArgoWorkflows } from './charts/argo.workflows.ts';
 import { Cloudflared } from './charts/cloudflared.ts';
-import { ElasticAgent } from './charts/elastic.agent.ts';
 import { EventExporter } from './charts/event.exporter.ts';
 import { FluentBit } from './charts/fluentbit.ts';
 import { Karpenter, KarpenterNodePool } from './charts/karpenter.ts';
@@ -136,10 +135,10 @@ async function main(): Promise<void> {
 
   new EventExporter(app, 'event-exporter', { namespace: 'event-exporter' });
 
-  new ElasticAgent(app, 'elastic-agent', {
-    fleetUrl: ssmConfig.elasticFleetUrl,
-    fleetToken: ssmConfig.elasticFleetToken,
-  });
+  // new ElasticAgent(app, 'elastic-agent', {
+  //   fleetUrl: ssmConfig.elasticFleetUrl,
+  //   fleetToken: ssmConfig.elasticFleetToken,
+  // });
 
   app.synth();
 }
