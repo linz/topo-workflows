@@ -17,12 +17,15 @@ import { Construct } from 'constructs';
 import { createHash } from 'crypto';
 
 import { CfnOutputKeys, ScratchBucketName } from '../constants.ts';
+import { BucketEventSource, ObjectCreatedQueue } from './sqs/object.created.queue.construct.ts';
 
 interface EksClusterProps extends StackProps {
   /** List of role ARNs to grant access to the cluster */
   maintainerRoleArns: string[];
   /** S3 Batch Restore Role ARN */
   s3BatchRestoreRoleArn: string;
+  /** SNS topics and filters for the ObjectCreatedQueue */
+  bucketEventSources: BucketEventSource[];
 }
 
 export class LinzEksCluster extends Stack {
@@ -38,18 +41,19 @@ export class LinzEksCluster extends Stack {
   cluster: Cluster;
   nodeRole: Role;
   s3BatchRestoreRoleArn: string;
+  objectCreatedQueue: ObjectCreatedQueue;
 
   constructor(scope: Construct, id: string, props: EksClusterProps) {
     super(scope, id, props);
     this.id = id;
 
     this.tempBucket = Bucket.fromBucketName(this, 'Scratch', ScratchBucketName);
-
     this.configBucket = Bucket.fromBucketName(this, 'BucketConfig', 'linz-bucket-config');
-
     this.vpc = Vpc.fromLookup(this, 'Vpc', { tags: { BaseVPC: 'true' } });
-
     this.s3BatchRestoreRoleArn = props.s3BatchRestoreRoleArn;
+    this.objectCreatedQueue = new ObjectCreatedQueue(this, 'ObjectCreatedQueue', {
+      sources: props.bucketEventSources,
+    });
 
     this.cluster = new Cluster(this, `Eks${id}`, {
       clusterName: id,
@@ -214,7 +218,6 @@ export class LinzEksCluster extends Stack {
     new CfnOutput(this, CfnOutputKeys.FluentBitServiceAccountName, { value: fluentBitSa.serviceAccountName });
 
     // Argo Workflows
-
     // Database
     const argoDbSecurityGroup = SecurityGroup.fromSecurityGroupId(
       this,
@@ -272,7 +275,6 @@ export class LinzEksCluster extends Stack {
   }
 
   createArgoEventsServiceAccount(): void {
-    const sqsPublishQueueArn = Fn.importValue(CfnOutputKeys.ObjectCreatedSqsQueueArn);
     const argoEventsNamespaceName = 'argo-events';
     const argoEventsSaName = 'event-sa';
     const argoEventsNs = this.cluster.addManifest('ArgoEventsNameSpace', {
@@ -289,7 +291,7 @@ export class LinzEksCluster extends Stack {
     argoEventsSa.role.addToPrincipalPolicy(
       new PolicyStatement({
         actions: ['sqs:GetQueueUrl', 'sqs:ReceiveMessage', 'sqs:DeleteMessage', 'sqs:GetQueueAttributes'],
-        resources: [sqsPublishQueueArn],
+        resources: [this.objectCreatedQueue.queue.queueArn],
       }),
     );
 

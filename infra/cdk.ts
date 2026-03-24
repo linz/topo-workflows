@@ -1,11 +1,11 @@
 import { applyTags, SecurityClassification } from '@linzjs/cdk-tags';
 import { App } from 'aws-cdk-lib';
 
-import { ArgoDbInstanceName, ClusterName, DefaultRegion, SqsQueuesName } from './constants.ts';
-import { tryGetContextArns } from './eks/arn.ts';
+import { ArgoDbInstanceName, ClusterName, DefaultRegion } from './constants.ts';
 import { LinzEksCluster } from './eks/cluster.ts';
+import { OBJECT_CREATED_SOURCES } from './eks/sqs/object.created.events.config.ts';
 import { ArgoDatabase } from './rds/argo.db.ts';
-import { SqsQueues } from './sqs/queues.ts';
+import { tryGetContextArns } from './util/arn.ts';
 import { fetchSsmParameters } from './util/ssm.ts';
 
 const app = new App();
@@ -45,18 +45,14 @@ async function main(): Promise<void> {
     slackChannelId: ssmConfig.slackChannelId,
   });
 
-  const sqsQueuesStack = new SqsQueues(app, SqsQueuesName, {
-    env: { region: DefaultRegion, account: accountId },
-  });
-
   const cluster = new LinzEksCluster(app, ClusterName, {
     env: { region: DefaultRegion, account: accountId },
     maintainerRoleArns,
     s3BatchRestoreRoleArn: ssmConfig.s3BatchRestoreRoleArn,
+    bucketEventSources: OBJECT_CREATED_SOURCES,
   });
 
   cluster.addDependency(argoDbStack);
-  cluster.addDependency(sqsQueuesStack);
 
   applyTags(cluster, {
     application: 'argo',
