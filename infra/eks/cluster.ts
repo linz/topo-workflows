@@ -18,14 +18,13 @@ import { Construct } from 'constructs';
 import { createHash } from 'crypto';
 
 import { CfnOutputKeys, ScratchBucketName } from '../constants.ts';
+import { createScratchPublishQueue } from '../sqs/queues.ts';
 
 interface EksClusterProps extends StackProps {
   /** List of role ARNs to grant access to the cluster */
   maintainerRoleArns: string[];
   /** S3 Batch Restore Role ARN */
   s3BatchRestoreRoleArn: string;
-  /** SQS Queue ARN for Argo Events to receive file creation events from Argo Workflows scratch bucket */
-  scratchPublicQueue: Queue;
 }
 
 export class LinzEksCluster extends Stack {
@@ -54,7 +53,7 @@ export class LinzEksCluster extends Stack {
     this.vpc = Vpc.fromLookup(this, 'Vpc', { tags: { BaseVPC: 'true' } });
 
     this.s3BatchRestoreRoleArn = props.s3BatchRestoreRoleArn;
-    this.scratchPublicQueue = props.scratchPublicQueue;
+    this.scratchPublicQueue = createScratchPublishQueue(this, ScratchBucketName);
     this.cluster = new Cluster(this, `Eks${id}`, {
       clusterName: id,
       version: this.version,
