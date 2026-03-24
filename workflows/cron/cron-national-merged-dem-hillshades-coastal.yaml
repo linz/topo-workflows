@@ -41,7 +41,7 @@ spec:
         - name: copy_option
           value: '--force-no-clobber'
         - name: create_capture_area
-          value: 'true'
+          value: 'false'
         - name: gsd
           value: '1'
         - name: scale_to_resolution
@@ -59,7 +59,7 @@ spec:
         - name: region
           value: 'new-zealand'
         - name: gdal_compression_preset
-          value: 'dem_lerc'
+          value: 'dem_zstd'
     templates:
       - name: main
         retryStrategy:

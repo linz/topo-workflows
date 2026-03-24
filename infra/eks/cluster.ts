@@ -102,7 +102,7 @@ export class LinzEksCluster extends Stack {
       managedPolicies: [
         ManagedPolicy.fromAwsManagedPolicyName('AmazonEKS_CNI_Policy'),
         ManagedPolicy.fromAwsManagedPolicyName('AmazonEKSWorkerNodePolicy'),
-        ManagedPolicy.fromAwsManagedPolicyName('AmazonEC2ContainerRegistryReadOnly'),
+        ManagedPolicy.fromAwsManagedPolicyName('AmazonEC2ContainerRegistryPullOnly'),
       ],
     });
 

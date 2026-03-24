@@ -135,7 +135,7 @@ spec:
 
           - name: group
             depends: extract
-            when: '{{tasks.extract.outputs.parameters.updateRequired}} == true'
+            when: '{{tasks.extract.outputs.parameters.hasSmallLayers}} == true'
             templateRef:
               name: tpl-at-group
               template: main
@@ -151,7 +151,7 @@ spec:
 
           - name: create-small-layers
             depends: 'group'
-            when: '{{tasks.extract.outputs.parameters.updateRequired}} == true'
+            when: '{{tasks.extract.outputs.parameters.hasSmallLayers}} == true'
             template: create-small-layers
             withParam: '{{ tasks.group.outputs.parameters.output }}'
             arguments:
@@ -164,7 +164,7 @@ spec:
 
           - name: create-large-layers
             depends: 'extract'
-            when: '{{tasks.extract.outputs.parameters.updateRequired}} == true'
+            when: '{{tasks.extract.outputs.parameters.hasLargeLayers}} == true'
             template: create-large-layers
             withParam: '{{ tasks.extract.outputs.parameters.largeLayers }}'
             arguments:
@@ -223,7 +223,7 @@ spec:
         parameters:
           - name: tile_matrix
       container:
-        image: ghcr.io/linz/basemaps/cli:{{ workflow.parameters.version_basemaps_cli }}
+        image: 725496895483.dkr.ecr.ap-southeast-2.amazonaws.com/github/linz/basemaps/cli:{{ workflow.parameters.version_basemaps_cli }}
         command: [node, index.cjs]
         env:
           - name: AWS_ROLE_CONFIG_PATH
@@ -238,6 +238,12 @@ spec:
           - name: updateRequired
             valueFrom:
               path: '/tmp/extract/updateRequired'
+          - name: hasLargeLayers
+            valueFrom:
+              path: '/tmp/extract/hasLargeLayers'
+          - name: hasSmallLayers
+            valueFrom:
+              path: '/tmp/extract/hasSmallLayers'
           - name: largeLayers
             valueFrom:
               path: '/tmp/extract/largeLayers.json'
@@ -260,7 +266,7 @@ spec:
         parameters:
           - name: grouped_id
       container:
-        image: ghcr.io/linz/basemaps/cli:{{ workflow.parameters.version_basemaps_cli }}
+        image: 725496895483.dkr.ecr.ap-southeast-2.amazonaws.com/github/linz/basemaps/cli:{{ workflow.parameters.version_basemaps_cli }}
         resources:
           requests:
             memory: 7.8Gi
@@ -285,7 +291,7 @@ spec:
         parameters:
           - name: path
       container:
-        image: ghcr.io/linz/basemaps/cli:{{ workflow.parameters.version_basemaps_cli }}
+        image: 725496895483.dkr.ecr.ap-southeast-2.amazonaws.com/github/linz/basemaps/cli:{{ workflow.parameters.version_basemaps_cli }}
         resources:
           requests:
             memory: 7.8Gi
@@ -307,7 +313,7 @@ spec:
           - name: input
             path: /tmp/extract/allCaches.json
       container:
-        image: ghcr.io/linz/basemaps/cli:{{ workflow.parameters.version_basemaps_cli }}
+        image: 725496895483.dkr.ecr.ap-southeast-2.amazonaws.com/github/linz/basemaps/cli:{{ workflow.parameters.version_basemaps_cli }}
         resources:
           requests:
             memory: 7.8Gi
@@ -340,7 +346,7 @@ spec:
           - name: mbTilesTarget
           - name: analyseTarget
       container:
-        image: ghcr.io/linz/basemaps/cli:{{ workflow.parameters.version_basemaps_cli }}
+        image: 725496895483.dkr.ecr.ap-southeast-2.amazonaws.com/github/linz/basemaps/cli:{{ workflow.parameters.version_basemaps_cli }}
         resources:
           requests:
             memory: 7.8Gi

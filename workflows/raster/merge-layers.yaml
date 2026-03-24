@@ -125,6 +125,12 @@ spec:
       - name: gdal_compression_preset
         description: 'Standardising preset'
         value: 'dem_lerc'
+      - name: regenerate
+        description: 'Whether to regenerate all items in the dataset, or only those that have changed based on checksums. Set to "true" to regenerate all items, or "false" to only regenerate changed items.'
+        value: 'false'
+        enum:
+          - 'false'
+          - 'true'
   templateDefaults:
     container:
       imagePullPolicy: Always
@@ -177,6 +183,8 @@ spec:
             default: '{{workflow.parameters.region}}'
           - name: gdal_compression_preset
             default: '{{workflow.parameters.gdal_compression_preset}}'
+          - name: regenerate
+            default: '{{workflow.parameters.regenerate}}'
       dag:
         tasks:
           - name: get-location
@@ -208,7 +216,7 @@ spec:
             arguments:
               parameters:
                 - name: targetCollection
-                  value: '{{= inputs.parameters.odr_url == "" ? "" : sprig.trimSuffix("/", inputs.parameters.odr_url) + "/collection.json" }}'
+                  value: '{{= inputs.parameters.odr_url == "" || inputs.parameters.regenerate == "true" ? "" : sprig.trimSuffix("/", inputs.parameters.odr_url) + "/collection.json" }}'
                 - name: sourceCollections
                   value: '{{= inputs.parameters.base_layer_source == "" ? "" : sprig.trimSuffix("/", inputs.parameters.base_layer_source) + "/collection.json;" }}{{=sprig.trimSuffix("/", inputs.parameters.top_layer_source)}}/collection.json'
                 - name: version
@@ -296,6 +304,8 @@ spec:
                   value: 'Toitū Te Whenua Land Information New Zealand'
                 - name: create_capture_dates
                   value: 'false'
+                - name: supplied_capture_area
+                  value: '{{= inputs.parameters.create_capture_area == "false" ? inputs.parameters.top_layer_source + "/capture-area.geojson" : ""}}'
                 - name: keep_description
                   value: 'true'
                 - name: keep_title
@@ -387,7 +397,7 @@ spec:
           - name: bucket
           - name: key
       container:
-        image: 'ghcr.io/linz/basemaps/cli:{{=sprig.trim(workflow.parameters.version_basemaps_cli)}}'
+        image: '725496895483.dkr.ecr.ap-southeast-2.amazonaws.com/github/linz/basemaps/cli:{{=sprig.trim(workflow.parameters.version_basemaps_cli)}}'
         command: [node, index.cjs]
         env:
           - name: AWS_ROLE_CONFIG_PATH

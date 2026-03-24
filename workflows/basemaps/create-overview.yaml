@@ -46,7 +46,7 @@ spec:
           - name: source
           - name: output
       container:
-        image: ghcr.io/linz/basemaps/cli:{{workflow.parameters.version_basemaps_cli}}
+        image: 725496895483.dkr.ecr.ap-southeast-2.amazonaws.com/github/linz/basemaps/cli:{{workflow.parameters.version_basemaps_cli}}
         resources:
           requests:
             cpu: 3000m

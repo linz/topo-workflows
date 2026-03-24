@@ -93,6 +93,10 @@ spec:
                 - name: aws_role_config_path
                   value: 's3://linz-bucket-config/config-write.topographic.json, s3://linz-bucket-config/config-write.hydrographic.json'
             depends: 'get-location.Succeeded'
+          - name: no-files-to-restore
+            template: no-files-to-restore
+            depends: 'create-manifest.Succeeded'
+            when: '{{tasks.create-manifest.outputs.parameters.files}} == ""'
           - name: restore
             template: restore
             arguments:
@@ -115,6 +119,12 @@ spec:
                   value: '{{workflow.parameters.consumer}}'
             depends: 'get-location && create-manifest'
             when: '{{tasks.create-manifest.outputs.parameters.files}} != ""'
+
+    - name: no-files-to-restore
+      container:
+        image: public.ecr.aws/docker/library/alpine:3.23.3
+        command: [sh]
+        args: ["echo 'Error: No files found to restore.' && exit 1"]
 
     - name: restore
       inputs:

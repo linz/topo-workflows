@@ -59,7 +59,7 @@ spec:
         - name: region
           value: 'new-zealand'
         - name: gdal_compression_preset
-          value: 'dem_lerc'
+          value: 'dem_zstd'
     templates:
       - name: main
         retryStrategy:

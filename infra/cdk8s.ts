@@ -47,6 +47,10 @@ async function main(): Promise<void> {
       s3BatchRestoreAccountIdHydro: '/eks/S3BatchRestore/accountIdHydro',
       s3BatchRestoreAccountIdTopo: '/eks/S3BatchRestore/accountIdTopo',
       s3BatchRestoreRoleArn: '/eks/S3BatchRestore/roleArn',
+
+      // Elastic Agent Fleet
+      elasticFleetUrl: '/eks/elastic/fleetUrl',
+      elasticFleetToken: '/eks/elastic/fleetToken',
     }),
     describeCluster(ClusterName),
   ]);
@@ -130,6 +134,11 @@ async function main(): Promise<void> {
   });
 
   new EventExporter(app, 'event-exporter', { namespace: 'event-exporter' });
+
+  // new ElasticAgent(app, 'elastic-agent', {
+  //   fleetUrl: ssmConfig.elasticFleetUrl,
+  //   fleetToken: ssmConfig.elasticFleetToken,
+  // });
 
   app.synth();
 }
