@@ -6,19 +6,17 @@ const stacFilter = SubscriptionFilter.stringFilter({
   matchSuffixes: ['collection.json', 'catalog.json'],
 });
 
-const odrSnsArnPrefix = 'arn:aws:sns:ap-southeast-2:838278294040:';
-
 export const ObjectCreatedSources: BucketEventSource[] = [
   {
-    arn: `${odrSnsArnPrefix}nz-imagery-object_created`,
+    arn: 'arn:aws:sns:ap-southeast-2:838278294040:nz-imagery-object_created',
     filter: stacFilter,
   },
   {
-    arn: `${odrSnsArnPrefix}nz-elevation-object_created`,
+    arn: 'arn:aws:sns:ap-southeast-2:838278294040:nz-elevation-object_created',
     filter: stacFilter,
   },
   {
-    arn: `${odrSnsArnPrefix}nz-coastal-object_created`,
+    arn: 'arn:aws:sns:ap-southeast-2:838278294040:nz-coastal-object_created',
     filter: stacFilter,
   },
   {
