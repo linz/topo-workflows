@@ -3,7 +3,7 @@ import { App } from 'aws-cdk-lib';
 
 import { ArgoDbInstanceName, ClusterName, DefaultRegion } from './constants.ts';
 import { LinzEksCluster } from './eks/cluster.ts';
-import { OBJECT_CREATED_SOURCES } from './eks/sqs/object.created.events.config.ts';
+import { ObjectCreatedSources } from './eks/sqs/object.created.events.config.ts';
 import { ArgoDatabase } from './rds/argo.db.ts';
 import { tryGetContextArns } from './util/arn.ts';
 import { fetchSsmParameters } from './util/ssm.ts';
@@ -49,7 +49,7 @@ async function main(): Promise<void> {
     env: { region: DefaultRegion, account: accountId },
     maintainerRoleArns,
     s3BatchRestoreRoleArn: ssmConfig.s3BatchRestoreRoleArn,
-    bucketEventSources: OBJECT_CREATED_SOURCES,
+    bucketEventSources: ObjectCreatedSources,
   });
 
   cluster.addDependency(argoDbStack);
