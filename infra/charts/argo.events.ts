@@ -6,7 +6,6 @@ import { Construct } from 'constructs';
 import { applyDefaultLabels } from '../util/labels.js';
 import { EventBus } from './imports/argo-events/argoproj.io.eventbus.ts';
 import { EventSource } from './imports/argo-events/argoproj.io.eventsources.ts';
-import { Sensor } from './imports/argo-events/argoproj.io.sensors.ts';
 
 export interface ArgoEventsProps {
   /**
@@ -21,7 +20,7 @@ export interface ArgoEventsProps {
    *
    * @example "linz-workflows-scratch-publish-odr-queue"
    */
-  sqsPublishQueueName: string;
+  objectCreatedQueueName: string;
 }
 
 /**
@@ -43,7 +42,7 @@ export class ArgoEvents extends Chart {
     super(scope, id, applyDefaultLabels(props, 'argo-events', appVersion, 'argo', 'events'));
     const operateWorkflowSaName = 'operate-workflow-sa';
     this.createServiceAccountsAndRoles(operateWorkflowSaName);
-    this.createResources(props, operateWorkflowSaName);
+    this.createResources(props);
     this.createArgoEventBase();
   }
 
@@ -88,7 +87,7 @@ export class ArgoEvents extends Chart {
     });
   }
 
-  private createResources(props: ArgoEventsProps, operateWorkflowSaName: string): void {
+  private createResources(props: ArgoEventsProps): void {
     new EventBus(this, 'EventBusDefault', {
       metadata: {
         name: 'default',
@@ -113,82 +112,22 @@ export class ArgoEvents extends Chart {
       },
     });
 
-    new EventSource(this, 'AwsSqsPublishOdrEventSource', {
+    new EventSource(this, 'AwsSqsObjectCreatedEventSource', {
       metadata: {
-        name: 'aws-sqs-publish-odr',
+        name: 'aws-sqs-object-created',
       },
       spec: {
         template: {
           serviceAccountName: props.saName,
         },
         sqs: {
-          'publish-odr': {
+          'object-created': {
             jsonBody: true,
             region: 'ap-southeast-2',
-            queue: props.sqsPublishQueueName,
+            queue: props.objectCreatedQueueName,
             waitTimeSeconds: 20,
           },
         },
-      },
-    });
-
-    new Sensor(this, 'WfPublishOdrSensor', {
-      metadata: {
-        name: 'wf-publish-odr',
-      },
-      spec: {
-        template: {
-          serviceAccountName: operateWorkflowSaName,
-        },
-        dependencies: [
-          {
-            name: 'publish-odr',
-            eventSourceName: 'aws-sqs-publish-odr',
-            eventName: 'publish-odr',
-          },
-        ],
-        triggers: [
-          {
-            template: {
-              name: 'trigger-wf-publish-odr',
-              argoWorkflow: {
-                operation: 'submit',
-                source: {
-                  resource: {
-                    apiVersion: 'argoproj.io/v1alpha1',
-                    kind: 'Workflow',
-                    metadata: {
-                      generateName: 'test-print-',
-                      namespace: 'argo',
-                    },
-                    spec: {
-                      arguments: {
-                        parameters: [
-                          {
-                            name: 'message',
-                            value: '',
-                          },
-                        ],
-                      },
-                      workflowTemplateRef: {
-                        name: 'test-print',
-                      },
-                    },
-                  },
-                },
-                parameters: [
-                  {
-                    src: {
-                      dependencyName: 'publish-odr',
-                      dataKey: 'body',
-                    },
-                    dest: 'spec.arguments.parameters.0.value',
-                  },
-                ],
-              },
-            },
-          },
-        ],
       },
     });
   }
