@@ -63,8 +63,9 @@ Then a deployment can be made with `cdk`:
 ```shell
 ci_role="$(aws iam list-roles | jq --raw-output '.Roles[] | select(.RoleName | contains("CiTopo")) | select(.RoleName | contains("-CiRole")).Arn')"
 admin_role="arn:aws:iam::$(aws sts get-caller-identity --query Account --output text):role/AccountAdminRole"
-workflow_maintainer_role="$(aws cloudformation describe-stacks --stack-name=TopographicSharedResourcesProd | jq --raw-output .Stacks[0].Outputs[0].OutputValue)"
-npx cdk deploy --context=maintainer-arns="${ci_role},${admin_role},${workflow_maintainer_role}" Workflows
+workflow_maintainer_role="$(aws cloudformation describe-stacks --output=text --query="join(',', Stacks[].Outputs[].OutputValue)" --stack-name=TopographicSharedResourcesProd)"
+storage_maintainer_role="$(aws cloudformation describe-stacks --output=text --query="join(',', Stacks[].Outputs[?contains(OutputValue, 'MaintainerRole')].OutputValue[])" --stack-name=TopographicStorageProd)"
+npx cdk deploy --context=maintainer-arns="${ci_role},${admin_role},${workflow_maintainer_role},${storage_maintainer_role}" Workflows
 ```
 
 ### Deploy k8s components via CDK8s
