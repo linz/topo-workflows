@@ -68,6 +68,10 @@ spec:
             value: s3://linz-bucket-config/config-write.topography.json
           - name: ENVIRONMENT
             value: nonprod
+        resources:
+          requests:
+            memory: 30Gi
+            cpu: 15000m
         args:
           - 'contour-with-landcover'
           - '--contour={{ inputs.parameters.contour }}'
