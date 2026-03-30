@@ -9,19 +9,19 @@ export interface BucketEventSource {
   filter: SubscriptionFilter;
 }
 
-interface ObjectCreatedQueueProps {
+interface BucketEventsQueueProps {
   sources: BucketEventSource[];
   queueName?: string;
 }
 
-export class ObjectCreatedQueue extends Construct {
+export class BucketEventsQueue extends Construct {
   public readonly queue: Queue;
 
-  constructor(scope: Construct, id: string, props: ObjectCreatedQueueProps) {
+  constructor(scope: Construct, id: string, props: BucketEventsQueueProps) {
     super(scope, id);
 
     this.queue = new Queue(this, 'Queue', {
-      queueName: props.queueName ?? 'object-created-events',
+      queueName: props.queueName ?? 'bucket-events',
       visibilityTimeout: Duration.seconds(30),
       retentionPeriod: Duration.days(7),
     });

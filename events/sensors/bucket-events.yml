@@ -2,15 +2,15 @@
 apiVersion: argoproj.io/v1alpha1
 kind: Sensor
 metadata:
-  name: 'wf-object-created'
+  name: 'wf-bucket-events'
 spec:
   dependencies:
-    - name: 'object-created'
-      eventSourceName: 'aws-sqs-object-created'
-      eventName: 'object-created'
+    - name: 'bucket-events'
+      eventSourceName: 'aws-sqs-bucket-events'
+      eventName: 'bucket-events'
   triggers:
     - template:
-        name: 'trigger-wf-object-created'
+        name: 'trigger-wf-bucket-events'
         argoWorkflow:
           operation: 'submit'
           source:
@@ -29,6 +29,6 @@ spec:
                   name: 'test-print'
                   parameters:
                     - src:
-                        dependencyName: 'object-created'
+                        dependencyName: 'bucket-events'
                         dataKey: 'body'
                       dest: 'spec.arguments.parameters.0.value'

@@ -3,7 +3,7 @@ import { App } from 'aws-cdk-lib';
 
 import { ArgoDbInstanceName, ClusterName, DefaultRegion } from './constants.ts';
 import { LinzEksCluster } from './eks/cluster.ts';
-import { ObjectCreatedSources } from './eks/sqs/object.created.events.config.ts';
+import { ObjectCreatedSources } from './eks/sqs/bucket.events.config.ts';
 import { ArgoDatabase } from './rds/argo.db.ts';
 import { tryGetContextArns } from './util/arn.ts';
 import { fetchSsmParameters } from './util/ssm.ts';

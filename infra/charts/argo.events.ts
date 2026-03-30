@@ -16,11 +16,9 @@ export interface ArgoEventsProps {
   saName: string;
 
   /**
-   * Name of the SQS queue to listen to for events about publishing data
-   *
-   * @example "linz-workflows-scratch-publish-odr-queue"
+   * Name of the SQS queue to listen to for events about bucket changes such as object created, deleted, etc.
    */
-  objectCreatedQueueName: string;
+  bucketEventsQueueName: string;
 }
 
 /**
@@ -112,19 +110,19 @@ export class ArgoEvents extends Chart {
       },
     });
 
-    new EventSource(this, 'AwsSqsObjectCreatedEventSource', {
+    new EventSource(this, 'AwsSqsBucketEventsEventSource', {
       metadata: {
-        name: 'aws-sqs-object-created',
+        name: 'aws-sqs-bucket-events',
       },
       spec: {
         template: {
           serviceAccountName: props.saName,
         },
         sqs: {
-          'object-created': {
+          'bucket-events': {
             jsonBody: true,
             region: 'ap-southeast-2',
-            queue: props.objectCreatedQueueName,
+            queue: props.bucketEventsQueueName,
             waitTimeSeconds: 20,
           },
         },

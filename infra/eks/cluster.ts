@@ -17,14 +17,14 @@ import { Construct } from 'constructs';
 import { createHash } from 'crypto';
 
 import { CfnOutputKeys, ScratchBucketName } from '../constants.ts';
-import { BucketEventSource, ObjectCreatedQueue } from './sqs/object.created.queue.construct.ts';
+import { BucketEventSource, BucketEventsQueue } from './sqs/bucket.events.queue.construct.ts';
 
 interface EksClusterProps extends StackProps {
   /** List of role ARNs to grant access to the cluster */
   maintainerRoleArns: string[];
   /** S3 Batch Restore Role ARN */
   s3BatchRestoreRoleArn: string;
-  /** SNS topics and filters for the ObjectCreatedQueue */
+  /** SNS topics and filters for the BucketEventsQueue */
   bucketEventSources: BucketEventSource[];
 }
 
@@ -41,7 +41,7 @@ export class LinzEksCluster extends Stack {
   cluster: Cluster;
   nodeRole: Role;
   s3BatchRestoreRoleArn: string;
-  objectCreatedQueue: ObjectCreatedQueue;
+  bucketEventsQueue: BucketEventsQueue;
 
   constructor(scope: Construct, id: string, props: EksClusterProps) {
     super(scope, id, props);
@@ -51,7 +51,7 @@ export class LinzEksCluster extends Stack {
     this.configBucket = Bucket.fromBucketName(this, 'BucketConfig', 'linz-bucket-config');
     this.vpc = Vpc.fromLookup(this, 'Vpc', { tags: { BaseVPC: 'true' } });
     this.s3BatchRestoreRoleArn = props.s3BatchRestoreRoleArn;
-    this.objectCreatedQueue = new ObjectCreatedQueue(this, 'ObjectCreatedQueue', {
+    this.bucketEventsQueue = new BucketEventsQueue(this, 'BucketEventsQueue', {
       sources: props.bucketEventSources,
     });
 
@@ -291,7 +291,7 @@ export class LinzEksCluster extends Stack {
     argoEventsSa.role.addToPrincipalPolicy(
       new PolicyStatement({
         actions: ['sqs:GetQueueUrl', 'sqs:ReceiveMessage', 'sqs:DeleteMessage', 'sqs:GetQueueAttributes'],
-        resources: [this.objectCreatedQueue.queue.queueArn],
+        resources: [this.bucketEventsQueue.queue.queueArn],
       }),
     );
 
