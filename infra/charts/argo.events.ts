@@ -18,7 +18,7 @@ export interface ArgoEventsProps {
   /**
    * Name of the SQS queue to listen to for events about bucket changes such as object created, deleted, etc.
    */
-  bucketEventsQueueName: string;
+  sqsBucketEventsQueueName: string;
 }
 
 /**
@@ -122,7 +122,7 @@ export class ArgoEvents extends Chart {
           'bucket-events': {
             jsonBody: true,
             region: 'ap-southeast-2',
-            queue: props.bucketEventsQueueName,
+            queue: props.sqsBucketEventsQueueName,
             waitTimeSeconds: 20,
           },
         },

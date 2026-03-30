@@ -106,7 +106,7 @@ async function main(): Promise<void> {
   new ArgoEvents(app, 'argo-events', {
     namespace: 'argo-events',
     saName: cfnOutputs[CfnOutputKeys.ArgoEventsServiceAccountName],
-    bucketEventsQueueName: getNameFromArn(cfnOutputs[CfnOutputKeys.BucketEventsSqsQueueArn]),
+    sqsBucketEventsQueueName: getNameFromArn(cfnOutputs[CfnOutputKeys.BucketEventsSqsQueueArn]),
   });
 
   new ArgoExtras(app, 'argo-extras', {
