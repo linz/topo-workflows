@@ -54,6 +54,7 @@ export class LinzEksCluster extends Stack {
     this.bucketEventsQueue = new BucketEventsQueue(this, 'BucketEventsQueue', {
       sources: props.bucketEventSources,
     });
+    new CfnOutput(this, CfnOutputKeys.BucketEventsSqsQueueArn, { value: this.bucketEventsQueue.queue.queueArn });
 
     this.cluster = new Cluster(this, `Eks${id}`, {
       clusterName: id,
