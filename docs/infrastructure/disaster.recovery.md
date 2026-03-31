@@ -48,8 +48,10 @@ If any of the cluster infrastructure exists but is not functional, see the above
    ci_role="$(aws iam list-roles --output=text --query="Roles[?starts_with(RoleName, 'CiTopoProd-CiRole')].Arn")"
    admin_role="arn:aws:iam::$(aws sts get-caller-identity --query Account --output text):role/AccountAdminRole"
    admin_sso_role="arn:aws:iam::$(aws sts get-caller-identity --query Account --output text):role/aws-reserved/sso.amazonaws.com/ap-southeast-2/AWSReservedSSO_LINZ_Prod_Admin_698e0e3a3c406ce5"
-   workflow_maintainer_role="$(aws cloudformation describe-stacks --output=text --query="Stacks[].Outputs[].OutputValue" --stack-name=TopographicSharedResourcesProd)"
-   npx cdk deploy -c maintainer-arns="${ci_role},${admin_role},${admin_sso_role},${workflow_maintainer_role}" -c rds-alerts=true Workflows
+   workflow_maintainer_role="$(aws cloudformation describe-stacks --output=text --query="join(',', Stacks[].Outputs[].OutputValue)" --stack-name=TopographicSharedResourcesProd)"
+   storage_maintainer_role="$(aws cloudformation describe-stacks --output=text --query="join(',', Stacks[].Outputs[?contains(OutputValue, 'MaintainerRole')].OutputValue[])" --stack-name=TopographicStorageProd)"
+
+   npx cdk deploy -c maintainer-arns="${ci_role},${admin_role},${admin_sso_role},${workflow_maintainer_role},${storage_maintainer_role}" -c rds-alerts=true Workflows
    ```
 
 3. Deploy Kubernetes components:
@@ -93,8 +95,7 @@ When deploying a new EKS cluster stack, a new Argo Runner Service Account IAM ro
 
 ### Finalise
 
-1. Ask EPT to whitelist the new EKS cluster API endpoint.
-2. Let the users know that Argo is once again available, and ask them to update their configuration:
+1. Let the users know that Argo is once again available, and ask them to update their configuration:
 
    ```shell
    aws --region=ap-southeast-2 eks update-kubeconfig --name=Workflows
@@ -177,13 +178,12 @@ If there is any issue on the RDS instance that can't be recovered, we might have
 
 ### Finalise
 
-1. Ask EPT to whitelist the new EKS cluster API endpoint.
-2. Let the users know that Argo is once again available, and ask them to update their configuration:
+1. Let the users know that Argo is once again available, and ask them to update their configuration:
 
    ```shell
    aws --region=ap-southeast-2 eks update-kubeconfig --name=Workflows
    ```
 
-3. Tidy up
+2. Tidy up
    1. Delete the _temporary_ database in the AWS web console → RDS or with `aws rds delete-db-instance --db-instance-identifier=ID --skip-final-snapshot`
    2. Terminate the sleep workflow: `argo --namespace=argo stop "$(argo --namespace=argo list --output=name)"`
