@@ -54,7 +54,7 @@ jobs:
       - name: Setup kubectl
         uses: azure/setup-kubectl@15650b3ad78fff148532a140b8a4c821796b2d7b # v3
         with:
-          version: 'latest'
+          version: "latest"
 
       - name: AWS Configure
         uses: aws-actions/configure-aws-credentials@010d0da01d0b5a38af31e9c3470dbfdabdecca3a # v4
@@ -136,7 +136,7 @@ jobs:
 
           EVENTS=$(grep '^kind: Sensor$' -R events/ -H | cut -d ':' -f1)
           for evt in $EVENTS; do
-              kubectl apply -f "$evt" --namespace argo
+              kubectl apply -f "$evt" --namespace argo-events
           done
 
       - name: Install Argo
