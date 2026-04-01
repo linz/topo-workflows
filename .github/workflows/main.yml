@@ -136,7 +136,7 @@ jobs:
 
           EVENTS=$(grep '^kind: Sensor$' -R events/ -H | cut -d ':' -f1)
           for evt in $EVENTS; do
-              kubectl apply -f "$evt" --namespace argo
+              kubectl apply -f "$evt" --namespace argo-events
           done
 
       - name: Install Argo
