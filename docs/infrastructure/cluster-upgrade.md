@@ -61,9 +61,10 @@ Below is an example of upgrading from v1.27 to v1.28
    ```bash
    ci_role="$(aws iam list-roles | jq --raw-output '.Roles[] | select(.RoleName | contains("CiTopo")) | select(.RoleName | contains("-CiRole")).Arn')"
    admin_role="arn:aws:iam::$(aws sts get-caller-identity --query Account --output text):role/AccountAdminRole"
-    workflow_maintainer_role="$(aws cloudformation describe-stacks --output=text --query="join(',', Stacks[].Outputs[].OutputValue)" --stack-name=TopographicSharedResourcesProd)"
-   storage_maintainer_role="$(aws cloudformation describe-stacks --output=text --query="join(',', Stacks[].Outputs[?contains(OutputValue, 'MaintainerRole')].OutputValue[])" --stack-name=TopographicStorageProd)"
-   npx cdk diff --context=maintainer-arns="${ci_role},${admin_role},${workflow_maintainer_role},${storage_maintainer_role}" Workflows
+   sso_admin_role="$(aws iam list-roles | jq --raw-output '.Roles[] | select(.RoleName | contains("Prod_Admin")) | select(.RoleName | contains("Prod_Admin")).Arn')"
+   storage_maintainer_roles="$(aws cloudformation describe-stacks --output=text --query="join(',', Stacks[].Outputs[?contains(OutputValue, 'MaintainerRole')].OutputValue[])" --stack-name=TopographicStorageProd)"
+
+   npx cdk diff --context=maintainer-arns="${ci_role},${admin_role},${sso_admin_role},${storage_maintainer_roles}" Workflows -c rds-alerts=true Workflows
    ```
 
    The only changes should be Kubernetes version related.
