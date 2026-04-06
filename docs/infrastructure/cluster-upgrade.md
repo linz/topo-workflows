@@ -62,9 +62,9 @@ Below is an example of upgrading from v1.27 to v1.28
    ci_role="$(aws iam list-roles --output=text --query="Roles[?starts_with(RoleName, 'CiTopoProd-CiRole')].Arn")"
    admin_role="arn:aws:iam::$(aws sts get-caller-identity --query Account --output text):role/AccountAdminRole"
    admin_sso_role="$(aws iam list-roles | jq --raw-output '.Roles[] | select(.RoleName | contains("Prod_Admin")) | select(.RoleName | contains("Prod_Admin")).Arn')"
-   storage_maintainer_roles="$(aws cloudformation describe-stacks --output=text --query="join(',', Stacks[].Outputs[?contains(OutputValue, 'MaintainerRole')].OutputValue[])" --stack-name=TopographicStorageProd)"
+   storage_maintainer_sso_role="$(aws cloudformation describe-stacks --output=text --query="join(',', Stacks[].Outputs[?contains(OutputValue, 'CustomAccessStorageMaintainerRole')].OutputValue[])" --stack-name=TopographicStorageProd)"
 
-   npx cdk diff --context=maintainer-arns="${ci_role},${admin_role},${admin_sso_role},${storage_maintainer_roles}" Workflows -c rds-alerts=true Workflows
+   npx cdk diff --context=maintainer-arns="${ci_role},${admin_role},${admin_sso_role},${storage_maintainer_sso_role}" Workflows -c rds-alerts=true Workflows
    ```
 
    The only changes should be Kubernetes version related.
