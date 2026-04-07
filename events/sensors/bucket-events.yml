@@ -5,6 +5,8 @@ kind: Sensor
 metadata:
   name: 'wf-bucket-events'
 spec:
+  template:
+    serviceAccountName: 'operate-workflow-sa'
   dependencies:
     - name: 'bucket-events'
       eventSourceName: 'aws-sqs-bucket-events'
