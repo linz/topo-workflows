@@ -2061,7 +2061,6 @@ export interface AgentPreset {
    * Enable host PID namespace for the deployment.
    *
    * @schema AgentPreset#hostPID
-   */
   readonly hostPid?: boolean;
 
   /**
