@@ -1,4 +1,5 @@
 # yaml-language-server: $schema=https://raw.githubusercontent.com/argoproj/argo-events/v1.9.10/api/jsonschema/schema.json
+
 apiVersion: argoproj.io/v1alpha1
 kind: Sensor
 metadata:
@@ -27,8 +28,8 @@ spec:
                       value: ''
                 workflowTemplateRef:
                   name: 'test-print'
-                  parameters:
-                    - src:
-                        dependencyName: 'bucket-events'
-                        dataKey: 'body'
-                      dest: 'spec.arguments.parameters.0.value'
+        parameters:
+          - src:
+              dependencyName: 'bucket-events'
+              dataKey: 'body'
+            dest: 'spec.arguments.parameters.0.value'
