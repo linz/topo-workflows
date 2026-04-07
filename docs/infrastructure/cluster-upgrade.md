@@ -59,11 +59,12 @@ Below is an example of upgrading from v1.27 to v1.28
 4. Diff the stack to make sure that only versions are updated
 
    ```bash
-   ci_role="$(aws iam list-roles | jq --raw-output '.Roles[] | select(.RoleName | contains("CiTopo")) | select(.RoleName | contains("-CiRole")).Arn')"
+   ci_role="$(aws iam list-roles --output=text --query="Roles[?starts_with(RoleName, 'CiTopoProd-CiRole')].Arn")"
    admin_role="arn:aws:iam::$(aws sts get-caller-identity --query Account --output text):role/AccountAdminRole"
-    workflow_maintainer_role="$(aws cloudformation describe-stacks --output=text --query="join(',', Stacks[].Outputs[].OutputValue)" --stack-name=TopographicSharedResourcesProd)"
-   storage_maintainer_role="$(aws cloudformation describe-stacks --output=text --query="join(',', Stacks[].Outputs[?contains(OutputValue, 'MaintainerRole')].OutputValue[])" --stack-name=TopographicStorageProd)"
-   npx cdk diff --context=maintainer-arns="${ci_role},${admin_role},${workflow_maintainer_role},${storage_maintainer_role}" Workflows
+   admin_sso_role="$(aws iam list-roles | jq --raw-output '.Roles[] | select(.RoleName | contains("Prod_Admin")) | select(.RoleName | contains("Prod_Admin")).Arn')"
+   storage_maintainer_roles="$(aws cloudformation describe-stacks --output=text --query="join(',', Stacks[].Outputs[?contains(OutputValue, 'MaintainerRole')].OutputValue[])" --stack-name=TopographicStorageProd)"
+
+   npx cdk diff --context=maintainer-arns="${ci_role},${admin_role},${admin_sso_role},${storage_maintainer_roles}" Workflows -c rds-alerts=true Workflows
    ```
 
    The only changes should be Kubernetes version related.
