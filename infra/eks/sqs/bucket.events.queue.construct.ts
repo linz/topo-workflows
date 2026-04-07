@@ -1,5 +1,5 @@
 import { Duration } from 'aws-cdk-lib';
-import { SubscriptionFilter, Topic } from 'aws-cdk-lib/aws-sns';
+import { FilterOrPolicy, SubscriptionFilter, Topic } from 'aws-cdk-lib/aws-sns';
 import { SqsSubscription } from 'aws-cdk-lib/aws-sns-subscriptions';
 import { Queue } from 'aws-cdk-lib/aws-sqs';
 import { Construct } from 'constructs';
@@ -33,7 +33,15 @@ export class BucketEventsQueue extends Construct {
 
       topic.addSubscription(
         new SqsSubscription(this.queue, {
-          filterPolicy: { key: source.filter },
+          filterPolicyWithMessageBody: {
+            Records: FilterOrPolicy.policy({
+              s3: FilterOrPolicy.policy({
+                object: FilterOrPolicy.policy({
+                  key: FilterOrPolicy.filter(source.filter),
+                }),
+              }),
+            }),
+          },
         }),
       );
     }
