@@ -54,7 +54,6 @@ If any of the cluster infrastructure exists but is not functional, see the above
    ```
 
 3. Deploy Kubernetes components:
-
    1. Connect AWS CLI to the new cluster: `aws eks update-kubeconfig --name=Workflows`.
    2. Create the Argo Workflows configuration files: `npx cdk8s synth`.
    3. (ONLY IF [RECREATING DATABASE](#rds-database)) Remove the `persistence` section of `dist/0005-argo-workflows.k8s.yaml` to disable workflow archiving to database. For example:
@@ -127,7 +126,6 @@ If there is any issue on the RDS instance that can't be recovered, we might have
 2. [Deploy the EKS cluster](#deployment-of-new-cluster)
 
 3. Create a temporary RDS database from [the manual snapshot created](#update-database-version-if-necessary):
-
    1. Get details of the new cluster database: `aws rds describe-db-instances --query="DBInstances[?DBName=='argo'].{EndpointAddress: Endpoint.Address, DBSubnetGroupName: DBSubnetGroup.DBSubnetGroupName, VpcSecurityGroupIds: VpcSecurityGroups[].VpcSecurityGroupId}"`.
    2. Go to https://ap-southeast-2.console.aws.amazon.com/rds/home?region=ap-southeast-2#db-snapshot:engine=postgres;id=ID, replacing "ID" with the `DBSnapshotIdentifier` of the manual snapshot.
    3. Click on _Actions_ → _Restore snapshot_.
@@ -140,7 +138,6 @@ If there is any issue on the RDS instance that can't be recovered, we might have
    10. Wait for the temporary DB to get to the "Available" state.
 
 4. Dump the temporary database to the new Argo database:
-
    1. Submit a ["sleep" workflow](../../workflows/test/sleep.yml) to the new Argo Workflows installation to spin up a pod:
       `argo submit --namespace=argo workflows/test/sleep.yml`. This will be used to connect to RDS to dump the database to a file.
    2. Connect to the sleep pod (it can take a while for the pod to spin up, so you might have to retry the second command):
@@ -165,7 +162,6 @@ If there is any issue on the RDS instance that can't be recovered, we might have
       You will be prompted for a password, get the password from the [AWS Systems Manager Parameter Store](https://ap-southeast-2.console.aws.amazon.com/systems-manager/parameters/%252Feks%252Fargo%252Fpostgres%252Fpassword/description?region=ap-southeast-2&tab=Table).
 
 5. Redeploy the cluster configuration files to enable the connection to the database and turn on workflow archiving:
-
    1. Run `npx cdk8s synth` to recreate the `persistence` section in `dist/0005-argo-workflows.k8s.yaml`.
    2. Redeploy the Argo config file: `kubectl replace --filename=dist/0005-argo-workflows.k8s.yaml`.
    3. Restart the workflow controller and the server:

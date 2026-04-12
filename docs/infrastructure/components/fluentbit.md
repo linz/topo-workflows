@@ -63,7 +63,6 @@ The Fluent Bit application version is stored in `appVersion` but this is only he
    ```
 
 2. Verify the Fluent Bit pods logs
-
    - Get pod names
 
      ```shell
