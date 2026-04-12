@@ -2,7 +2,7 @@
 
 The agent runs as a DaemonSet and collects:
 
-- Kubernetes logs
+- Kubernetes logs (not collected in this setup)
 - Container metrics
 - Node metrics
 - System metrics
@@ -20,9 +20,18 @@ flowchart LR
     C --> D[Kibana<br>Search / Dashboards]
 ```
 
-## Installation
+## Fleet
+
+### Installation
 
 [The official documentation](https://www.elastic.co/docs/reference/fleet/example-kubernetes-fleet-managed-agent-helm#agent-fleet-managed-helm-example-install-agent) has been followed to create the Fleet policy.
+
+### Configuration
+
+From the standard configuration, the following changes have been made:
+
+- Collect Kubernetes container logs has been de-activated. We already collect these logs using Fluent Bit and we want to avoid duplication.
+- Collect Kubernetes events from Kubernetes API Server has been de-activated. We already collect these events using Event exporter and we want to avoid duplication.
 
 ## Investigating the metrics
 
