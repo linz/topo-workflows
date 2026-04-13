@@ -48,5 +48,3 @@ spec:
           value: 'nz-coastal'
         - name: publish_to_odr
           value: 'true'
-        - name: copy_option
-          value: '--force-no-clobber'

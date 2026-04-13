@@ -335,13 +335,6 @@ spec:
           - 'nz-imagery'
           - 'nz-elevation'
           - 'nz-coastal'
-      - name: copy_option
-        description: 'Do not overwrite existing files with "no-clobber", "force" overwriting files in the target location, or "force-no-clobber" overwriting only changed files, skipping unchanged files'
-        value: '--no-clobber'
-        enum:
-          - '--no-clobber'
-          - '--force'
-          - '--force-no-clobber'
   templateDefaults:
     container:
       imagePullPolicy: Always
@@ -602,8 +595,6 @@ spec:
                   value: '{{=sprig.trimSuffix("/", tasks["get-location"].outputs.parameters.location)}}/flat/'
                 - name: target_bucket_name
                   value: '{{workflow.parameters.target_bucket_name}}'
-                - name: copy_option
-                  value: '{{workflow.parameters.copy_option}}'
                 - name: ticket
                   value: '{{=sprig.trim(workflow.parameters.ticket)}}'
                 - name: odr_url

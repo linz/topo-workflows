@@ -38,8 +38,6 @@ spec:
           value: '4'
         - name: publish_to_odr
           value: 'true'
-        - name: copy_option
-          value: '--force-no-clobber'
         - name: create_capture_area
           value: 'false'
         - name: gsd
