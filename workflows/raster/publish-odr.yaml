@@ -73,13 +73,6 @@ spec:
           - 'nz-imagery'
           - 'nz-elevation'
           - 'nz-coastal'
-      - name: copy_option
-        description: 'Do not overwrite existing files with "no-clobber", or "force" overwriting files in the target location'
-        value: '--no-clobber'
-        enum:
-          - '--no-clobber'
-          - '--force'
-          - '--force-no-clobber'
       - name: odr_url
         description: '(Optional) URL of existing dataset to update. If provided, the target_bucket_name will be ignored.'
         value: ''
@@ -93,7 +86,6 @@ spec:
         expression: 'false'
       inputs:
         parameters:
-          - name: copy_option
           - name: source
           - name: target_bucket_name
           - name: ticket
@@ -131,7 +123,7 @@ spec:
                 - name: ticket
                   value: '{{=sprig.trim(inputs.parameters.ticket)}}'
                 - name: copy_option
-                  value: '{{inputs.parameters.copy_option}}'
+                  value: '{{= inputs.parameters.odr_url == "" ? "--no-clobber" : "--force-no-clobber"}}'
             depends: 'generate-path'
 
     - name: exit-handler

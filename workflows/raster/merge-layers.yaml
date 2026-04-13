@@ -56,13 +56,6 @@ spec:
         enum:
           - 'false'
           - 'true'
-      - name: copy_option
-        description: 'Do not overwrite existing files with "no-clobber", "force" overwriting files in the target location, or "force-no-clobber" overwriting only changed files, skipping unchanged files'
-        value: '--force-no-clobber'
-        enum:
-          - '--no-clobber'
-          - '--force'
-          - '--force-no-clobber'
       - name: geospatial_category
         description: 'Geospatial category of the dataset, e.g. "dem-hillshade"'
         value: 'dem-hillshade-igor'
@@ -159,8 +152,6 @@ spec:
             default: '{{workflow.parameters.group}}'
           - name: publish_to_odr
             default: '{{workflow.parameters.publish_to_odr}}'
-          - name: copy_option
-            default: '{{workflow.parameters.copy_option}}'
           - name: geospatial_category
             default: '{{workflow.parameters.geospatial_category}}'
           - name: create_capture_area
@@ -374,8 +365,6 @@ spec:
                   value: '{{=sprig.trimSuffix("/", tasks["get-location"].outputs.parameters.location)}}/{{inputs.parameters.geospatial_category}}/flat/'
                 - name: target_bucket_name
                   value: '{{inputs.parameters.target_bucket_name}}'
-                - name: copy_option
-                  value: '{{inputs.parameters.copy_option}}'
                 - name: ticket
                   value: '{{=sprig.trim(inputs.parameters.ticket)}}'
                 - name: odr_url

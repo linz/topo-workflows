@@ -34,7 +34,5 @@ spec:
           value: 'dsm'
         - name: publish_to_odr
           value: 'true'
-        - name: 'copy_option'
-          value: '--force-no-clobber'
         - name: 'ticket'
           value: 'TDE-1454'

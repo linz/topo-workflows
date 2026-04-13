@@ -68,13 +68,6 @@ spec:
         enum:
           - 'false'
           - 'true'
-      - name: copy_option
-        description: 'Do not overwrite existing files with "no-clobber", "force" overwriting files in the target location, or "force-no-clobber" overwriting only changed files, skipping unchanged files'
-        value: '--force-no-clobber'
-        enum:
-          - '--no-clobber'
-          - '--force'
-          - '--force-no-clobber'
   templateDefaults:
     container:
       imagePullPolicy: Always
@@ -125,8 +118,6 @@ spec:
                   value: '{{item}}'
                 - name: publish_to_odr
                   value: '{{workflow.parameters.publish_to_odr}}'
-                - name: copy_option
-                  value: '{{workflow.parameters.copy_option}}'
             withParam: '{{workflow.parameters.hillshade_presets}}'
 
     - name: exit-handler

@@ -46,5 +46,3 @@ spec:
           value: '["hillshade", "hillshade-igor"]'
         - name: publish_to_odr
           value: 'true'
-        - name: copy_option
-          value: '--force-no-clobber'
