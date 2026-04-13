@@ -1,5 +1,16 @@
 # Elastic Agent
 
+## Table of contents
+
+- [Overview](#overview)
+- [Fleet](#fleet)
+  - [Installation](#installation)
+  - [Configuration](#configuration)
+- [When to update](#when-to-update)
+- [Investigating the metrics](#investigating-the-metrics)
+
+## Overview
+
 The agent runs as a DaemonSet and collects:
 
 - Kubernetes logs (not collected in this setup)
@@ -32,6 +43,12 @@ From the standard configuration, the following changes have been made:
 
 - Collect Kubernetes container logs has been de-activated. We already collect these logs using Fluent Bit and we want to avoid duplication.
 - Collect Kubernetes events from Kubernetes API Server has been de-activated. We already collect these events using Event exporter and we want to avoid duplication.
+
+## When to update
+
+- Update Elastic Agent whenever the Elastic Stack (e.g. Elastic Cloud) is upgraded to keep versions aligned.
+- Perform updates via Helm (code change), not directly in Elastic Fleet, to avoid configuration drift.
+- Also update for critical fixes or security advisories from Elastic.
 
 ## Investigating the metrics
 
