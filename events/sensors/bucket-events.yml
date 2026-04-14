@@ -8,9 +8,9 @@ spec:
   template:
     serviceAccountName: 'operate-workflow-sa'
   dependencies:
-    - name: 'bucket-events'
-      eventSourceName: 'aws-sqs-bucket-events'
-      eventName: 'bucket-events'
+    # - name: 'bucket-events'
+    #   eventSourceName: 'aws-sqs-bucket-events'
+    #   eventName: 'bucket-events'
   triggers:
     - template:
         name: 'trigger-wf-bucket-events'
