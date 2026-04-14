@@ -30,8 +30,8 @@ spec:
                       value: ''
                 workflowTemplateRef:
                   name: 'test-print'
-        parameters:
-          - src:
-              dependencyName: 'bucket-events'
-              dataKey: 'body'
-            dest: 'spec.arguments.parameters.0.value'
+          parameters:
+            - src:
+                dependencyName: 'bucket-events'
+                dataKey: 'body'
+              dest: 'spec.arguments.parameters.0.value'
