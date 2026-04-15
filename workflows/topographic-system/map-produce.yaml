@@ -18,7 +18,7 @@ spec:
     parameters:
       - name: version_map_cli
         description: Version of the map produce CLI docker container to use
-        value: 'v0.6'
+        value: 'latest'
 
       - name: version_argo_tasks
         description: Version of the Argo Tasks CLI docker container to use
@@ -26,7 +26,7 @@ spec:
 
       - name: project
         description: Path or s3 of QGIS Project to use for generate map sheets.
-        value: 's3://linz-topography-nonprod/qgis/latest/nztopo50map/nz-topo50-map.json'
+        value: 's3://linz-topography-nonprod/qgis/nztopo50/latest/nztopo50.json'
 
       - name: map_sheets
         description: Map Sheet Codes to process, json array.
@@ -56,9 +56,27 @@ spec:
           - 's3://linz-topography-nonprod/data/catalog.json'
           - 's3://linz-topography/data/catalog.json'
 
-      - name: output
-        description: Path or s3 of the output directory to write generated map sheets.
-        value: 's3://linz-topography-scratch-nonprod/test/'
+      - name: target
+        description: Path or s3 of the target directory to write generated map sheets.
+        value: 's3://linz-topography-scratch-nonprod/'
+        enum:
+          - 's3://linz-topography-scratch-nonprod/'
+          - 's3://linz-topography-nonprod/'
+          - 's3://linz-topography/'
+
+      - name: latest
+        description: Whether to push to stac with latest strategy.
+        value: 'true'
+        enum:
+          - 'true'
+          - 'false'
+
+      - name: commit
+        description: Whether to push to write the output to target bucket
+        value: 'true'
+        enum:
+          - 'true'
+          - 'false'
 
       - name: format
         description: Export format as pdf, tiff, or geotiff
@@ -103,6 +121,8 @@ spec:
                   value: '{{ workflow.parameters.version_map_cli }}'
                 - name: project
                   value: '{{ workflow.parameters.project }}'
+                - name: source
+                  value: '{{ workflow.parameters.source }}'
                 - name: map_sheets
                   value: '{{ workflow.parameters.map_sheets }}'
                 - name: produce_all
@@ -113,8 +133,6 @@ spec:
                   value: '{{ workflow.parameters.map_sheet_layer }}'
                 - name: data_tags
                   value: '{{ workflow.parameters.data_tags }}'
-                - name: source
-                  value: '{{ workflow.parameters.source }}'
                 - name: format
                   value: '{{ workflow.parameters.format }}'
                 - name: dpi
@@ -154,33 +172,21 @@ spec:
                 - name: grouped
                   from: '{{ tasks.group.outputs.artifacts.output }}'
 
-          - name: copy
-            templateRef:
-              name: copy
-              template: main
-            depends: produce
+          - name: stac-push
+            template: stac-push
+            depends: get-location && produce
             arguments:
               parameters:
+                - name: version_map_cli
+                  value: '{{ workflow.parameters.version_map_cli }}'
                 - name: source
                   value: '{{ tasks.get-location.outputs.parameters.location }}'
                 - name: target
-                  value: '{{ workflow.parameters.output }}'
-                - name: include
-                  value: '\.{{ workflow.parameters.format }}$|\.json$'
-                - name: exclude
-                  value: ''
-                - name: flatten
-                  value: 'false'
-                - name: group
-                  value: '1000'
-                - name: group_size
-                  value: '100Gi'
-                - name: transform
-                  value: 'f'
-                - name: copy_option
-                  value: '--force-no-clobber'
-                - name: aws_role_config_path
-                  value: 's3://linz-bucket-config/config-write.topography.json'
+                  value: '{{ workflow.parameters.target }}'
+                - name: latest
+                  value: '{{ workflow.parameters.latest }}'
+                - name: commit
+                  value: '{{ workflow.parameters.commit }}'
 
     - name: generate-map-sheets
       inputs:
@@ -228,6 +234,7 @@ spec:
           - --project={{ inputs.parameters.project }}
           - --all={{ inputs.parameters.produce_all }}
           - --layout={{ inputs.parameters.layout }}
+          - --map-sheet-layer={{ inputs.parameters.map_sheet_layer }}
           - --from-file=/tmp/map-sheets.json
           - "{{= sprig.empty(inputs.parameters.data_tags) ? '' : '--data-tags=' + inputs.parameters.data_tags }}"
           - --source={{ inputs.parameters.source }}
@@ -256,6 +263,33 @@ spec:
         args:
           - produce
           - --from-file={{= inputs.artifacts.grouped.path }}{{inputs.parameters.grouped_id}}.json
+
+    - name: stac-push
+      inputs:
+        parameters:
+          - name: version_map_cli
+          - name: source
+          - name: target
+          - name: latest
+          - name: commit
+      container:
+        image: 725496895483.dkr.ecr.ap-southeast-2.amazonaws.com/github/linz/topographic-system/map:{{ inputs.parameters.version_map_cli }}
+        resources:
+          requests:
+            memory: 7.8Gi
+            cpu: 15000m
+        imagePullPolicy: Always
+        env:
+          - name: AWS_ROLE_CONFIG_PATH
+            value: s3://linz-bucket-config/config-write.topography.json
+        args:
+          - stac-push
+          - --source={{= sprig.trimSuffix("/", inputs.parameters.source) }}/catalog.json
+          - --target={{ inputs.parameters.target }}
+          - --category=product
+          - --strategy=date
+          - '{{= inputs.parameters.latest == "true" ? "--strategy=latest" : "" }}'
+          - --commit={{ inputs.parameters.commit }}
 
     - name: exit-handler
       retryStrategy:
