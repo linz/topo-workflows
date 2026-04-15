@@ -284,6 +284,7 @@ spec:
             value: s3://linz-bucket-config/config-write.topography.json
         args:
           - stac-push
+          - '{{=sprig.trimSuffix("/", inputs.parameters.source)}}/catalog.json'
           - --source={{ inputs.parameters.source }}catalog.json
           - --target={{ inputs.parameters.target }}
           - --category=product
