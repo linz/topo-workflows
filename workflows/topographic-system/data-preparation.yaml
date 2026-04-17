@@ -18,7 +18,7 @@ spec:
     parameters:
       - name: version_kart_cli
         description: Version of the kart CLI docker container to use
-        value: 'v0.5.0'
+        value: 'latest'
 
       - name: contour
         description: S3 path of source parquet contour data stac collection.
@@ -28,12 +28,27 @@ spec:
         description: S3 path of source parquet landcover data stac collection.
         value: 's3://linz-topography-nonprod/data/landcover/latest/collection.json'
 
-      - name: output
-        description: Path or s3 of the output directory to write generated map sheets.
-        value: 's3://linz-topography-nonprod/data/'
+      - name: target
+        description: Path or s3 of the target directory to write generated map sheets.
+        value: 's3://linz-topography-scratch-nonprod/'
         enum:
-          - 's3://linz-topography-nonprod/data/'
-          - 's3://linz-topography/data/'
+          - 's3://linz-topography-scratch-nonprod/'
+          - 's3://linz-topography-nonprod/'
+          - 's3://linz-topography/'
+
+      - name: latest
+        description: Whether to push to stac with latest strategy.
+        value: 'true'
+        enum:
+          - 'true'
+          - 'false'
+
+      - name: commit
+        description: Whether to push to write the output to target bucket
+        value: 'true'
+        enum:
+          - 'true'
+          - 'false'
 
   templates:
     - name: main
@@ -41,8 +56,14 @@ spec:
         expression: 'false'
       dag:
         tasks:
+          - name: get-location
+            templateRef:
+              name: tpl-get-location
+              template: main
+
           - name: contour-with-landcover
             template: contour-with-landcover
+            depends: get-location
             arguments:
               parameters:
                 - name: version_kart_cli
@@ -52,7 +73,23 @@ spec:
                 - name: landcover
                   value: '{{ workflow.parameters.landcover }}'
                 - name: output
-                  value: '{{ workflow.parameters.output }}'
+                  value: '{{ tasks.get-location.outputs.parameters.location }}'
+
+          - name: stac-push
+            template: stac-push
+            depends: contour-with-landcover
+            arguments:
+              parameters:
+                - name: version_kart_cli
+                  value: '{{ workflow.parameters.version_kart_cli }}'
+                - name: source
+                  value: '{{ tasks.get-location.outputs.parameters.location }}'
+                - name: target
+                  value: '{{ workflow.parameters.target }}'
+                - name: latest
+                  value: '{{ workflow.parameters.latest }}'
+                - name: commit
+                  value: '{{ workflow.parameters.commit }}'
 
     - name: contour-with-landcover
       inputs:
@@ -77,6 +114,33 @@ spec:
           - '--contour={{ inputs.parameters.contour }}'
           - '--landcover={{ inputs.parameters.landcover }}'
           - '--output={{ inputs.parameters.output }}'
+
+    - name: stac-push
+      inputs:
+        parameters:
+          - name: version_kart_cli
+          - name: source
+          - name: target
+          - name: latest
+          - name: commit
+      container:
+        image: ghcr.io/linz/topographic-system/kart:{{ inputs.parameters.version_kart_cli }}
+        resources:
+          requests:
+            memory: 7.8Gi
+            cpu: 15000m
+        imagePullPolicy: Always
+        env:
+          - name: AWS_ROLE_CONFIG_PATH
+            value: s3://linz-bucket-config/config-write.topography.json
+        args:
+          - stac-push
+          - --source={{= sprig.trimSuffix("/", inputs.parameters.source) }}/catalog.json
+          - --target={{ inputs.parameters.target }}
+          - --category=data
+          - --strategy=date
+          - '{{= inputs.parameters.latest == "true" ? "--strategy=latest" : "" }}'
+          - --commit={{ inputs.parameters.commit }}
 
     - name: exit-handler
       retryStrategy:
