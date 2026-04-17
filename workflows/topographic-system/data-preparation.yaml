@@ -137,7 +137,7 @@ spec:
           - stac-push
           - --source={{= sprig.trimSuffix("/", inputs.parameters.source) }}/catalog.json
           - --target={{ inputs.parameters.target }}
-          - --category=product
+          - --category=data
           - --strategy=date
           - '{{= inputs.parameters.latest == "true" ? "--strategy=latest" : "" }}'
           - --commit={{ inputs.parameters.commit }}
