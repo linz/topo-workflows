@@ -9,8 +9,6 @@ export const ArgoDbInstanceName = `ArgoDb${environmentSuffix}`;
 export const ArgoDbName = 'argo';
 /** Argo Database user */
 export const ArgoDbUser = 'argo_user';
-/** SQS Queues CloudFormation Stack name */
-export const SqsQueuesName = `SqsQueues${environmentSuffix}`;
 /** AWS default region for our stack */
 export const DefaultRegion = 'ap-southeast-2';
 
