@@ -43,6 +43,8 @@ spec:
       - name: archive_directory
         description: 'The directory in the archive bucket where the data to unarchive is stored. Does not include the bucket name. Example: "aerialsurveys/Invercargill2022_Pgrm3016/".'
         value: ''
+      - name: name_contains
+        description: 'A string that appears anywhere within the object key string. Example: "report.pdf".'
       - name: consumer
         description: 'The consumer for who the data is being unarchived. The unarchive data will be copied to the consumer shared location.'
         value: 'linz'
@@ -85,7 +87,7 @@ spec:
                 - name: action_location
                   value: '{{=sprig.trimSuffix("/", tasks["get-location"].outputs.parameters.location)}}/actions/'
                 - name: include
-                  value: '.*'
+                  value: '{{= workflow.parameters.name_contains != "" ? ".*" + sprig.regexQuoteMeta(workflow.parameters.name_contains) + ".*" : ".*" }}'
                 - name: group
                   value: '{{workflow.parameters.group}}'
                 - name: group_size
@@ -107,6 +109,8 @@ spec:
                   value: '{{=sprig.trimSuffix("/",sprig.trimPrefix("/",workflow.parameters.archive_directory))}}'
                 - name: archive_path
                   value: '{{workflow.parameters.archive_bucket}}/{{=sprig.trimSuffix("/",sprig.trimPrefix("/",sprig.trim(workflow.parameters.archive_directory)))}}'
+                - name: name_contains
+                  value: '{{workflow.parameters.name_contains}}'
                 - name: retrieval_tier
                   value: '{{= workflow.parameters.urgent == "true" ? "STANDARD" : "BULK"}}'
                 - name: manifest_list
@@ -132,6 +136,7 @@ spec:
           - name: archive_bucket
           - name: archive_directory
           - name: archive_path
+          - name: name_contains
           - name: retrieval_tier
           - name: manifest_list
           - name: request_output_bucket
@@ -168,6 +173,27 @@ spec:
               exit 1
             fi
 
+            # S3 Objects filtering
+            FILTER=$(jq -n \
+              --arg dir "{{inputs.parameters.archive_directory}}" \
+              --arg name_contains "{{inputs.parameters.name_contains}}" \
+              '
+              {
+                KeyNameConstraint: (
+                  {
+                    MatchAnyPrefix: [$dir + "/"]
+                  }
+                  +
+                  (if $name_contains != "" then
+                    { MatchAnySubstring: [$name_contains] }
+                  else
+                    {}
+                  end)
+                ),
+                MatchAnyStorageClass: ["DEEP_ARCHIVE"]
+              }
+              ')
+
             # Save the list of copy action manifests to local for artifact output
             echo '{{inputs.parameters.manifest_list}}' > /tmp/copy-manifests.json
 
@@ -202,12 +228,7 @@ spec:
                     \"ManifestPrefix\": \"restore/manifests/${REQUEST_LOCATION}\",
                     \"ManifestFormat\": \"S3InventoryReport_CSV_20211130\"
                   },
-                  \"Filter\": {
-                    \"KeyNameConstraint\": {
-                      \"MatchAnyPrefix\": [\"{{inputs.parameters.archive_directory}}/\"]
-                    },
-                    \"MatchAnyStorageClass\": [\"DEEP_ARCHIVE\"]
-                  },
+                  \"Filter\": $FILTER,
                   \"EnableManifestOutput\": true
                 }
               }" \
