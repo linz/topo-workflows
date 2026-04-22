@@ -32,7 +32,7 @@ spec:
                 labels:
                   linz.govt.nz/category: raster
                   linz.govt.nz/data-type: raster
-                  linz.govt.nz/ticket: 'TDE-1428'
+                  linz.govt.nz/ticket: 'TDE-1896'
               spec:
                 workflowTemplateRef:
                   name: merge-layers
@@ -54,7 +54,7 @@ spec:
                     - name: version_topo_imagery
                       value: 'v7'
                     - name: ticket
-                      value: 'TDE-1428'
+                      value: 'TDE-1896'
                     - name: group
                       value: '4'
                     - name: publish_to_odr
