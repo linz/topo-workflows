@@ -16,7 +16,7 @@ spec:
           - path: body.Message
             type: string
             value:
-              - nz-elevation.*\/[^"]*hillshade[^"]*_1m
+              - nz-elevation.*\/[^\"]*hillshade[^\"]*_1m
   triggers:
     - template:
         name: 'trigger-wf-national-merged-hillshades'
