@@ -3,7 +3,7 @@
 apiVersion: argoproj.io/v1alpha1
 kind: Sensor
 metadata:
-  name: 'national-merged-dem-hillshades'
+  name: 'national-merged-hillshades'
 spec:
   template:
     serviceAccountName: 'operate-workflow-sa'
@@ -16,10 +16,10 @@ spec:
           - path: body.Message
             type: string
             value:
-              - linz-workflowsaf-scratch.*\/[^"]*dem-hillshade[^"]*_1m
+              - linz-workflowsaf-scratch.*\/[^"]*hillshade[^"]*_1m
   triggers:
     - template:
-        name: 'trigger-wf-national-merged-dem-hillshades'
+        name: 'trigger-wf-national-merged-hillshades'
         argoWorkflow:
           operation: 'submit'
           source:
@@ -27,7 +27,7 @@ spec:
               apiVersion: 'argoproj.io/v1alpha1'
               kind: 'Workflow'
               metadata:
-                generateName: 'national-merged-dem-hillshades-'
+                generateName: ''
                 namespace: 'argo'
                 labels:
                   linz.govt.nz/category: raster
@@ -92,7 +92,7 @@ spec:
                               - name: top_layer_source
                                 value: 's3://nz-elevation/new-zealand/new-zealand/{{workflow.parameters.geospatial_category}}_1m/2193/'
                               - name: base_layer_source
-                                value: 's3://nz-elevation/new-zealand/new-zealand-contour/{{workflow.parameters.geospatial_category}}_8m/2193/'
+                                value: '{{ if contains .Parameters.geospatial_category "dsm" }}{{ else }}s3://nz-elevation/new-zealand/new-zealand-contour/{{.Parameters.geospatial_category}}_8m/2193/{{ end }}'
                               - name: odr_url
                                 value: 's3://nz-elevation/new-zealand/new-zealand/{{workflow.parameters.geospatial_category}}/2193/'
                               - name: geospatial_category
@@ -121,5 +121,5 @@ spec:
               dest: 'spec.arguments.parameters.0.value'
             - src:
                 dependencyName: 'bucket-events-af'
-                dataTemplate: '{{ "national-merged-dem-" }}{{ regexReplaceAll "^.*new-zealand/new-zealand/(.*?)(?:_1m)?/2193(?:/.*)?$" (index (fromJson (index (index .Input "body") "Message")) "Records" 0 "s3" "object" "key") "${1}" }}{{ "-" }}'
+                dataTemplate: '{{ "national-merged-" }}{{ regexReplaceAll "^.*new-zealand/new-zealand/(.*?)(?:_1m)?/2193(?:/.*)?$" (index (fromJson (index (index .Input "body") "Message")) "Records" 0 "s3" "object" "key") "${1}" }}{{ "-" }}'
               dest: 'metadata.generateName'
