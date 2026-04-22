@@ -92,7 +92,7 @@ spec:
                               - name: top_layer_source
                                 value: 's3://nz-elevation/new-zealand/new-zealand/{{workflow.parameters.geospatial_category}}_1m/2193/'
                               - name: base_layer_source
-                                value: '{{ if contains .Parameters.geospatial_category "dsm" }}{{ else }}s3://nz-elevation/new-zealand/new-zealand-contour/{{.Parameters.geospatial_category}}_8m/2193/{{ end }}'
+                                value: '{{= workflow.parameters.geospatial_category matches ".*dem-hillshade.*" ? "s3://nz-elevation/new-zealand/new-zealand-contour/" + workflow.parameters.geospatial_category + "_8m/2193/" : "" }}'
                               - name: odr_url
                                 value: 's3://nz-elevation/new-zealand/new-zealand/{{workflow.parameters.geospatial_category}}/2193/'
                               - name: geospatial_category
