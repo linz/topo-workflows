@@ -34,18 +34,21 @@ spec:
                   linz.govt.nz/data-type: raster
                   linz.govt.nz/ticket: 'TDE-1479'
               spec:
-                entrypoint: main
-                onExit: exit-handler
-                podMetadata:
-                  labels:
-                    linz.govt.nz/category: raster
-                    linz.govt.nz/data-type: raster
-                    linz.govt.nz/region: 'new-zealand'
+                workflowTemplateRef:
+                  name: merge-layers
                 arguments:
                   parameters:
                     # Keep geospatial_category first; sensor mapping targets index 0.
                     - name: geospatial_category
                       value: ''
+                    - name: top_layer_source
+                      value: 's3://nz-coastal/new-zealand/new-zealand/{{workflow.parameters.geospatial_category}}_1m/2193/'
+                    - name: base_layer_source
+                      value: '' # No base layer for Coastal hillshades
+                    - name: odr_url
+                      value: 's3://nz-coastal/new-zealand/new-zealand/{{workflow.parameters.geospatial_category}}/2193/'
+                    - name: geospatial_category
+                      value: '{{workflow.parameters.geospatial_category}}'
                     - name: version_argo_tasks
                       value: 'v5'
                     - name: version_basemaps_cli
@@ -78,42 +81,6 @@ spec:
                       value: 'new-zealand'
                     - name: gdal_compression_preset
                       value: 'dem_zstd'
-                templates:
-                  - name: main
-                    retryStrategy:
-                      expression: 'false'
-                    steps:
-                      - - name: hillshade
-                          templateRef:
-                            name: merge-layers
-                            template: main
-                          arguments:
-                            parameters:
-                              - name: top_layer_source
-                                value: 's3://nz-coastal/new-zealand/new-zealand/{{workflow.parameters.geospatial_category}}_1m/2193/'
-                              - name: base_layer_source
-                                value: '' # No base layer for Coastal hillshades
-                              - name: odr_url
-                                value: 's3://nz-coastal/new-zealand/new-zealand/{{workflow.parameters.geospatial_category}}/2193/'
-                              - name: geospatial_category
-                                value: '{{workflow.parameters.geospatial_category}}'
-                  - name: exit-handler
-                    retryStrategy:
-                      limit: '0' # tpl-log-notification retries itself
-                    steps:
-                      - - name: exit
-                          templateRef:
-                            name: tpl-log-notification
-                            template: main
-                          arguments:
-                            parameters:
-                              - name: workflow_status
-                                value: '{{workflow.status}}'
-                              - name: workflow_parameters
-                                value: '{{workflow.parameters}}'
-                volumes:
-                  - name: ephemeral
-                    emptyDir: {}
           parameters:
             - src:
                 dependencyName: 'bucket-events'

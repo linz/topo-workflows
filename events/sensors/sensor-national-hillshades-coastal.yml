@@ -3,7 +3,7 @@
 apiVersion: argoproj.io/v1alpha1
 kind: Sensor
 metadata:
-  name: 'national-hillshades'
+  name: 'national-hillshades-coastal'
 spec:
   template:
     serviceAccountName: 'operate-workflow-sa'
@@ -16,10 +16,10 @@ spec:
           - path: body.Message
             type: string
             value:
-              - nz-elevation.*\/(dem|dsm)_1m\/
+              - nz-coastal.*\/(dem|dsm)_1m\/
   triggers:
     - template:
-        name: 'trigger-wf-national-hillshades'
+        name: 'trigger-wf-national-hillshades-coastal'
         argoWorkflow:
           operation: 'submit'
           source:
@@ -32,7 +32,7 @@ spec:
                 labels:
                   linz.govt.nz/category: raster
                   linz.govt.nz/data-type: raster
-                  linz.govt.nz/ticket: 'TDE-1279'
+                  linz.govt.nz/ticket: 'TDE-1525'
               spec:
                 workflowTemplateRef:
                   name: hillshade-combinations
@@ -50,9 +50,9 @@ spec:
                     - name: version_topo_imagery
                       value: 'v7'
                     - name: ticket
-                      value: 'TDE-1279'
+                      value: 'TDE-1479'
                     - name: bucket_name
-                      value: 'nz-elevation'
+                      value: 'nz-coastal'
                     - name: domain
                       value: 'land'
                     - name: gsd
@@ -68,5 +68,5 @@ spec:
               dest: 'spec.arguments.parameters.0.value'
             - src:
                 dependencyName: 'bucket-events'
-                dataTemplate: '{{ "national-hillshades-" }}{{ regexReplaceAll "^.*new-zealand/new-zealand/(.*?)(?:_1m)?/2193(?:/.*)?$" (index (fromJson (index (index .Input "body") "Message")) "Records" 0 "s3" "object" "key") "${1}" }}{{ "-" }}'
+                dataTemplate: '{{ "national-hillshades-coastal-" }}{{ regexReplaceAll "^.*new-zealand/new-zealand/(.*?)(?:_1m)?/2193(?:/.*)?$" (index (fromJson (index (index .Input "body") "Message")) "Records" 0 "s3" "object" "key") "${1}" }}{{ "-" }}'
               dest: 'metadata.generateName'
