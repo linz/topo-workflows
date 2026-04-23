@@ -47,8 +47,6 @@ spec:
                       value: '' # No base layer for Coastal hillshades
                     - name: odr_url
                       value: 's3://nz-coastal/new-zealand/new-zealand/{{workflow.parameters.geospatial_category}}/2193/'
-                    - name: geospatial_category
-                      value: '{{workflow.parameters.geospatial_category}}'
                     - name: version_argo_tasks
                       value: 'v5'
                     - name: version_basemaps_cli
