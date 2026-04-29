@@ -8,9 +8,15 @@ spec:
   template:
     serviceAccountName: 'operate-workflow-sa'
   dependencies:
-    # - name: 'bucket-events'
-    #   eventSourceName: 'aws-sqs-bucket-events'
-    #   eventName: 'bucket-events'
+    - name: 'bucket-events'
+      eventSourceName: 'aws-sqs-bucket-events'
+      eventName: 'bucket-events'
+      filters:
+        data:
+          - path: body.Message
+            type: string
+            value:
+              - DO_NOT_MATCH
   triggers:
     - template:
         name: 'trigger-wf-bucket-events'
