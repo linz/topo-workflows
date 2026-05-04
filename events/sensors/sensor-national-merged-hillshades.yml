@@ -1,0 +1,90 @@
+# yaml-language-server: $schema=https://raw.githubusercontent.com/argoproj/argo-events/v1.9.10/api/jsonschema/schema.json
+
+apiVersion: argoproj.io/v1alpha1
+kind: Sensor
+metadata:
+  name: 'national-merged-hillshades'
+spec:
+  template:
+    serviceAccountName: 'operate-workflow-sa'
+  dependencies:
+    - name: 'bucket-events'
+      eventSourceName: 'aws-sqs-bucket-events'
+      eventName: 'bucket-events'
+      filters:
+        data:
+          - path: body.Message
+            type: string
+            value:
+              - nz-elevation.*\/[^\"]*hillshade[^\"]*_1m
+  triggers:
+    - template:
+        name: 'trigger-wf-national-merged-hillshades'
+        argoWorkflow:
+          operation: 'submit'
+          source:
+            resource:
+              apiVersion: 'argoproj.io/v1alpha1'
+              kind: 'Workflow'
+              metadata:
+                generateName: ''
+                namespace: 'argo'
+                labels:
+                  linz.govt.nz/category: raster
+                  linz.govt.nz/data-type: raster
+                  linz.govt.nz/ticket: 'TDE-1896'
+              spec:
+                workflowTemplateRef:
+                  name: merge-layers
+                arguments:
+                  parameters:
+                    # Keep geospatial_category first; sensor mapping targets index 0.
+                    - name: geospatial_category
+                      value: ''
+                    - name: top_layer_source
+                      value: 's3://nz-elevation/new-zealand/new-zealand/{{workflow.parameters.geospatial_category}}_1m/2193/'
+                    - name: base_layer_source
+                      value: '{{= workflow.parameters.geospatial_category matches ".*dem-hillshade.*" ? "s3://nz-elevation/new-zealand/new-zealand-contour/" + workflow.parameters.geospatial_category + "_8m/2193/" : "" }}'
+                    - name: odr_url
+                      value: 's3://nz-elevation/new-zealand/new-zealand/{{workflow.parameters.geospatial_category}}/2193/'
+                    - name: version_argo_tasks
+                      value: 'v5'
+                    - name: version_basemaps_cli
+                      value: 'v8'
+                    - name: version_topo_imagery
+                      value: 'v7'
+                    - name: ticket
+                      value: 'TDE-1896'
+                    - name: group
+                      value: '4'
+                    - name: publish_to_odr
+                      value: 'true'
+                    - name: create_capture_area
+                      value: 'true'
+                    - name: gsd
+                      value: '1'
+                    - name: scale_to_resolution
+                      value: '1,1'
+                    - name: source_epsg
+                      value: '2193'
+                    - name: target_epsg
+                      value: '2193'
+                    - name: include
+                      value: '.tiff?$'
+                    - name: scale
+                      value: '50000'
+                    - name: target_bucket_name
+                      value: 'nz-elevation'
+                    - name: region
+                      value: 'new-zealand'
+                    - name: gdal_compression_preset
+                      value: 'dem_zstd'
+          parameters:
+            - src:
+                dependencyName: 'bucket-events'
+                dataTemplate: '{{ regexReplaceAll "^.*new-zealand/new-zealand/(.*?)(?:_1m)?/2193(?:/.*)?$" (index (fromJson (index (index .Input "body") "Message")) "Records" 0 "s3" "object" "key") "${1}" }}'
+              dest: 'spec.arguments.parameters.0.value'
+            - src:
+                dependencyName: 'bucket-events'
+                dataTemplate: '{{ "national-merged-" }}{{ regexReplaceAll "^.*new-zealand/new-zealand/(.*?)(?:_1m)?/2193(?:/.*)?$" (index (fromJson (index (index .Input "body") "Message")) "Records" 0 "s3" "object" "key") "${1}" }}{{ "-" }}'
+              dest: 'metadata.generateName'
