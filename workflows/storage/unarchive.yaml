@@ -87,7 +87,7 @@ spec:
                 - name: action_location
                   value: '{{=sprig.trimSuffix("/", tasks["get-location"].outputs.parameters.location)}}/actions/'
                 - name: include
-                  value: '{{= workflow.parameters.name_contains != "" ? ".*" + sprig.regexQuoteMeta(workflow.parameters.name_contains) + ".*" : ".*" }}'
+                  value: '{{= workflow.parameters.name_contains != "" ? ".*" + sprig.replace(" ", "(%20| )", sprig.regexQuoteMeta(workflow.parameters.name_contains)) + ".*" : ".*" }}'
                 - name: group
                   value: '{{workflow.parameters.group}}'
                 - name: group_size
