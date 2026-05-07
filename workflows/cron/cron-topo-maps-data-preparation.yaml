@@ -28,5 +28,5 @@ spec:
           value: 's3://linz-topography-nonprod/data/contour/latest/collection.json'
         - name: 'landcover'
           value: 's3://linz-topography-nonprod/data/landcover/latest/collection.json'
-        - name: 'output'
+        - name: 'target'
           value: 's3://linz-topography-nonprod/'
