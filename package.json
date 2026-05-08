@@ -29,7 +29,7 @@
     "@aws-sdk/client-ssm": "^3.953.0",
     "@linzjs/cdk-tags": "^1.9.1",
     "@linzjs/style": "^5.4.0",
-    "@types/node": "^24.10.1",
+    "@types/node": "^25.6.2",
     "aws-cdk": "^2.1034.0",
     "aws-cdk-lib": "^2.232.2",
     "cdk8s": "^2.70.34",
