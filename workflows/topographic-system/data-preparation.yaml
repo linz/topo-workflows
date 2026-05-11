@@ -29,7 +29,7 @@ spec:
         value: 's3://linz-topography-nonprod/data/landcover/latest/collection.json'
 
       - name: target
-        description: Path or s3 of the target directory to write generated map sheets.
+        description: Path or s3 of the target directory to write to.
         value: 's3://linz-topography-scratch-nonprod/'
         enum:
           - 's3://linz-topography-scratch-nonprod/'
@@ -61,8 +61,8 @@ spec:
               name: tpl-get-location
               template: main
 
-          - name: contour-with-landcover
-            template: contour-with-landcover
+          - name: ice-contour
+            template: ice-contour
             depends: get-location
             arguments:
               parameters:
@@ -77,7 +77,7 @@ spec:
 
           - name: stac-push
             template: stac-push
-            depends: contour-with-landcover
+            depends: ice-contour
             arguments:
               parameters:
                 - name: version_kart_cli
@@ -91,7 +91,7 @@ spec:
                 - name: commit
                   value: '{{ workflow.parameters.commit }}'
 
-    - name: contour-with-landcover
+    - name: ice-contour
       inputs:
         parameters:
           - name: version_kart_cli
@@ -110,7 +110,7 @@ spec:
             memory: 30Gi
             cpu: 15000m
         args:
-          - 'contour-with-landcover'
+          - 'ice-contour'
           - '--contour={{ inputs.parameters.contour }}'
           - '--landcover={{ inputs.parameters.landcover }}'
           - '--output={{ inputs.parameters.output }}'
