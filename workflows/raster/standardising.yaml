@@ -103,7 +103,7 @@ spec:
         value: '2193'
       - name: group
         description: 'How many output tiles to process in each standardise-validate task "pod". Change if you have resource or performance issues when standardising a dataset.'
-        value: '50'
+        value: '20'
       - name: concurrency
         description: 'Number of concurrent tiles to standardise. If not specified, defaults to 4, or 1 if compression is rgbnir_zstd.'
         value: ''
