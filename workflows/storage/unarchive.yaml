@@ -45,6 +45,7 @@ spec:
         value: ''
       - name: name_contains
         description: 'A string that appears anywhere within the object key string. Example: "report.pdf".'
+        value: ''
       - name: consumer
         description: 'The consumer for who the data is being unarchived. The unarchive data will be copied to the consumer shared location.'
         value: 'linz'
