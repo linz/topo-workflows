@@ -1,11 +1,8 @@
 # Kubernetes Troubleshooting (AWS EKS)
 
-This guide covers common troubleshooting steps for the GDE Kubernetes cluster (AWS EKS) running Argo Workflows.
+This guide covers common troubleshooting steps for the Kubernetes cluster (AWS EKS) running Argo Workflows.
 
-- AWS account: `linz-topo-prod`
-- Repository (IaC and workload definitions): <https://github.com/linz/topo-workflows>
-
-## Investigating the cluster
+## Monitoring the cluster
 
 ## kubectl
 
@@ -249,7 +246,7 @@ EKS logs (system and workload pods) are processed by Fluent Bit, sent to CloudWa
 
 Logs are available in the log group:
 
-`/aws/eks/Workflow/container`
+`/aws/eks/Workflows/container`
 
 ### Elastic Search
 
@@ -266,8 +263,6 @@ Kubernetes events are exported by `kubernetes-event-exporter`.
 In Elastic Search, one useful filter is:
 
 `kubernetes.labels.app.kubernetes.io/name.keyword: "event-exporter"`
-
-Known issue: some events may be randomly missing from exporter output (referenced internally as `TDE-479`).
 
 ## Components
 
