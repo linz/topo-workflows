@@ -9,6 +9,7 @@ If creating your own workflow, or interested in the details of a current workflo
 - [Setup](#setup)
 - [Submitting a Job](#submitting-a-job)
 - [Debugging Argo Workflows](#debugging-argo-workflows)
+- [Kubernetes Troubleshooting](docs/kubernetes.troubleshooting.md)
 - [FAQ](#faq)
 
 ## Setup
