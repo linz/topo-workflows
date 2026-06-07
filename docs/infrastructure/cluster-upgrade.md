@@ -11,10 +11,12 @@ This documentation does not include Argo Workflows upgrade.
 - Check if there is a `cdk8s+` version [compatible with the target Kubernetes version](https://cdk8s.io/docs/latest/plus/#i-operate-kubernetes-version-1xx-which-cdk8s-library-should-i-be-using)
 - Review compatibility matrix for the k8s components (`infra/charts/`):
   - [Argo Workflows](https://argo-workflows.readthedocs.io/en/latest/releases/#notes-on-compatibility)
+  - [Argo Events](https://github.com/argoproj/argo-events/releases)
   - Cloudflared runs as a container, so it should be compatible with any K8s version supporting standard container runtimes.
   - [Event Exporter](https://github.com/resmoio/kubernetes-event-exporter) does not seem to provide information. This has to be tested case by case.
   - [AWS for Fluent Bit](https://github.com/aws/aws-for-fluent-bit) does not seem to provide information. [Fluent Bit does not seem to have a matrix neither](https://github.com/fluent/fluent-bit/discussions/10860#discussioncomment-14371268).
   - [Karpenter](https://karpenter.sh/docs/upgrading/compatibility/)
+  - [Elastic Agent](components/elastic.agent.md#when-to-update) - the Agent version should match our Elasticsearch server version.
 - TODO: backup cluster state + configuration. _This process has not been implemented yet._
 
 ## Upgrade Process
@@ -61,7 +63,7 @@ Below is an example of upgrading from v1.27 to v1.28
    ```bash
    ci_role="$(aws iam list-roles --output=text --query="Roles[?starts_with(RoleName, 'CiTopoProd-CiRole')].Arn")"
    admin_role="arn:aws:iam::$(aws sts get-caller-identity --query Account --output text):role/AccountAdminRole"
-   admin_sso_role="$(aws iam list-roles | jq --raw-output '.Roles[] | select(.RoleName | contains("Prod_Admin")) | select(.RoleName | contains("Prod_Admin")).Arn')"
+   admin_sso_role="$(aws iam list-roles | jq --raw-output '.Roles[] | select(.RoleName | contains("Prod_Admin")) | "arn:aws:iam::" + (.Arn | split(":")[4]) + ":role/" + .RoleName')"
    storage_maintainer_roles="$(aws cloudformation describe-stacks --output=text --query="join(',', Stacks[].Outputs[?contains(OutputValue, 'MaintainerRole')].OutputValue[])" --stack-name=TopographicStorageProd)"
 
    npx cdk diff --context=maintainer-arns="${ci_role},${admin_role},${admin_sso_role},${storage_maintainer_roles}" Workflows -c rds-alerts=true Workflows
@@ -172,6 +174,16 @@ For each of the component to upgrade:
 
 - Update Helm values in `infra/charts/event.exporter.ts`
 - More information in [our event-exporter documentation](components/event.exporter.md)
+
+##### Argo Events
+
+- Update Helm values in `infra/charts/argo.events.ts`
+- More information in [our Argo Events documentation](components/argo.events.md)
+
+##### Elastic Agent
+
+- Update Helm values in `infra/charts/elastic.agent.ts`
+- More information in [our Elastic Agent documentation](components/elastic.agent.md)
 
 ##### Cloudflare
 
