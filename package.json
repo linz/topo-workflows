@@ -31,7 +31,7 @@
     "@linzjs/style": "^5.4.0",
     "@types/node": "^24.10.1",
     "aws-cdk": "^2.1034.0",
-    "aws-cdk-lib": "^2.232.2",
+    "aws-cdk-lib": "^2.260.0",
     "cdk8s": "^2.70.34",
     "cdk8s-cli": "^2.203.7",
     "cdk8s-plus-33": "^2.4.11",
