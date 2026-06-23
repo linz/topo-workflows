@@ -31,7 +31,6 @@ spec:
         - name: 'target'
           value: 's3://linz-topography-nonprod/'
 
-
         - name: marine
           value: 's3://linz-topography-nonprod/data/marine/latest/collection.json'
         - name: coastline
