@@ -60,7 +60,8 @@ spec:
         description: 'Geospatial category of the dataset, e.g. "dem-hillshade"'
         value: 'dem-hillshade-igor'
         enum:
-          - 'aerial-photos'
+          - 'ancillary-aerial-photos'
+          - 'ancillary-near-infrared-aerial-photos'
           - 'near-infrared-aerial-photos'
           - 'urban-aerial-photos'
           - 'rural-aerial-photos'
