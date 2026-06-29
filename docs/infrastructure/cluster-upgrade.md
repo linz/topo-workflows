@@ -60,13 +60,13 @@ Below is an example of upgrading from v1.27 to v1.28
 
 4. Diff the stack to make sure that only versions are updated
 
-   ```bash
-   ci_role="$(aws iam list-roles --output=text --query="Roles[?starts_with(RoleName, 'CiTopoProd-CiRole')].Arn")"
+   ```shell
+   ci_role="$(aws iam list-roles --output=text --query="Roles[?starts_with(RoleName, 'GithubCi-RoleDeploy')].Arn")"
    admin_role="arn:aws:iam::$(aws sts get-caller-identity --query Account --output text):role/AccountAdminRole"
    admin_sso_role="$(aws iam list-roles | jq --raw-output '.Roles[] | select(.RoleName | contains("Prod_Admin")) | "arn:aws:iam::" + (.Arn | split(":")[4]) + ":role/" + .RoleName')"
    storage_maintainer_roles="$(aws cloudformation describe-stacks --output=text --query="join(',', Stacks[].Outputs[?contains(OutputValue, 'MaintainerRole')].OutputValue[])" --stack-name=TopographicStorageProd)"
 
-   npx cdk diff --context=maintainer-arns="${ci_role},${admin_role},${admin_sso_role},${storage_maintainer_roles}" Workflows -c rds-alerts=true Workflows
+   npx cdk diff -c maintainer-arns="${ci_role},${admin_role},${admin_sso_role},${storage_maintainer_roles}" -c rds-alerts=true Workflows
    ```
 
    The only changes should be Kubernetes version related.

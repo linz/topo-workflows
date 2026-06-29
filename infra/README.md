@@ -61,11 +61,14 @@ To deploy the EKS cluster with AWS CDK a few context values need to be set:
 Then a deployment can be made with `cdk`:
 
 ```shell
-ci_role="$(aws iam list-roles | jq --raw-output '.Roles[] | select(.RoleName | contains("CiTopo")) | select(.RoleName | contains("-CiRole")).Arn')"
-admin_role="arn:aws:iam::$(aws sts get-caller-identity --query Account --output text):role/AccountAdminRole"
-workflow_maintainer_role="$(aws cloudformation describe-stacks --output=text --query="join(',', Stacks[].Outputs[].OutputValue)" --stack-name=TopographicSharedResourcesProd)"
-storage_maintainer_role="$(aws cloudformation describe-stacks --output=text --query="join(',', Stacks[].Outputs[?contains(OutputValue, 'MaintainerRole')].OutputValue[])" --stack-name=TopographicStorageProd)"
-npx cdk deploy --context=maintainer-arns="${ci_role},${admin_role},${workflow_maintainer_role},${storage_maintainer_role}" Workflows
+   ci_role="$(aws iam list-roles --output=text --query="Roles[?starts_with(RoleName, 'GithubCi-RoleDeploy')].Arn")"
+   admin_role="arn:aws:iam::$(aws sts get-caller-identity --query Account --output text):role/AccountAdminRole"
+   admin_sso_role="$(aws iam list-roles | jq --raw-output '.Roles[] | select(.RoleName | contains("Prod_Admin")) | "arn:aws:iam::" + (.Arn | split(":")[4]) + ":role/" + .RoleName')"
+   storage_maintainer_roles="$(aws cloudformation describe-stacks --output=text --query="join(',', Stacks[].Outputs[?contains(OutputValue, 'MaintainerRole')].OutputValue[])" --stack-name=TopographicStorageProd)"
+
+   npx cdk diff -c maintainer-arns="${ci_role},${admin_role},${admin_sso_role},${storage_maintainer_roles}" -c rds-alerts=true Workflows
+
+   npx cdk deploy -c maintainer-arns="${ci_role},${admin_role},${admin_sso_role},${storage_maintainer_roles}" -c rds-alerts=true Workflows
 ```
 
 ### Deploy k8s components via CDK8s

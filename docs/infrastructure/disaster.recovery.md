@@ -45,10 +45,12 @@ If any of the cluster infrastructure exists but is not functional, see the above
 2. Deploy prod cluster using all the relevant roles as maintainers:
 
    ```shell
-   ci_role="$(aws iam list-roles --output=text --query="Roles[?starts_with(RoleName, 'CiTopoProd-CiRole')].Arn")"
+   ci_role="$(aws iam list-roles --output=text --query="Roles[?starts_with(RoleName, 'GithubCi-RoleDeploy')].Arn")"
    admin_role="arn:aws:iam::$(aws sts get-caller-identity --query Account --output text):role/AccountAdminRole"
    admin_sso_role="$(aws iam list-roles | jq --raw-output '.Roles[] | select(.RoleName | contains("Prod_Admin")) | "arn:aws:iam::" + (.Arn | split(":")[4]) + ":role/" + .RoleName')"
    storage_maintainer_roles="$(aws cloudformation describe-stacks --output=text --query="join(',', Stacks[].Outputs[?contains(OutputValue, 'MaintainerRole')].OutputValue[])" --stack-name=TopographicStorageProd)"
+
+   npx cdk diff -c maintainer-arns="${ci_role},${admin_role},${admin_sso_role},${storage_maintainer_roles}" -c rds-alerts=true Workflows
 
    npx cdk deploy -c maintainer-arns="${ci_role},${admin_role},${admin_sso_role},${storage_maintainer_roles}" -c rds-alerts=true Workflows
    ```

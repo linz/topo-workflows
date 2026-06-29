@@ -30,12 +30,12 @@ describe('tryGetContextArns', () => {
     const app = new App();
     app.node.setContext(
       'admin-roles',
-      'arn:aws:iam::1234567890:role/AccountAdminRole,arn:aws:iam::1234567890:role/AccountCiRole',
+      'arn:aws:iam::1234567890:role/AccountAdminRole,arn:aws:iam::1234567890:role/GithubCi-RoleDeploy',
     );
     const roleArns = tryGetContextArns(app.node, 'admin-roles');
 
     assert.notEqual(roleArns, []);
     assert.equal(roleArns[0], 'arn:aws:iam::1234567890:role/AccountAdminRole');
-    assert.equal(roleArns[1], 'arn:aws:iam::1234567890:role/AccountCiRole');
+    assert.equal(roleArns[1], 'arn:aws:iam::1234567890:role/GithubCi-RoleDeploy');
   });
 });
