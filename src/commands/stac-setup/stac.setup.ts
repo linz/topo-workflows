@@ -158,7 +158,7 @@ export function slugFromMetadata(metadata: SlugMetadata): string {
   const geographicDescription = metadata.geographicDescription || metadata.region;
 
   switch (metadata.geospatialCategory) {
-    case 'aerial-photos':
+    case 'ancillary-aerial-photos':
     case 'near-infrared-aerial-photos':
     case 'near-infrared-satellite-imagery':
     case 'rural-aerial-photos':

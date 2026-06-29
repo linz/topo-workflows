@@ -27,7 +27,7 @@ describe('GeneratePathImagery', () => {
   it('Should match - generic aerial photos from slug', () => {
     const metadata: PathMetadata = {
       targetBucketName: 'nz-imagery',
-      geospatialCategory: 'aerial-photos',
+      geospatialCategory: 'ancillary-aerial-photos',
       region: 'auckland',
       slug: 'auckland_2023_0.3m',
       gsd: 0.3,
