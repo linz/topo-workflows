@@ -80,7 +80,7 @@ spec:
 
       - name: format
         description: Export format as pdf, tiff, or geotiff
-        value: 'tiff'
+        value: 'pdf'
         enum:
           - 'pdf'
           - 'tiff'
@@ -112,8 +112,8 @@ spec:
                 - name: map_sheets
                   value: '{{ workflow.parameters.map_sheets }}'
 
-          - name: map-produce-cover
-            template: map-produce-cover
+          - name: map-produce-prepare
+            template: map-produce-prepare
             depends: generate-map-sheets && get-location
             arguments:
               parameters:
@@ -147,7 +147,7 @@ spec:
             templateRef:
               name: tpl-at-group
               template: main
-            depends: map-produce-cover
+            depends: map-produce-prepare
             arguments:
               parameters:
                 - name: size
@@ -156,10 +156,10 @@ spec:
                   value: '{{= workflow.parameters.version_argo_tasks }}'
               artifacts:
                 - name: input
-                  from: '{{ tasks.map-produce-cover.outputs.artifacts.cover-items }}'
+                  from: '{{ tasks.map-produce-prepare.outputs.artifacts.cover-items }}'
 
-          - name: produce
-            template: produce
+          - name: export-map-sheets
+            template: export-map-sheets
             depends: group && get-location
             withParam: '{{ tasks.group.outputs.parameters.output }}'
             arguments:
@@ -174,7 +174,7 @@ spec:
 
           - name: stac-push
             template: stac-push
-            depends: get-location && produce
+            depends: get-location && export-map-sheets
             arguments:
               parameters:
                 - name: version_map_cli
@@ -203,7 +203,7 @@ spec:
           - |
             echo '{{ inputs.parameters.map_sheets }}' > /tmp/map-sheets.json
 
-    - name: map-produce-cover
+    - name: map-produce-prepare
       inputs:
         parameters:
           - name: version_map_cli
@@ -230,7 +230,7 @@ spec:
           - name: AWS_ROLE_CONFIG_PATH
             value: s3://linz-bucket-config/config-write.topography.json
         args:
-          - produce-cover
+          - prepare
           - --project={{ inputs.parameters.project }}
           - --all={{ inputs.parameters.produce_all }}
           - --layout={{ inputs.parameters.layout }}
@@ -242,7 +242,7 @@ spec:
           - --dpi={{ inputs.parameters.dpi }}
           - --output={{ inputs.parameters.output }}
 
-    - name: produce
+    - name: export-map-sheets
       inputs:
         parameters:
           - name: version_map_cli
@@ -261,7 +261,7 @@ spec:
           - name: AWS_ROLE_CONFIG_PATH
             value: s3://linz-bucket-config/config-write.topography.json
         args:
-          - produce
+          - export
           - --from-file={{= inputs.artifacts.grouped.path }}{{inputs.parameters.grouped_id}}.json
 
     - name: stac-push
