@@ -141,7 +141,8 @@ spec:
         description: 'Geospatial category of the dataset'
         value: 'urban-aerial-photos'
         enum:
-          - 'aerial-photos'
+          - 'ancillary-aerial-photos'
+          - 'ancillary-near-infrared-aerial-photos'
           - 'near-infrared-aerial-photos'
           - 'urban-aerial-photos'
           - 'rural-aerial-photos'
