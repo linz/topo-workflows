@@ -1,7 +1,14 @@
 import { KubectlV34Layer } from '@aws-cdk/lambda-layer-kubectl-v34';
 import { Aws, CfnOutput, Fn, Stack, StackProps } from 'aws-cdk-lib';
 import { InstanceType, IVpc, Port, SecurityGroup, SubnetType, Vpc } from 'aws-cdk-lib/aws-ec2';
-import { Cluster, ClusterLoggingTypes, IpFamily, KubernetesVersion, NodegroupAmiType } from 'aws-cdk-lib/aws-eks';
+import {
+  CfnAddon,
+  Cluster,
+  ClusterLoggingTypes,
+  IpFamily,
+  KubernetesVersion,
+  NodegroupAmiType,
+} from 'aws-cdk-lib/aws-eks';
 import {
   CfnInstanceProfile,
   Effect,
@@ -33,6 +40,12 @@ export class LinzEksCluster extends Stack {
   id: string;
   /** Version of EKS to use, this must be aligned to the `kubectlLayer` */
   version = KubernetesVersion.V1_34;
+  /**
+   * kube-proxy EKS add-on version, must be compatible with {@link version}.
+   *
+   * List available/default versions: `aws eks describe-addon-versions --addon-name kube-proxy --kubernetes-version <version>`
+   */
+  kubeProxyAddonVersion = 'v1.34.6-eksbuild.11';
   /** Argo needs a temporary bucket to store objects */
   tempBucket: IBucket;
   /* Bucket where read/write roles config files are stored */
@@ -128,6 +141,17 @@ export class LinzEksCluster extends Stack {
    * or name space creation
    */
   configureEks(): void {
+    // kube-proxy was previously self-managed (auto-bootstrapped by EKS at cluster creation, untracked and
+    // never auto-updated). Adopting it as an EKS-managed add-on so its version is explicit and reviewable,
+    // in step with `version` above, rather than left frozen at whatever was installed at cluster creation.
+    new CfnAddon(this, 'KubeProxyAddon', {
+      clusterName: this.cluster.clusterName,
+      addonName: 'kube-proxy',
+      addonVersion: this.kubeProxyAddonVersion,
+      // Required to adopt the existing self-managed DaemonSet rather than fail on conflicting resources.
+      resolveConflicts: 'OVERWRITE',
+    });
+
     this.tempBucket.grantReadWrite(this.nodeRole);
     this.configBucket.grantRead(this.nodeRole);
     this.nodeRole.addToPrincipalPolicy(new PolicyStatement({ actions: ['sts:AssumeRole'], resources: ['*'] }));
