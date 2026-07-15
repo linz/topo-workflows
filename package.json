@@ -23,7 +23,7 @@
     "test": "node --test \"infra/**/*.test.ts\" \"templates/common/__test__/*.test.ts\""
   },
   "devDependencies": {
-    "@aws-cdk/lambda-layer-kubectl-v33": "^2.0.0",
+    "@aws-cdk/lambda-layer-kubectl-v34": "^2.2.2",
     "@aws-sdk/client-cloudformation": "^3.953.0",
     "@aws-sdk/client-eks": "^3.953.0",
     "@aws-sdk/client-ssm": "^3.953.0",
@@ -34,7 +34,7 @@
     "aws-cdk-lib": "^2.232.2",
     "cdk8s": "^2.70.34",
     "cdk8s-cli": "^2.203.7",
-    "cdk8s-plus-33": "^2.4.11",
+    "cdk8s-plus-34": "^2.0.36",
     "constructs": "^10.3.0",
     "tsx": "^4.6.2",
     "yaml": "^2.5.1"
