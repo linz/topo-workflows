@@ -1,0 +1,32 @@
+# yaml-language-server: $schema=https://raw.githubusercontent.com/argoproj/argo-workflows/v3.6.12/api/jsonschema/schema.json
+apiVersion: argoproj.io/v1alpha1
+kind: CronWorkflow
+metadata:
+  name: cron-topo-maps-coastline-polygon
+  labels:
+    linz.govt.nz/category: topo-maps
+    linz.govt.nz/data-type: vector
+spec:
+  schedules:
+    - '31 06 * * 1-5' # 6.31 AM Monday to Friday
+  timezone: 'NZ'
+  startingDeadlineSeconds: 3600 # Allow 1 hour delay if the workflow-controller clashes during the starting time.
+  concurrencyPolicy: 'Allow'
+  successfulJobsHistoryLimit: 3
+  failedJobsHistoryLimit: 3
+  suspend: false
+  workflowSpec:
+    podMetadata:
+      labels:
+        linz.govt.nz/category: topo-maps
+        linz.govt.nz/data-type: vector
+    workflowTemplateRef:
+      name: topographic-coastline-polygon
+    arguments:
+      parameters:
+        - name: 'coastline'
+          value: 's3://linz-topography-nonprod/data/coastline/latest/collection.json'
+        - name: 'island'
+          value: 's3://linz-topography-nonprod/data/island/latest/collection.json'
+        - name: 'target'
+          value: 's3://linz-topography-nonprod/'
