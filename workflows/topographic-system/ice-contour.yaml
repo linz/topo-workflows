@@ -3,7 +3,7 @@
 apiVersion: argoproj.io/v1alpha1
 kind: WorkflowTemplate
 metadata:
-  name: topographic-data-preparation
+  name: topographic-ice-contour
   labels:
     linz.govt.nz/category: topo-maps
     linz.govt.nz/data-type: vector
@@ -107,8 +107,8 @@ spec:
             value: nonprod
         resources:
           requests:
-            memory: 30Gi
-            cpu: 15000m
+            memory: 12Gi
+            cpu: 8000m
         args:
           - 'ice-contour'
           - '--contour={{ inputs.parameters.contour }}'
@@ -128,7 +128,7 @@ spec:
         resources:
           requests:
             memory: 7.8Gi
-            cpu: 15000m
+            cpu: 4000m
         imagePullPolicy: Always
         env:
           - name: AWS_ROLE_CONFIG_PATH
