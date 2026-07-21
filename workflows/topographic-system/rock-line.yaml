@@ -3,7 +3,7 @@
 apiVersion: argoproj.io/v1alpha1
 kind: WorkflowTemplate
 metadata:
-  name: topographic-coastline-polygon
+  name: topographic-rock-line
   labels:
     linz.govt.nz/category: topo-maps
     linz.govt.nz/data-type: vector
@@ -20,13 +20,21 @@ spec:
         description: Version of the kart CLI docker container to use
         value: 'latest'
 
+      - name: marine
+        description: S3 path of source marine stac collection.
+        value: 's3://linz-topography-nonprod/data/marine/latest/collection.json'
+
       - name: coastline
-        description: S3 path of source parquet coastline data stac collection.
+        description: S3 path of source coastline stac collection.
         value: 's3://linz-topography-nonprod/data/coastline/latest/collection.json'
 
       - name: island
-        description: S3 path of source parquet island data stac collection.
+        description: S3 path of source island stac collection.
         value: 's3://linz-topography-nonprod/data/island/latest/collection.json'
+
+      - name: water
+        description: S3 path of source water stac collection.
+        value: 's3://linz-topography-nonprod/data/water/latest/collection.json'
 
       - name: target
         description: Path or s3 of the target directory to write to.
@@ -61,23 +69,27 @@ spec:
               name: tpl-get-location
               template: main
 
-          - name: coastline-polygon
-            template: coastline-polygon
+          - name: rock-line
+            template: rock-line
             depends: get-location
             arguments:
               parameters:
                 - name: version_kart_cli
                   value: '{{ workflow.parameters.version_kart_cli }}'
+                - name: marine
+                  value: '{{ workflow.parameters.marine }}'
                 - name: coastline
                   value: '{{ workflow.parameters.coastline }}'
                 - name: island
                   value: '{{ workflow.parameters.island }}'
+                - name: water
+                  value: '{{ workflow.parameters.water }}'
                 - name: output
                   value: '{{ tasks.get-location.outputs.parameters.location }}'
 
           - name: stac-push
             template: stac-push
-            depends: coastline-polygon
+            depends: rock-line
             arguments:
               parameters:
                 - name: version_kart_cli
@@ -91,12 +103,14 @@ spec:
                 - name: commit
                   value: '{{ workflow.parameters.commit }}'
 
-    - name: coastline-polygon
+    - name: rock-line
       inputs:
         parameters:
           - name: version_kart_cli
+          - name: marine
           - name: coastline
           - name: island
+          - name: water
           - name: output
       container:
         image: ghcr.io/linz/topographic-system/kart:{{ inputs.parameters.version_kart_cli }}
@@ -110,9 +124,11 @@ spec:
             memory: 7.8Gi
             cpu: 4000m
         args:
-          - 'coastline-polygon'
+          - 'rock-line'
+          - '--marine={{ inputs.parameters.marine }}'
           - '--coastline={{ inputs.parameters.coastline }}'
           - '--island={{ inputs.parameters.island }}'
+          - '--water={{ inputs.parameters.water }}'
           - '--output={{ inputs.parameters.output }}'
 
     - name: stac-push
