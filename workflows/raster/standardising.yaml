@@ -572,7 +572,7 @@ spec:
             depends: 'standardise-validate'
 
           - name: create-config
-            when: "'{{workflow.parameters.target_epsg}}' =~ '2193|3857'"
+            when: "'{{workflow.parameters.target_epsg}}' =~ '2193|3857|3793'"
             arguments:
               parameters:
                 - name: location
