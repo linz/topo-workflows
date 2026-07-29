@@ -242,7 +242,7 @@ spec:
           - --all={{ inputs.parameters.produce_all }}
           - --layout={{ inputs.parameters.layout }}
           - --map-sheet-dataset={{ inputs.parameters.map_sheet_dataset }}
-          - --carto_text_dataset={{ inputs.parameters.carto_text_dataset }}
+          - --carto-text-dataset={{ inputs.parameters.carto_text_dataset }}
           - --from-file=/tmp/map-sheets.json
           - "{{= sprig.empty(inputs.parameters.data_tags) ? '' : '--data-tags=' + inputs.parameters.data_tags }}"
           - --source={{ inputs.parameters.source }}
