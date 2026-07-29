@@ -41,9 +41,13 @@ spec:
         description: Qgis project Layout name to use for export.
         value: 'tiff-50'
 
-      - name: map_sheet_layer
-        description: Topo Map Sheet Layer name to use.
-        value: 'nz_topo50_map_sheet'
+      - name: map_sheet_dataset
+        description: Topo Map Sheet dataset name to use.
+        value: 'nztopo50_map_sheet'
+
+      - name: carto_text_dataset
+        description: Carto Text dataset name to use.
+        value: 'nztopo50_carto_text'
 
       - name: data_tags
         description: Comma separated list of data tags to override existing data.
@@ -129,8 +133,10 @@ spec:
                   value: '{{ workflow.parameters.produce_all }}'
                 - name: layout
                   value: '{{ workflow.parameters.layout }}'
-                - name: map_sheet_layer
-                  value: '{{ workflow.parameters.map_sheet_layer }}'
+                - name: map_sheet_dataset
+                  value: '{{ workflow.parameters.map_sheet_dataset }}'
+                - name: carto_text_dataset
+                  value: '{{ workflow.parameters.carto_text_dataset }}'
                 - name: data_tags
                   value: '{{ workflow.parameters.data_tags }}'
                 - name: format
@@ -211,7 +217,8 @@ spec:
           - name: map_sheets
           - name: produce_all
           - name: layout
-          - name: map_sheet_layer
+          - name: map_sheet_dataset
+          - name: carto_text_dataset
           - name: data_tags
           - name: source
           - name: format
@@ -234,7 +241,8 @@ spec:
           - --project={{ inputs.parameters.project }}
           - --all={{ inputs.parameters.produce_all }}
           - --layout={{ inputs.parameters.layout }}
-          - --map-sheet-layer={{ inputs.parameters.map_sheet_layer }}
+          - --map-sheet-dataset={{ inputs.parameters.map_sheet_dataset }}
+          - --carto_text_dataset={{ inputs.parameters.carto_text_dataset }}
           - --from-file=/tmp/map-sheets.json
           - "{{= sprig.empty(inputs.parameters.data_tags) ? '' : '--data-tags=' + inputs.parameters.data_tags }}"
           - --source={{ inputs.parameters.source }}
