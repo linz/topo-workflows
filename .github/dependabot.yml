@@ -4,14 +4,20 @@ updates:
     directory: '/'
     schedule:
       interval: daily
+    cooldown:
+      default-days: 15
   - package-ecosystem: 'docker'
     directory: '/.github/workflows'
     schedule:
       interval: daily
+    cooldown:
+      default-days: 15
   - package-ecosystem: npm
     directory: '/'
     schedule:
       interval: daily
+    cooldown:
+      default-days: 15
     open-pull-requests-limit: 10
     groups:
       aws-sdk:
