@@ -124,6 +124,7 @@ spec:
             memory: 7.8Gi
             cpu: 4000m
         args:
+          - 'data-prep'
           - 'rock-line'
           - '--marine={{ inputs.parameters.marine }}'
           - '--coastline={{ inputs.parameters.coastline }}'
