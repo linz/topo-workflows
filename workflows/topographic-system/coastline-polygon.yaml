@@ -110,6 +110,7 @@ spec:
             memory: 7.8Gi
             cpu: 4000m
         args:
+          - 'data-prep'
           - 'coastline-polygon'
           - '--coastline={{ inputs.parameters.coastline }}'
           - '--island={{ inputs.parameters.island }}'
