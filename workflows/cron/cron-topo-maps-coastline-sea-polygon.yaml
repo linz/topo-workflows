@@ -27,22 +27,35 @@ spec:
           - - name: coastline-polygon
               templateRef:
                 name: topographic-coastline-polygon
-                template: main
+                template: coastline-polygon
+              depends: get-location-coastline
               arguments:
                 parameters:
+                  - name: version_kart_cli
+                    value: 'latest'
                   - name: coastline
                     value: 's3://linz-topography-nonprod/data/coastline/latest/collection.json'
                   - name: island
                     value: 's3://linz-topography-nonprod/data/island/latest/collection.json'
                   - name: target
                     value: 's3://linz-topography-nonprod/'
+                  - name: latest
+                    value: 'true'
+                  - name: commit
+                    value: 'true'
           - - name: sea-polygon
               templateRef:
                 name: topographic-sea-polygon
                 template: main
               arguments:
                 parameters:
+                  - name: version_kart_cli
+                    value: 'latest'
                   - name: coastline
                     value: 's3://linz-topography-nonprod/data/nztopo50_coastline_island/latest/collection.json'
                   - name: target
                     value: 's3://linz-topography-nonprod/'
+                  - name: latest
+                    value: 'true'
+                  - name: commit
+                    value: 'true'
