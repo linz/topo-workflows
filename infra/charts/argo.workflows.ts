@@ -172,7 +172,12 @@ export class ArgoWorkflows extends Chart {
                 /** TODO: `nodeAntiAffinity` - to retry on different node - is not working yet (https://github.com/argoproj/argo-workflows/pull/12701)
                  * `affinity: { nodeAntiAffinity: {} }` seems to break `karpenter`, need more investigation
                  */
-                retryStrategy: { limit: 2, retryPolicy: 'OnError' },
+                retryStrategy: {
+                  limit: 2,
+                  retryPolicy: 'Always',
+                  expression:
+                    'lastRetry.status == "Error" || lastRetry.message matches "imminent node shutdown"',
+                },              
               },
             },
           },
