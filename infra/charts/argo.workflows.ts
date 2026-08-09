@@ -175,9 +175,8 @@ export class ArgoWorkflows extends Chart {
                 retryStrategy: {
                   limit: 2,
                   retryPolicy: 'Always',
-                  expression:
-                    'lastRetry.status == "Error" || lastRetry.message matches "imminent node shutdown"',
-                },              
+                  expression: 'lastRetry.status == "Error" || lastRetry.message matches "imminent node shutdown"',
+                },
               },
             },
           },
