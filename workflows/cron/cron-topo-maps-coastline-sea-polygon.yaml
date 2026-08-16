@@ -28,7 +28,6 @@ spec:
               templateRef:
                 name: topographic-coastline-polygon
                 template: coastline-polygon
-              depends: get-location-coastline
               arguments:
                 parameters:
                   - name: version_kart_cli
