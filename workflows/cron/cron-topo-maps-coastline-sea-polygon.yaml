@@ -41,24 +41,35 @@ spec:
       - name: main
         dag:
           tasks:
-            - name: coastline-polygon
-              template: run-coastline-polygon
-            - name: sea-polygon
-              template: run-sea-polygon
-              depends: coastline-polygon.Succeeded
-
-      - name: run-coastline-polygon
-        dag:
-          tasks:
             - name: get-location
               templateRef:
                 name: tpl-get-location
                 template: main
             - name: coastline-polygon
+              template: run-coastline-polygon
+              depends: get-location.Succeeded
+              arguments:
+                parameters:
+                  - name: location
+                    value: '{{tasks.get-location.outputs.parameters.location}}/coastline'
+            - name: sea-polygon
+              template: run-sea-polygon
+              depends: coastline-polygon.Succeeded
+              arguments:
+                parameters:
+                  - name: location
+                    value: '{{tasks.get-location.outputs.parameters.location}}/sea'
+
+      - name: run-coastline-polygon
+        inputs:
+          parameters:
+            - name: location
+        dag:
+          tasks:
+            - name: coastline-polygon
               templateRef:
                 name: topographic-coastline-polygon
                 template: coastline-polygon
-              depends: get-location.Succeeded
               arguments:
                 parameters:
                   - name: version_kart_cli
@@ -68,7 +79,7 @@ spec:
                   - name: island
                     value: '{{workflow.parameters.island}}'
                   - name: output
-                    value: '{{tasks.get-location.outputs.parameters.location}}'
+                    value: '{{inputs.parameters.location}}'
             - name: stac-push
               templateRef:
                 name: topographic-coastline-polygon
@@ -79,7 +90,7 @@ spec:
                   - name: version_kart_cli
                     value: '{{workflow.parameters.version_kart_cli}}'
                   - name: source
-                    value: '{{tasks.get-location.outputs.parameters.location}}'
+                    value: '{{inputs.parameters.location}}'
                   - name: target
                     value: '{{workflow.parameters.target}}'
                   - name: latest
@@ -88,17 +99,15 @@ spec:
                     value: '{{workflow.parameters.commit}}'
 
       - name: run-sea-polygon
+        inputs:
+          parameters:
+            - name: location
         dag:
           tasks:
-            - name: get-location
-              templateRef:
-                name: tpl-get-location
-                template: main
             - name: sea-polygon
               templateRef:
                 name: topographic-sea-polygon
                 template: sea-polygon
-              depends: get-location.Succeeded
               arguments:
                 parameters:
                   - name: version_kart_cli
@@ -106,7 +115,7 @@ spec:
                   - name: coastline
                     value: '{{workflow.parameters.coastline_island}}'
                   - name: output
-                    value: '{{tasks.get-location.outputs.parameters.location}}'
+                    value: '{{inputs.parameters.location}}'
             - name: stac-push
               templateRef:
                 name: topographic-sea-polygon
@@ -117,7 +126,7 @@ spec:
                   - name: version_kart_cli
                     value: '{{workflow.parameters.version_kart_cli}}'
                   - name: source
-                    value: '{{tasks.get-location.outputs.parameters.location}}'
+                    value: '{{inputs.parameters.location}}'
                   - name: target
                     value: '{{workflow.parameters.target}}'
                   - name: latest
