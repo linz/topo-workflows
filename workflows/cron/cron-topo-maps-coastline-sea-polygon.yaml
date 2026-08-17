@@ -20,41 +20,107 @@ spec:
       labels:
         linz.govt.nz/category: topo-maps
         linz.govt.nz/data-type: vector
+    arguments:
+      parameters:
+        - name: version_kart_cli
+          value: 'latest'
+        - name: coastline
+          value: 's3://linz-topography-nonprod/data/coastline/latest/collection.json'
+        - name: island
+          value: 's3://linz-topography-nonprod/data/island/latest/collection.json'
+        - name: coastline_island
+          value: 's3://linz-topography-nonprod/data/nztopo50_coastline_island/latest/collection.json'
+        - name: target
+          value: 's3://linz-topography-nonprod/'
+        - name: latest
+          value: 'true'
+        - name: commit
+          value: 'true'
     entrypoint: main
     templates:
       - name: main
-        steps:
-          - - name: coastline-polygon
+        dag:
+          tasks:
+            - name: coastline-polygon
+              template: run-coastline-polygon
+            - name: sea-polygon
+              template: run-sea-polygon
+              depends: coastline-polygon.Succeeded
+
+      - name: run-coastline-polygon
+        dag:
+          tasks:
+            - name: get-location
+              templateRef:
+                name: tpl-get-location
+                template: main
+            - name: coastline-polygon
               templateRef:
                 name: topographic-coastline-polygon
                 template: coastline-polygon
+              depends: get-location.Succeeded
               arguments:
                 parameters:
                   - name: version_kart_cli
-                    value: 'latest'
+                    value: '{{workflow.parameters.version_kart_cli}}'
                   - name: coastline
-                    value: 's3://linz-topography-nonprod/data/coastline/latest/collection.json'
+                    value: '{{workflow.parameters.coastline}}'
                   - name: island
-                    value: 's3://linz-topography-nonprod/data/island/latest/collection.json'
+                    value: '{{workflow.parameters.island}}'
+                  - name: output
+                    value: '{{tasks.get-location.outputs.parameters.location}}'
+            - name: stac-push
+              templateRef:
+                name: topographic-coastline-polygon
+                template: stac-push
+              depends: coastline-polygon.Succeeded
+              arguments:
+                parameters:
+                  - name: version_kart_cli
+                    value: '{{workflow.parameters.version_kart_cli}}'
+                  - name: source
+                    value: '{{tasks.get-location.outputs.parameters.location}}'
                   - name: target
-                    value: 's3://linz-topography-nonprod/'
+                    value: '{{workflow.parameters.target}}'
                   - name: latest
-                    value: 'true'
+                    value: '{{workflow.parameters.latest}}'
                   - name: commit
-                    value: 'true'
-          - - name: sea-polygon
+                    value: '{{workflow.parameters.commit}}'
+
+      - name: run-sea-polygon
+        dag:
+          tasks:
+            - name: get-location
+              templateRef:
+                name: tpl-get-location
+                template: main
+            - name: sea-polygon
               templateRef:
                 name: topographic-sea-polygon
-                template: main
+                template: sea-polygon
+              depends: get-location.Succeeded
               arguments:
                 parameters:
                   - name: version_kart_cli
-                    value: 'latest'
+                    value: '{{workflow.parameters.version_kart_cli}}'
                   - name: coastline
-                    value: 's3://linz-topography-nonprod/data/nztopo50_coastline_island/latest/collection.json'
+                    value: '{{workflow.parameters.coastline_island}}'
+                  - name: output
+                    value: '{{tasks.get-location.outputs.parameters.location}}'
+            - name: stac-push
+              templateRef:
+                name: topographic-sea-polygon
+                template: stac-push
+              depends: sea-polygon.Succeeded
+              arguments:
+                parameters:
+                  - name: version_kart_cli
+                    value: '{{workflow.parameters.version_kart_cli}}'
+                  - name: source
+                    value: '{{tasks.get-location.outputs.parameters.location}}'
                   - name: target
-                    value: 's3://linz-topography-nonprod/'
+                    value: '{{workflow.parameters.target}}'
                   - name: latest
-                    value: 'true'
+                    value: '{{workflow.parameters.latest}}'
                   - name: commit
-                    value: 'true'
+                    value: '{{workflow.parameters.commit}}'
