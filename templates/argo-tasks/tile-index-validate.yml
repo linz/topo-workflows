@@ -24,6 +24,10 @@ spec:
             description: Force source EPSG, "" will attempt to load EPSG from the source tiffs
             default: ''
 
+          - name: target_epsg
+            description: Force target EPSG, "" will default to source EPSG
+            default: ''
+
           - name: source
             description: Location to list
             default: ''
@@ -84,6 +88,7 @@ spec:
           - '--scale={{= inputs.parameters.scale }}'
           - '--preset={{= inputs.parameters.preset }}'
           - "{{= sprig.empty(inputs.parameters.source_epsg) ? '' : '--source-epsg=' + inputs.parameters.source_epsg }}"
+          - "{{= sprig.empty(inputs.parameters.target_epsg) ? '' : '--target-epsg=' + inputs.parameters.target_epsg }}"
           - "{{= sprig.empty(inputs.parameters.include) ? '' : '--include=' + inputs.parameters.include }}"
           - '--includeDerived={{= inputs.parameters.includeDerived }}'
           - '{{= sprig.trim(inputs.parameters.source) }}'

@@ -376,6 +376,8 @@ spec:
                   value: '{{=sprig.trim(inputs.parameters.source)}}'
                 - name: source_epsg
                   value: '{{=sprig.trim(workflow.parameters.source_epsg)}}'
+                - name: target_epsg
+                  value: '{{=sprig.trim(workflow.parameters.target_epsg)}}'
                 - name: preset
                   value: '{{= workflow.parameters.compression}}'
                 - name: version
