@@ -195,6 +195,7 @@ spec:
               }
               ')
 
+            # DO NOT ENABLE DEBUG - logging is too verbose
             # Save the list of copy action manifests to local for artifact output
             echo '{{inputs.parameters.manifest_list}}' > /tmp/copy-manifests.json
 
@@ -236,7 +237,6 @@ spec:
               --priority 10 \
               --role-arn "$ROLE_ARN" \
               --description "{{workflow.name}}" \
-              --debug \
               --no-confirmation-required \
               --query 'JobId' \
               --output text)
