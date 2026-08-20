@@ -236,7 +236,6 @@ spec:
               --priority 10 \
               --role-arn "$ROLE_ARN" \
               --description "{{workflow.name}}" \
-              --debug \
               --no-confirmation-required \
               --query 'JobId' \
               --output text)
