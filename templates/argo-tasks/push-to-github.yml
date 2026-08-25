@@ -39,11 +39,21 @@ spec:
         env:
           - name: AWS_ROLE_CONFIG_PATH
             value: s3://linz-bucket-config/config.json
-          - name: GITHUB_API_TOKEN
+          - name: GITHUB_APP_ID
             valueFrom:
               secretKeyRef:
-                name: github-linz-li-bot-pat
-                key: pat
+                name: github-argo-tasks-app
+                key: GITHUB_APP_ID
+          - name: GITHUB_APP_PRIVATE_KEY
+            valueFrom:
+              secretKeyRef:
+                name: github-argo-tasks-app
+                key: GITHUB_APP_PRIVATE_KEY
+          - name: GITHUB_APP_INSTALLATION_ID
+            valueFrom:
+              secretKeyRef:
+                name: github-argo-tasks-app
+                key: GITHUB_APP_INSTALLATION_ID
         args:
           [
             'stac',
