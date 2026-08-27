@@ -27,7 +27,7 @@ spec:
 
       - name: version_argo_tasks
         description: Version of the argo tasks CLI docker container to use
-        value: v4
+        value: v6
 
       - name: source
         description: s3 directory of the NZ Topo Raster Map Series imagery to process

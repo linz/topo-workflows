@@ -22,7 +22,7 @@ spec:
 
       - name: version_argo_tasks
         description: Version of the Argo Tasks CLI docker container to use
-        value: 'v5'
+        value: 'v6'
 
       - name: project
         description: Path or s3 of QGIS Project to use for generate map sheets.

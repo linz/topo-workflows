@@ -17,7 +17,7 @@ spec:
         parameters:
           - name: version_argo_tasks
             description: Version of argo-tasks to use
-            default: 'v5'
+            default: 'v6'
           - name: artifact_key
             description: Key of the artifact in S3. Must match the `keyFormat` (without pod name) used in Argo Workflows artifact repository configuration.
             default: '{{workflow.creationTimestamp.Y}}-{{workflow.creationTimestamp.m}}/{{workflow.creationTimestamp.d}}-{{workflow.name}}'

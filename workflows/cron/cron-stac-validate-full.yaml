@@ -23,7 +23,7 @@ spec:
     arguments:
       parameters:
         - name: version_argo_tasks
-          value: 'v5'
+          value: 'v6'
         - name: 'include'
           value: 'collection.json$'
         - name: checksum_assets
