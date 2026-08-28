@@ -131,7 +131,7 @@ spec:
           - --source={{= sprig.trimSuffix("/", inputs.parameters.source) }}/catalog.json
           - --target={{ inputs.parameters.target }}
           - --category=data
-          - '--strategy=date={{= sprig.date("2006-01-02T15:04:05.000Z", sprig.now()) }}'
+          - '--strategy=date={{= sprig.dateInZone("2006-01-02T15:04:05.000Z", sprig.now(), "UTC") }}'
           - '{{= inputs.parameters.latest == "true" ? "--strategy=latest" : "" }}'
           - --commit={{ inputs.parameters.commit }}
 
