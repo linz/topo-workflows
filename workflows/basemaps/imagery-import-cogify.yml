@@ -43,7 +43,7 @@ spec:
 
       - name: version_argo_tasks
         description: Version of the argo-tasks CLI docker container to use
-        value: v4
+        value: v6
 
       - name: user_group
         description: Group of users running the workflow

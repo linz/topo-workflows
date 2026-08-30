@@ -36,8 +36,10 @@ async function main(): Promise<void> {
       cloudflaredTunnelName: '/eks/cloudflared/argo/tunnelName',
       cloudflaredAccountId: '/eks/cloudflared/argo/accountId',
 
-      // Personal access token to gain access to linz-li-bot github user
-      githubPat: '/eks/github/linz-li-bot/pat',
+      // Config for the GitHub App used to raise pull requests
+      githubAppId: '/eks/github/argo-tasks/appId',
+      githubAppPrivateKey: '/eks/github/argo-tasks/privateKey',
+      githubAppInstallationId: '/eks/github/argo-tasks/installationId',
 
       // Argo Database connection password
       argoDbPassword: '/eks/argo/postgres/password',
@@ -111,8 +113,15 @@ async function main(): Promise<void> {
   new ArgoExtras(app, 'argo-extras', {
     namespace: 'argo',
     secrets: [
-      /** Argo workflows interacts with github give it access to github bot user */
-      { name: 'github-linz-li-bot-pat', data: { pat: ssmConfig.githubPat } },
+      /** Argo workflows interacts with github give it access to github app */
+      {
+        name: 'github-argo-tasks-app',
+        data: {
+          GITHUB_APP_ID: ssmConfig.githubAppId,
+          GITHUB_APP_PRIVATE_KEY: ssmConfig.githubAppPrivateKey,
+          GITHUB_APP_INSTALLATION_ID: ssmConfig.githubAppInstallationId,
+        },
+      },
       {
         name: 's3-batch-restore-secrets',
         data: {

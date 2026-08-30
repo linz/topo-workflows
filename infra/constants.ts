@@ -40,8 +40,13 @@ export const CfnOutputKeys = {
 
 /** The list of possible keys */
 export type ICfnOutputKeys = keyof typeof CfnOutputKeys;
-/** A map containing a key value pair for every possible CfnOutputKey */
-export type CfnOutputMap = Record<ICfnOutputKeys, string>;
+/**
+ * A map containing a key value pair for every possible CfnOutputKey
+ *
+ * Keyed by the CloudFormation output names — the *values* of {@link CfnOutputKeys}, which carry
+ * the environment suffix — not by the property names used to look them up.
+ */
+export type CfnOutputMap = Record<(typeof CfnOutputKeys)[ICfnOutputKeys], string>;
 
 /**
  *  Assert that all the keys in this Record contains all the expected CfnOutputKeys

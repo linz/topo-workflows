@@ -25,7 +25,7 @@ spec:
     parameters:
       - name: version_argo_tasks
         description: 'Specify a version of the argo-tasks image to use, e.g. "v5.1" or "latest"'
-        value: 'v5'
+        value: 'v6'
       - name: user_group
         description: Group of users running the workflow
         value: 'none'
@@ -77,7 +77,7 @@ spec:
             default: '100Gi'
           - name: version_argo_tasks
             value: '{{workflow.parameters.version_argo_tasks}}'
-            default: 'v5'
+            default: 'v6'
           - name: check_source_path
             value: '{{workflow.parameters.check_source_path}}'
             default: 'true'
