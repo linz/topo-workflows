@@ -126,7 +126,7 @@ spec:
                 - name: gsd
                   value: '1'
                 - name: data_type
-                  value: '{{workflow.parameters.data_type}}'
+                  value: 'uint16'
                 - name: region
                   value: 'new zealand'
                 - name: geospatial_category
