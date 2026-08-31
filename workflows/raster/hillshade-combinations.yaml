@@ -44,6 +44,9 @@ spec:
       - name: gsd
         description: 'Dataset GSD in metres, e.g., "1" for 1 metre'
         default: '1'
+      - name: data_type
+        description: 'Data type of the dataset pixels, e.g. "uint8", "uint16"'
+        default: 'uint16'
       - name: hillshade_presets
         description: 'Hillshade presets to use, as stringified json, e.g. ["hillshade"] or ["hillshade-igor", "hillshade"]'
         value: '["hillshade-igor", "hillshade"]'
@@ -112,6 +115,8 @@ spec:
                   value: '{{inputs.parameters.source_geospatial_category}}'
                 - name: gsd
                   value: '{{workflow.parameters.gsd}}'
+                - name: data_type
+                  value: '{{workflow.parameters.data_type}}'
                 - name: odr_url
                   value: 's3://{{workflow.parameters.bucket_name}}/new-zealand/new-zealand/{{inputs.parameters.source_geospatial_category}}-{{item}}_{{workflow.parameters.gsd}}m/2193/'
                 - name: hillshade_preset
