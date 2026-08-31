@@ -55,7 +55,10 @@ spec:
           - 'coastal'
       - name: gsd
         description: 'Dataset GSD in metres, e.g., "1" for 1 metre'
-        default: '1'
+        value: '1'
+      - name: data_type
+        description: 'Data type of the dataset pixels, e.g. "uint8", "uint16"'
+        value: 'uint16'
       - name: odr_url
         description: '(Optional) If an existing dataset add the S3 path to the dataset here to load existing metadata e.g. "s3://nz-elevation/new-zealand/new-zealand/dem_1m/2193/"'
         value: ''
@@ -119,6 +122,8 @@ spec:
               parameters:
                 - name: gsd
                   value: '{{=sprig.trim(workflow.parameters.gsd)}}'
+                - name: data_type
+                  value: '{{=sprig.trim(workflow.parameters.data_type)}}'
                 - name: region
                   value: 'new-zealand'
                 - name: geospatial_category
@@ -207,6 +212,8 @@ spec:
                   value: 'new-zealand'
                 - name: gsd
                   value: '{{=sprig.trim(workflow.parameters.gsd)}}'
+                - name: data_type
+                  value: '{{=sprig.trim(workflow.parameters.data_type)}}'
                 - name: lifecycle
                   value: 'ongoing'
                 - name: producer

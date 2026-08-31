@@ -66,6 +66,10 @@ spec:
             description: 'Dataset GSD in metres, e.g., "0.3" for 30 centimetres'
             default: ''
 
+          - name: data_type
+            description: 'Data type of the dataset pixels, e.g. "uint8", "uint16"'
+            default: ''
+
           - name: geographic_description
             description: '(Optional) Additional dataset description, to be used in the title in place of the Region, e.g. "Hamilton"'
             default: ''
@@ -157,6 +161,8 @@ spec:
           - '{{=sprig.trim(inputs.parameters.region)}}'
           - '--gsd'
           - '{{=sprig.trim(inputs.parameters.gsd)}}'
+          - '--data-type'
+          - '{{=sprig.trim(inputs.parameters.data_type)}}'
           - '--geographic-description'
           - '{{=sprig.trim(inputs.parameters.geographic_description)}}'
           - '--event'

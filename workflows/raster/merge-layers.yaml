@@ -83,6 +83,9 @@ spec:
       - name: gsd
         description: 'Dataset GSD in metres, e.g., "1" for 1 metre'
         value: '1'
+      - name: data_type
+        description: 'Data type of the dataset pixels, e.g. "uint8", "
+        value: 'uint16'
       - name: scale_to_resolution
         description: 'Scale output TIFFs to x,y resolution (e.g. 1,1 - leave blank for no scaling)'
         value: '1,1'
@@ -159,6 +162,8 @@ spec:
             default: '{{workflow.parameters.create_capture_area}}'
           - name: gsd
             default: '{{workflow.parameters.gsd}}'
+          - name: data_type
+            default: '{{workflow.parameters.data_type}}'
           - name: scale_to_resolution
             default: '{{workflow.parameters.scale_to_resolution}}'
           - name: source_epsg
@@ -192,6 +197,8 @@ spec:
               parameters:
                 - name: gsd
                   value: '{{=sprig.trim(inputs.parameters.gsd)}}'
+                - name: data_type
+                  value: '{{=sprig.trim(inputs.parameters.data_type)}}' 
                 - name: region
                   value: '{{=sprig.trim(inputs.parameters.region)}}'
                 - name: geospatial_category
@@ -260,6 +267,8 @@ spec:
                   value: '{{inputs.parameters.create_capture_area}}'
                 - name: gsd
                   value: '{{=sprig.trim(inputs.parameters.gsd)}}'
+                - name: data_type
+                  value: '{{=sprig.trim(inputs.parameters.data_type)}}'
               artifacts:
                 - name: group_data
                   from: '{{ tasks.group.outputs.artifacts.output }}'
@@ -288,6 +297,8 @@ spec:
                   value: '{{=sprig.trim(inputs.parameters.region)}}'
                 - name: gsd
                   value: '{{=sprig.trim(inputs.parameters.gsd)}}'
+                - name: data_type
+                  value: '{{=sprig.trim(inputs.parameters.data_type)}}'
                 - name: lifecycle
                   value: 'ongoing'
                 - name: producer
