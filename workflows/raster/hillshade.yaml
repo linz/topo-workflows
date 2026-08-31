@@ -55,10 +55,10 @@ spec:
           - 'coastal'
       - name: gsd
         description: 'Dataset GSD in metres, e.g., "1" for 1 metre'
-        value: '1'
+        default: '1'
       - name: data_type
         description: 'Data type of the dataset pixels, e.g. "uint8", "uint16"'
-        value: 'uint16'
+        default: 'uint16'
       - name: odr_url
         description: '(Optional) If an existing dataset add the S3 path to the dataset here to load existing metadata e.g. "s3://nz-elevation/new-zealand/new-zealand/dem_1m/2193/"'
         value: ''
