@@ -44,9 +44,6 @@ spec:
       - name: gsd
         description: 'Dataset GSD in metres, e.g., "1" for 1 metre'
         default: '1'
-      - name: data_type
-        description: 'Data type of the dataset pixels, e.g. "uint8", "uint16"'
-        default: 'uint16'
       - name: hillshade_presets
         description: 'Hillshade presets to use, as stringified json, e.g. ["hillshade"] or ["hillshade-igor", "hillshade"]'
         value: '["hillshade-igor", "hillshade"]'

@@ -161,8 +161,6 @@ spec:
                   value: 'false'
                 - name: gsd
                   value: '1'
-                - name: data_type
-                  value: 'uint16'
                 - name: source_epsg
                   value: '2193'
                 - name: target_epsg
