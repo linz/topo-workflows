@@ -159,8 +159,6 @@ spec:
             default: '{{workflow.parameters.create_capture_area}}'
           - name: gsd
             default: '{{workflow.parameters.gsd}}'
-          - name: data_type
-            default: '{{workflow.parameters.data_type}}'
           - name: scale_to_resolution
             default: '{{workflow.parameters.scale_to_resolution}}'
           - name: source_epsg
@@ -194,8 +192,6 @@ spec:
               parameters:
                 - name: gsd
                   value: '{{=sprig.trim(inputs.parameters.gsd)}}'
-                - name: data_type
-                  value: '{{=sprig.trim(inputs.parameters.data_type)}}'
                 - name: region
                   value: '{{=sprig.trim(inputs.parameters.region)}}'
                 - name: geospatial_category
@@ -264,8 +260,6 @@ spec:
                   value: '{{inputs.parameters.create_capture_area}}'
                 - name: gsd
                   value: '{{=sprig.trim(inputs.parameters.gsd)}}'
-                - name: data_type
-                  value: '{{=sprig.trim(inputs.parameters.data_type)}}'
               artifacts:
                 - name: group_data
                   from: '{{ tasks.group.outputs.artifacts.output }}'
@@ -294,8 +288,6 @@ spec:
                   value: '{{=sprig.trim(inputs.parameters.region)}}'
                 - name: gsd
                   value: '{{=sprig.trim(inputs.parameters.gsd)}}'
-                - name: data_type
-                  value: '{{=sprig.trim(inputs.parameters.data_type)}}'
                 - name: lifecycle
                   value: 'ongoing'
                 - name: producer
@@ -328,7 +320,6 @@ spec:
                     data: '{{tasks.stac-validate-all.outputs.result}}'
             depends: 'create-collection.Succeeded'
             when: "'{{inputs.parameters.odr_url}}' == ''"
-
           - name: stac-validate-only-updated
             templateRef:
               name: stac-validate-parallel # Needs to validate a list of STAC documents
