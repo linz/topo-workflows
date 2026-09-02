@@ -125,8 +125,6 @@ spec:
               parameters:
                 - name: gsd
                   value: '1'
-                - name: data_type
-                  value: 'uint16'
                 - name: region
                   value: 'new zealand'
                 - name: geospatial_category
@@ -197,8 +195,6 @@ spec:
                   value: 'new-zealand'
                 - name: gsd
                   value: '1'
-                - name: data_type
-                  value: 'uint16'
                 - name: lifecycle
                   value: 'ongoing'
                 - name: producer
