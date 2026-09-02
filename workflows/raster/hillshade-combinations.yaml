@@ -111,7 +111,7 @@ spec:
                 - name: source_geospatial_category
                   value: '{{inputs.parameters.source_geospatial_category}}'
                 - name: gsd
-                  value: '{{workflow.parameters.gsd}}'              
+                  value: '{{workflow.parameters.gsd}}'
                 - name: odr_url
                   value: 's3://{{workflow.parameters.bucket_name}}/new-zealand/new-zealand/{{inputs.parameters.source_geospatial_category}}-{{item}}_{{workflow.parameters.gsd}}m/2193/'
                 - name: hillshade_preset
