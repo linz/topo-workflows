@@ -320,6 +320,7 @@ spec:
                     data: '{{tasks.stac-validate-all.outputs.result}}'
             depends: 'create-collection.Succeeded'
             when: "'{{inputs.parameters.odr_url}}' == ''"
+            
           - name: stac-validate-only-updated
             templateRef:
               name: stac-validate-parallel # Needs to validate a list of STAC documents
