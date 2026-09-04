@@ -68,6 +68,10 @@ spec:
             description: 'Dataset GSD in metres, e.g., "0.3" for 30 centimetres'
             default: ''
 
+          - name: data_type
+            description: 'Data type of the dataset pixels, e.g. "uint8", "uint16"'
+            default: ''
+
           - name: scale_to_resolution
             description: 'Scale output TIFFs to x,y resolution (e.g. 1,1 - leave blank for no scaling)'
             default: ''
@@ -120,6 +124,8 @@ spec:
           - '{{=sprig.trim(inputs.parameters.target_epsg)}}'
           - '--gsd'
           - '{{=sprig.trim(inputs.parameters.gsd)}}'
+          - '--data-type'
+          - '{{=sprig.trim(inputs.parameters.data_type)}}'
           - '--odr-url'
           - '{{=sprig.trim(inputs.parameters.odr_url)}}'
           - '--current-datetime'
