@@ -58,7 +58,7 @@ spec:
           - name: data_type
             description: 'Data type of the input tiffs'
             valueFrom:
-              path: /tmp/tile-index-validate/data_type
+              path: /tmp/tile-index-validate/data-type
 
         artifacts:
           # List of tiff files that need to be processed

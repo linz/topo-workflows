@@ -25,7 +25,7 @@ spec:
           - name: gsd
             description: 'Dataset GSD in metres'
           - name: data_type
-            description: 'Data type of the dataset pixels, e.g. "uint8", "uint16"'
+            description: 'Data type of the dataset pixels, e.g "uint16"'
             default: ''
           - name: region
             description: 'Region of the dataset'
