@@ -90,7 +90,7 @@ All the examples in this workshop will use our Topo containers.
 
 | **Container**                                                                    | **Purpose**                                                                       |
 | -------------------------------------------------------------------------------- | --------------------------------------------------------------------------------- |
-| [topo-imagery](https://github.com/linz/topo-imagery/pkgs/container/topo-imagery) | Python scripts that need to use the GDAL library and geospatial Python libraries. |
+| [geoprocessor/raster](https://github.com/linz/geoprocessor/pkgs/container/geoprocessor%2Fraster) | Python scripts that need to use the GDAL library and geospatial Python libraries. |
 | [argo-tasks](https://github.com/linz/argo-tasks/pkgs/container/argo-tasks)       | Reusable utility tasks written in TypeScript.                                     |
 | [basemaps-cli](https://github.com/linz/basemaps/pkgs/container/basemaps%2Fcli)   | Controls Basemaps configuration.                                                  |
 
@@ -129,7 +129,7 @@ spec:
             template: say-hello-template
     - name: say-hello-template
       container:
-        image: '019359803926.dkr.ecr.ap-southeast-2.amazonaws.com/topo-imagery:v3'
+        image: '019359803926.dkr.ecr.ap-southeast-2.amazonaws.com/geoprocessor/raster:v8'
         command: [echo]
         args: ['hello world']
 ```
@@ -211,7 +211,7 @@ spec:
         parameters:
           - name: message
       container:
-        image: '019359803926.dkr.ecr.ap-southeast-2.amazonaws.com/topo-imagery:v3'
+        image: '019359803926.dkr.ecr.ap-southeast-2.amazonaws.com/geoprocessor/raster:v8'
         command: [echo]
         args: ['{{inputs.parameters.message}}']
 ```
@@ -373,7 +373,7 @@ spec:
         parameters:
           - name: message
       container:
-        image: '019359803926.dkr.ecr.ap-southeast-2.amazonaws.com/topo-imagery:v3'
+        image: '019359803926.dkr.ecr.ap-southeast-2.amazonaws.com/geoprocessor/raster:v8'
         command: [echo]
         args: ['{{inputs.parameters.message}}']
 ```
@@ -443,7 +443,7 @@ spec:
         parameters:
           - name: message
       container:
-        image: '019359803926.dkr.ecr.ap-southeast-2.amazonaws.com/topo-imagery:v3'
+        image: '019359803926.dkr.ecr.ap-southeast-2.amazonaws.com/geoprocessor/raster:v8'
         command: [echo]
         args: ['{{inputs.parameters.message}}']
 ```
@@ -566,7 +566,7 @@ General structure (YAML):
 ![Standardising Workflow Structure - YAML](static/standardising-structure.png)
 
 Compare the structure shown above with the Argo Workflows UI view:
-(TODO: Update screenshot with `standardising` workflow using `topo-imagery` `v2`)
+(TODO: Update screenshot with `standardising` workflow using `geoprocessor/raster` `v2`)
 
 ![Standardising Workflow Structure - GUI](static/standardising-argo-ui.png)
 

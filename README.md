@@ -222,7 +222,7 @@ Upgrade aws cli to > 2.7.x
 
 ## Using containers
 
-Some tasks in the `Workflows` or `WorkflowsTemplates` use a container to run from. These containers are build from other repository, such as https://github.com/linz/topo-imagery, https://github.com/linz/argo-tasks or https://github.com/linz/basemaps.
+Some tasks in the `Workflows` or `WorkflowsTemplates` use a container to run from. These containers are build from other repository, such as https://github.com/linz/geoprocessor, https://github.com/linz/argo-tasks or https://github.com/linz/basemaps.
 Different tags are published for each of these containers:
 
 - `latest`

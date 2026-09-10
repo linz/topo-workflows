@@ -3,8 +3,8 @@
 apiVersion: argoproj.io/v1alpha1
 kind: WorkflowTemplate
 metadata:
-  # Template from https://github.com/linz/topo-imagery
-  # see https://github.com/linz/topo-imagery/blob/master/scripts/collection_from_items.py
+  # Template from https://github.com/linz/geoprocessor
+  # see https://github.com/linz/geoprocessor/blob/master/packages/geoprocessor-raster/src/geoprocessor_raster/collection_from_items.py
   name: tpl-ti-create-collection
 spec:
   templateDefaults:
@@ -16,9 +16,9 @@ spec:
     - name: main
       inputs:
         parameters:
-          - name: version_topo_imagery
-            description: 'Specify a version of the topo-imagery image to use, e.g. "v4.8" or "latest"'
-            default: 'v7'
+          - name: version_geoprocessor_raster
+            description: 'Specify a version of the geoprocessor/raster image to use, e.g. "v8.1" or "latest"'
+            default: 'v8'
 
           - name: collection_id
             description: 'Collection ID of existing dataset, or else a generated collection ID'
@@ -131,7 +131,7 @@ spec:
               none: {}
 
       container:
-        image: '019359803926.dkr.ecr.ap-southeast-2.amazonaws.com/topo-imagery:{{=sprig.trim(inputs.parameters.version_topo_imagery)}}'
+        image: '019359803926.dkr.ecr.ap-southeast-2.amazonaws.com/geoprocessor/raster:{{=sprig.trim(inputs.parameters.version_geoprocessor_raster)}}'
         args:
           - python
           - '/app/scripts/collection_from_items.py'
