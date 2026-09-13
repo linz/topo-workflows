@@ -18,9 +18,9 @@ spec:
       - name: version_argo_tasks
         description: 'Specify a version of the argo-tasks image to use, e.g. "v5.1" or "latest"'
         value: 'v6'
-      - name: version_topo_imagery
-        description: 'Specify a version of the topo-imagery image to use, e.g. "v7.0" or "latest"'
-        value: 'v7'
+      - name: version_geoprocessor_raster
+        description: 'Specify a version of the geoprocessor/raster image to use, e.g. "v8.1" or "latest"'
+        value: 'v8'
       - name: source
         description: 'Source location of the maps'
         value: 's3://linz-topographic-upload/maps/topo50/'
@@ -88,7 +88,7 @@ spec:
           - name: files
             path: /tmp/file_list.json
       container:
-        image: '019359803926.dkr.ecr.ap-southeast-2.amazonaws.com/topo-imagery:{{=sprig.trim(workflow.parameters.version_topo_imagery)}}'
+        image: '019359803926.dkr.ecr.ap-southeast-2.amazonaws.com/geoprocessor/raster:{{=sprig.trim(workflow.parameters.version_geoprocessor_raster)}}'
         resources:
           requests:
             memory: 7.8Gi

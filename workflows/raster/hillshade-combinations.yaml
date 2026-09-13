@@ -32,9 +32,9 @@ spec:
       - name: version_basemaps_cli
         description: 'Specify a version of the basemaps-cli image to use, e.g. "v8" or "latest"'
         value: 'v8'
-      - name: version_topo_imagery
-        description: 'Specify a version of the topo-imagery image to use, e.g. "v4.8" or "latest"'
-        value: 'v7'
+      - name: version_geoprocessor_raster
+        description: 'Specify a version of the geoprocessor/raster image to use, e.g. "v8.1" or "latest"'
+        value: 'v8'
       - name: ticket
         description: 'Ticket ID, e.g. "TDE-1130"'
         value: ''
@@ -100,8 +100,8 @@ spec:
                   value: '{{workflow.parameters.version_argo_tasks}}'
                 - name: version_basemaps_cli
                   value: '{{workflow.parameters.version_basemaps_cli}}'
-                - name: version_topo_imagery
-                  value: '{{workflow.parameters.version_topo_imagery}}'
+                - name: version_geoprocessor_raster
+                  value: '{{workflow.parameters.version_geoprocessor_raster}}'
                 - name: ticket
                   value: '{{workflow.parameters.ticket}}'
                 - name: source

@@ -45,8 +45,8 @@ spec:
                       value: 'v6'
                     - name: version_basemaps_cli
                       value: 'v8'
-                    - name: version_topo_imagery
-                      value: 'v7'
+                    - name: version_geoprocessor_raster
+                      value: 'v8'
                     - name: ticket
                       value: 'TDE-1896'
                     - name: bucket_name

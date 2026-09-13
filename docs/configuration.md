@@ -61,11 +61,11 @@ These can be passed between different tasks in a workflow. The workflow paramete
 
 The Argo Workflows make use of the following Toitū Te Whenua containers:
 
-| **Container**                                                                    | **Repo**                                                  | **Purpose**                                                                       |
-| -------------------------------------------------------------------------------- | --------------------------------------------------------- | --------------------------------------------------------------------------------- |
-| [topo-imagery](https://github.com/linz/topo-imagery/pkgs/container/topo-imagery) | https://github.com/linz/topo-imagery                      | Python scripts that need to use the GDAL library and geospatial Python libraries. |
-| [argo-tasks](https://github.com/linz/argo-tasks/pkgs/container/argo-tasks)       | https://github.com/linz/argo-tasks                        | Reusable utility tasks written in TypeScript.                                     |
-| [basemaps-cli](https://github.com/linz/basemaps/pkgs/container/basemaps%2Fcli)   | https://github.com/linz/basemaps/tree/master/packages/cli | Controls Basemaps configuration.                                                  |
+| **Container**                                                                                    | **Repo**                                                  | **Purpose**                                                                       |
+| ------------------------------------------------------------------------------------------------ | --------------------------------------------------------- | --------------------------------------------------------------------------------- |
+| [geoprocessor/raster](https://github.com/linz/geoprocessor/pkgs/container/geoprocessor%2Fraster) | https://github.com/linz/geoprocessor                      | Python scripts that need to use the GDAL library and geospatial Python libraries. |
+| [argo-tasks](https://github.com/linz/argo-tasks/pkgs/container/argo-tasks)                       | https://github.com/linz/argo-tasks                        | Reusable utility tasks written in TypeScript.                                     |
+| [basemaps-cli](https://github.com/linz/basemaps/pkgs/container/basemaps%2Fcli)                   | https://github.com/linz/basemaps/tree/master/packages/cli | Controls Basemaps configuration.                                                  |
 
 ### Container Environment Variables
 
@@ -124,7 +124,7 @@ Two example workflow tasks requesting specific resources (memory and CPU) from t
       - name: file
       - name: collection_id
   container:
-    image: 019359803926.dkr.ecr.ap-southeast-2.amazonaws.com/topo-imagery:latest
+    image: 019359803926.dkr.ecr.ap-southeast-2.amazonaws.com/geoprocessor/raster:latest
     resources:
       requests:
         memory: 7.8Gi
@@ -214,9 +214,9 @@ It may be necessary to run some parts of our code concurrently within one contai
 
 **Topo-Imagery examples:**
 
-[Standardising](https://github.com/linz/topo-imagery/blob/master/scripts/standardising.py) runs `gdal_translate` with a concurrency of 4 (CPU-intensive task)
+[Standardising](https://github.com/linz/geoprocessor/blob/master/packages/geoprocessor-gdal/src/geoprocessor_gdal/standardising.py) runs `gdal_translate` with a concurrency of 4 (CPU-intensive task)
 
-[collection_from_items](https://github.com/linz/topo-imagery/blob/master/scripts/collection_from_items.py) has a concurrency of 25 (set in workflow) (lightweight task with network)
+[collection_from_items](https://github.com/linz/geoprocessor/blob/master/packages/geoprocessor-raster/src/geoprocessor_raster/collection_from_items.py) has a concurrency of 25 (set in workflow) (lightweight task with network)
 
 **Argo-Tasks examples:**
 
@@ -289,6 +289,6 @@ resources:
 ### LINZ Argo Workflows Repositories
 
 [GitHub - linz/topo-workflows: Argo Workflows for processing Aerial Imagery](https://github.com/linz/topo-workflows)  
-[GitHub - linz/topo-imagery: A collection of scripts for processing imagery](https://github.com/linz/topo-imagery)  
+[GitHub - linz/geoprocessor: A collection of scripts for processing imagery](https://github.com/linz/geoprocessor)  
 [GitHub - linz/argo-tasks: Utility tasks for working with Argo + LINZs AWS accounts](https://github.com/linz/argo-tasks)  
 [LINZ GitHub EKS configuration](https://github.com/linz/topo-aws-infrastructure/tree/master/src/stacks/eks)

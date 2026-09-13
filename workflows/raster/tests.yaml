@@ -3,7 +3,7 @@
 apiVersion: argoproj.io/v1alpha1
 kind: Workflow
 metadata:
-  generateName: test-topo-imagery-
+  generateName: test-geoprocessor-
   labels:
     linz.govt.nz/category: test
     linz.govt.nz/data-type: raster
@@ -18,7 +18,7 @@ spec:
       linz.govt.nz/data-type: raster
   arguments:
     parameters:
-      - name: version_topo_imagery
+      - name: version_geoprocessor_raster
         value: 'latest'
   templateDefaults:
     container:
@@ -27,7 +27,7 @@ spec:
   templates:
     - name: test-script
       script:
-        image: 019359803926.dkr.ecr.ap-southeast-2.amazonaws.com/topo-imagery:{{workflow.parameters.version_topo_imagery}}
+        image: 019359803926.dkr.ecr.ap-southeast-2.amazonaws.com/geoprocessor/raster:{{workflow.parameters.version_geoprocessor_raster}}
         args: [python]
         source: |
           # Put your code below

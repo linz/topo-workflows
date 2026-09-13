@@ -33,9 +33,9 @@ spec:
       - name: version_argo_tasks
         description: 'Specify a version of the argo-tasks image to use, e.g. "v.1" or "latest"'
         value: 'v6'
-      - name: version_topo_imagery
-        description: 'Specify a version of the topo-imagery image to use, e.g. "v4.8" or "latest". Note: This image needs to contain PDAL.'
-        value: 'v7'
+      - name: version_geoprocessor_raster
+        description: 'Specify a version of the geoprocessor/raster image to use, e.g. "v8.1" or "latest". Note: This image needs to contain PDAL.'
+        value: 'v8'
       - name: user_group
         description: Group of users running the workflow
         value: 'none'
@@ -153,8 +153,8 @@ spec:
                   value: '{{item}}'
                 - name: target
                   value: '{{=sprig.trimSuffix("/", tasks["get-location"].outputs.parameters.location)}}/flat/'
-                - name: version_topo_imagery
-                  value: '{{= workflow.parameters.version_topo_imagery}}'
+                - name: version_geoprocessor_raster
+                  value: '{{= workflow.parameters.version_geoprocessor_raster}}'
             depends: 'list-source.Succeeded && get-location.Succeeded'
             withParam: '{{tasks.list-source.outputs.parameters.files}}'
 
@@ -213,9 +213,9 @@ spec:
 
       inputs:
         parameters:
-          - name: version_topo_imagery
-            description: 'Specify a version of the topo-imagery image to use, e.g. "v4.8" or "latest"'
-            default: 'v7'
+          - name: version_geoprocessor_raster
+            description: 'Specify a version of the geoprocessor/raster image to use, e.g. "v8.1" or "latest"'
+            default: 'v8'
 
           - name: files
             description: 'Space-separated list of files to process'
@@ -235,7 +235,7 @@ spec:
 
       container:
         imagePullPolicy: Always
-        image: '019359803926.dkr.ecr.ap-southeast-2.amazonaws.com/topo-imagery:{{=sprig.trim(inputs.parameters.version_topo_imagery)}}'
+        image: '019359803926.dkr.ecr.ap-southeast-2.amazonaws.com/geoprocessor/raster:{{=sprig.trim(inputs.parameters.version_geoprocessor_raster)}}'
         resources:
           requests:
             memory: 7.8Gi
