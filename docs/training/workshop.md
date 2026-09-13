@@ -88,11 +88,11 @@ Templates specify a container image for a pod to use.
 
 All the examples in this workshop will use our Topo containers.
 
-| **Container**                                                                    | **Purpose**                                                                       |
-| -------------------------------------------------------------------------------- | --------------------------------------------------------------------------------- |
+| **Container**                                                                                    | **Purpose**                                                                       |
+| ------------------------------------------------------------------------------------------------ | --------------------------------------------------------------------------------- |
 | [geoprocessor/raster](https://github.com/linz/geoprocessor/pkgs/container/geoprocessor%2Fraster) | Python scripts that need to use the GDAL library and geospatial Python libraries. |
-| [argo-tasks](https://github.com/linz/argo-tasks/pkgs/container/argo-tasks)       | Reusable utility tasks written in TypeScript.                                     |
-| [basemaps-cli](https://github.com/linz/basemaps/pkgs/container/basemaps%2Fcli)   | Controls Basemaps configuration.                                                  |
+| [argo-tasks](https://github.com/linz/argo-tasks/pkgs/container/argo-tasks)                       | Reusable utility tasks written in TypeScript.                                     |
+| [basemaps-cli](https://github.com/linz/basemaps/pkgs/container/basemaps%2Fcli)                   | Controls Basemaps configuration.                                                  |
 
 ## Creating and running workflows
 

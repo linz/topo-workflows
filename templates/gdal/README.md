@@ -19,12 +19,12 @@ Upon completion the merged TIFF file will be available to follow-on workflow ste
 
 ## Workflow Input Parameters
 
-| Parameter            | Type | Default                                      | Description                                                                                          |
-| -------------------- | ---- | -------------------------------------------- | ---------------------------------------------------------------------------------------------------- |
-| version_geoprocessor_raster | str  | v8                                           | (Optional) Version of geoprocessor/raster to use, e.g. 'latest' or 'v8.0.1'                                 |
-| merged_filename      | str  | basename(base_filename)<br/>e.g. `CB13.tiff` | (Optional) Output file name for the artifact.                                                        |
-| base_filename        | str  |                                              | File to use as base layer, e.g. `s3://bucket/8m/CB13.tiff`                                           |
-| additional_filename  | str  |                                              | File to use as top layer, e.g. `s3://bucket/1m/CB13.tiff`<br/>Use VRT files to layer multiple files. |
+| Parameter                   | Type | Default                                      | Description                                                                                          |
+| --------------------------- | ---- | -------------------------------------------- | ---------------------------------------------------------------------------------------------------- |
+| version_geoprocessor_raster | str  | v8                                           | (Optional) Version of geoprocessor/raster to use, e.g. 'latest' or 'v8.0.1'                          |
+| merged_filename             | str  | basename(base_filename)<br/>e.g. `CB13.tiff` | (Optional) Output file name for the artifact.                                                        |
+| base_filename               | str  |                                              | File to use as base layer, e.g. `s3://bucket/8m/CB13.tiff`                                           |
+| additional_filename         | str  |                                              | File to use as top layer, e.g. `s3://bucket/1m/CB13.tiff`<br/>Use VRT files to layer multiple files. |
 
 ## Example Usage
 

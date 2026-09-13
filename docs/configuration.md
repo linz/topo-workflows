@@ -61,11 +61,11 @@ These can be passed between different tasks in a workflow. The workflow paramete
 
 The Argo Workflows make use of the following Toitū Te Whenua containers:
 
-| **Container**                                                                    | **Repo**                                                  | **Purpose**                                                                       |
-| -------------------------------------------------------------------------------- | --------------------------------------------------------- | --------------------------------------------------------------------------------- |
+| **Container**                                                                                    | **Repo**                                                  | **Purpose**                                                                       |
+| ------------------------------------------------------------------------------------------------ | --------------------------------------------------------- | --------------------------------------------------------------------------------- |
 | [geoprocessor/raster](https://github.com/linz/geoprocessor/pkgs/container/geoprocessor%2Fraster) | https://github.com/linz/geoprocessor                      | Python scripts that need to use the GDAL library and geospatial Python libraries. |
-| [argo-tasks](https://github.com/linz/argo-tasks/pkgs/container/argo-tasks)       | https://github.com/linz/argo-tasks                        | Reusable utility tasks written in TypeScript.                                     |
-| [basemaps-cli](https://github.com/linz/basemaps/pkgs/container/basemaps%2Fcli)   | https://github.com/linz/basemaps/tree/master/packages/cli | Controls Basemaps configuration.                                                  |
+| [argo-tasks](https://github.com/linz/argo-tasks/pkgs/container/argo-tasks)                       | https://github.com/linz/argo-tasks                        | Reusable utility tasks written in TypeScript.                                     |
+| [basemaps-cli](https://github.com/linz/basemaps/pkgs/container/basemaps%2Fcli)                   | https://github.com/linz/basemaps/tree/master/packages/cli | Controls Basemaps configuration.                                                  |
 
 ### Container Environment Variables
 
