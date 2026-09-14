@@ -18,7 +18,7 @@ spec:
         parameters:
           - name: version_topo_imagery
             description: 'Specify a version of the topo-imagery image to use, e.g. "v4.8" or "latest"'
-            default: 'v7'
+            default: 'v8'
 
           - name: collection_id
             description: 'Collection ID of existing dataset, or else a generated collection ID'
