@@ -119,6 +119,8 @@ spec:
               parameters:
                 - name: gsd
                   value: '{{=sprig.trim(workflow.parameters.gsd)}}'
+                - name: data_type
+                  value: 'uint8'
                 - name: region
                   value: 'new-zealand'
                 - name: geospatial_category
@@ -207,6 +209,8 @@ spec:
                   value: 'new-zealand'
                 - name: gsd
                   value: '{{=sprig.trim(workflow.parameters.gsd)}}'
+                - name: data_type
+                  value: 'uint8'
                 - name: lifecycle
                   value: 'ongoing'
                 - name: producer
