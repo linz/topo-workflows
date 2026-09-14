@@ -125,6 +125,8 @@ spec:
               parameters:
                 - name: gsd
                   value: '1'
+                - name: data_type
+                  value: 'float32'
                 - name: region
                   value: 'new zealand'
                 - name: geospatial_category
@@ -165,6 +167,9 @@ spec:
                   value: '2193'
                 - name: version_topo_imagery
                   value: '{{= workflow.parameters.version_topo_imagery}}'
+                - name: data_type
+                  value: '{{tasks.stac-setup.outputs.parameters.data_type}}'
+
               artifacts:
                 - name: group_data
                   from: '{{ tasks.group.outputs.artifacts.output }}'

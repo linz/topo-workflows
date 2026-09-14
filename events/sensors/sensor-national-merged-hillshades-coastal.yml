@@ -63,6 +63,8 @@ spec:
                       value: 'false'
                     - name: gsd
                       value: '1'
+                    - name: data_type
+                      value: 'uint8'
                     - name: scale_to_resolution
                       value: '1,1'
                     - name: source_epsg
