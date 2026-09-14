@@ -161,14 +161,14 @@ spec:
                   value: 'false'
                 - name: gsd
                   value: '1'
+                - name: data_type
+                  value: 'float32'
                 - name: source_epsg
                   value: '2193'
                 - name: target_epsg
                   value: '2193'
                 - name: version_topo_imagery
                   value: '{{= workflow.parameters.version_topo_imagery}}'
-                - name: data_type
-                  value: '{{tasks.stac-setup.outputs.parameters.data_type}}'
 
               artifacts:
                 - name: group_data
