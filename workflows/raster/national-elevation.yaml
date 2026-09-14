@@ -200,6 +200,8 @@ spec:
                   value: 'new-zealand'
                 - name: gsd
                   value: '1'
+                - name: data_type
+                  value: 'float32'
                 - name: lifecycle
                   value: 'ongoing'
                 - name: producer
