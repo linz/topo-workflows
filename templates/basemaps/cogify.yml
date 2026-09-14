@@ -19,7 +19,7 @@ spec:
 
       - name: version_argo_tasks
         description: Version of the argo-tasks CLI docker container to use
-        value: v6
+        value: v7
 
       - name: preset
         description: Import preset configuration, WebP for 4 band RGBA, LERC for 1 band DEM/DSM and ZSTD for everything else
@@ -341,7 +341,7 @@ spec:
           requests:
             memory: 7.8Gi
             cpu: 15000m
-        image: 725496895483.dkr.ecr.ap-southeast-2.amazonaws.com/github/linz/basemaps/cli:v6
+        image: 725496895483.dkr.ecr.ap-southeast-2.amazonaws.com/github/linz/basemaps/cli:v7
         command: [node, index.cjs]
         env:
           - name: AWS_ROLE_CONFIG_PATH

@@ -37,13 +37,13 @@ spec:
     parameters:
       - name: version_argo_tasks
         description: 'Specify a version of the argo-tasks image to use, e.g. "v5.1" or "latest"'
-        value: 'v6'
+        value: 'v7'
       - name: version_basemaps_cli
         description: 'Specify a version of the basemaps-cli image to use, e.g. "v8" or "latest"'
         value: 'v8'
       - name: version_topo_imagery
         description: 'Specify a version of the topo-imagery image to use, e.g. "v4.8" or "latest"'
-        value: 'v7'
+        value: 'v8'
       - name: user_group
         description: Group of users running the workflow
         value: 'none'
@@ -396,6 +396,8 @@ spec:
                   value: '{{=sprig.trim(workflow.parameters.end_datetime)}}'
                 - name: gsd
                   value: '{{ tasks.tile-index-validate.outputs.parameters.gsd }}'
+                - name: data_type
+                  value: '{{ tasks.tile-index-validate.outputs.parameters.data_type }}'
                 - name: region
                   value: '{{=sprig.trim(workflow.parameters.region)}}'
                 - name: geographic_description
@@ -453,6 +455,8 @@ spec:
                   value: '{{=sprig.trim(workflow.parameters.cutline)}}'
                 - name: gsd
                   value: '{{ tasks.tile-index-validate.outputs.parameters.gsd }}'
+                - name: data_type
+                  value: '{{ tasks.tile-index-validate.outputs.parameters.data_type }}'
                 - name: scale_to_resolution
                   value: '{{=sprig.trim(tasks["tile-index-validate"].outputs.parameters.gsd) + "," + sprig.trim(tasks["tile-index-validate"].outputs.parameters.gsd)}}'
                 - name: source_epsg
@@ -499,6 +503,8 @@ spec:
                   value: '{{=sprig.trim(workflow.parameters.region)}}'
                 - name: gsd
                   value: '{{ tasks.tile-index-validate.outputs.parameters.gsd }}'
+                - name: data_type
+                  value: '{{ tasks.tile-index-validate.outputs.parameters.data_type }}'
                 - name: geographic_description
                   value: '{{=sprig.trim(workflow.parameters.geographic_description)}}'
                 - name: event

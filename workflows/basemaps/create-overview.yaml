@@ -17,7 +17,7 @@ spec:
   arguments:
     parameters:
       - name: version_basemaps_cli
-        value: 'v6'
+        value: 'v7'
       - name: source
         value: ''
       - name: output

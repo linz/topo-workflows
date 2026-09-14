@@ -28,13 +28,13 @@ spec:
     parameters:
       - name: version_argo_tasks
         description: 'Specify a version of the argo-tasks image to use, e.g. "v5.1" or "latest"'
-        value: 'v6'
+        value: 'v7'
       - name: version_basemaps_cli
         description: 'Specify a version of the basemaps-cli image to use, e.g. "v8" or "latest"'
         value: 'v8'
       - name: version_topo_imagery
         description: 'Specify a version of the topo-imagery image to use, e.g. "v4.8" or "latest"'
-        value: 'v7'
+        value: 'v8'
       - name: ticket
         description: 'Ticket ID, e.g. "TDE-1130"'
         value: ''
@@ -125,6 +125,8 @@ spec:
               parameters:
                 - name: gsd
                   value: '1'
+                - name: data_type
+                  value: 'float32'
                 - name: region
                   value: 'new zealand'
                 - name: geospatial_category
@@ -159,12 +161,15 @@ spec:
                   value: 'false'
                 - name: gsd
                   value: '1'
+                - name: data_type
+                  value: 'float32'
                 - name: source_epsg
                   value: '2193'
                 - name: target_epsg
                   value: '2193'
                 - name: version_topo_imagery
                   value: '{{= workflow.parameters.version_topo_imagery}}'
+
               artifacts:
                 - name: group_data
                   from: '{{ tasks.group.outputs.artifacts.output }}'
@@ -195,6 +200,8 @@ spec:
                   value: 'new-zealand'
                 - name: gsd
                   value: '1'
+                - name: data_type
+                  value: 'float32'
                 - name: lifecycle
                   value: 'ongoing'
                 - name: producer

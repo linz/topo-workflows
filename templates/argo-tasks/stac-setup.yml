@@ -24,6 +24,9 @@ spec:
             default: ''
           - name: gsd
             description: 'Dataset GSD in metres'
+          - name: data_type
+            description: 'Data type of the dataset pixels, e.g "uint16"'
+            default: ''
           - name: region
             description: 'Region of the dataset'
           - name: geographic_description
@@ -52,6 +55,7 @@ spec:
           - '--region={{inputs.parameters.region}}'
           - '--geospatial-category={{inputs.parameters.geospatial_category}}'
           - '--gsd={{inputs.parameters.gsd}}'
+          - '--data-type={{inputs.parameters.data_type}}'
           - "{{= sprig.empty(inputs.parameters.start_datetime) ? '' : '--start-year=' + sprig.trunc(4, inputs.parameters.start_datetime) }}"
           - "{{= sprig.empty(inputs.parameters.end_datetime) ? '' : '--end-year=' + sprig.trunc(4, inputs.parameters.end_datetime) }}"
           - "{{= sprig.empty(inputs.parameters.geographic_description) ? '' : '--geographic-description=' + inputs.parameters.geographic_description }}"

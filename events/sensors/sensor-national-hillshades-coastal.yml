@@ -42,11 +42,11 @@ spec:
                     - name: source_geospatial_categories
                       value: ''
                     - name: version_argo_tasks
-                      value: 'v6'
+                      value: 'v7'
                     - name: version_basemaps_cli
                       value: 'v8'
                     - name: version_topo_imagery
-                      value: 'v7'
+                      value: 'v8'
                     - name: ticket
                       value: 'TDE-1896'
                     - name: bucket_name

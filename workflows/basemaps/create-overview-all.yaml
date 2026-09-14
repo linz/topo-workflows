@@ -20,7 +20,7 @@ spec:
   arguments:
     parameters:
       - name: version_basemaps_cli
-        value: 'v6'
+        value: 'v7'
   templateDefaults:
     container:
       imagePullPolicy: Always

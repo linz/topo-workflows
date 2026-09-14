@@ -18,7 +18,7 @@ spec:
         parameters:
           - name: version_topo_imagery
             description: 'Specify a version of the topo-imagery image to use, e.g. "v4.8" or "latest"'
-            default: 'v7'
+            default: 'v8'
 
           - name: group_id
             description: 'The ID of the group of files to use as the input.'
@@ -66,6 +66,10 @@ spec:
 
           - name: gsd
             description: 'Dataset GSD in metres, e.g., "0.3" for 30 centimetres'
+            default: ''
+
+          - name: data_type
+            description: 'Data type of the dataset pixels, e.g. "uint16"'
             default: ''
 
           - name: scale_to_resolution
@@ -120,6 +124,8 @@ spec:
           - '{{=sprig.trim(inputs.parameters.target_epsg)}}'
           - '--gsd'
           - '{{=sprig.trim(inputs.parameters.gsd)}}'
+          - '--data-type'
+          - '{{=sprig.trim(inputs.parameters.data_type)}}'
           - '--odr-url'
           - '{{=sprig.trim(inputs.parameters.odr_url)}}'
           - '--current-datetime'
