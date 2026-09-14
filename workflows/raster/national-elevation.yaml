@@ -125,6 +125,8 @@ spec:
               parameters:
                 - name: gsd
                   value: '1'
+                - name: data_type
+                  value: 'float32'
                 - name: region
                   value: 'new zealand'
                 - name: geospatial_category
@@ -159,12 +161,15 @@ spec:
                   value: 'false'
                 - name: gsd
                   value: '1'
+                - name: data_type
+                  value: 'float32'
                 - name: source_epsg
                   value: '2193'
                 - name: target_epsg
                   value: '2193'
                 - name: version_topo_imagery
                   value: '{{= workflow.parameters.version_topo_imagery}}'
+
               artifacts:
                 - name: group_data
                   from: '{{ tasks.group.outputs.artifacts.output }}'
@@ -195,6 +200,8 @@ spec:
                   value: 'new-zealand'
                 - name: gsd
                   value: '1'
+                - name: data_type
+                  value: 'float32'
                 - name: lifecycle
                   value: 'ongoing'
                 - name: producer
