@@ -214,9 +214,9 @@ It may be necessary to run some parts of our code concurrently within one contai
 
 **Topo-Imagery examples:**
 
-[Standardising](https://github.com/linz/topo-imagery/blob/master/scripts/standardising.py) runs `gdal_translate` with a concurrency of 4 (CPU-intensive task)
+[Standardising](https://github.com/linz/topo-imagery/blob/master/packages/topo-imagery-gdal/src/topo_imagery_gdal/standardising.py) runs `gdal_translate` with a concurrency of 4 (CPU-intensive task)
 
-[collection_from_items](https://github.com/linz/topo-imagery/blob/master/scripts/collection_from_items.py) has a concurrency of 25 (set in workflow) (lightweight task with network)
+[collection_from_items](https://github.com/linz/topo-imagery/blob/master/packages/topo-imagery-raster/src/topo_imagery_raster/collection_from_items.py) has a concurrency of 25 (set in workflow) (lightweight task with network)
 
 **Argo-Tasks examples:**
 

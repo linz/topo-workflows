@@ -52,7 +52,7 @@ spec:
                     - name: version_basemaps_cli
                       value: 'v8'
                     - name: version_topo_imagery
-                      value: 'v8'
+                      value: 'v9'
                     - name: ticket
                       value: 'TDE-1896'
                     - name: group

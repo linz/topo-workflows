@@ -20,7 +20,7 @@ spec:
         parameters:
           - name: version_topo_imagery
             description: 'Specify a version of the topo-imagery image to use, e.g. "v4.8" or "latest"'
-            default: 'v8'
+            default: 'v9'
 
           - name: group_id
             description: 'The ID of the group of files to use as the input.'
@@ -62,8 +62,7 @@ spec:
           - name: ephemeral
             mountPath: '/tmp'
         args:
-          - python
-          - '/app/scripts/generate_hillshade.py'
+          - 'generate-hillshade'
           - '--is-argo'
           - '--from-file'
           - '/tmp/input/{{inputs.parameters.group_id}}.json'
