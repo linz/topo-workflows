@@ -125,7 +125,7 @@ See [collection_from_items.py](https://github.com/linz/topo-imagery/blob/master/
       - name: keep_title
         value: 'true'
       - name: version_topo_imagery
-        value: '{{= workflow.parameters.version_argo_tasks}}'
+        value: '{{= workflow.parameters.version_topo_imagery}}'
 ```
 
 ## topo-imagery/generate-hillshade - `tpl-create-hillshade`
