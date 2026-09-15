@@ -10,7 +10,7 @@
 
 Template for TIFF standardisation and non-visual QA.
 
-See [standardise_validate.py](https://github.com/linz/topo-imagery/blob/master/scripts/standardise_validate.py)
+See [standardise_validate.py](https://github.com/linz/topo-imagery/blob/master/packages/topo-imagery-raster/src/topo_imagery_raster/standardise_validate.py)
 
 ### Template usage
 
@@ -69,7 +69,7 @@ volumes:
 Template for creating a STAC collection from existing STAC items and asset TIFFs.
 If TIFF footprint files exist, a `capture-area.geojson` output artifact will be created.
 
-See [collection_from_items.py](https://github.com/linz/topo-imagery/blob/master/scripts/collection_from_items.py)
+See [collection_from_items.py](https://github.com/linz/topo-imagery/blob/master/packages/topo-imagery-raster/src/topo_imagery_raster/collection_from_items.py)
 
 ### Template usage
 

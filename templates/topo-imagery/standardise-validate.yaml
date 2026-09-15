@@ -4,7 +4,7 @@ apiVersion: argoproj.io/v1alpha1
 kind: WorkflowTemplate
 metadata:
   # Template from https://github.com/linz/topo-imagery
-  # see https://github.com/linz/topo-imagery/blob/master/scripts/standardise_validate.py
+  # see https://github.com/linz/topo-imagery/blob/master/packages/topo-imagery-raster/src/topo_imagery_raster/standardise_validate.py
   name: tpl-ti-standardise-validate
 spec:
   templateDefaults:
@@ -98,8 +98,7 @@ spec:
           - name: AWS_ROLE_CONFIG_PATH
             value: s3://linz-bucket-config/config.json
         args:
-          - python
-          - '/app/scripts/standardise_validate.py'
+          - 'standardise-validate'
           - '--from-file'
           - '/tmp/input/{{inputs.parameters.group_id}}.json'
           - '--concurrency'

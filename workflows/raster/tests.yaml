@@ -28,6 +28,6 @@ spec:
     - name: test-script
       script:
         image: 019359803926.dkr.ecr.ap-southeast-2.amazonaws.com/topo-imagery:{{workflow.parameters.version_topo_imagery}}
-        args: [python]
+        command: [python]
         source: |
           # Put your code below

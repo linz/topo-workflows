@@ -98,8 +98,7 @@ spec:
           - name: ephemeral
             mountPath: '/tmp'
         args:
-          - python
-          - '/app/scripts/thumbnails.py'
+          - 'thumbnails'
           - '--is-argo'
           - '--from-file'
           - '/tmp/file_list.json'

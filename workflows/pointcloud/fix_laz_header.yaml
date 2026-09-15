@@ -235,7 +235,7 @@ spec:
 
       container:
         imagePullPolicy: Always
-        image: '019359803926.dkr.ecr.ap-southeast-2.amazonaws.com/topo-imagery:{{=sprig.trim(inputs.parameters.version_topo_imagery)}}'
+        image: '019359803926.dkr.ecr.ap-southeast-2.amazonaws.com/geoprocessor/pointcloud:{{=sprig.trim(inputs.parameters.version_topo_imagery)}}'
         resources:
           requests:
             memory: 7.8Gi
@@ -246,8 +246,7 @@ spec:
           - name: ephemeral
             mountPath: '/tmp'
         args:
-          - python
-          - '/app/scripts/fix_laz_header.py'
+          - 'fix-laz-header'
           - '--is-argo'
           - '--from-file'
           - '{{inputs.parameters.from_file}}'
