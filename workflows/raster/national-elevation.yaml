@@ -34,7 +34,7 @@ spec:
         value: 'v8'
       - name: version_topo_imagery
         description: 'Specify a version of the topo-imagery image to use, e.g. "v4.8" or "latest"'
-        value: 'v8'
+        value: 'v9'
       - name: ticket
         description: 'Ticket ID, e.g. "TDE-1130"'
         value: ''
