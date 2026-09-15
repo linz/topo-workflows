@@ -3,6 +3,8 @@
 apiVersion: argoproj.io/v1alpha1
 kind: WorkflowTemplate
 metadata:
+  # Template from https://github.com/linz/topo-imagery
+  # see https://github.com/linz/topo-imagery/blob/master/packages/topo-imagery-pointcloud/src/topo_imagery_pointcloud/fix_laz_header.py
   name: fix-laz-header
   labels:
     linz.govt.nz/category: pointcloud
@@ -33,8 +35,8 @@ spec:
       - name: version_argo_tasks
         description: 'Specify a version of the argo-tasks image to use, e.g. "v.1" or "latest"'
         value: 'v7'
-      - name: version_topo_imagery
-        description: 'Specify a version of the topo-imagery image to use, e.g. "v4.8" or "latest". Note: This image needs to contain PDAL.'
+      - name: version_geoprocessor_pointcloud
+        description: 'Specify a version of the geoprocessor/pointcloud image to use, e.g. "v9" or "latest". Note: This image needs to contain PDAL.'
         value: 'v9'
       - name: user_group
         description: Group of users running the workflow
@@ -213,8 +215,8 @@ spec:
 
       inputs:
         parameters:
-          - name: version_topo_imagery
-            description: 'Specify a version of the topo-imagery image to use, e.g. "v4.8" or "latest"'
+          - name: version_geoprocessor_pointcloud
+            description: 'Specify a version of the geoprocessor/pointcloud image to use, e.g. "v9" or "latest"'
             default: 'v9'
 
           - name: files
@@ -235,7 +237,7 @@ spec:
 
       container:
         imagePullPolicy: Always
-        image: '019359803926.dkr.ecr.ap-southeast-2.amazonaws.com/geoprocessor/pointcloud:{{=sprig.trim(inputs.parameters.version_topo_imagery)}}'
+        image: '019359803926.dkr.ecr.ap-southeast-2.amazonaws.com/geoprocessor/pointcloud:{{=sprig.trim(inputs.parameters.version_geoprocessor_pointcloud)}}'
         resources:
           requests:
             memory: 7.8Gi
