@@ -155,8 +155,8 @@ spec:
                   value: '{{item}}'
                 - name: target
                   value: '{{=sprig.trimSuffix("/", tasks["get-location"].outputs.parameters.location)}}/flat/'
-                - name: version_topo_imagery
-                  value: '{{= workflow.parameters.version_topo_imagery}}'
+                - name: version_geoprocessor_pointcloud
+                  value: '{{= workflow.parameters.version_geoprocessor_pointcloud}}'
             depends: 'list-source.Succeeded && get-location.Succeeded'
             withParam: '{{tasks.list-source.outputs.parameters.files}}'
 
