@@ -4,7 +4,7 @@ apiVersion: argoproj.io/v1alpha1
 kind: WorkflowTemplate
 metadata:
   # Template from https://github.com/linz/topo-imagery
-  # see https://github.com/linz/topo-imagery/blob/master/scripts/collection_from_items.py
+  # see https://github.com/linz/topo-imagery/blob/master/packages/topo-imagery-raster/src/topo_imagery_raster/collection_from_items.py
   name: tpl-ti-create-collection
 spec:
   templateDefaults:
@@ -18,7 +18,7 @@ spec:
         parameters:
           - name: version_topo_imagery
             description: 'Specify a version of the topo-imagery image to use, e.g. "v4.8" or "latest"'
-            default: 'v8'
+            default: 'v9'
 
           - name: collection_id
             description: 'Collection ID of existing dataset, or else a generated collection ID'
@@ -137,8 +137,7 @@ spec:
       container:
         image: '019359803926.dkr.ecr.ap-southeast-2.amazonaws.com/topo-imagery:{{=sprig.trim(inputs.parameters.version_topo_imagery)}}'
         args:
-          - python
-          - '/app/scripts/collection_from_items.py'
+          - 'collection-from-items'
           - '--uri'
           - '{{=sprig.trimSuffix("/", inputs.parameters.location)}}'
           - '--collection-id'
