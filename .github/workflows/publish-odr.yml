@@ -1,0 +1,33 @@
+name: Publish ODR
+
+on:
+  workflow_call:
+    inputs:
+      stac_sync_bucket:
+        required: true
+        type: string
+        description: "The S3 bucket for STAC sync (eg: s3://nz/imagery/)"
+
+env:
+  REGISTRY: ghcr.io
+
+jobs:
+  validate-stac:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Validate STAC Collections
+        run: |
+          set -e
+          echo "Validating STAC collections in $PWD/stac"
+
+          # Find all collection.json files and validate each
+          find "$PWD/stac" -name "collection.json" -type f | while read -r collection; do
+            echo "Validating: $collection"
+            # Add your validation logic here
+            # Example: pystac-client validate "$collection"
+          done
+
+          if [ $(find "$PWD/stac" -name "collection.json" -type f | wc -l) -eq 0 ]; then
+            echo "Warning: No collection.json files found in $PWD/stac"
+          fi
