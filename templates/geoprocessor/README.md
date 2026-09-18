@@ -1,16 +1,16 @@
-# Topo-Imagery templates
+# geoprocessor templates
 
 ## Contents:
 
-- [Standardise Validate](##topo-imagery/standardise-validate)
-- [Create Collection](##topo-imagery/create-collection)
-- [Generate Hillshade](##topo-imagery/generate-hillshade)
+- [Standardise Validate](#geoprocessor/standardise-validate)
+- [Create Collection](#geoprocessor/create-collection)
+- [Generate Hillshade](#geoprocessor/generate-hillshade)
 
-## topo-imagery/standardise-validate - `tpl-ti-standardise-validate`
+## geoprocessor/standardise-validate - `tpl-ti-standardise-validate`
 
 Template for TIFF standardisation and non-visual QA.
 
-See [standardise_validate.py](https://github.com/linz/topo-imagery/blob/master/packages/topo-imagery-raster/src/topo_imagery_raster/standardise_validate.py)
+See [standardise_validate.py](https://github.com/linz/geoprocessor/blob/master/packages/geoprocessor-raster/src/geoprocessor_raster/standardise_validate.py)
 
 ### Template usage
 
@@ -49,8 +49,8 @@ See [standardise_validate.py](https://github.com/linz/topo-imagery/blob/master/p
         value: '{{=sprig.trim(workflow.parameters.source_epsg)}}'
       - name: target_epsg
         value: '{{=sprig.trim(workflow.parameters.target_epsg)}}'
-      - name: version_topo_imagery
-        value: '{{= workflow.parameters.version_topo_imagery}}'
+      - name: version_geoprocessor_raster
+        value: '{{= workflow.parameters.version_geoprocessor_raster}}'
     artifacts:
       - name: group_data
         from: '{{ tasks.group.outputs.artifacts.output }}'
@@ -64,12 +64,12 @@ volumes:
     emptyDir: {}
 ```
 
-## topo-imagery/create-collection - `tpl-ti-create-collection`
+## geoprocessor/create-collection - `tpl-ti-create-collection`
 
 Template for creating a STAC collection from existing STAC items and asset TIFFs.
 If TIFF footprint files exist, a `capture-area.geojson` output artifact will be created.
 
-See [collection_from_items.py](https://github.com/linz/topo-imagery/blob/master/packages/topo-imagery-raster/src/topo_imagery_raster/collection_from_items.py)
+See [collection_from_items.py](https://github.com/linz/geoprocessor/blob/master/packages/geoprocessor-raster/src/geoprocessor_raster/collection_from_items.py)
 
 ### Template usage
 
@@ -124,14 +124,14 @@ See [collection_from_items.py](https://github.com/linz/topo-imagery/blob/master/
         value: 'true'
       - name: keep_title
         value: 'true'
-      - name: version_topo_imagery
-        value: '{{= workflow.parameters.version_topo_imagery}}'
+      - name: version_geoprocessor_raster
+        value: '{{= workflow.parameters.version_geoprocessor_raster}}'
 ```
 
-## topo-imagery/generate-hillshade - `tpl-create-hillshade`
+## geoprocessor/generate-hillshade - `tpl-create-hillshade`
 
 Template for creating hillshades from elevation TIFFs (DEM / DSM).
-See [generate_hillshade.py](https://github.com/linz/topo-imagery/pull/1253)
+See [generate_hillshade.py](https://github.com/linz/geoprocessor/pull/1253)
 
 ### Template usage
 
@@ -146,8 +146,8 @@ See [generate_hillshade.py](https://github.com/linz/topo-imagery/pull/1253)
         value: '{{item}}'
       - name: hillshade_preset
         value: '{{=sprig.trim(workflow.parameters.hillshade_preset)}}'
-      - name: version_topo_imagery
-        value: '{{= workflow.parameters.version_topo_imagery}}'
+      - name: version_geoprocessor_raster
+        value: '{{= workflow.parameters.version_geoprocessor_raster}}'
       - name: target # not using flat/ here, but {{workflow.parameters.hillshade_preset}}/ to keep temporary HS output separate
         value: '{{=sprig.trimSuffix("/", tasks["get-location"].outputs.parameters.location)}}/{{workflow.parameters.hillshade_preset}}/flat/'
       - name: collection_id

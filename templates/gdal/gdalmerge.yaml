@@ -15,7 +15,7 @@ spec:
       retryStrategy:
         expression: 'false'
       container:
-        image: 019359803926.dkr.ecr.ap-southeast-2.amazonaws.com/topo-imagery:{{=sprig.trim(inputs.parameters.version_topo_imagery)}}
+        image: 019359803926.dkr.ecr.ap-southeast-2.amazonaws.com/geoprocessor/raster:{{=sprig.trim(inputs.parameters.version_geoprocessor_raster)}}
         imagePullPolicy: Always
         command: [gdal_merge.py]
         args:
@@ -45,9 +45,9 @@ spec:
             description: 'File to use as base layer, e.g. "s3://bucket/8m/CB13.tiff"'
           - name: additional_filename
             description: 'File to use as top layer, e.g. "s3://bucket/1m/CB13.tiff". Use VRT files to layer multiple files. Note: VRT files must contain /vsis3/ or /vsis3_streaming/ paths instead of s3://.'
-          - name: version_topo_imagery
-            description: 'Specify a version of the topo-imagery image to use, e.g. "v9" or "latest"'
-            default: 'v9'
+          - name: version_geoprocessor_raster
+            description: 'Specify a version of the geoprocessor/raster image to use, e.g. "v10" or "latest"'
+            default: 'v10'
           - name: merged_filename
             description: 'Optional file name for output file, e.g. "CB13.tiff". Defaults to base_filename basename.'
             default: '{{= sprig.last(sprig.splitList("/", inputs.parameters.base_filename))}}'

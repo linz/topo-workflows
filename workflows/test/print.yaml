@@ -14,6 +14,6 @@ spec:
         parameters:
           - name: message
       container:
-        image: 019359803926.dkr.ecr.ap-southeast-2.amazonaws.com/topo-imagery:latest
+        image: 019359803926.dkr.ecr.ap-southeast-2.amazonaws.com/geoprocessor/raster:latest
         command: [echo]
         args: ['{{inputs.parameters.message}}']
