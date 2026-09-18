@@ -22,7 +22,7 @@ The script run by this template as an exit handler is generating a log, includin
   "parameters": {
     "version_argo_tasks": "v4",
     "version_basemaps_cli": "v8",
-    "version_topo_imagery": "v4",
+    "version_geoprocessor_raster": "v10",
     "ticket": "",
     "region": "new-zealand",
     "source": "s3://linz-imagery-staging/test/sample/",

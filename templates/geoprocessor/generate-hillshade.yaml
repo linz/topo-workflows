@@ -3,8 +3,8 @@
 apiVersion: argoproj.io/v1alpha1
 kind: WorkflowTemplate
 metadata:
-  # Template calling linz/topo-imagery for its main task (generate-hillshade)
-  # see https://github.com/linz/topo-imagery/pull/1253
+  # Template calling linz/geoprocessor for its main task (generate-hillshade)
+  # see https://github.com/linz/geoprocessor/pull/1253
   name: tpl-ti-generate-hillshade
   labels:
     linz.govt.nz/category: raster
@@ -18,9 +18,9 @@ spec:
     - name: main
       inputs:
         parameters:
-          - name: version_topo_imagery
-            description: 'Specify a version of the topo-imagery image to use, e.g. "v4.8" or "latest"'
-            default: 'v9'
+          - name: version_geoprocessor_raster
+            description: 'Specify a version of the geoprocessor/raster image to use, e.g. "v4.8" or "latest"'
+            default: 'v10'
 
           - name: group_id
             description: 'The ID of the group of files to use as the input.'
@@ -51,7 +51,7 @@ spec:
             path: /tmp/input/
 
       container:
-        image: '019359803926.dkr.ecr.ap-southeast-2.amazonaws.com/topo-imagery:{{=sprig.trim(inputs.parameters.version_topo_imagery)}}'
+        image: '019359803926.dkr.ecr.ap-southeast-2.amazonaws.com/geoprocessor/raster:{{=sprig.trim(inputs.parameters.version_geoprocessor_raster)}}'
         resources:
           requests:
             memory: 7.8Gi
