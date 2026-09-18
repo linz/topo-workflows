@@ -6,7 +6,7 @@ on:
       stac_sync_bucket:
         required: true
         type: string
-        description: "The S3 bucket for STAC sync (eg: s3://nz/imagery/)"
+        description: 'The S3 bucket for STAC sync (eg: s3://nz/imagery/)'
 
 env:
   REGISTRY: ghcr.io
