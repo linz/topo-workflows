@@ -5,7 +5,7 @@ kind: WorkflowTemplate
 metadata:
   # Template from https://github.com/linz/geoprocessor
   # see https://github.com/linz/geoprocessor/blob/master/packages/geoprocessor-raster/src/geoprocessor_raster/collection_from_items.py
-  name: tpl-ti-create-collection
+  name: tpl-geoprocessor-create-collection
 spec:
   templateDefaults:
     container:
