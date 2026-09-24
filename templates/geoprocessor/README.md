@@ -6,7 +6,7 @@
 - [Create Collection](#geoprocessor/create-collection)
 - [Generate Hillshade](#geoprocessor/generate-hillshade)
 
-## geoprocessor/standardise-validate - `tpl-ti-standardise-validate`
+## geoprocessor/standardise-validate - `tpl-geoprocessor-standardise-validate`
 
 Template for TIFF standardisation and non-visual QA.
 
@@ -17,7 +17,7 @@ See [standardise_validate.py](https://github.com/linz/geoprocessor/blob/master/p
 ```yaml
 - name: standardise-validate
   templateRef:
-    name: tpl-ti-standardise-validate
+    name: tpl-geoprocessor-standardise-validate
     template: main
   arguments:
     parameters:
@@ -64,7 +64,7 @@ volumes:
     emptyDir: {}
 ```
 
-## geoprocessor/create-collection - `tpl-ti-create-collection`
+## geoprocessor/create-collection - `tpl-geoprocessor-create-collection`
 
 Template for creating a STAC collection from existing STAC items and asset TIFFs.
 If TIFF footprint files exist, a `capture-area.geojson` output artifact will be created.
@@ -76,7 +76,7 @@ See [collection_from_items.py](https://github.com/linz/geoprocessor/blob/master/
 ```yaml
 - name: create-collection
   templateRef:
-    name: tpl-ti-create-collection
+    name: tpl-geoprocessor-create-collection
     template: main
   arguments:
     parameters:
@@ -138,7 +138,7 @@ See [generate_hillshade.py](https://github.com/linz/geoprocessor/pull/1253)
 ```yaml
 - name: generate-hillshade
   templateRef:
-    name: tpl-ti-generate-hillshade
+    name: tpl-geoprocessor-generate-hillshade
     template: main
   arguments:
     parameters:

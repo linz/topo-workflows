@@ -5,7 +5,7 @@ kind: WorkflowTemplate
 metadata:
   # Template calling linz/geoprocessor for its main task (generate-hillshade)
   # see https://github.com/linz/geoprocessor/pull/1253
-  name: tpl-ti-generate-hillshade
+  name: tpl-geoprocessor-generate-hillshade
   labels:
     linz.govt.nz/category: raster
 spec:
