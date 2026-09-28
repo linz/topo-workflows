@@ -24,14 +24,30 @@ Main entry point: [app](./cdk8s.ts)
 
 ### Prerequisites
 
-- [Helm](https://helm.sh/docs/intro/install/)
+- [Helm](https://helm.sh/docs/intro/install/), is used by CDK8s to render the charts.
+
+  Install the same major version as the pipeline (currently whatever ships in the GitHub `ubuntu-24.04` runner).
+
+  ```shell
+  mkdir -p ~/.local/bin
+  curl -fsSL https://get.helm.sh/helm-v3.22.0-linux-amd64.tar.gz | tar -xz -O linux-amd64/helm > ~/.local/bin/helm
+  chmod +x ~/.local/bin/helm
+  helm version --short
+  ```
+
 - Ensure all dependencies are installed
 
   ```shell
-  npm install
+  npm ci
   ```
 
-- Login to AWS
+- Login to AWS, and export the region.
+
+  The AWS SDK clients in `infra/util/` are constructed without an explicit region, so it has to come from the environment. The pipeline gets this from `configure-aws-credentials`; locally it must be exported, otherwise `cdk8s synth` fails with `Error: Region is missing`.
+
+  ```shell
+  export AWS_REGION=ap-southeast-2
+  ```
 
 ### Deploy EKS cluster and RDS database via CDK
 
