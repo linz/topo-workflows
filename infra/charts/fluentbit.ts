@@ -7,16 +7,19 @@ import { applyDefaultLabels } from '../util/labels.ts';
 /**
  * version of the Helm chart (not FluentBit app)
  *
- * https://github.com/aws/eks-charts/blob/a644fd925ca091d881b3a42aace268322f484455/stable/aws-for-fluent-bit/Chart.yaml#L4
+ * https://github.com/aws/eks-charts/blob/ab081b33b8a1f6627e699d4aa48e43d73d138bce/stable/aws-for-fluent-bit/Chart.yaml#L4
  * */
-const chartVersion = '0.1.35';
+const chartVersion = '0.2.0';
 
 /**
- * version of the application
+ * version of the AWS for Fluent Bit distro, used as the container image tag.
  *
- * https://github.com/aws/eks-charts/blob/a644fd925ca091d881b3a42aace268322f484455/stable/aws-for-fluent-bit/Chart.yaml#L5C11-L5C29
+ * The Helm chart lags behind the distro releases, so this overrides `image.tag`
+ * rather than taking the chart's `appVersion` (0.2.0 ships 3.2.1 / Fluent Bit v4.2.2).
+ *
+ * https://github.com/aws/aws-for-fluent-bit/releases
  */
-const appVersion = '2.32.2.20240516';
+const appVersion = '3.4.18';
 
 export interface FluentBitProps {
   /**
@@ -70,6 +73,7 @@ HC_Period 5
       version: chartVersion,
       values: {
         fullnameOverride: 'fluentbit',
+        image: { tag: appVersion },
         input: { parser: FluentParserName, dockerMode: 'Off' },
         serviceAccount: { name: props.saName, create: false },
         priorityClassName: 'very-high-priority',
