@@ -17,7 +17,8 @@ spec:
   arguments:
     parameters:
       - name: version_basemaps_cli
-        value: 'v7'
+        # create-overview was removed from the basemaps CLI in v7, keep pinned to v6
+        value: 'v6'
       - name: source
         value: ''
       - name: output
