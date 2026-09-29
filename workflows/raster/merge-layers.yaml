@@ -32,9 +32,9 @@ spec:
       - name: version_basemaps_cli
         description: 'Specify a version of the basemaps-cli image to use, e.g. "v8" or "latest"'
         value: 'v8'
-      - name: version_topo_imagery
-        description: 'Specify a version of the topo-imagery image to use, e.g. "v4.8" or "latest"'
-        value: 'v9'
+      - name: version_geoprocessor_raster
+        description: 'Specify a version of the geoprocessor/raster image to use, e.g. "v4.8" or "latest"'
+        value: 'v10'
       - name: ticket
         description: 'Ticket ID, e.g. "TDE-1130"'
         value: ''
@@ -142,8 +142,8 @@ spec:
             default: '{{workflow.parameters.version_argo_tasks}}'
           - name: version_basemaps_cli
             default: '{{workflow.parameters.version_basemaps_cli}}'
-          - name: version_topo_imagery
-            default: '{{workflow.parameters.version_topo_imagery}}'
+          - name: version_geoprocessor_raster
+            default: '{{workflow.parameters.version_geoprocessor_raster}}'
           - name: ticket
             default: '{{workflow.parameters.ticket}}'
           - name: top_layer_source
@@ -261,8 +261,8 @@ spec:
                   value: '{{=sprig.trim(inputs.parameters.source_epsg)}}'
                 - name: target_epsg
                   value: '{{=sprig.trim(inputs.parameters.target_epsg)}}'
-                - name: version_topo_imagery
-                  value: '{{= inputs.parameters.version_topo_imagery}}'
+                - name: version_geoprocessor_raster
+                  value: '{{= inputs.parameters.version_geoprocessor_raster}}'
                 - name: create_capture_area
                   value: '{{inputs.parameters.create_capture_area}}'
                 - name: gsd
@@ -313,8 +313,8 @@ spec:
                   value: 'true'
                 - name: keep_title
                   value: 'true'
-                - name: version_topo_imagery
-                  value: '{{= inputs.parameters.version_topo_imagery}}'
+                - name: version_geoprocessor_raster
+                  value: '{{= inputs.parameters.version_geoprocessor_raster}}'
             depends: 'standardise-validate.Succeeded'
 
           - name: stac-validate-all

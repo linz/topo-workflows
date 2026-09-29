@@ -32,9 +32,9 @@ spec:
       - name: version_basemaps_cli
         description: 'Specify a version of the basemaps-cli image to use, e.g. "v8" or "latest"'
         value: 'v8'
-      - name: version_topo_imagery
-        description: 'Specify a version of the topo-imagery image to use, e.g. "v4.8" or "latest"'
-        value: 'v9'
+      - name: version_geoprocessor_raster
+        description: 'Specify a version of the geoprocessor/raster image to use, e.g. "v4.8" or "latest"'
+        value: 'v10'
       - name: ticket
         description: 'Ticket ID, e.g. "TDE-1130"'
         value: ''
@@ -169,8 +169,8 @@ spec:
                   value: '{{item}}'
                 - name: hillshade_preset
                   value: '{{inputs.parameters.hillshade_preset}}'
-                - name: version_topo_imagery
-                  value: '{{= workflow.parameters.version_topo_imagery}}'
+                - name: version_geoprocessor_raster
+                  value: '{{= workflow.parameters.version_geoprocessor_raster}}'
                 - name: target # not using flat/ here, but {{workflow.parameters.hillshade_preset}}/ to keep temporary HS output separate
                   value: '{{=sprig.trimSuffix("/", tasks["get-location"].outputs.parameters.location)}}/{{inputs.parameters.source_geospatial_category}}-{{inputs.parameters.hillshade_preset}}/flat/'
                 - name: collection_id
@@ -223,8 +223,8 @@ spec:
                   value: '{{=sprig.trimSuffix("/", inputs.parameters.source)}}/capture-area.geojson'
                 - name: keep_title
                   value: 'true'
-                - name: version_topo_imagery
-                  value: '{{= workflow.parameters.version_topo_imagery}}'
+                - name: version_geoprocessor_raster
+                  value: '{{= workflow.parameters.version_geoprocessor_raster}}'
             depends: 'generate-hillshade.Succeeded'
 
           - name: stac-validate-all
