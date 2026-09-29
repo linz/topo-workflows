@@ -24,7 +24,7 @@ We need to make sure we're starting from a sane repository state. Skip any steps
 
 1. Clone the [Open Data Registry repo](https://github.com/linz/open-data-registry-cdk/): `git clone git@github.com:linz/open-data-registry-cdk.git`
 2. Go into the Open Data Registry repo: `cd open-data-registry-cdk`.
-3. Install dependencies: `npm install`.
+3. Install dependencies: `npm ci`.
 4. Exit the Open Data Registry repo: `cd ..`.
 5. Clone the [Topo AWS infrastructure repo](https://github.com/linz/topo-aws-infrastructure/): `git clone git@github.com:linz/topo-aws-infrastructure.git`
 6. Clone [this repo](https://github.com/linz/topo-workflows/): `git clone git@github.com:linz/topo-workflows.git`
@@ -32,7 +32,7 @@ We need to make sure we're starting from a sane repository state. Skip any steps
 8. Clean the repository of any generated files: `git clean -d --force -x`
 9. Reset any changes to files: `git reset --hard HEAD`
 10. Check out the relevant commit: `git checkout ID`. This could be `origin/master`, the commit used to deploy the old production cluster,
-11. Install dependencies: `npm install`
+11. Install dependencies: `npm ci`
 12. Log into the LI Topo production account as admin
 
 ### [Teardown existing EKS cluster](./destroy.md)

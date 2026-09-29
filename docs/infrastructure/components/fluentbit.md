@@ -41,8 +41,22 @@ To upgrade the Fluent Bit version, as per the installation, you need to do it vi
 
 ### Version
 
-After choosing a new version to upgrade to (you want a bug fix or a new feature), modify the chart using CDK8s (`infra/charts/fluentbit.ts`).
-The Fluent Bit application version is stored in `appVersion` but this is only here for reference. The version to upgrade is the version of the corresponding Helm Chart delivered by `aws-for-fluent-bit` which is defined in `chartVersion`.
+Two versions are pinned in `infra/charts/fluentbit.ts`, and both need to be considered:
+
+- `chartVersion` - the [`aws-for-fluent-bit` Helm chart](https://github.com/aws/eks-charts/tree/master/stable/aws-for-fluent-bit) version. Published versions are listed in the [chart repository index](https://aws.github.io/eks-charts/index.yaml).
+- `appVersion` - the [AWS for Fluent Bit distro](https://github.com/aws/aws-for-fluent-bit/releases) version. This is passed to the chart as `image.tag`, so it is the version that actually runs.
+
+Because the image tag is overridden, the `app.kubernetes.io/version` label is not a reliable indicator of the running version. The chart hardcodes that label from its own `appVersion`, which cannot be overridden through values, so the objects the chart renders (`DaemonSet`, `ConfigMap`, `Service`) advertise the chart's distro version while running ours. Only the objects labelled by CDK8s (`managed-by: cdk8s`) carry the version actually deployed. Always confirm the running version from the image tag instead:
+
+```shell
+kubectl get daemonset fluentbit --namespace=fluentbit --output=jsonpath='{.spec.template.spec.containers[0].image}{"\n"}'
+```
+
+The chart releases far less often than the distro, so the chart's own `appVersion` is usually well behind the supported distro. Overriding `image.tag` lets us stay on a supported base image without waiting for a chart release. Check the [distro release notes](https://github.com/aws/aws-for-fluent-bit/releases) for which Fluent Bit version and Amazon Linux base image a given distro ships.
+
+Before upgrading the distro across a major version, check the [Fluent Bit upgrade notes](https://docs.fluentbit.io/manual/installation/upgrade-notes) for every major version being crossed, and record in the pull request which changes were assessed and why they do or do not apply. Our pipeline is `tail` input, `kubernetes` filter and `cloudwatch_logs` output, in classic (non-YAML) configuration format, so most documented breaking changes - which tend to affect HTTP-based inputs and the `forward` output - do not apply.
+
+Only the plain distro tag should be used: it is a multi-architecture manifest, which matters because the cluster runs both amd64 and arm64 nodes.
 
 ## Troubleshooting
 

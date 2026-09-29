@@ -196,21 +196,45 @@ For each of the component to upgrade:
 
 Our CI/CD pipeline takes care of deploying any changes detected in the IaC (`infra/`), when a PR is merged to the `master` branch. In some cases, the deployment can create an instable state as a component upgrade can not be compatible with the current version of another component that the PR does not modify. It is still a good practice to modify each component with an individual PR to make it easier to track and rollback the change if needed. This instable state must be solved once the PRs for each component to update are merged.
 
+Note that **nothing synthesises the manifests before the merge**: the pull request build only runs `tsc`, Prettier, `actionlint` and `argo lint`. `npx cdk8s synth` runs for the first time in the `deploy-prod` job in `.github/workflows/main.yml`, immediately before `kubectl apply -f dist/` against the production cluster. A synth failure - a bad Helm value, an unreachable chart repository - therefore surfaces against production, not in review. Always synth locally before raising the pull request.
+
 ##### Non Production
 
-The process is different in a Dev/NonProd cluster as the deployment will be manual:
+The process is different in a Dev/NonProd cluster as the deployment is manual, and there is no pipeline for these clusters.
 
-1. Generate the kubernetes configuration yaml into `dist/`
+Both `cdk8s synth` and `kubectl` target whichever cluster the local environment points at, and both default to production. Two things must be changed before synthesising, or production gets deployed by accident:
+
+1. Point the stack at the target environment by setting `environmentSuffix` in `infra/constants.ts` (`'Dev'` or `'NP'`). This is a local-only edit - it must never be committed, as `master` has to stay on `''` for the production pipeline.
+
+   ```typescript
+   const environmentSuffix = 'Dev';
+   ```
+
+2. Point `kubectl` at the matching cluster, and confirm it
 
    ```shell
+   aws --region=ap-southeast-2 eks update-kubeconfig --name=WorkflowsDev
+   kubectl config current-context
+   ```
+
+3. Generate the kubernetes configuration yaml into `dist/`
+
+   `cdk8s synth` is not offline: it reads CloudFormation outputs and SSM parameters for the target account, and fetches the Helm charts, so valid AWS credentials and network access are needed.
+
+   `helm` must be on `PATH` and `AWS_REGION` must be exported - see [the infrastructure prerequisites](../../infra/README.md#prerequisites) for both.
+
+   ```shell
+   export AWS_REGION=ap-southeast-2
    npx cdk8s synth
    ```
 
-2. Apply the generated yaml files
+4. Apply the generated yaml files
 
    ```shell
    kubectl apply --filename=dist/
    ```
+
+Remember to revert `infra/constants.ts` before committing.
 
 ##### Clean-up
 
