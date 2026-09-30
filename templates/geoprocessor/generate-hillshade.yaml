@@ -3,8 +3,8 @@
 apiVersion: argoproj.io/v1alpha1
 kind: WorkflowTemplate
 metadata:
-  # Template calling linz/geoprocessor for its main task (generate-hillshade)
-  # see https://github.com/linz/geoprocessor/pull/1253
+  # Template uses container https://github.com/linz/geoprocessor/pkgs/container/geoprocessor%2Fraster
+  # for its main task (generate-hillshade) see also https://github.com/linz/geoprocessor/pull/1253
   name: tpl-gp-raster-generate-hillshade
   labels:
     linz.govt.nz/category: raster
