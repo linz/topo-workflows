@@ -430,7 +430,7 @@ spec:
 
           - name: standardise-validate
             templateRef:
-              name: tpl-ti-standardise-validate
+              name: tpl-gp-raster-standardise-validate
               template: main
             arguments:
               parameters:
@@ -478,7 +478,7 @@ spec:
 
           - name: create-collection
             templateRef:
-              name: tpl-ti-create-collection
+              name: tpl-gp-raster-create-collection
               template: main
             arguments:
               parameters:

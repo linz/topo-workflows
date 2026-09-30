@@ -65,7 +65,7 @@ The infrastructure running Argo Workflows:
 ![Kubernetes and Argo Workflows](static/pods.png)
 
 For more in-depth information, see:
-[Argo Configuration Guide - Introduction to Argo Workflows](../configuration.md#IntroductiontotheArgoWorkflowsEnvironment)
+[Argo Configuration Guide - Introduction to Argo Workflows](../configuration.md#introduction-to-the-argo-workflows-environment)
 
 ## What is a Workflow?
 
@@ -247,7 +247,7 @@ You can also do that for kubectl if you want to:
 ### CLI "hello world" example
 
 ```bash
-argo submit docs/training_workshop/example_workflows/wf_hello_world.yaml -n argo --watch
+argo submit docs/training/examples/wf_hello_world.yaml -n argo --watch
 ```
 
 ![Hello World CLI example](static/cli-hello-world.png)
@@ -255,7 +255,7 @@ argo submit docs/training_workshop/example_workflows/wf_hello_world.yaml -n argo
 ### CLI "hello world" example with argument parameters
 
 ```bash
-argo submit docs/training_workshop/example_workflows/wf_hello_world_args.yaml -p message1="hello world" --watch
+argo submit docs/training/examples/wf_hello_world_args.yaml -p message1="hello world" --watch
 ```
 
 ![Hello World Args CLI example](static/cli-hello-world-args.png)
@@ -263,7 +263,7 @@ argo submit docs/training_workshop/example_workflows/wf_hello_world_args.yaml -p
 **Using a parameters file:** If there are many parameters in a workflow, the parameters can be placed in a separate YAML file which can be referenced when submitting the workflow on the CLI. For example:
 
 ```bash
-argo submit workflows/raster/standardising-publish-import.yaml -n argo -f params.yaml
+argo submit workflows/raster/standardising.yaml -n argo -f params.yaml
 ```
 
 _params.yaml_:
@@ -461,7 +461,7 @@ The completed workflow should look like this in the Argo UI:
 The outputs of one task can be passed as inputs to other tasks using parameters, artifacts, or custom code.
 
 For more in-depth information, see:
-[Argo Configuration Guide - Introduction to Argo Workflows](../configuration.md#IntroductiontotheArgoWorkflowsEnvironment)
+[Argo Configuration Guide - Introduction to Argo Workflows](../configuration.md#introduction-to-the-argo-workflows-environment)
 
 ### Parallelising a task to run in multiple pods
 
@@ -583,7 +583,7 @@ Once you are confident submitting and creating basic workflows, explore the foll
 
 - Artifacts
 - Conditionals
-- Referencing other Workflows/WorkflowTemplates. For an example, see [standardising-publish-import.yaml](../../workflows/raster/standardising-publish-import.yaml)
+- Referencing other Workflows/WorkflowTemplates. For an example, see [standardising.yaml](../../workflows/raster/standardising.yaml)
 - Sprig scripting
 
 ## Argo Workflows Resources
