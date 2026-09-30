@@ -161,7 +161,7 @@ spec:
 
           - name: generate-hillshade
             templateRef:
-              name: tpl-geoprocessor-generate-hillshade
+              name: tpl-gp-raster-generate-hillshade
               template: main
             arguments:
               parameters:
@@ -187,7 +187,7 @@ spec:
 
           - name: create-collection
             templateRef:
-              name: tpl-geoprocessor-create-collection
+              name: tpl-gp-raster-create-collection
               template: main
             arguments:
               parameters:

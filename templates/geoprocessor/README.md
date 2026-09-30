@@ -2,11 +2,11 @@
 
 ## Contents:
 
-- [Standardise Validate](#geoprocessor/standardise-validate)
-- [Create Collection](#geoprocessor/create-collection)
-- [Generate Hillshade](#geoprocessor/generate-hillshade)
+- [Standardise Validate](#geoprocessorraster-standardise-validate---tpl-gp-raster-standardise-validate)
+- [Create Collection](#geoprocessorraster-create-collection---tpl-gp-raster-create-collection)
+- [Generate Hillshade](#geoprocessorraster-generate-hillshade---tpl-gp-raster-generate-hillshade)
 
-## geoprocessor/standardise-validate - `tpl-geoprocessor-standardise-validate`
+## geoprocessor/raster standardise-validate - `tpl-gp-raster-standardise-validate`
 
 Template for TIFF standardisation and non-visual QA.
 
@@ -17,7 +17,7 @@ See [standardise_validate.py](https://github.com/linz/geoprocessor/blob/master/p
 ```yaml
 - name: standardise-validate
   templateRef:
-    name: tpl-geoprocessor-standardise-validate
+    name: tpl-gp-raster-standardise-validate
     template: main
   arguments:
     parameters:
@@ -64,7 +64,7 @@ volumes:
     emptyDir: {}
 ```
 
-## geoprocessor/create-collection - `tpl-geoprocessor-create-collection`
+## geoprocessor/raster create-collection - `tpl-gp-raster-create-collection`
 
 Template for creating a STAC collection from existing STAC items and asset TIFFs.
 If TIFF footprint files exist, a `capture-area.geojson` output artifact will be created.
@@ -76,7 +76,7 @@ See [collection_from_items.py](https://github.com/linz/geoprocessor/blob/master/
 ```yaml
 - name: create-collection
   templateRef:
-    name: tpl-geoprocessor-create-collection
+    name: tpl-gp-raster-create-collection
     template: main
   arguments:
     parameters:
@@ -128,7 +128,7 @@ See [collection_from_items.py](https://github.com/linz/geoprocessor/blob/master/
         value: '{{= workflow.parameters.version_geoprocessor_raster}}'
 ```
 
-## geoprocessor/generate-hillshade - `tpl-create-hillshade`
+## geoprocessor/raster generate-hillshade - `tpl-gp-raster-generate-hillshade`
 
 Template for creating hillshades from elevation TIFFs (DEM / DSM).
 See [generate_hillshade.py](https://github.com/linz/geoprocessor/pull/1253)
@@ -138,7 +138,7 @@ See [generate_hillshade.py](https://github.com/linz/geoprocessor/pull/1253)
 ```yaml
 - name: generate-hillshade
   templateRef:
-    name: tpl-geoprocessor-generate-hillshade
+    name: tpl-gp-raster-generate-hillshade
     template: main
   arguments:
     parameters:

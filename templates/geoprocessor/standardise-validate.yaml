@@ -5,7 +5,7 @@ kind: WorkflowTemplate
 metadata:
   # Template from https://github.com/linz/geoprocessor
   # see https://github.com/linz/geoprocessor/blob/master/packages/geoprocessor-raster/src/geoprocessor_raster/standardise_validate.py
-  name: tpl-geoprocessor-standardise-validate
+  name: tpl-gp-raster-standardise-validate
 spec:
   templateDefaults:
     container:
