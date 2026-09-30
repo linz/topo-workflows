@@ -1,8 +1,8 @@
 # Common Templates
 
-- [Log Notification](##log-notification---tpl-log-notification)
-- [Get Location](##get-location---tpl-get-location)
-- [Read File](##read-file---tpl-read-file)
+- [Log Notification](#log-notification---tpl-log-notification)
+- [Get Location](#get-location---tpl-get-location)
+- [Read File](#read-file---tpl-read-file)
 
 ## Log Notification - `tpl-log-notification`
 
