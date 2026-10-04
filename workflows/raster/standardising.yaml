@@ -411,6 +411,8 @@ spec:
                   value: '{{=sprig.trim(workflow.parameters.odr_url)}}'
                 - name: version
                   value: '{{=sprig.trim(workflow.parameters.version_argo_tasks)}}'
+                - name: target_bucket_name
+                  value: '{{=sprig.trim(workflow.parameters.target_bucket_name)}}'
             depends: tile-index-validate
 
           - name: group

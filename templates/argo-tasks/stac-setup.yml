@@ -40,6 +40,8 @@ spec:
           - name: odr_url
             description: '(Optional) S3 path to existing dataset collection.json'
             default: ''
+          - name: target_bucket_name
+            description: '(Optional) Target bucket name for STAC collection and item.json used for validating if the collection already exists. Required if odr_url is not provided.'
           - name: version
             description: 'argo-task Container version to use'
             default: 'v5'
@@ -56,6 +58,7 @@ spec:
           - '--geospatial-category={{inputs.parameters.geospatial_category}}'
           - '--gsd={{inputs.parameters.gsd}}'
           - '--data-type={{inputs.parameters.data_type}}'
+          - "{{= sprig.empty(inputs.parameters.target_bucket_name) ? '' : '--target-bucket-name=' + inputs.parameters.target_bucket_name }}"
           - "{{= sprig.empty(inputs.parameters.start_datetime) ? '' : '--start-year=' + sprig.trunc(4, inputs.parameters.start_datetime) }}"
           - "{{= sprig.empty(inputs.parameters.end_datetime) ? '' : '--end-year=' + sprig.trunc(4, inputs.parameters.end_datetime) }}"
           - "{{= sprig.empty(inputs.parameters.geographic_description) ? '' : '--geographic-description=' + inputs.parameters.geographic_description }}"
