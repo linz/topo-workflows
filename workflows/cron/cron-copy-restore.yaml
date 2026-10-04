@@ -23,7 +23,7 @@ spec:
     arguments:
       parameters:
         - name: version_argo_tasks
-          value: 'v7'
+          value: 'v8'
         - name: reports_location
           value: 's3://linz-workflows-scratch/restore/requests/'
     templates:

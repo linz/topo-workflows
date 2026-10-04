@@ -45,8 +45,8 @@ spec:
             default: 'webp'
 
           - name: version
-            description: container version to use
-            default: 'v5'
+            description: version of argo-tasks to use
+            default: 'v8'
 
       outputs:
         parameters:
