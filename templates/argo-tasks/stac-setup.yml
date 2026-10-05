@@ -41,7 +41,9 @@ spec:
             description: '(Optional) S3 path to existing dataset collection.json'
             default: ''
           - name: target_bucket_name
-            description: '(Optional) Target bucket name for STAC collection and item.json used for validating if the collection already exists. Required if odr_url is not provided.'
+            description: 'Target ODR bucket name, e.g. "nz-imagery"'
+          - name: target_epsg
+            description: 'EPSG of the target dataset, e.g. "2193"'
           - name: version
             description: 'argo-task Container version to use'
             default: 'v8'
@@ -58,7 +60,8 @@ spec:
           - '--geospatial-category={{inputs.parameters.geospatial_category}}'
           - '--gsd={{inputs.parameters.gsd}}'
           - '--data-type={{inputs.parameters.data_type}}'
-          - "{{= sprig.empty(inputs.parameters.target_bucket_name) ? '' : '--target-bucket-name=' + inputs.parameters.target_bucket_name }}"
+          - '--target-bucket-name={{inputs.parameters.target_bucket_name}}'
+          - '--target-epsg={{inputs.parameters.target_epsg}}'
           - "{{= sprig.empty(inputs.parameters.start_datetime) ? '' : '--start-year=' + sprig.trunc(4, inputs.parameters.start_datetime) }}"
           - "{{= sprig.empty(inputs.parameters.end_datetime) ? '' : '--end-year=' + sprig.trunc(4, inputs.parameters.end_datetime) }}"
           - "{{= sprig.empty(inputs.parameters.geographic_description) ? '' : '--geographic-description=' + inputs.parameters.geographic_description }}"
