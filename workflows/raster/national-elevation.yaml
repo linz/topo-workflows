@@ -128,7 +128,7 @@ spec:
                 - name: data_type
                   value: 'float32'
                 - name: region
-                  value: 'new zealand'
+                  value: 'new-zealand'
                 - name: geospatial_category
                   value: '{{workflow.parameters.geospatial_category}}'
                 - name: odr_url
