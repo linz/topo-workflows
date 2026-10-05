@@ -137,6 +137,10 @@ spec:
                   value: '{{=sprig.trim(workflow.parameters.version_argo_tasks)}}'
                 - name: add_date_in_survey_path
                   value: 'false'
+                - name: target_bucket_name
+                  value: '{{=sprig.trim(workflow.parameters.target_bucket_name)}}'
+                - name: target_epsg
+                  value: '2193'
             depends: 'group.Succeeded'
 
           - name: standardise-validate

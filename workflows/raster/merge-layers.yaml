@@ -207,6 +207,10 @@ spec:
                   value: '{{=sprig.trim(inputs.parameters.odr_url)}}'
                 - name: version
                   value: '{{=sprig.trim(inputs.parameters.version_argo_tasks)}}'
+                - name: target_bucket_name
+                  value: '{{=sprig.trim(inputs.parameters.target_bucket_name)}}'
+                - name: target_epsg
+                  value: '{{=sprig.trim(inputs.parameters.target_epsg)}}'
 
           - name: identify-updated-items
             templateRef:

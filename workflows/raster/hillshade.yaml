@@ -129,6 +129,10 @@ spec:
                   value: '{{inputs.parameters.odr_url}}'
                 - name: version
                   value: '{{= workflow.parameters.version_argo_tasks}}'
+                - name: target_bucket_name
+                  value: '{{= workflow.parameters.domain == "coastal" ? "nz-coastal" : "nz-elevation" }}'
+                - name: target_epsg
+                  value: '2193'
 
           - name: identify-updated-items
             templateRef:
