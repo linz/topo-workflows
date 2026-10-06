@@ -566,7 +566,7 @@ General structure (YAML):
 ![Standardising Workflow Structure - YAML](static/standardising-structure.png)
 
 Compare the structure shown above with the Argo Workflows UI view:
-(TODO: Update screenshot with `standardising` workflow using `geoprocessor` `v2`)
+(TODO: Update screenshot with `standardising` workflow using `geoprocessor/raster` `v10` or newer when next updating these training materials)
 
 ![Standardising Workflow Structure - GUI](static/standardising-argo-ui.png)
 
