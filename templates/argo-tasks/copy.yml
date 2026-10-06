@@ -14,6 +14,12 @@ spec:
   entrypoint: main
   templates:
     - name: main
+      activeDeadlineSeconds: '{{inputs.parameters.active_deadline_seconds}}'
+      # Same as the cluster default, but also retries pods killed by `activeDeadlineSeconds`
+      retryStrategy:
+        limit: '2'
+        retryPolicy: 'Always'
+        expression: 'lastRetry.status == "Error" || lastRetry.message matches "imminent node shutdown" || lastRetry.message matches "deadline"'
       inputs:
         parameters:
           - name: file
@@ -55,6 +61,10 @@ spec:
           - name: aws_role_config_path
             description: s3 URL or comma-separated list of s3 URLs allowing the workflow to write to a target(s)
             default: 's3://linz-bucket-config/config-write.imagery.json,s3://linz-bucket-config/config-write.elevation.json,s3://linz-bucket-config/config-write.topographic.json'
+
+          - name: active_deadline_seconds
+            description: Maximum duration in seconds before the copy pod is terminated (and retried)
+            default: '14400'
 
       container:
         image: '019359803926.dkr.ecr.ap-southeast-2.amazonaws.com/argo-tasks:{{=sprig.trim(workflow.parameters.version_argo_tasks)}}'
