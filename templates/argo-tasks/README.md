@@ -97,6 +97,8 @@ steps:
 Template for copying a manifest of files between two locations.  
 See <https://github.com/linz/argo-tasks#copy>
 
+Each copy pod is terminated after `active_deadline_seconds` (default `14400`, 4 hours) and retried up to 2 times, so a stalled copy does not hang the workflow. Increase it for large groups (`group_size`), especially when compressing.
+
 ### Template usage
 
 Copy the input parameter manifest file without overriding.
