@@ -104,6 +104,9 @@ spec:
       - name: aws_role_config_path
         description: s3 URL or comma-separated list of s3 URLs allowing the workflow to write to a target(s)
         value: 's3://linz-bucket-config/config-write.elevation.json,s3://linz-bucket-config/config-write.imagery.json,s3://linz-bucket-config/config-write.topographic.json'
+      - name: active_deadline_seconds
+        description: Maximum duration in seconds for each copy pod before it is terminated and retried
+        value: '14400'
   templateDefaults:
     container:
       imagePullPolicy: Always
@@ -144,6 +147,8 @@ spec:
           - name: version_argo_tasks
             value: '{{workflow.parameters.version_argo_tasks}}'
             default: 'v7'
+          - name: active_deadline_seconds
+            default: '14400'
           - name: compress # This should not be exposed to the user (as a workflow parameter)
             default: 'false'
           - name: decompress # This should not be exposed to the user (as a workflow parameter)
@@ -208,6 +213,8 @@ spec:
                   value: '{{inputs.parameters.version_argo_tasks}}'
                 - name: aws_role_config_path
                   value: '{{inputs.parameters.aws_role_config_path}}'
+                - name: active_deadline_seconds
+                  value: '{{inputs.parameters.active_deadline_seconds}}'
             depends: 'create-manifest'
             withParam: '{{tasks.create-manifest.outputs.parameters.files}}'
           - name: delete-empty-folders # runs only if specified when archiving
