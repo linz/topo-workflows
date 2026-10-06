@@ -608,8 +608,8 @@ spec:
               parameters:
                 - name: source
                   value: '{{=sprig.trimSuffix("/", tasks["get-location"].outputs.parameters.location)}}/flat/'
-                - name: target_bucket_name
-                  value: '{{workflow.parameters.target_bucket_name}}'
+                - name: target_bucket_name # derived if not provided
+                  value: '{{= sprig.trim(workflow.parameters.target_bucket_name) != "" ? sprig.trim(workflow.parameters.target_bucket_name) : workflow.parameters.domain == "coastal" ? "nz-coastal" : workflow.parameters.category in ["dem", "dsm"] ? "nz-elevation" : "nz-imagery" }}'
                 - name: ticket
                   value: '{{=sprig.trim(workflow.parameters.ticket)}}'
                 - name: odr_url
