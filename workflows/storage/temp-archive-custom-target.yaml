@@ -54,9 +54,6 @@ spec:
         enum:
           - 'true'
           - 'false'
-      - name: active_deadline_seconds
-        description: Maximum duration in seconds for each copy pod before it is terminated and retried
-        value: '14400'
   templateDefaults:
     container:
       imagePullPolicy: Always
@@ -84,9 +81,6 @@ spec:
           - name: check_source_path
             value: '{{workflow.parameters.check_source_path}}'
             default: 'true'
-          - name: active_deadline_seconds
-            value: '{{workflow.parameters.active_deadline_seconds}}'
-            default: '14400'
       dag:
         tasks:
           - name: check-source
@@ -131,8 +125,6 @@ spec:
                   value: 'true'
                 - name: delete_source
                   value: 'true'
-                - name: active_deadline_seconds
-                  value: '{{inputs.parameters.active_deadline_seconds}}'
 
     - name: check-source
       inputs:
