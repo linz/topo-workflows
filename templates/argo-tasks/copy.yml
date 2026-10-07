@@ -14,6 +14,12 @@ spec:
   entrypoint: main
   templates:
     - name: main
+      activeDeadlineSeconds: 14400 # 4 hours
+      # Same as the cluster default, but also retries pods killed by `activeDeadlineSeconds`
+      retryStrategy:
+        limit: '2'
+        retryPolicy: 'Always'
+        expression: 'lastRetry.status == "Error" || lastRetry.message matches "imminent node shutdown" || lastRetry.message matches "deadline"'
       inputs:
         parameters:
           - name: file

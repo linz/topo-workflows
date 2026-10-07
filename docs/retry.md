@@ -6,6 +6,8 @@ The default [`retryStrategy`](https://argo-workflows.readthedocs.io/en/stable/fi
 
 To override the default `retryStrategy`, it can be done at the workflow or template level by defining a specific `retryStrategy`.
 
+For example, [`tpl-copy`](../templates/argo-tasks/copy.yml) extends the default `retryStrategy` to also retry pods terminated by its `activeDeadlineSeconds`.
+
 ## Avoiding retry
 
 For example, to avoid the default `retryStrategy` and make sure the task does not retry:
