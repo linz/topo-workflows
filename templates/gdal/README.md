@@ -2,7 +2,7 @@
 
 ## Contents:
 
-- [GDAL Merge](#gdalmerge)
+- [GDAL Merge](#gdalmerge---tpl-gdalmerge)
 
 # gdalmerge - `tpl-gdalmerge`
 
