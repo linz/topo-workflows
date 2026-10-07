@@ -37,7 +37,7 @@ spec:
     parameters:
       - name: version_argo_tasks
         description: 'Specify a version of the argo-tasks image to use, e.g. "v5.1" or "latest"'
-        value: 'v7'
+        value: 'v8'
       - name: version_basemaps_cli
         description: 'Specify a version of the basemaps-cli image to use, e.g. "v8" or "latest"'
         value: 'v8'
@@ -411,6 +411,10 @@ spec:
                   value: '{{=sprig.trim(workflow.parameters.odr_url)}}'
                 - name: version
                   value: '{{=sprig.trim(workflow.parameters.version_argo_tasks)}}'
+                - name: target_bucket_name # derived if not provided
+                  value: '{{= sprig.trim(workflow.parameters.target_bucket_name) != "" ? sprig.trim(workflow.parameters.target_bucket_name) : workflow.parameters.domain == "coastal" ? "nz-coastal" : workflow.parameters.category in ["dem", "dsm"] ? "nz-elevation" : "nz-imagery" }}'
+                - name: target_epsg
+                  value: '{{=sprig.trim(workflow.parameters.target_epsg)}}'
             depends: tile-index-validate
 
           - name: group
@@ -604,8 +608,8 @@ spec:
               parameters:
                 - name: source
                   value: '{{=sprig.trimSuffix("/", tasks["get-location"].outputs.parameters.location)}}/flat/'
-                - name: target_bucket_name
-                  value: '{{workflow.parameters.target_bucket_name}}'
+                - name: target_bucket_name # derived if not provided
+                  value: '{{= sprig.trim(workflow.parameters.target_bucket_name) != "" ? sprig.trim(workflow.parameters.target_bucket_name) : workflow.parameters.domain == "coastal" ? "nz-coastal" : workflow.parameters.category in ["dem", "dsm"] ? "nz-elevation" : "nz-imagery" }}'
                 - name: ticket
                   value: '{{=sprig.trim(workflow.parameters.ticket)}}'
                 - name: odr_url

@@ -278,6 +278,10 @@ See (<https://github.com/linz/argo-tasks#stac-setup>)
         value: '{{workflow.parameters.geospatial_category}}'
       - name: odr_url
         value: '{{workflow.parameters.odr_url}}'
+      - name: target_bucket_name
+        value: '{{workflow.parameters.target_bucket_name}}'
+      - name: target_epsg
+        value: '{{workflow.parameters.target_epsg}}'
       - name: version
         value: '{{workflow.parameters.version_argo_tasks}}'
 ```

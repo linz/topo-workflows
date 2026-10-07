@@ -40,9 +40,13 @@ spec:
           - name: odr_url
             description: '(Optional) S3 path to existing dataset collection.json'
             default: ''
+          - name: target_bucket_name
+            description: 'Target ODR bucket name, e.g. "nz-imagery"'
+          - name: target_epsg
+            description: 'EPSG of the target dataset, e.g. "2193"'
           - name: version
             description: 'argo-task Container version to use'
-            default: 'v5'
+            default: 'v8'
 
       container:
         image: '019359803926.dkr.ecr.ap-southeast-2.amazonaws.com/argo-tasks:{{=inputs.parameters.version}}'
@@ -56,6 +60,8 @@ spec:
           - '--geospatial-category={{inputs.parameters.geospatial_category}}'
           - '--gsd={{inputs.parameters.gsd}}'
           - '--data-type={{inputs.parameters.data_type}}'
+          - '--target-bucket-name={{inputs.parameters.target_bucket_name}}'
+          - '--target-epsg={{inputs.parameters.target_epsg}}'
           - "{{= sprig.empty(inputs.parameters.start_datetime) ? '' : '--start-year=' + sprig.trunc(4, inputs.parameters.start_datetime) }}"
           - "{{= sprig.empty(inputs.parameters.end_datetime) ? '' : '--end-year=' + sprig.trunc(4, inputs.parameters.end_datetime) }}"
           - "{{= sprig.empty(inputs.parameters.geographic_description) ? '' : '--geographic-description=' + inputs.parameters.geographic_description }}"

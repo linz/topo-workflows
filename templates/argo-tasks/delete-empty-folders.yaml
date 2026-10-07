@@ -24,8 +24,8 @@ spec:
             default: 'true'
 
           - name: version
-            description: container version to use
-            default: 'v5'
+            description: version of argo-tasks to use
+            default: 'v8'
 
           - name: aws_role_config_path
             description: s3 URL or comma-separated list of s3 URLs allowing the workflow to write to a target(s)
