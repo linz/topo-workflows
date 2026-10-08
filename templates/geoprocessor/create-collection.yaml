@@ -136,60 +136,77 @@ spec:
 
       container:
         image: '019359803926.dkr.ecr.ap-southeast-2.amazonaws.com/geoprocessor/raster:{{=sprig.trim(inputs.parameters.version_geoprocessor_raster)}}'
+        command: [/usr/bin/tini, --, sh, -c]
         args:
-          - 'collection-from-items'
-          - '--uri'
-          - '{{=sprig.trimSuffix("/", inputs.parameters.location)}}'
-          - '--collection-id'
-          - '{{inputs.parameters.collection_id}}'
-          - '--linz-slug'
-          - '{{inputs.parameters.linz_slug}}'
-          - '--odr-url'
-          - '{{=sprig.trim(inputs.parameters.odr_url)}}'
-          - '--supplied-capture-area'
-          - '{{=sprig.trim(inputs.parameters.supplied_capture_area)}}'
-          - '--simplified-capture-area'
-          - '{{inputs.parameters.simplified_capture_area}}'
-          - '--delete-all-existing-items'
-          - '{{=sprig.trim(inputs.parameters.delete_all_existing_items)}}'
-          - '--category'
-          - '{{=sprig.trim(inputs.parameters.category)}}'
-          - '--domain'
-          - '{{=sprig.trim(inputs.parameters.domain)}}'
-          - '--region'
-          - '{{=sprig.trim(inputs.parameters.region)}}'
-          - '--gsd'
-          - '{{=sprig.trim(inputs.parameters.gsd)}}'
-          - '--data-type'
-          - '{{=sprig.trim(inputs.parameters.data_type)}}'
-          - '--geographic-description'
-          - '{{=sprig.trim(inputs.parameters.geographic_description)}}'
-          - '--event'
-          - '{{=sprig.trim(inputs.parameters.event)}}'
-          - '--historic-survey-number'
-          - '{{=sprig.trim(inputs.parameters.historic_survey_number)}}'
-          - '--lifecycle'
-          - '{{=sprig.trim(inputs.parameters.lifecycle)}}'
-          - '--add-title-suffix'
-          - '{{inputs.parameters.add_title_suffix}}'
-          - '--keep-description'
-          - '{{inputs.parameters.keep_description}}'
-          - '--keep-title'
-          - '{{inputs.parameters.keep_title}}'
-          - '--capture-dates'
-          - '{{inputs.parameters.create_capture_dates}}'
-          - '--producer'
-          - '{{inputs.parameters.producer}}'
-          - '--producer-list'
-          - '{{=sprig.trim(inputs.parameters.producer_list)}}'
-          - '--licensor'
-          - '{{inputs.parameters.licensor}}'
-          - '--licensor-list'
-          - '{{=sprig.trim(inputs.parameters.licensor_list)}}'
-          - '--concurrency'
-          - '25'
-          - '--current-datetime'
-          - '{{inputs.parameters.current_datetime}}'
+          - |
+            set -- \
+              '--uri' \
+              '{{=sprig.trimSuffix("/", inputs.parameters.location)}}' \
+              '--collection-id' \
+              '{{inputs.parameters.collection_id}}' \
+              '--linz-slug' \
+              '{{inputs.parameters.linz_slug}}' \
+              '--odr-url' \
+              '{{=sprig.trim(inputs.parameters.odr_url)}}'
+
+            if [ -n '{{=sprig.trim(inputs.parameters.supplied_capture_area)}}' ] && \
+              [ '{{=sprig.trim(inputs.parameters.supplied_capture_area)}}' != 'false' ]; then
+              set -- "$@" \
+                '--supplied-capture-area' \
+                '{{=sprig.trim(inputs.parameters.supplied_capture_area)}}'
+            fi
+
+            if [ '{{inputs.parameters.simplified_capture_area}}' != 'false' ]; then
+              set -- "$@" --simplified-capture-area 'true'
+            fi
+
+            set -- "$@" \
+              '--delete-all-existing-items' \
+              '{{=sprig.trim(inputs.parameters.delete_all_existing_items)}}' \
+              '--category' \
+              '{{=sprig.trim(inputs.parameters.category)}}' \
+              '--domain' \
+              '{{=sprig.trim(inputs.parameters.domain)}}' \
+              '--region' \
+              '{{=sprig.trim(inputs.parameters.region)}}' \
+              '--gsd' \
+              '{{=sprig.trim(inputs.parameters.gsd)}}' \
+              '--data-type' \
+              '{{=sprig.trim(inputs.parameters.data_type)}}' \
+              '--geographic-description' \
+              '{{=sprig.trim(inputs.parameters.geographic_description)}}' \
+              '--event' \
+              '{{=sprig.trim(inputs.parameters.event)}}' \
+              '--historic-survey-number' \
+              '{{=sprig.trim(inputs.parameters.historic_survey_number)}}' \
+              '--lifecycle' \
+              '{{=sprig.trim(inputs.parameters.lifecycle)}}' \
+              '--add-title-suffix' \
+              '{{inputs.parameters.add_title_suffix}}' \
+              '--keep-description' \
+              '{{inputs.parameters.keep_description}}' \
+              '--keep-title' \
+              '{{inputs.parameters.keep_title}}' 
+
+            if [ '{{inputs.parameters.create_capture_dates}}' != 'false' ]; then
+              set -- "$@" --capture-dates '{{inputs.parameters.create_capture_dates}}'
+            fi
+
+            set -- "$@" \
+              '--producer' \
+              '{{inputs.parameters.producer}}' \
+              '--producer-list' \
+              '{{=sprig.trim(inputs.parameters.producer_list)}}' \
+              '--licensor' \
+              '{{inputs.parameters.licensor}}' \
+              '--licensor-list' \
+              '{{=sprig.trim(inputs.parameters.licensor_list)}}' \
+              '--concurrency' \
+              '25' \
+              '--current-datetime' \
+              '{{inputs.parameters.current_datetime}}'
+
+            exec collection-from-items "$@"
         resources:
           requests:
             memory: 7.8Gi
