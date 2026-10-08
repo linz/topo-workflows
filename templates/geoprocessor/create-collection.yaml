@@ -137,74 +137,128 @@ spec:
       container:
         image: '019359803926.dkr.ecr.ap-southeast-2.amazonaws.com/geoprocessor/raster:{{=sprig.trim(inputs.parameters.version_geoprocessor_raster)}}'
         command: [/usr/bin/tini, --, sh, -c]
+        env:
+          - name: LOCATION
+            value: '{{=sprig.trimSuffix("/", inputs.parameters.location)}}'
+          - name: COLLECTION_ID
+            value: '{{inputs.parameters.collection_id}}'
+          - name: LINZ_SLUG
+            value: '{{inputs.parameters.linz_slug}}'
+          - name: ODR_URL
+            value: '{{=sprig.trim(inputs.parameters.odr_url)}}'
+          - name: SUPPLIED_CAPTURE_AREA
+            value: '{{=sprig.trim(inputs.parameters.supplied_capture_area)}}'
+          - name: SIMPLIFIED_CAPTURE_AREA
+            value: '{{inputs.parameters.simplified_capture_area}}'
+          - name: DELETE_ALL_EXISTING_ITEMS
+            value: '{{=sprig.trim(inputs.parameters.delete_all_existing_items)}}'
+          - name: CATEGORY
+            value: '{{=sprig.trim(inputs.parameters.category)}}'
+          - name: DOMAIN
+            value: '{{=sprig.trim(inputs.parameters.domain)}}'
+          - name: REGION
+            value: '{{=sprig.trim(inputs.parameters.region)}}'
+          - name: GSD
+            value: '{{=sprig.trim(inputs.parameters.gsd)}}'
+          - name: DATA_TYPE
+            value: '{{=sprig.trim(inputs.parameters.data_type)}}'
+          - name: GEOGRAPHIC_DESCRIPTION
+            value: '{{=sprig.trim(inputs.parameters.geographic_description)}}'
+          - name: EVENT
+            value: '{{=sprig.trim(inputs.parameters.event)}}'
+          - name: HISTORIC_SURVEY_NUMBER
+            value: '{{=sprig.trim(inputs.parameters.historic_survey_number)}}'
+          - name: LIFECYCLE
+            value: '{{=sprig.trim(inputs.parameters.lifecycle)}}'
+          - name: ADD_TITLE_SUFFIX
+            value: '{{inputs.parameters.add_title_suffix}}'
+          - name: KEEP_DESCRIPTION
+            value: '{{inputs.parameters.keep_description}}'
+          - name: KEEP_TITLE
+            value: '{{inputs.parameters.keep_title}}'
+          - name: CREATE_CAPTURE_DATES
+            value: '{{inputs.parameters.create_capture_dates}}'
+          - name: PRODUCER
+            value: '{{inputs.parameters.producer}}'
+          - name: PRODUCER_LIST
+            value: '{{=sprig.trim(inputs.parameters.producer_list)}}'
+          - name: LICENSOR
+            value: '{{inputs.parameters.licensor}}'
+          - name: LICENSOR_LIST
+            value: '{{=sprig.trim(inputs.parameters.licensor_list)}}'
+          - name: CURRENT_DATETIME
+            value: '{{inputs.parameters.current_datetime}}'
         args:
           - |
             set -- \
               '--uri' \
-              '{{=sprig.trimSuffix("/", inputs.parameters.location)}}' \
+              "$LOCATION" \
               '--collection-id' \
-              '{{inputs.parameters.collection_id}}' \
+              "$COLLECTION_ID" \
               '--linz-slug' \
-              '{{inputs.parameters.linz_slug}}' \
+              "$LINZ_SLUG" \
               '--odr-url' \
-              '{{=sprig.trim(inputs.parameters.odr_url)}}'
+              "$ODR_URL"
 
-            if [ -n '{{=sprig.trim(inputs.parameters.supplied_capture_area)}}' ] && \
-              [ '{{=sprig.trim(inputs.parameters.supplied_capture_area)}}' != 'false' ]; then
+            if [ -n "$SUPPLIED_CAPTURE_AREA" ]; then
               set -- "$@" \
                 '--supplied-capture-area' \
-                '{{=sprig.trim(inputs.parameters.supplied_capture_area)}}'
+                "$SUPPLIED_CAPTURE_AREA"
             fi
 
-            if [ '{{inputs.parameters.simplified_capture_area}}' != 'false' ]; then
-              set -- "$@" --simplified-capture-area 'true'
+            if [ "$SIMPLIFIED_CAPTURE_AREA" != 'false' ]; then
+              set -- "$@" \
+                '--simplified-capture-area' \
+                "$SIMPLIFIED_CAPTURE_AREA"
             fi
 
             set -- "$@" \
               '--delete-all-existing-items' \
-              '{{=sprig.trim(inputs.parameters.delete_all_existing_items)}}' \
+              "$DELETE_ALL_EXISTING_ITEMS" \
               '--category' \
-              '{{=sprig.trim(inputs.parameters.category)}}' \
+              "$CATEGORY" \
               '--domain' \
-              '{{=sprig.trim(inputs.parameters.domain)}}' \
+              "$DOMAIN" \
               '--region' \
-              '{{=sprig.trim(inputs.parameters.region)}}' \
+              "$REGION" \
               '--gsd' \
-              '{{=sprig.trim(inputs.parameters.gsd)}}' \
+              "$GSD" \
               '--data-type' \
-              '{{=sprig.trim(inputs.parameters.data_type)}}' \
+              "$DATA_TYPE" \
               '--geographic-description' \
-              '{{=sprig.trim(inputs.parameters.geographic_description)}}' \
+              "$GEOGRAPHIC_DESCRIPTION" \
               '--event' \
-              '{{=sprig.trim(inputs.parameters.event)}}' \
+              "$EVENT" \
               '--historic-survey-number' \
-              '{{=sprig.trim(inputs.parameters.historic_survey_number)}}' \
+              "$HISTORIC_SURVEY_NUMBER" \
               '--lifecycle' \
-              '{{=sprig.trim(inputs.parameters.lifecycle)}}' \
+              "$LIFECYCLE" \
               '--add-title-suffix' \
-              '{{inputs.parameters.add_title_suffix}}' \
+              "$ADD_TITLE_SUFFIX" \
               '--keep-description' \
-              '{{inputs.parameters.keep_description}}' \
+              "$KEEP_DESCRIPTION" \
               '--keep-title' \
-              '{{inputs.parameters.keep_title}}' 
+              "$KEEP_TITLE"
 
-            if [ '{{inputs.parameters.create_capture_dates}}' != 'false' ]; then
-              set -- "$@" --capture-dates '{{inputs.parameters.create_capture_dates}}'
+            if [ "$CREATE_CAPTURE_DATES" != 'false' ]; then
+              set -- "$@" \
+                '--capture-dates' \
+                "$CREATE_CAPTURE_DATES"
             fi
 
             set -- "$@" \
               '--producer' \
-              '{{inputs.parameters.producer}}' \
+              "$PRODUCER" \
               '--producer-list' \
-              '{{=sprig.trim(inputs.parameters.producer_list)}}' \
+              "$PRODUCER_LIST" \
               '--licensor' \
-              '{{inputs.parameters.licensor}}' \
+              "$LICENSOR" \
               '--licensor-list' \
-              '{{=sprig.trim(inputs.parameters.licensor_list)}}' \
+              "$LICENSOR_LIST" \
               '--concurrency' \
               '25' \
               '--current-datetime' \
-              '{{inputs.parameters.current_datetime}}'
+              "$CURRENT_DATETIME"
 
             exec collection-from-items "$@"
         resources:
