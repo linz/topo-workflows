@@ -164,11 +164,6 @@ spec:
           const bucketMapping = {
             'linz-topographic-upload': 'linz-topographic-archive',
             'linz-hydrographic-upload': 'linz-hydrographic-archive',
-            
-            /* Do we need buckets for imagery, elevation and coastal? 
-             'linz-imagery-upload': 'linz-imagery-archive',
-            'linz-elevation-upload': 'linz-elevation-archive',
-            'linz-coastal-upload': 'linz-coastal-archive', */
           };
           const source = new URL('{{inputs.parameters.source}}');
           const target = new URL('{{inputs.parameters.target}}');
