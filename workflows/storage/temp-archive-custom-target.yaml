@@ -54,12 +54,6 @@ spec:
         enum:
           - 'true'
           - 'false'
-      - name: check_target_path
-        description: Check that the target path is safe to archive to i.e. not the whole bucket or top-level folder
-        value: 'true'
-        enum:
-          - 'true'
-          - 'false'
   templateDefaults:
     container:
       imagePullPolicy: Always
@@ -87,9 +81,6 @@ spec:
           - name: check_source_path
             value: '{{workflow.parameters.check_source_path}}'
             default: 'true'
-          - name: check_target_path
-            value: '{{workflow.parameters.check_target_path}}'
-            default: 'true'
       dag:
         tasks:
           - name: check-source
@@ -105,17 +96,14 @@ spec:
             template: check-target
             arguments:
               parameters:
-                # Validate the destination against both safe-path rules and the
-                # allowed archive bucket for the submitted source bucket.
                 - name: source
                   value: '{{inputs.parameters.source}}'
                 - name: target
                   value: '{{inputs.parameters.target}}'
                 - name: version_argo_tasks
                   value: '{{inputs.parameters.version_argo_tasks}}'
-            when: '{{inputs.parameters.check_target_path}} == true'
           - name: copy
-            depends: '(check-source.Succeeded || check-source.Skipped) && (check-target.Succeeded || check-target.Skipped)'
+            depends: 'check-source && check-target'
             templateRef:
               name: copy
               template: main
@@ -148,7 +136,6 @@ spec:
                 - name: delete_source
                   value: 'true'
 
-
     - name: check-source
       inputs:
         parameters:
@@ -163,7 +150,7 @@ spec:
           if (!isSafePath(source)) {
             throw new Error(`The path ${source.toString()} is not safe for archiving. Please check the path.`);
           }
-    
+
     - name: check-target
       inputs:
         parameters:
@@ -174,24 +161,17 @@ spec:
         image: '019359803926.dkr.ecr.ap-southeast-2.amazonaws.com/argo-tasks:{{= inputs.parameters.version_argo_tasks }}'
         command: [node]
         source: |
-          import { isSafePath } from '../../app/commands/archive-setup/archive.setup.ts';
-
-          // Keep this mapping in topo-workflows so this workflow can reject
-          // upload buckets or cross-product archive targets before copy runs.
           const bucketMapping = {
             'linz-topographic-upload': 'linz-topographic-archive',
             'linz-hydrographic-upload': 'linz-hydrographic-archive',
+            
+            /* Do we need buckets for imagery, elevation and coastal? 
+             'linz-imagery-upload': 'linz-imagery-archive',
+            'linz-elevation-upload': 'linz-elevation-archive',
+            'linz-coastal-upload': 'linz-coastal-archive', */
           };
-
-          // TODO: Confirm whether imagery/elevation upload buckets also need
-          // explicit archive mappings here, since copy still has write access
-          // to those archive configs.
           const source = new URL('{{inputs.parameters.source}}');
           const target = new URL('{{inputs.parameters.target}}');
-          if (!isSafePath(target)) {
-            throw new Error(`The path ${target.toString()} is not safe for archiving. Please check the path.`);
-          }
-
           const expectedArchiveBucket = bucketMapping[source.hostname];
           if (expectedArchiveBucket == null) {
             throw new Error(
