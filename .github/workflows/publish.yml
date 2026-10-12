@@ -148,19 +148,3 @@ jobs:
         uses: docker://ghcr.io/linz/argo-tasks:v5
         with:
           args: stac-sync /github/workspace/stac/ ${{ inputs.odr_bucket }}
-# 1. Create a new publish.yml in topo-workflows/.github/workflows/
-# 2. Define the workflow name.
-# 3. Use workflow_call so other repositories can call this workflow.
-# 4. Declare inputs for values that differ between repositories
-#    (e.g. user_group and odr_bucket).
-# 5. Keep the existing concurrency configuration, but check that
-#    publishing runs from different repositories don't interfere.
-# 6. Move the shared validation, publish-odr and sync-stac jobs here.
-# 7. Replace hardcoded values with inputs:
-#    ${{ inputs.user_group }}
-#    ${{ inputs.odr_bucket }}
-# 8. Keep the original publish.yml files in Imagery, Elevation and Coastal,
-#    but simplify them so they call this reusable workflow.
-# 9. Each original workflow should keep its triggers and pass its
-#    repository-specific values using 'with:'.
-# 10. Check that secrets, AWS permissions and job dependencies still work.
