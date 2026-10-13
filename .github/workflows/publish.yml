@@ -50,7 +50,86 @@ jobs:
       # as the new label is not yet in the schema
       - name: Run actionlint to check workflow files
         run: docker run --volume="${PWD}:/repo" --workdir=/repo actionlint -ignore 'unexpected key "queue" for "concurrency" section' -color
+  # TEMPORARY: Remove after verifying parameter file access
+  test-argo:
+    name: Test Argo Submission
+    runs-on: ubuntu-latest
+    needs: main
+    if: ${{ github.ref != 'refs/heads/master' && github.repository == 'linz/coastal' }}
 
+    environment:
+      name: prod
+
+    permissions:
+      id-token: write
+      contents: read
+
+    steps:
+      - uses: linz/action-typescript@47be81e60ed1d891c696c3fb7f558876ba9a2b57 # v3.2.0
+        with:
+          node-version: 24.x
+
+      - name: Verify publishing parameter files
+        run: |
+          echo "Repository: $GITHUB_REPOSITORY"
+          echo "User group: $USER_GROUP"
+          echo "ODR bucket: $ODR_BUCKET"
+
+          if [ ! -d publish-odr-parameters ]; then
+            echo "ERROR: publish-odr-parameters directory not found"
+            exit 1
+          fi
+
+          mapfile -t files < <(find publish-odr-parameters -maxdepth 1 -type f -name '*.yaml')
+
+          if [ ${#files[@]} -eq 0 ]; then
+            echo "ERROR: No YAML parameter files found"
+            exit 1
+          fi
+
+          for file in "${files[@]}"; do
+            echo "Found: $file"
+            test -r "$file" || exit 1
+          done
+
+          echo "Successfully accessed ${#files[@]} parameter files"
+        env:
+          USER_GROUP: ${{ inputs.user_group }}
+          ODR_BUCKET: ${{ inputs.odr_bucket }}
+
+      - name: Setup kubectl
+        uses: azure/setup-kubectl@3e0aec4d80787158d308d7b364cb1b702e7feb7f # v4.0.0
+        with:
+          version: 'latest'
+
+      - name: AWS Configure
+        uses: aws-actions/configure-aws-credentials@010d0da01d0b5a38af31e9c3470dbfdabdecca3a # v4
+        with:
+          aws-region: ap-southeast-2
+          mask-aws-account-id: true
+          role-to-assume: ${{ secrets.AWS_EKS_CI_ROLE }}
+
+      - name: Login to EKS
+        run: |
+          aws eks update-kubeconfig --name Workflows --region ap-southeast-2
+
+      - name: Install Argo
+        run: |
+          curl -sLO https://github.com/argoproj/argo-workflows/releases/download/v3.6.12/argo-linux-amd64.gz
+          gunzip argo-linux-amd64.gz
+          chmod +x argo-linux-amd64
+
+      - name: Submit test Argo workflow
+        env:
+          USER_GROUP: ${{ inputs.user_group }}
+          ODR_BUCKET: ${{ inputs.odr_bucket }}
+        run: |
+          ./argo-linux-amd64 submit \
+            --wait \
+            --from wftmpl/test-print \
+            -n argo \
+            -p message="User group: $USER_GROUP, ODR bucket: $ODR_BUCKET" \
+            --generate-name "test-shared-publish-"
   publish-odr:
     name: Publish ODR
     runs-on: ubuntu-latest
