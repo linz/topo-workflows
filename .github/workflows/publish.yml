@@ -100,7 +100,7 @@ jobs:
           done
         env:
           USER_GROUP: ${{ inputs.user_group }}
-          
+
   sync-stac:
     name: Sync STAC files
     runs-on: ubuntu-latest
