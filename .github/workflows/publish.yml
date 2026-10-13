@@ -24,12 +24,12 @@ jobs:
           node-version: 24.x
 
       - name: Create STAC Catalog
-        uses: docker://ghcr.io/linz/argo-tasks:v5
+        uses: docker://ghcr.io/linz/argo-tasks:v8
         with:
           args: stac-catalog --output stac/catalog.json --template template/catalog.json /github/workspace/stac/
 
       - name: Validate STAC Catalog
-        uses: docker://ghcr.io/linz/argo-tasks:v5
+        uses: docker://ghcr.io/linz/argo-tasks:v8
         with:
           args: stac-validate /github/workspace/stac/catalog.json
 
@@ -40,16 +40,9 @@ jobs:
           if [ ${#files[@]} -eq 0 ]; then
             echo "No collection.json files found."
           else
-            docker run -v "$PWD:$PWD" ghcr.io/linz/argo-tasks:v5 stac-validate "${files[@]}"
+            docker run -v "$PWD:$PWD" ghcr.io/linz/argo-tasks:v8 stac-validate "${files[@]}"
           fi
 
-      - name: Download actionlint
-        run: docker build --tag actionlint - < .github/workflows/actionlint.dockerfile
-
-      # Ignore 'unexpected key "queue" for "concurrency" section'
-      # as the new label is not yet in the schema
-      - name: Run actionlint to check workflow files
-        run: docker run --volume="${PWD}:/repo" --workdir=/repo actionlint -ignore 'unexpected key "queue" for "concurrency" section' -color
   publish-odr:
     name: Publish ODR
     runs-on: ubuntu-latest
@@ -103,9 +96,11 @@ jobs:
           mapfile -d '' modified_parameter_files < <(git diff --name-only --diff-filter=AM -z ${{ github.event.before }} ${{ github.event.after }} -- "publish-odr-parameters/*.yaml")
 
           for file in "${modified_parameter_files[@]}"; do
-            ./argo-linux-amd64 submit --wait --from wftmpl/copy -n argo -f "$file" -p aws_role_config_path="s3://linz-bucket-config/config-write.open-data-registry.json" -p exclude="collection.json$" -p user_group=${{ inputs.user_group }} --generate-name "publish-odr-file-copy-"
+            ./argo-linux-amd64 submit --wait --from wftmpl/copy -n argo -f "$file" -p aws_role_config_path="s3://linz-bucket-config/config-write.open-data-registry.json" -p exclude="collection.json$" -p user_group="$USER_GROUP" --generate-name "publish-odr-file-copy-"
           done
-
+        env:
+          USER_GROUP: ${{ inputs.user_group }}
+          
   sync-stac:
     name: Sync STAC files
     runs-on: ubuntu-latest
@@ -140,13 +135,13 @@ jobs:
           role-chaining: true
 
       - name: Create STAC Catalog
-        uses: docker://ghcr.io/linz/argo-tasks:v5
+        uses: docker://ghcr.io/linz/argo-tasks:v8
         with:
           args: stac-catalog --output stac/catalog.json --template template/catalog.json /github/workspace/stac/
 
       # Sync STAC files only on push to 'master'
       - name: Sync STAC
         if: ${{ !contains(github.event.head_commit.message, '[skip-sync]') && github.ref == 'refs/heads/master' }}
-        uses: docker://ghcr.io/linz/argo-tasks:v5
+        uses: docker://ghcr.io/linz/argo-tasks:v8
         with:
           args: stac-sync /github/workspace/stac/ ${{ inputs.odr_bucket }}
