@@ -161,19 +161,10 @@ spec:
         image: '019359803926.dkr.ecr.ap-southeast-2.amazonaws.com/argo-tasks:{{= inputs.parameters.version_argo_tasks }}'
         command: [node]
         source: |
-          const bucketMapping = {
-            'linz-topographic-upload': 'linz-topographic-archive',
-            'linz-hydrographic-upload': 'linz-hydrographic-archive',
-          };
+          import { getArchiveBucketName } from '../../app/commands/archive-setup/archive.setup.ts';
           const source = new URL('{{inputs.parameters.source}}');
           const target = new URL('{{inputs.parameters.target}}');
-          const expectedArchiveBucket = bucketMapping[source.hostname];
-          if (expectedArchiveBucket == null) {
-            throw new Error(
-              `The source bucket ${source.hostname} is not supported for custom archive targets.`,
-            );
-          }
-
+          const expectedArchiveBucket = getArchiveBucketName(source.hostname);
           if (target.hostname !== expectedArchiveBucket) {
             throw new Error(
               `The target bucket ${target.hostname} is not valid for source bucket ${source.hostname}. Expected ${expectedArchiveBucket}.`,
