@@ -3,7 +3,7 @@
 apiVersion: argoproj.io/v1alpha1
 kind: WorkflowTemplate
 metadata:
-  name: temp-archive-custom-target
+  name: admin-archive-custom-target
 spec:
   parallelism: 50
   nodeSelector:
@@ -92,8 +92,18 @@ spec:
                 - name: version_argo_tasks
                   value: '{{inputs.parameters.version_argo_tasks}}'
             when: '{{inputs.parameters.check_source_path}} == true'
+          - name: check-target
+            template: check-target
+            arguments:
+              parameters:
+                - name: source
+                  value: '{{inputs.parameters.source}}'
+                - name: target
+                  value: '{{inputs.parameters.target}}'
+                - name: version_argo_tasks
+                  value: '{{inputs.parameters.version_argo_tasks}}'
           - name: copy
-            depends: 'check-source'
+            depends: 'check-source && check-target'
             templateRef:
               name: copy
               template: main
@@ -139,6 +149,26 @@ spec:
           const source = new URL('{{inputs.parameters.source}}');
           if (!isSafePath(source)) {
             throw new Error(`The path ${source.toString()} is not safe for archiving. Please check the path.`);
+          }
+
+    - name: check-target
+      inputs:
+        parameters:
+          - name: source
+          - name: target
+          - name: version_argo_tasks
+      script:
+        image: '019359803926.dkr.ecr.ap-southeast-2.amazonaws.com/argo-tasks:{{= inputs.parameters.version_argo_tasks }}'
+        command: [node]
+        source: |
+          import { getArchiveBucketName } from '../../app/commands/archive-setup/archive.setup.ts';
+          const source = new URL('{{inputs.parameters.source}}');
+          const target = new URL('{{inputs.parameters.target}}');
+          const expectedArchiveBucket = getArchiveBucketName(source.hostname);
+          if (target.hostname !== expectedArchiveBucket) {
+            throw new Error(
+              `The target bucket ${target.hostname} is not valid for source bucket ${source.hostname}. Expected ${expectedArchiveBucket}.`,
+            );
           }
 
     - name: exit-handler
