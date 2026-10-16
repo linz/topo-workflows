@@ -14,6 +14,7 @@ updates:
       default-days: 15
     commit-message:
       prefix: build(deps)
+  
   - package-ecosystem: github-actions
     directories: 
       - /
@@ -32,8 +33,6 @@ updates:
         applies-to: version-updates
         patterns: ["*"]
         update-types: [minor, patch]
-
-
 
   - package-ecosystem: npm
     directories: 
@@ -61,3 +60,7 @@ updates:
           - 'cdk8s-cli'
           - 'cdk8s-plus-*'
           - 'constructs'
+      npm-minor-and-patch:
+        applies-to: version-updates
+        patterns: ["*"]
+        update-types: [minor, patch]
