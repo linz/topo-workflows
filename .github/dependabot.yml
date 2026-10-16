@@ -1,24 +1,17 @@
 version: 2
 updates:
-  - package-ecosystem: 'github-actions'
-    directory: '/'
+  - package-ecosystem: github-actions
+    directory: /
+    open-pull-requests-limit: 5
     schedule:
-      interval: daily
+      interval: weekly
+      day: monday
+      time: "07:30"
+      timezone: Pacific/Auckland
     cooldown:
       default-days: 15
-  - package-ecosystem: 'docker'
-    directory: '/.github/workflows'
-    schedule:
-      interval: daily
-    cooldown:
-      default-days: 15
-  - package-ecosystem: npm
-    directory: '/'
-    schedule:
-      interval: daily
-    cooldown:
-      default-days: 15
-    open-pull-requests-limit: 10
+    commit-message:
+      prefix: build(deps)
     groups:
       aws-sdk:
         patterns:
@@ -32,8 +25,3 @@ updates:
           - 'cdk8s-cli'
           - 'cdk8s-plus-*'
           - 'constructs'
-    ignore:
-      - dependency-name: '@aws-sdk/*'
-        update-types: ['version-update:semver-patch']
-      - dependency-name: '@types/node'
-        update-types: ['version-update:semver-patch']
