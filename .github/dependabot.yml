@@ -1,7 +1,43 @@
 version: 2
+
 updates:
+  - package-ecosystem: docker
+    directories: 
+      - /.github/workflows
+    open-pull-requests-limit: 5
+    schedule:
+      interval: weekly
+      day: monday
+      time: "07:30"
+      timezone: Pacific/Auckland
+    cooldown:
+      default-days: 15
+    commit-message:
+      prefix: build(deps)
   - package-ecosystem: github-actions
-    directory: /
+    directories: 
+      - /
+    open-pull-requests-limit: 5
+    schedule:
+      interval: weekly
+      day: monday
+      time: "07:30"
+      timezone: Pacific/Auckland
+    cooldown:
+      default-days: 15
+    commit-message:
+      prefix: build(deps)
+    groups:
+      actions-minor-and-patch:
+        applies-to: version-updates
+        patterns: ["*"]
+        update-types: [minor, patch]
+
+
+
+  - package-ecosystem: npm
+    directories: 
+      - /
     open-pull-requests-limit: 5
     schedule:
       interval: weekly
