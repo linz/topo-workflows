@@ -1,0 +1,78 @@
+# yaml-language-server: $schema=https://raw.githubusercontent.com/argoproj/argo-workflows/v3.6.12/api/jsonschema/schema.json
+
+apiVersion: argoproj.io/v1alpha1
+kind: WorkflowTemplate
+metadata:
+  # Template uses container https://github.com/linz/geoprocessor/pkgs/container/geoprocessor%2Fraster
+  # see https://github.com/linz/geoprocessor/blob/master/packages/geoprocessor-raster/src/geoprocessor_raster/compute_scale.py
+  name: tpl-gp-raster-compute-scale
+spec:
+  templateDefaults:
+    container:
+      imagePullPolicy: Always
+      image: ''
+  entrypoint: main
+  templates:
+    - name: main
+      inputs:
+        parameters:
+          - name: version_geoprocessor_raster
+            description: 'Specify a version of the geoprocessor/raster image to use, e.g. "v4.8" or "latest"'
+            default: 'v10'
+
+          - name: low_percentile
+            description: 'Percentile of the source pixel values scaled to 0'
+            default: '1'
+
+          - name: high_percentile
+            description: 'Percentile of the source pixel values scaled to 255'
+            default: '99'
+
+          - name: per_band
+            description: 'Compute one scale range per band (red, green, blue) instead of one range for all bands'
+            default: 'false'
+
+          - name: concurrency
+            description: 'Number of concurrent TIFFs to read'
+            default: '16'
+
+        artifacts:
+          - name: files
+            path: /tmp/input/file-list.json
+
+      outputs:
+        parameters:
+          - name: scale_range
+            description: 'Source pixel range scaled to 8-bit, "min,max" or "min,max;min,max;min,max"'
+            valueFrom:
+              path: /tmp/compute-scale/scale-range
+
+        artifacts:
+          - name: scale_range
+            path: /tmp/compute-scale/scale-range.json
+            archive:
+              none: {}
+
+      container:
+        image: '019359803926.dkr.ecr.ap-southeast-2.amazonaws.com/geoprocessor/raster:{{=sprig.trim(inputs.parameters.version_geoprocessor_raster)}}'
+        env:
+          - name: AWS_ROLE_CONFIG_PATH
+            value: s3://linz-bucket-config/config.json
+        args:
+          - 'compute-scale'
+          - '--from-file'
+          - '/tmp/input/file-list.json'
+          - '--target'
+          - '/tmp/compute-scale/'
+          - '--low-percentile'
+          - '{{=sprig.trim(inputs.parameters.low_percentile)}}'
+          - '--high-percentile'
+          - '{{=sprig.trim(inputs.parameters.high_percentile)}}'
+          - '--per-band'
+          - '{{=sprig.trim(inputs.parameters.per_band)}}'
+          - '--concurrency'
+          - '{{=sprig.trim(inputs.parameters.concurrency)}}'
+        resources:
+          requests:
+            memory: 7.8Gi
+            cpu: 15000m
