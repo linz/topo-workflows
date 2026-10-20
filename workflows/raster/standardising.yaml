@@ -131,6 +131,9 @@ spec:
       - name: rescale_high_percentile
         description: 'If rescale is "auto", percentile of the source pixel values scaled to 255'
         value: '99'
+      - name: rescale_gamma
+        description: 'Gamma applied with rescale, e.g. "1.3" brightens mid tones. "1" is linear.'
+        value: '1'
       - name: create_capture_area
         description: 'Create a capture area GeoJSON file for the standardised dataset'
         value: 'true'
@@ -501,6 +504,8 @@ spec:
                   value: '{{=sprig.trim(tasks["tile-index-validate"].outputs.parameters.gsd) + "," + sprig.trim(tasks["tile-index-validate"].outputs.parameters.gsd)}}'
                 - name: scale_range
                   value: '{{=tasks["compute-scale"].status == "Succeeded" ? sprig.trim(tasks["compute-scale"].outputs.parameters.scale_range) : (sprig.trim(tasks["tile-index-validate"].outputs.parameters.data_type) == "uint16" && workflow.parameters.compression == "webp" && sprig.trim(workflow.parameters.rescale) != "auto" ? sprig.trim(workflow.parameters.rescale) : "")}}'
+                - name: scale_gamma
+                  value: '{{=sprig.trim(workflow.parameters.rescale_gamma)}}'
                 - name: source_epsg
                   value: '{{=sprig.trim(workflow.parameters.source_epsg)}}'
                 - name: target_epsg
