@@ -5,6 +5,7 @@
 - [Standardise Validate](#geoprocessorraster-standardise-validate---tpl-gp-raster-standardise-validate)
 - [Create Collection](#geoprocessorraster-create-collection---tpl-gp-raster-create-collection)
 - [Generate Hillshade](#geoprocessorraster-generate-hillshade---tpl-gp-raster-generate-hillshade)
+- [Compute Scale](#geoprocessorraster-compute-scale---tpl-gp-raster-compute-scale)
 
 ## geoprocessor/raster standardise-validate - `tpl-gp-raster-standardise-validate`
 
@@ -45,6 +46,10 @@ See [standardise_validate.py](https://github.com/linz/geoprocessor/blob/master/p
         value: '{{=sprig.trim(workflow.parameters.gsd)}}'
       - name: scale_to_resolution
         value: '{{=sprig.trim(workflow.parameters.scale_to_resolution)}}'
+      - name: scale_range
+        value: '{{=sprig.trim(tasks["compute-scale"].outputs.parameters.scale_range)}}'
+      - name: scale_gamma
+        value: '{{=sprig.trim(workflow.parameters.rescale_gamma)}}'
       - name: source_epsg
         value: '{{=sprig.trim(workflow.parameters.source_epsg)}}'
       - name: target_epsg
@@ -170,4 +175,33 @@ The Workflow caller must have the following volume:
 volumes:
   - name: ephemeral
     emptyDir: {}
+```
+
+## geoprocessor/raster compute-scale - `tpl-gp-raster-compute-scale`
+
+Template for computing the source pixel range to scale 16-bit TIFFs to 8-bit from the low and high percentiles of all source TIFFs.
+Outputs the `scale_range` parameter for `tpl-gp-raster-standardise-validate`.
+
+See [compute_scale.py](https://github.com/linz/geoprocessor/blob/master/packages/geoprocessor-raster/src/geoprocessor_raster/compute_scale.py)
+
+### Template usage
+
+```yaml
+- name: compute-scale
+  templateRef:
+    name: tpl-gp-raster-compute-scale
+    template: main
+  arguments:
+    parameters:
+      - name: low_percentile
+        value: '{{=sprig.trim(workflow.parameters.rescale_low_percentile)}}'
+      - name: high_percentile
+        value: '{{=sprig.trim(workflow.parameters.rescale_high_percentile)}}'
+      - name: per_band
+        value: '{{=sprig.trim(workflow.parameters.rescale_per_band)}}'
+      - name: version_geoprocessor_raster
+        value: '{{= workflow.parameters.version_geoprocessor_raster}}'
+    artifacts:
+      - name: files
+        from: '{{ tasks.tile-index-validate.outputs.artifacts.files }}'
 ```

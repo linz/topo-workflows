@@ -116,6 +116,24 @@ spec:
           - 'lzw'
           - 'dem_lerc'
           - 'rgbnir_zstd'
+      - name: rescale
+        description: 'Source pixel range scaled to 8-bit when "uint16" TIFFs are standardised with "webp" compression. "auto" computes it from the source pixel values, otherwise "min,max" or "min,max;min,max;min,max" (red;green;blue). Leave blank for the full range.'
+        value: 'auto'
+      - name: rescale_per_band
+        description: 'If rescale is "auto", compute one range per band (red, green, blue) instead of one range for all bands'
+        value: 'false'
+        enum:
+          - 'false'
+          - 'true'
+      - name: rescale_low_percentile
+        description: 'If rescale is "auto", percentile of the source pixel values scaled to 0'
+        value: '1'
+      - name: rescale_high_percentile
+        description: 'If rescale is "auto", percentile of the source pixel values scaled to 255'
+        value: '99'
+      - name: rescale_gamma
+        description: 'Gamma applied with rescale, e.g. "1.3" brightens mid tones. "1" is linear.'
+        value: '1'
       - name: create_capture_area
         description: 'Create a capture area GeoJSON file for the standardised dataset'
         value: 'true'
@@ -432,6 +450,26 @@ spec:
                   value: '{{= workflow.parameters.version_argo_tasks}}'
             depends: 'tile-index-validate'
 
+          - name: compute-scale
+            templateRef:
+              name: tpl-gp-raster-compute-scale
+              template: main
+            arguments:
+              parameters:
+                - name: low_percentile
+                  value: '{{=sprig.trim(workflow.parameters.rescale_low_percentile)}}'
+                - name: high_percentile
+                  value: '{{=sprig.trim(workflow.parameters.rescale_high_percentile)}}'
+                - name: per_band
+                  value: '{{=sprig.trim(workflow.parameters.rescale_per_band)}}'
+                - name: version_geoprocessor_raster
+                  value: '{{= workflow.parameters.version_geoprocessor_raster}}'
+              artifacts:
+                - name: files
+                  from: '{{ tasks.tile-index-validate.outputs.artifacts.files }}'
+            depends: 'tile-index-validate'
+            when: "'{{tasks.tile-index-validate.outputs.parameters.data_type}}' == 'uint16' && '{{workflow.parameters.compression}}' == 'webp' && '{{workflow.parameters.rescale}}' == 'auto'"
+
           - name: standardise-validate
             templateRef:
               name: tpl-gp-raster-standardise-validate
@@ -464,6 +502,10 @@ spec:
                   value: '{{ tasks.tile-index-validate.outputs.parameters.data_type }}'
                 - name: scale_to_resolution
                   value: '{{=sprig.trim(tasks["tile-index-validate"].outputs.parameters.gsd) + "," + sprig.trim(tasks["tile-index-validate"].outputs.parameters.gsd)}}'
+                - name: scale_range
+                  value: '{{=tasks["compute-scale"].status == "Succeeded" ? sprig.trim(tasks["compute-scale"].outputs.parameters.scale_range) : (sprig.trim(tasks["tile-index-validate"].outputs.parameters.data_type) == "uint16" && workflow.parameters.compression == "webp" && sprig.trim(workflow.parameters.rescale) != "auto" ? sprig.trim(workflow.parameters.rescale) : "")}}'
+                - name: scale_gamma
+                  value: '{{=sprig.trim(workflow.parameters.rescale_gamma)}}'
                 - name: source_epsg
                   value: '{{=sprig.trim(workflow.parameters.source_epsg)}}'
                 - name: target_epsg
@@ -477,7 +519,7 @@ spec:
               artifacts:
                 - name: group_data
                   from: '{{ tasks.group.outputs.artifacts.output }}'
-            depends: 'group && stac-setup && get-location'
+            depends: 'group && stac-setup && get-location && compute-scale'
             withParam: '{{ tasks.group.outputs.parameters.output }}'
 
           - name: create-collection
