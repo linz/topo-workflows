@@ -23,7 +23,7 @@ spec:
             description: Do not delete files, just report what would be deleted
             default: 'true'
 
-          - name: version
+          - name: version_argo_tasks
             description: version of argo-tasks to use
             default: 'v8'
 
@@ -32,7 +32,7 @@ spec:
             value: 's3://linz-bucket-config/config.json'
 
       container:
-        image: '019359803926.dkr.ecr.ap-southeast-2.amazonaws.com/argo-tasks:{{=sprig.trim(inputs.parameters.version)}}'
+        image: '019359803926.dkr.ecr.ap-southeast-2.amazonaws.com/argo-tasks:{{=sprig.trim(inputs.parameters.version_argo_tasks)}}'
         env:
           - name: AWS_ROLE_CONFIG_PATH
             value: '{{inputs.parameters.aws_role_config_path}}'
