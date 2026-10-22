@@ -1,0 +1,23 @@
+name: CI OK
+description: Wait for all other checks on the commit and fail if any of them failed
+
+inputs:
+  name:
+    description: Check name of the job running this action, it is not waited for
+    default: ci-ok
+  delay:
+    description: Seconds to wait for other workflows to start
+    default: '30'
+
+runs:
+  using: composite
+  steps:
+    - name: Wait for checks
+      shell: bash
+      env:
+        GH_TOKEN: ${{ github.token }}
+        REPO: ${{ github.repository }}
+        SHA: ${{ github.event.pull_request.head.sha || github.sha }}
+        SELF: ${{ inputs.name }}
+        DELAY: ${{ inputs.delay }}
+      run: bash "${GITHUB_ACTION_PATH}/ci-ok.sh"
