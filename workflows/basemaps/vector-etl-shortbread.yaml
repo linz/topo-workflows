@@ -128,6 +128,8 @@ spec:
                   value: "{{workflow.parameters.cache}}{{= inputs.parameters.tile_matrix == 'WebMercatorQuad'? '3857' : '2193'}}/catalog.json"
                 - name: aws_role_config_path
                   value: s3://linz-bucket-config/config.basemaps.json
+                - name: version_argo_tasks
+                  value: '{{= workflow.parameters.version_argo_tasks }}'
               artifacts:
                 - name: stac-result
                   raw:
@@ -143,7 +145,7 @@ spec:
               parameters:
                 - name: size
                   value: '{{ workflow.parameters.group_size }}'
-                - name: version
+                - name: version_argo_tasks
                   value: '{{= workflow.parameters.version_argo_tasks }}'
               artifacts:
                 - name: input
@@ -206,6 +208,8 @@ spec:
                   value: '{{tasks.tile-join.outputs.parameters.analyseTarget}}collection.json'
                 - name: aws_role_config_path
                   value: s3://linz-bucket-config/config.basemaps.json
+                - name: version_argo_tasks
+                  value: '{{= workflow.parameters.version_argo_tasks }}'
               artifacts:
                 - name: stac-result
                   raw:

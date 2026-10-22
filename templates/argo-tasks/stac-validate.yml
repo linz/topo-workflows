@@ -36,7 +36,7 @@ spec:
             description: Validate the file:checksum of each link if it exists
             default: 'false'
 
-          - name: version
+          - name: version_argo_tasks
             description: container version to use
             default: 'v8'
 
@@ -45,7 +45,7 @@ spec:
             value: 's3://linz-bucket-config/config.json'
 
       container:
-        image: '019359803926.dkr.ecr.ap-southeast-2.amazonaws.com/argo-tasks:{{=sprig.trim(inputs.parameters.version)}}'
+        image: '019359803926.dkr.ecr.ap-southeast-2.amazonaws.com/argo-tasks:{{=sprig.trim(inputs.parameters.version_argo_tasks)}}'
         resources:
           requests:
             cpu: 15000m
