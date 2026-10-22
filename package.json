@@ -1,21 +1,18 @@
 {
   "name": "@linzjs/topo-workflows",
   "version": "0.0.2",
-  "repository": {
-    "type": "git",
-    "url": "https://github.com/linz/topo-workflows.git"
-  },
+  "private": true,
   "license": "MIT",
-  "type": "module",
   "author": {
     "name": "Toitū Te Whenua Land Information New Zealand",
     "url": "https://linz.govt.nz",
     "organization": true
   },
-  "private": true,
-  "engines": {
-    "node": "^24.11.1"
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/linz/topo-workflows.git"
   },
+  "type": "module",
   "scripts": {
     "build": "tsc",
     "docs": "node src/readme/readme.generate.ts",
@@ -42,5 +39,8 @@
     "constructs": "^10.3.0",
     "tsx": "^4.6.2",
     "yaml": "^2.5.1"
+  },
+  "engines": {
+    "node": "^24.11.1"
   }
 }
