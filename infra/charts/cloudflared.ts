@@ -10,7 +10,7 @@ export class Cloudflared extends Chart {
     id: string,
     props: { tunnelId: string; tunnelSecret: string; accountId: string; tunnelName: string } & ChartProps,
   ) {
-    const cloudflaredVersion = '2025.6.1';
+    const cloudflaredVersion = '2026.10.3';
     super(scope, id, applyDefaultLabels(props, 'cloudflared', cloudflaredVersion, 'tunnel', 'workflows'));
 
     // TODO should we create a new namespace every time
