@@ -1,5 +1,4 @@
 import fs from 'node:fs';
-
 import YAML from 'yaml';
 
 /**
@@ -51,10 +50,10 @@ export function runTestFunction(workflowPath: string, data: FunctionData[], requ
     script = script.replaceAll(d.toReplace, d.replaceWith);
   });
   if (requireModule !== undefined) {
-    // oxlint-disable-next-line typescript/no-unsafe-call
+    // oxlint-disable-next-line typescript/no-implied-eval, typescript/no-unsafe-call
     new Function('require', script)(requireModule);
   } else {
-    // oxlint-disable-next-line typescript/no-unsafe-call
+    // oxlint-disable-next-line typescript/no-implied-eval, typescript/no-unsafe-call
     new Function(script)();
   }
 }
