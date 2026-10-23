@@ -11,7 +11,7 @@ jobs:
           node-version: 24.x
 
       - name: Check formatting
-        run: npx prettier --check .
+        run: npm run lint:fmt
 
       - name: Download actionlint
         run: docker build --tag actionlint - < .github/workflows/actionlint.dockerfile
