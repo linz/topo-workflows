@@ -51,10 +51,10 @@ export function runTestFunction(workflowPath: string, data: FunctionData[], requ
     script = script.replaceAll(d.toReplace, d.replaceWith);
   });
   if (requireModule !== undefined) {
-    // eslint-disable-next-line @typescript-eslint/no-implied-eval
+    // oxlint-disable-next-line typescript/no-unsafe-call
     new Function('require', script)(requireModule);
   } else {
-    // eslint-disable-next-line @typescript-eslint/no-implied-eval
+    // oxlint-disable-next-line typescript/no-unsafe-call
     new Function(script)();
   }
 }
