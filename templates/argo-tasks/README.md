@@ -221,7 +221,7 @@ templateRef:
   template: main
 arguments:
   parameters:
-    - name: version
+    - name: version_argo_tasks
       value: '{{workflow.parameters.version_argo_tasks}}'
     - name: target_bucket_name
       value: '{{inputs.parameters.target_bucket_name}}'
@@ -245,7 +245,7 @@ See (https://github.com/linz/argo-tasks#stac-collection-output)
     parameters:
       - name: odr_url
         value: '{{workflow.parameters.odr_url}}'
-      - name: version
+      - name: version_argo_tasks
         value: '{{workflow.parameters.version_argo_tasks}}'
   when: "'{{workflow.parameters.odr_url}}' != ''"
 ```
@@ -282,7 +282,7 @@ See (<https://github.com/linz/argo-tasks#stac-setup>)
         value: '{{workflow.parameters.target_bucket_name}}'
       - name: target_epsg
         value: '{{workflow.parameters.target_epsg}}'
-      - name: version
+      - name: version_argo_tasks
         value: '{{workflow.parameters.version_argo_tasks}}'
 ```
 
@@ -331,7 +331,7 @@ The format of `file-list.json` is equivalent to `mapsheet-coverage` and `tile-in
         value: '{{= inputs.parameters.odr_url == "" ? "" : sprig.trimSuffix("/", inputs.parameters.odr_url) + "/collection.json" }}'
       - name: sourceCollections
         value: '{{= inputs.parameters.base_layer_source == "" ? "" : sprig.trimSuffix("/", inputs.parameters.base_layer_source) + "/collection.json;" }}{{=sprig.trimSuffix("/", inputs.parameters.top_layer_source)}}/collection.json'
-      - name: version
+      - name: version_argo_tasks
         value: '{{= inputs.parameters.version_argo_tasks}}'
 ```
 

@@ -127,7 +127,7 @@ spec:
                   value: '{{inputs.parameters.source_geospatial_category}}-{{inputs.parameters.hillshade_preset}}'
                 - name: odr_url
                   value: '{{inputs.parameters.odr_url}}'
-                - name: version
+                - name: version_argo_tasks
                   value: '{{= workflow.parameters.version_argo_tasks}}'
                 - name: target_bucket_name
                   value: '{{= workflow.parameters.domain == "coastal" ? "nz-coastal" : "nz-elevation" }}'
@@ -144,7 +144,7 @@ spec:
                   value: '{{= inputs.parameters.odr_url == "" ? "" : sprig.trimSuffix("/", inputs.parameters.odr_url) + "/collection.json" }}'
                 - name: sourceCollections
                   value: '{{=sprig.trimSuffix("/", inputs.parameters.source)}}/collection.json'
-                - name: version
+                - name: version_argo_tasks
                   value: '{{= workflow.parameters.version_argo_tasks}}'
 
           - name: group
@@ -159,7 +159,7 @@ spec:
               parameters:
                 - name: size
                   value: '{{=sprig.trim(workflow.parameters.group)}}'
-                - name: version
+                - name: version_argo_tasks
                   value: '{{= workflow.parameters.version_argo_tasks}}'
             depends: 'identify-updated-items.Succeeded && stac-setup-hillshade.Succeeded && get-location.Succeeded'
 
@@ -239,6 +239,8 @@ spec:
               parameters:
                 - name: uri
                   value: '{{=sprig.trimSuffix("/", tasks["get-location"].outputs.parameters.location)}}/{{inputs.parameters.source_geospatial_category}}-{{inputs.parameters.hillshade_preset}}/flat/collection.json'
+                - name: version_argo_tasks
+                  value: '{{= workflow.parameters.version_argo_tasks}}'
               artifacts:
                 - name: stac-result
                   raw:
