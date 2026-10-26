@@ -20,7 +20,7 @@ spec:
             description: 'S3 path to the files to be archived'
             default: ''
           - name: version_argo_tasks
-            description: 'argo-tasks container version to use'
+            description: 'Specify a version of the argo-tasks container to use, e.g. "v5.1" or "latest"'
             default: 'v8'
 
       container:

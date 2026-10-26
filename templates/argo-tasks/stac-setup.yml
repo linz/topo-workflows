@@ -45,7 +45,7 @@ spec:
           - name: target_epsg
             description: 'EPSG of the target dataset, e.g. "2193"'
           - name: version_argo_tasks
-            description: 'argo-tasks container version to use'
+            description: 'Specify a version of the argo-tasks container to use, e.g. "v5.1" or "latest"'
             default: 'v8'
 
       container:
