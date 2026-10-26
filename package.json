@@ -15,10 +15,10 @@
   "type": "module",
   "scripts": {
     "build": "tsc",
-    "lint": "npm run lint:fmt && npm run lint:oxlint",
+    "lint": "npm run lint:fmt && tsc --noEmit && npm run lint:oxlint",
     "lint:oxlint": "oxlint --deny-warnings",
     "lint:fmt": "oxfmt --check .",
-    "lint:fix": "oxlint --fix",
+    "lint:fix": "oxlint --fix && oxfmt --write .",
     "format": "oxfmt --write .",
     "test": "node --test \"infra/**/*.test.ts\" \"templates/common/__test__/*.test.ts\""
   },

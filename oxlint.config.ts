@@ -10,16 +10,13 @@ export default defineConfig({
   rules: {
     // allow single line `if (x) throw ...` as was allowed with eslint
     curly: ['error', 'multi-line'],
-  },
-  // Ignore generated CDK8s imports
-  ignorePatterns: ['infra/charts/imports/**'],
-  overrides: [
-    {
-      // Disable no floating promises in tests until https://github.com/nodejs/node/issues/51292 is solved
-      files: ['**/*.test.ts'],
-      rules: {
-        'typescript/no-floating-promises': 'off',
+    // node:test describe/it return promises that the runner awaits, see https://github.com/nodejs/node/issues/51292
+    'typescript/no-floating-promises': [
+      'error',
+      {
+        allowForKnownSafeCalls: [{ from: 'package', package: 'node:test', name: ['describe', 'it', 'test', 'suite'] }],
       },
-    },
-  ],
+    ],
+  },
+  ignorePatterns: ['infra/charts/imports/**'],
 });
