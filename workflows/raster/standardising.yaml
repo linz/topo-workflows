@@ -125,11 +125,11 @@ spec:
         enum:
           - 'false'
           - 'true'
-      - name: rescale_low_percentile
-        description: 'If rescale is "auto", percentile of the source pixel values scaled to 0'
+      - name: rescale_clip_low_percentile
+        description: 'If rescale is "auto", source pixel values below this percentile are clipped to 0'
         value: '1'
-      - name: rescale_high_percentile
-        description: 'If rescale is "auto", percentile of the source pixel values scaled to 255'
+      - name: rescale_clip_high_percentile
+        description: 'If rescale is "auto", source pixel values above this percentile are clipped to 255'
         value: '99'
       - name: rescale_gamma
         description: 'Gamma applied with rescale, e.g. "1.3" brightens mid tones. "1" is linear.'
@@ -457,9 +457,9 @@ spec:
             arguments:
               parameters:
                 - name: low_percentile
-                  value: '{{=sprig.trim(workflow.parameters.rescale_low_percentile)}}'
+                  value: '{{=sprig.trim(workflow.parameters.rescale_clip_low_percentile)}}'
                 - name: high_percentile
-                  value: '{{=sprig.trim(workflow.parameters.rescale_high_percentile)}}'
+                  value: '{{=sprig.trim(workflow.parameters.rescale_clip_high_percentile)}}'
                 - name: per_band
                   value: '{{=sprig.trim(workflow.parameters.rescale_per_band)}}'
                 - name: version_geoprocessor_raster

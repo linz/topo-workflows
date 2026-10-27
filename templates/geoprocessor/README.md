@@ -194,9 +194,9 @@ See [compute_scale.py](https://github.com/linz/geoprocessor/blob/master/packages
   arguments:
     parameters:
       - name: low_percentile
-        value: '{{=sprig.trim(workflow.parameters.rescale_low_percentile)}}'
+        value: '{{=sprig.trim(workflow.parameters.rescale_clip_low_percentile)}}'
       - name: high_percentile
-        value: '{{=sprig.trim(workflow.parameters.rescale_high_percentile)}}'
+        value: '{{=sprig.trim(workflow.parameters.rescale_clip_high_percentile)}}'
       - name: per_band
         value: '{{=sprig.trim(workflow.parameters.rescale_per_band)}}'
       - name: version_geoprocessor_raster
