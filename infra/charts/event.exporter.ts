@@ -1,6 +1,6 @@
-import { Chart, ChartProps } from 'cdk8s';
+import { Chart, type ChartProps } from 'cdk8s';
 import { ConfigMap, k8s, Namespace } from 'cdk8s-plus-34';
-import { Construct } from 'constructs';
+import type { Construct } from 'constructs';
 
 import { ClusterName } from '../constants.ts';
 import { applyDefaultLabels } from '../util/labels.ts';

@@ -1,6 +1,6 @@
 import { SubscriptionFilter } from 'aws-cdk-lib/aws-sns';
 
-import { BucketEventSource } from './bucket.events.queue.construct.ts';
+import type { BucketEventSource } from './bucket.events.queue.construct.ts';
 
 const stacFilter = SubscriptionFilter.stringFilter({
   matchSuffixes: ['collection.json', 'catalog.json'],

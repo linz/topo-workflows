@@ -18,4 +18,8 @@ As `cdk8s` does not natively know the structure of these CRDs, we need to import
    /* eslint-disable max-len, @stylistic/max-len, quote-props, @stylistic/quote-props */
    ```
 
-3. Move the files to `infra/charts/imports/`
+3. Add `// @ts-nocheck` as the first line, so `tsc` skips the generated code (it uses `enum`, which `erasableSyntaxOnly` rejects)
+
+4. Mark type-only imports with `type` (e.g. `import { ApiObject, type ApiObjectMetadata, type GroupVersionKind } from 'cdk8s';`), otherwise `verbatimModuleSyntax` keeps them at runtime and `cdk8s synth` fails with `does not provide an export named 'ApiObjectMetadata'`
+
+5. Move the files to `infra/charts/imports/`

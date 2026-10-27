@@ -1,6 +1,6 @@
 import type { ArnComponents } from 'aws-cdk-lib';
 import { Arn, ArnFormat } from 'aws-cdk-lib';
-import { Node } from 'constructs';
+import type { Node } from 'constructs';
 
 /**
  * Validate that a object is a AWS IAM role arn

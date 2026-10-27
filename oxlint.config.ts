@@ -15,7 +15,9 @@ export default defineConfig({
     'typescript/no-explicit-any': 'error',
     'typescript/no-unsafe-enum-comparison': 'error',
     'typescript/no-unsafe-return': 'error',
-    // node:test describe/it return promises that the runner awaits, see https://github.com/nodejs/node/issues/51292
+    'typescript/consistent-type-imports': ['error', { fixStyle: 'inline-type-imports' }],
+    'typescript/no-import-type-side-effects': 'error',
+    // node:test describe/it return promises that the test runner handles (linz/style-js#1137)
     'typescript/no-floating-promises': [
       'error',
       {

@@ -1,6 +1,6 @@
 import { KubectlV34Layer } from '@aws-cdk/lambda-layer-kubectl-v34';
-import { Aws, CfnOutput, Fn, Stack, StackProps } from 'aws-cdk-lib';
-import { InstanceType, IVpc, Port, SecurityGroup, SubnetType, Vpc } from 'aws-cdk-lib/aws-ec2';
+import { Aws, CfnOutput, Fn, Stack, type StackProps } from 'aws-cdk-lib';
+import { InstanceType, type IVpc, Port, SecurityGroup, SubnetType, Vpc } from 'aws-cdk-lib/aws-ec2';
 import { Cluster, ClusterLoggingTypes, IpFamily, KubernetesVersion, NodegroupAmiType } from 'aws-cdk-lib/aws-eks';
 import {
   CfnInstanceProfile,
@@ -12,12 +12,12 @@ import {
   ServicePrincipal,
 } from 'aws-cdk-lib/aws-iam';
 import * as iam from 'aws-cdk-lib/aws-iam';
-import { Bucket, IBucket } from 'aws-cdk-lib/aws-s3';
-import { Construct } from 'constructs';
+import { Bucket, type IBucket } from 'aws-cdk-lib/aws-s3';
+import type { Construct } from 'constructs';
 import { createHash } from 'crypto';
 
 import { CfnOutputKeys, ScratchBucketName } from '../constants.ts';
-import { BucketEventSource, BucketEventsQueue } from './sqs/bucket.events.queue.construct.ts';
+import { type BucketEventSource, BucketEventsQueue } from './sqs/bucket.events.queue.construct.ts';
 
 interface EksClusterProps extends StackProps {
   /** List of role ARNs to grant access to the cluster */

@@ -1,6 +1,6 @@
-import { Chart, ChartProps, Duration, Helm } from 'cdk8s';
+import { Chart, type ChartProps, Duration, Helm } from 'cdk8s';
 import { Secret } from 'cdk8s-plus-34';
-import { Construct } from 'constructs';
+import type { Construct } from 'constructs';
 
 import { ArgoDbName, ArgoDbUser, DefaultRegion } from '../constants.ts';
 import { applyDefaultLabels } from '../util/labels.ts';
