@@ -6,6 +6,8 @@
     "types": ["node"],
     "outDir": "build",
     "noEmit": true,
+    "module": "nodenext",
+    "moduleResolution": "nodenext",
     "allowImportingTsExtensions": true
   },
   "include": ["infra/", "templates/common/__test__/"]
