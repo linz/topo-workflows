@@ -6,7 +6,9 @@
     "types": ["node"],
     "outDir": "build",
     "noEmit": true,
-    "allowImportingTsExtensions": true
+    "allowImportingTsExtensions": true,
+    "erasableSyntaxOnly": true,
+    "verbatimModuleSyntax": true
   },
   "include": ["infra/", "templates/common/__test__/"]
 }
