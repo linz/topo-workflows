@@ -47,7 +47,7 @@ See [standardise_validate.py](https://github.com/linz/geoprocessor/blob/master/p
       - name: scale_to_resolution
         value: '{{=sprig.trim(workflow.parameters.scale_to_resolution)}}'
       - name: scale_range
-        value: '{{=sprig.trim(tasks["compute-scale"].outputs.parameters.scale_range)}}'
+        value: '{{=sprig.trim(tasks["compute-scale"].outputs.parameters.rescale_range)}}'
       - name: scale_gamma
         value: '{{=sprig.trim(workflow.parameters.rescale_gamma)}}'
       - name: source_epsg
@@ -180,7 +180,7 @@ volumes:
 ## geoprocessor/raster compute-scale - `tpl-gp-raster-compute-scale`
 
 Template for computing the source pixel range to scale 16-bit TIFFs to 8-bit from the low and high percentiles of all source TIFFs.
-Outputs the `scale_range` parameter for `tpl-gp-raster-standardise-validate`.
+Outputs the `rescale_range` parameter for `tpl-gp-raster-standardise-validate`.
 
 See [compute_scale.py](https://github.com/linz/geoprocessor/blob/master/packages/geoprocessor-raster/src/geoprocessor_raster/compute_scale.py)
 
@@ -193,11 +193,11 @@ See [compute_scale.py](https://github.com/linz/geoprocessor/blob/master/packages
     template: main
   arguments:
     parameters:
-      - name: low_percentile
+      - name: rescale_clip_low_percentile
         value: '{{=sprig.trim(workflow.parameters.rescale_clip_low_percentile)}}'
-      - name: high_percentile
+      - name: rescale_clip_high_percentile
         value: '{{=sprig.trim(workflow.parameters.rescale_clip_high_percentile)}}'
-      - name: per_band
+      - name: rescale_per_band
         value: '{{=sprig.trim(workflow.parameters.rescale_per_band)}}'
       - name: histogram_dir
         value: '{{=sprig.trimSuffix("/", tasks["get-location"].outputs.parameters.location)}}/compute-scale/histograms/'

@@ -35,15 +35,15 @@ spec:
             description: 'Specify a version of the geoprocessor/raster image to use, e.g. "v4.8" or "latest"'
             default: 'v10'
 
-          - name: low_percentile
+          - name: rescale_clip_low_percentile
             description: 'Percentile of the source pixel values scaled to 0'
             default: '0.5'
 
-          - name: high_percentile
+          - name: rescale_clip_high_percentile
             description: 'Percentile of the source pixel values scaled to 255'
             default: '99.5'
 
-          - name: per_band
+          - name: rescale_per_band
             description: 'Compute one scale range per band (red, green, blue) instead of one range for all bands'
             default: 'false'
 
@@ -60,14 +60,14 @@ spec:
 
       outputs:
         parameters:
-          - name: scale_range
+          - name: rescale_range
             description: 'Source pixel range scaled to 8-bit, "min,max" or "min,max;min,max;min,max"'
             valueFrom:
-              path: /tmp/compute-scale/scale-range
+              path: /tmp/compute-scale/rescale-range
 
         artifacts:
-          - name: scale_range
-            path: /tmp/compute-scale/scale-range.json
+          - name: rescale_range
+            path: /tmp/compute-scale/rescale-range.json
             archive:
               none: {}
 
@@ -82,12 +82,12 @@ spec:
           - '/tmp/input/file-list.json'
           - '--target'
           - '/tmp/compute-scale/'
-          - '--low-percentile'
-          - '{{=sprig.trim(inputs.parameters.low_percentile)}}'
-          - '--high-percentile'
-          - '{{=sprig.trim(inputs.parameters.high_percentile)}}'
-          - '--per-band'
-          - '{{=sprig.trim(inputs.parameters.per_band)}}'
+          - '--rescale-clip-low-percentile'
+          - '{{=sprig.trim(inputs.parameters.rescale_clip_low_percentile)}}'
+          - '--rescale-clip-high-percentile'
+          - '{{=sprig.trim(inputs.parameters.rescale_clip_high_percentile)}}'
+          - '--rescale-per-band'
+          - '{{=sprig.trim(inputs.parameters.rescale_per_band)}}'
           - '--concurrency'
           - '{{=sprig.trim(inputs.parameters.concurrency)}}'
           - '--histogram-dir'
