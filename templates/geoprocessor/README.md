@@ -207,11 +207,3 @@ See [compute_scale.py](https://github.com/linz/geoprocessor/blob/master/packages
       - name: files
         from: '{{ tasks.tile-index-validate.outputs.artifacts.files }}'
 ```
-
-The Workflow caller must have the following volume:
-
-```yaml
-volumes:
-  - name: ephemeral
-    emptyDir: {}
-```

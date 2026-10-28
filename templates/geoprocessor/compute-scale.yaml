@@ -14,6 +14,12 @@ spec:
   entrypoint: main
   templates:
     - name: main
+      # Memory-backed: the node disk writes slower than compute-scale downloads
+      volumes:
+        - name: tmp
+          emptyDir:
+            medium: Memory
+            sizeLimit: 12Gi
       inputs:
         parameters:
           - name: version_geoprocessor_raster
@@ -77,13 +83,14 @@ spec:
           - '{{=sprig.trim(inputs.parameters.concurrency)}}'
           - '--histogram-dir'
           - '{{=sprig.trim(inputs.parameters.histogram_dir)}}'
+          # Fits in the memory-backed /tmp
+          - '--max-download-gb'
+          - '10'
         resources:
           requests:
-            memory: 7.8Gi
+            # Includes the memory-backed /tmp
+            memory: 20Gi
             cpu: 15000m
-            # Up to `concurrency` source TIFFs are downloaded at a time
-            ephemeral-storage: 29.5Gi
         volumeMounts:
-          # This volume must be defined in the workflow calling this workflowTemplate
-          - name: ephemeral
+          - name: tmp
             mountPath: '/tmp'
