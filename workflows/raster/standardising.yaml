@@ -470,7 +470,7 @@ spec:
                 - name: files
                   from: '{{ tasks.tile-index-validate.outputs.artifacts.files }}'
             depends: 'tile-index-validate && get-location'
-            when: "'{{tasks.tile-index-validate.outputs.parameters.data_type}}' == 'uint16' && '{{workflow.parameters.compression}}' == 'webp' && '{{workflow.parameters.rescale}}' == 'auto'"
+            when: '{{= sprig.trim(tasks["tile-index-validate"].outputs.parameters.data_type) == "uint16" && workflow.parameters.compression == "webp" && sprig.trim(workflow.parameters.rescale) == "auto" }}'
 
           - name: standardise-validate
             templateRef:
