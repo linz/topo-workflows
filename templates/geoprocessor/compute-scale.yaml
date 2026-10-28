@@ -81,3 +81,9 @@ spec:
           requests:
             memory: 7.8Gi
             cpu: 15000m
+            # Up to `concurrency` source TIFFs are downloaded at a time
+            ephemeral-storage: 29.5Gi
+        volumeMounts:
+          # This volume must be defined in the workflow calling this workflowTemplate
+          - name: ephemeral
+            mountPath: '/tmp'
