@@ -20,6 +20,15 @@ spec:
           emptyDir:
             medium: Memory
             sizeLimit: 12Gi
+      # Downloading is limited by the node network bandwidth (Mbit/s)
+      affinity:
+        nodeAffinity:
+          requiredDuringSchedulingIgnoredDuringExecution:
+            nodeSelectorTerms:
+              - matchExpressions:
+                  - key: karpenter.k8s.aws/instance-network-bandwidth
+                    operator: Gt
+                    values: ['20000']
       inputs:
         parameters:
           - name: version_geoprocessor_raster
@@ -40,7 +49,7 @@ spec:
 
           - name: concurrency
             description: 'Number of concurrent TIFFs to read'
-            default: '16'
+            default: '64'
 
           - name: histogram_dir
             description: 'Directory of the histogram file of each source TIFF, reused when the step is retried, e.g. "s3://linz-workflows-scratch/2024-01/01-my-workflow-abcd/compute-scale/histograms/"'
