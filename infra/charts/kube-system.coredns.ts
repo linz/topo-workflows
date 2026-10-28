@@ -1,6 +1,6 @@
-import { Chart, type ChartProps } from 'cdk8s';
+import { Chart, ChartProps } from 'cdk8s';
 import * as kplus from 'cdk8s-plus-34';
-import type { Construct } from 'constructs';
+import { Construct } from 'constructs';
 
 import { applyDefaultLabels } from '../util/labels.ts';
 

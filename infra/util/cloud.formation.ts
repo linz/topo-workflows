@@ -1,5 +1,5 @@
 import { CloudFormation } from '@aws-sdk/client-cloudformation';
-import { type Cluster, EKS } from '@aws-sdk/client-eks';
+import { Cluster, EKS } from '@aws-sdk/client-eks';
 
 export async function getCfnOutputs(stackName: string): Promise<Record<string, string>> {
   const cfn = new CloudFormation();

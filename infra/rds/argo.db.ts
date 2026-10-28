@@ -1,11 +1,11 @@
-import { CfnOutput, Duration, RemovalPolicy, SecretValue, Size, Stack, type StackProps } from 'aws-cdk-lib';
+import { CfnOutput, Duration, RemovalPolicy, SecretValue, Size, Stack, StackProps } from 'aws-cdk-lib';
 import * as chatbot from 'aws-cdk-lib/aws-chatbot';
 import * as cloudwatch from 'aws-cdk-lib/aws-cloudwatch';
 import * as actions from 'aws-cdk-lib/aws-cloudwatch-actions';
-import { InstanceClass, InstanceSize, InstanceType, type IVpc, SecurityGroup, Vpc } from 'aws-cdk-lib/aws-ec2';
+import { InstanceClass, InstanceSize, InstanceType, IVpc, SecurityGroup, Vpc } from 'aws-cdk-lib/aws-ec2';
 import { Credentials, DatabaseInstance, DatabaseInstanceEngine, PostgresEngineVersion } from 'aws-cdk-lib/aws-rds';
 import * as sns from 'aws-cdk-lib/aws-sns';
-import type { Construct } from 'constructs';
+import { Construct } from 'constructs';
 
 import { ArgoDbInstanceName, ArgoDbName, ArgoDbUser, CfnOutputKeys } from '../constants.js';
 

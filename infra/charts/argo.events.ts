@@ -1,7 +1,7 @@
-import { Chart, type ChartProps, Helm } from 'cdk8s';
+import { Chart, ChartProps, Helm } from 'cdk8s';
 import { Namespace, ServiceAccount } from 'cdk8s-plus-34';
 import { KubeClusterRole, KubeClusterRoleBinding } from 'cdk8s-plus-34/lib/imports/k8s.js';
-import type { Construct } from 'constructs';
+import { Construct } from 'constructs';
 
 import { applyDefaultLabels } from '../util/labels.js';
 import { EventBus } from './imports/argo-events/argoproj.io.eventbus.ts';

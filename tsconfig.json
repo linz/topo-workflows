@@ -8,9 +8,7 @@
     "noEmit": true,
     "module": "nodenext",
     "moduleResolution": "nodenext",
-    "allowImportingTsExtensions": true,
-    "erasableSyntaxOnly": true,
-    "verbatimModuleSyntax": true
+    "allowImportingTsExtensions": true
   },
   "include": ["infra/", "templates/common/__test__/"]
 }

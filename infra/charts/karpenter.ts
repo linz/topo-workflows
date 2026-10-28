@@ -1,5 +1,5 @@
-import { Chart, type ChartProps, Helm } from 'cdk8s';
-import type { Construct } from 'constructs';
+import { Chart, ChartProps, Helm } from 'cdk8s';
+import { Construct } from 'constructs';
 
 import { applyDefaultLabels } from '../util/labels.ts';
 import {
