@@ -450,6 +450,11 @@ spec:
                   value: '{{= workflow.parameters.version_argo_tasks}}'
             depends: 'tile-index-validate'
 
+          - name: check-rescale-resupply
+            template: rescale-resupply-unsupported
+            depends: 'tile-index-validate'
+            when: '{{= sprig.trim(tasks["tile-index-validate"].outputs.parameters.data_type) == "uint16" && workflow.parameters.compression == "webp" && sprig.trim(workflow.parameters.rescale) == "auto" && sprig.trim(workflow.parameters.odr_url) != "" && workflow.parameters.delete_all_existing_items != "true" }}'
+
           - name: compute-scale
             templateRef:
               name: tpl-gp-raster-compute-scale
@@ -469,7 +474,7 @@ spec:
               artifacts:
                 - name: files
                   from: '{{ tasks.tile-index-validate.outputs.artifacts.files }}'
-            depends: 'tile-index-validate && get-location'
+            depends: 'tile-index-validate && get-location && check-rescale-resupply'
             when: '{{= sprig.trim(tasks["tile-index-validate"].outputs.parameters.data_type) == "uint16" && workflow.parameters.compression == "webp" && sprig.trim(workflow.parameters.rescale) == "auto" }}'
 
           - name: standardise-validate
@@ -733,6 +738,13 @@ spec:
               key: '{{=sprig.trimSuffix("/", inputs.parameters.key)}}/flat/config-url'
             archive:
               none: {}
+
+    - name: rescale-resupply-unsupported
+      container:
+        image: public.ecr.aws/docker/library/alpine:3.23.3
+        command: [sh, -c]
+        args:
+          - echo 'rescale "auto" with an odr_url requires delete_all_existing_items "true", or a manual rescale range' >&2 && exit 1
 
     - name: exit-handler
       retryStrategy:
