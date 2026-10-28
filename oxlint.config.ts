@@ -8,7 +8,7 @@ export default defineConfig({
     es2023: true,
   },
   rules: {
-    // allow single line `if (x) throw ...` as was allowed with eslint
+    // allow single line `if (x) throw ...
     curly: ['error', 'multi-line'],
     'prefer-const': 'error',
     'typescript/explicit-function-return-type': 'error',
