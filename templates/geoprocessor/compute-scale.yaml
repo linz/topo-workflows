@@ -36,6 +36,9 @@ spec:
             description: 'Number of concurrent TIFFs to read'
             default: '16'
 
+          - name: histogram_dir
+            description: 'Directory of the histogram file of each source TIFF, reused when the step is retried, e.g. "s3://linz-workflows-scratch/2024-01/01-my-workflow-abcd/compute-scale/histograms/"'
+
         artifacts:
           - name: files
             path: /tmp/input/file-list.json
@@ -72,6 +75,8 @@ spec:
           - '{{=sprig.trim(inputs.parameters.per_band)}}'
           - '--concurrency'
           - '{{=sprig.trim(inputs.parameters.concurrency)}}'
+          - '--histogram-dir'
+          - '{{=sprig.trim(inputs.parameters.histogram_dir)}}'
         resources:
           requests:
             memory: 7.8Gi
