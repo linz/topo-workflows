@@ -127,13 +127,13 @@ spec:
           - 'true'
       - name: rescale_clip_low_percentile
         description: 'If rescale is "auto", source pixel values below this percentile are clipped to 0'
-        value: '1'
+        value: '0.5'
       - name: rescale_clip_high_percentile
         description: 'If rescale is "auto", source pixel values above this percentile are clipped to 255'
-        value: '99'
+        value: '99.5'
       - name: rescale_gamma
         description: 'Gamma applied with rescale, e.g. "1.3" brightens mid tones. "1" is linear.'
-        value: '1'
+        value: '1.3'
       - name: create_capture_area
         description: 'Create a capture area GeoJSON file for the standardised dataset'
         value: 'true'

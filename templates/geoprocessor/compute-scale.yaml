@@ -22,11 +22,11 @@ spec:
 
           - name: low_percentile
             description: 'Percentile of the source pixel values scaled to 0'
-            default: '1'
+            default: '0.5'
 
           - name: high_percentile
             description: 'Percentile of the source pixel values scaled to 255'
-            default: '99'
+            default: '99.5'
 
           - name: per_band
             description: 'Compute one scale range per band (red, green, blue) instead of one range for all bands'
