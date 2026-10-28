@@ -76,12 +76,12 @@ spec:
             description: 'Scale output TIFFs to x,y resolution (e.g. 1,1 - leave blank for no scaling)'
             default: ''
 
-          - name: scale_range
+          - name: rescale_range
             description: 'Source pixel range scaled to 8-bit for "uint16" TIFFs with "webp" compression, "min,max" or "min,max;min,max;min,max" (leave blank for the full range)'
             default: ''
 
-          - name: scale_gamma
-            description: 'Gamma applied with scale_range, e.g. "1.3". "1" is linear. Ignored without scale_range.'
+          - name: rescale_gamma
+            description: 'Gamma applied with rescale_range, e.g. "1.3". "1" is linear. Ignored without rescale_range.'
             default: '1'
 
           - name: source_epsg
@@ -139,10 +139,10 @@ spec:
           - '{{inputs.parameters.current_datetime}}'
           - '--scale-to-resolution'
           - '{{=sprig.trim(inputs.parameters.scale_to_resolution)}}'
-          - '--scale-range'
-          - '{{=sprig.trim(inputs.parameters.scale_range)}}'
-          - '--scale-gamma'
-          - '{{=sprig.trim(inputs.parameters.scale_range) == "" ? "1" : sprig.trim(inputs.parameters.scale_gamma)}}'
+          - '--rescale-range'
+          - '{{=sprig.trim(inputs.parameters.rescale_range)}}'
+          - '--rescale-gamma'
+          - '{{=sprig.trim(inputs.parameters.rescale_range) == "" ? "1" : sprig.trim(inputs.parameters.rescale_gamma)}}'
           - '--simplify-footprints'
           - '{{=sprig.trim(inputs.parameters.simplify_footprints)}}'
         resources:

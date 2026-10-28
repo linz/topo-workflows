@@ -46,9 +46,9 @@ See [standardise_validate.py](https://github.com/linz/geoprocessor/blob/master/p
         value: '{{=sprig.trim(workflow.parameters.gsd)}}'
       - name: scale_to_resolution
         value: '{{=sprig.trim(workflow.parameters.scale_to_resolution)}}'
-      - name: scale_range
+      - name: rescale_range
         value: '{{=sprig.trim(tasks["compute-scale"].outputs.parameters.rescale_range)}}'
-      - name: scale_gamma
+      - name: rescale_gamma
         value: '{{=sprig.trim(workflow.parameters.rescale_gamma)}}'
       - name: source_epsg
         value: '{{=sprig.trim(workflow.parameters.source_epsg)}}'

@@ -509,9 +509,9 @@ spec:
                   value: '{{ tasks.tile-index-validate.outputs.parameters.data_type }}'
                 - name: scale_to_resolution
                   value: '{{=sprig.trim(tasks["tile-index-validate"].outputs.parameters.gsd) + "," + sprig.trim(tasks["tile-index-validate"].outputs.parameters.gsd)}}'
-                - name: scale_range
+                - name: rescale_range
                   value: '{{=tasks["compute-scale"].status == "Succeeded" ? sprig.trim(tasks["compute-scale"].outputs.parameters.rescale_range) : (sprig.trim(tasks["tile-index-validate"].outputs.parameters.data_type) == "uint16" && workflow.parameters.compression == "webp" && sprig.trim(workflow.parameters.rescale) != "auto" ? sprig.trim(workflow.parameters.rescale) : "")}}'
-                - name: scale_gamma
+                - name: rescale_gamma
                   value: '{{=sprig.trim(workflow.parameters.rescale_gamma)}}'
                 - name: source_epsg
                   value: '{{=sprig.trim(workflow.parameters.source_epsg)}}'
