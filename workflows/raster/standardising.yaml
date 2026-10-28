@@ -116,23 +116,23 @@ spec:
           - 'lzw'
           - 'dem_lerc'
           - 'rgbnir_zstd'
-      - name: rescale
+      - name: rescale_range
         description: 'Source pixel range scaled to 8-bit when "uint16" TIFFs are standardised with "webp" compression. "auto" computes it from the source pixel values, otherwise "min,max" or "min,max;min,max;min,max" (red;green;blue). Leave blank for the full range.'
         value: 'auto'
       - name: rescale_per_band
-        description: 'If rescale is "auto", compute one range per band (red, green, blue) instead of one range for all bands'
+        description: 'If rescale_range is "auto", compute one range per band (red, green, blue) instead of one range for all bands'
         value: 'false'
         enum:
           - 'false'
           - 'true'
       - name: rescale_clip_low_percentile
-        description: 'If rescale is "auto", source pixel values below this percentile are clipped to 0'
+        description: 'If rescale_range is "auto", source pixel values below this percentile are clipped to 0'
         value: '0.5'
       - name: rescale_clip_high_percentile
-        description: 'If rescale is "auto", source pixel values above this percentile are clipped to 255'
+        description: 'If rescale_range is "auto", source pixel values above this percentile are clipped to 255'
         value: '99.5'
       - name: rescale_gamma
-        description: 'Gamma applied with rescale, e.g. "1.3" brightens mid tones. "1" is linear.'
+        description: 'Gamma applied with rescale_range, e.g. "1.3" brightens mid tones. "1" is linear.'
         value: '1.3'
       - name: create_capture_area
         description: 'Create a capture area GeoJSON file for the standardised dataset'
@@ -453,7 +453,7 @@ spec:
           - name: check-rescale-resupply
             template: rescale-resupply-unsupported
             depends: 'tile-index-validate'
-            when: '{{= sprig.trim(tasks["tile-index-validate"].outputs.parameters.data_type) == "uint16" && workflow.parameters.compression == "webp" && sprig.trim(workflow.parameters.rescale) == "auto" && sprig.trim(workflow.parameters.odr_url) != "" && workflow.parameters.delete_all_existing_items != "true" }}'
+            when: '{{= sprig.trim(tasks["tile-index-validate"].outputs.parameters.data_type) == "uint16" && workflow.parameters.compression == "webp" && sprig.trim(workflow.parameters.rescale_range) == "auto" && sprig.trim(workflow.parameters.odr_url) != "" && workflow.parameters.delete_all_existing_items != "true" }}'
 
           - name: compute-scale
             templateRef:
@@ -475,7 +475,7 @@ spec:
                 - name: files
                   from: '{{ tasks.tile-index-validate.outputs.artifacts.files }}'
             depends: 'tile-index-validate && get-location && check-rescale-resupply'
-            when: '{{= sprig.trim(tasks["tile-index-validate"].outputs.parameters.data_type) == "uint16" && workflow.parameters.compression == "webp" && sprig.trim(workflow.parameters.rescale) == "auto" }}'
+            when: '{{= sprig.trim(tasks["tile-index-validate"].outputs.parameters.data_type) == "uint16" && workflow.parameters.compression == "webp" && sprig.trim(workflow.parameters.rescale_range) == "auto" }}'
 
           - name: standardise-validate
             templateRef:
@@ -510,7 +510,7 @@ spec:
                 - name: scale_to_resolution
                   value: '{{=sprig.trim(tasks["tile-index-validate"].outputs.parameters.gsd) + "," + sprig.trim(tasks["tile-index-validate"].outputs.parameters.gsd)}}'
                 - name: rescale_range
-                  value: '{{=tasks["compute-scale"].status == "Succeeded" ? sprig.trim(tasks["compute-scale"].outputs.parameters.rescale_range) : (sprig.trim(tasks["tile-index-validate"].outputs.parameters.data_type) == "uint16" && workflow.parameters.compression == "webp" && sprig.trim(workflow.parameters.rescale) != "auto" ? sprig.trim(workflow.parameters.rescale) : "")}}'
+                  value: '{{=tasks["compute-scale"].status == "Succeeded" ? sprig.trim(tasks["compute-scale"].outputs.parameters.rescale_range) : (sprig.trim(tasks["tile-index-validate"].outputs.parameters.data_type) == "uint16" && workflow.parameters.compression == "webp" && sprig.trim(workflow.parameters.rescale_range) != "auto" ? sprig.trim(workflow.parameters.rescale_range) : "")}}'
                 - name: rescale_gamma
                   value: '{{=sprig.trim(workflow.parameters.rescale_gamma)}}'
                 - name: source_epsg
@@ -744,7 +744,7 @@ spec:
         image: public.ecr.aws/docker/library/alpine:3.23.3
         command: [sh, -c]
         args:
-          - echo 'rescale "auto" with an odr_url requires delete_all_existing_items "true", or a manual rescale range' >&2 && exit 1
+          - echo 'rescale_range "auto" with an odr_url requires delete_all_existing_items "true", or a manual rescale_range' >&2 && exit 1
 
     - name: exit-handler
       retryStrategy:
