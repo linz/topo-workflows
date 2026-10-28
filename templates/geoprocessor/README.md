@@ -199,6 +199,8 @@ See [compute_scale.py](https://github.com/linz/geoprocessor/blob/master/packages
         value: '{{=sprig.trim(workflow.parameters.rescale_clip_high_percentile)}}'
       - name: per_band
         value: '{{=sprig.trim(workflow.parameters.rescale_per_band)}}'
+      - name: histogram_dir
+        value: '{{=sprig.trimSuffix("/", tasks["get-location"].outputs.parameters.location)}}/compute-scale/histograms/'
       - name: version_geoprocessor_raster
         value: '{{= workflow.parameters.version_geoprocessor_raster}}'
     artifacts:
