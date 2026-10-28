@@ -461,11 +461,11 @@ spec:
               template: main
             arguments:
               parameters:
-                - name: low_percentile
+                - name: rescale_clip_low_percentile
                   value: '{{=sprig.trim(workflow.parameters.rescale_clip_low_percentile)}}'
-                - name: high_percentile
+                - name: rescale_clip_high_percentile
                   value: '{{=sprig.trim(workflow.parameters.rescale_clip_high_percentile)}}'
-                - name: per_band
+                - name: rescale_per_band
                   value: '{{=sprig.trim(workflow.parameters.rescale_per_band)}}'
                 - name: histogram_dir
                   value: '{{=sprig.trimSuffix("/", tasks["get-location"].outputs.parameters.location)}}/compute-scale/histograms/'
@@ -510,7 +510,7 @@ spec:
                 - name: scale_to_resolution
                   value: '{{=sprig.trim(tasks["tile-index-validate"].outputs.parameters.gsd) + "," + sprig.trim(tasks["tile-index-validate"].outputs.parameters.gsd)}}'
                 - name: scale_range
-                  value: '{{=tasks["compute-scale"].status == "Succeeded" ? sprig.trim(tasks["compute-scale"].outputs.parameters.scale_range) : (sprig.trim(tasks["tile-index-validate"].outputs.parameters.data_type) == "uint16" && workflow.parameters.compression == "webp" && sprig.trim(workflow.parameters.rescale) != "auto" ? sprig.trim(workflow.parameters.rescale) : "")}}'
+                  value: '{{=tasks["compute-scale"].status == "Succeeded" ? sprig.trim(tasks["compute-scale"].outputs.parameters.rescale_range) : (sprig.trim(tasks["tile-index-validate"].outputs.parameters.data_type) == "uint16" && workflow.parameters.compression == "webp" && sprig.trim(workflow.parameters.rescale) != "auto" ? sprig.trim(workflow.parameters.rescale) : "")}}'
                 - name: scale_gamma
                   value: '{{=sprig.trim(workflow.parameters.rescale_gamma)}}'
                 - name: source_epsg
