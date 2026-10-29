@@ -43,6 +43,10 @@ spec:
             description: 'Percentile of the source pixel values scaled to 255'
             default: '99.5'
 
+          - name: rescale_gamma_target
+            description: 'Output brightness, as a fraction of white, that the median source luminance maps to with the computed rescale_gamma'
+            default: '0.4'
+
           - name: rescale_per_band
             description: 'Compute one scale range per band (red, green, blue) instead of one range for all bands'
             default: 'false'
@@ -60,6 +64,11 @@ spec:
 
       outputs:
         parameters:
+          - name: rescale_gamma
+            description: 'Gamma that maps the median source luminance to rescale_gamma_target'
+            valueFrom:
+              path: /tmp/compute-scale/rescale-gamma
+
           - name: rescale_range
             description: 'Source pixel range scaled to 8-bit, "min,max" or "min,max;min,max;min,max"'
             valueFrom:
@@ -86,6 +95,8 @@ spec:
           - '{{=sprig.trim(inputs.parameters.rescale_clip_low_percentile)}}'
           - '--rescale-clip-high-percentile'
           - '{{=sprig.trim(inputs.parameters.rescale_clip_high_percentile)}}'
+          - '--rescale-gamma-target'
+          - '{{=sprig.trim(inputs.parameters.rescale_gamma_target)}}'
           - '--rescale-per-band'
           - '{{=sprig.trim(inputs.parameters.rescale_per_band)}}'
           - '--concurrency'
