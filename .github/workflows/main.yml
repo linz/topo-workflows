@@ -154,7 +154,7 @@ jobs:
 
   ci-ok:
     if: always()
-    needs: [main, deploy-prod]
+    needs: [main]
     runs-on: ubuntu-latest
     steps:
       - if: contains(needs.*.result, 'failure') || contains(needs.*.result, 'cancelled')
