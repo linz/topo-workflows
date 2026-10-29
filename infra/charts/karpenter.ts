@@ -166,7 +166,7 @@ export class KarpenterNodePool extends Chart {
               {
                 key: 'karpenter.k8s.aws/instance-family',
                 operator: NodePoolSpecTemplateSpecRequirementsOperator.IN,
-                values: ['c5', 'c6i', 'c6a', 'c7i', 'c8i'],
+                values: ['c5', 'c6i', 'c6a', 'c6in', 'c7i', 'c8i'],
               },
             ],
             taints: [
@@ -216,7 +216,7 @@ export class KarpenterNodePool extends Chart {
               {
                 key: 'karpenter.k8s.aws/instance-family',
                 operator: NodePoolSpecTemplateSpecRequirementsOperator.IN,
-                values: ['c5', 'c6i', 'c6a', 'c7i', 'c8i'],
+                values: ['c5', 'c6i', 'c6a', 'c6in', 'c7i', 'c8i'],
               },
             ],
             taints: [
