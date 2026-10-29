@@ -151,3 +151,11 @@ jobs:
         if: steps.get-infra-changes.outputs.run_infra == 'true'
         run: |
           ./argo-linux-amd64 --namespace=argo submit --wait --from=wftmpl/imagery-standardising --parameter=validate=false --parameter=gsd=0.3 --parameter=start_datetime=2017-12-02 --parameter=end_datetime=2018-03-11 --parameter=lifecycle="under development" --generate-name="test-ci-is-"
+
+  ci-ok:
+    if: always()
+    needs: [main]
+    runs-on: ubuntu-latest
+    steps:
+      - if: contains(needs.*.result, 'failure') || contains(needs.*.result, 'cancelled')
+        run: exit 1
