@@ -220,7 +220,7 @@ spec:
                   value: '{{inputs.parameters.source}}'
                 - name: dry_run
                   value: 'false'
-                - name: version
+                - name: version_argo_tasks
                   value: '{{inputs.parameters.version_argo_tasks}}'
                 - name: aws_role_config_path
                   value: 's3://linz-bucket-config/config-write.topographic.json,s3://linz-bucket-config/config-write.hydrographic.json'

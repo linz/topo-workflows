@@ -96,6 +96,8 @@ spec:
                   value: '{{inputs.parameters.checksum_links}}'
                 - name: recursive
                   value: '{{inputs.parameters.recursive}}'
+                - name: version_argo_tasks
+                  value: '{{inputs.parameters.version_argo_tasks}}'
             depends: aws-list
             withParam: '{{tasks.aws-list.outputs.parameters.files}}'
     - name: aws-list

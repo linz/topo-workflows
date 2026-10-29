@@ -1,25 +1,25 @@
 {
   "name": "@linzjs/topo-workflows",
   "version": "0.0.2",
-  "repository": {
-    "type": "git",
-    "url": "https://github.com/linz/topo-workflows.git"
-  },
+  "private": true,
   "license": "MIT",
-  "type": "module",
   "author": {
     "name": "Toitū Te Whenua Land Information New Zealand",
     "url": "https://linz.govt.nz",
     "organization": true
   },
-  "private": true,
-  "engines": {
-    "node": "^24.11.1"
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/linz/topo-workflows.git"
   },
+  "type": "module",
   "scripts": {
     "build": "tsc",
-    "lint": "npx eslint . --ignore-path .gitignore",
-    "format": "npx prettier . -w",
+    "lint": "npm run lint:fmt && tsc --noEmit && npm run lint:oxlint",
+    "lint:oxlint": "oxlint --deny-warnings",
+    "lint:fmt": "oxfmt --check .",
+    "lint:fix": "oxlint --fix && oxfmt --write .",
+    "format": "oxfmt --write .",
     "test": "node --test \"infra/**/*.test.ts\" \"templates/common/__test__/*.test.ts\""
   },
   "devDependencies": {
@@ -28,15 +28,19 @@
     "@aws-sdk/client-eks": "^3.1144.0",
     "@aws-sdk/client-ssm": "^3.1144.0",
     "@linzjs/cdk-tags": "^1.19.0",
-    "@linzjs/style": "^5.4.0",
-    "@types/node": "^24.10.1",
-    "aws-cdk": "^2.1143.0",
-    "aws-cdk-lib": "^2.272.0",
-    "cdk8s": "^2.70.107",
-    "cdk8s-cli": "^2.207.63",
-    "cdk8s-plus-34": "^2.0.61",
+    "@linzjs/style": "^6.1.1",
+    "@types/node": "^24.11.1",
+    "aws-cdk": "^2.1145.0",
+    "aws-cdk-lib": "^2.273.0",
+    "cdk8s": "^2.70.111",
+    "cdk8s-cli": "^2.207.67",
+    "cdk8s-plus-34": "^2.0.66",
     "constructs": "^10.3.0",
     "tsx": "^4.23.15",
+    "typescript": "^5.9.3",
     "yaml": "^2.5.1"
+  },
+  "engines": {
+    "node": "^24.11.1"
   }
 }

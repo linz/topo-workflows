@@ -205,7 +205,7 @@ spec:
                   value: '{{inputs.parameters.geospatial_category}}'
                 - name: odr_url
                   value: '{{=sprig.trim(inputs.parameters.odr_url)}}'
-                - name: version
+                - name: version_argo_tasks
                   value: '{{=sprig.trim(inputs.parameters.version_argo_tasks)}}'
                 - name: target_bucket_name
                   value: '{{=sprig.trim(inputs.parameters.target_bucket_name)}}'
@@ -222,7 +222,7 @@ spec:
                   value: '{{= inputs.parameters.odr_url == "" || inputs.parameters.regenerate == "true" ? "" : sprig.trimSuffix("/", inputs.parameters.odr_url) + "/collection.json" }}'
                 - name: sourceCollections
                   value: '{{= inputs.parameters.base_layer_source == "" ? "" : sprig.trimSuffix("/", inputs.parameters.base_layer_source) + "/collection.json;" }}{{=sprig.trimSuffix("/", inputs.parameters.top_layer_source)}}/collection.json'
-                - name: version
+                - name: version_argo_tasks
                   value: '{{= inputs.parameters.version_argo_tasks}}'
 
           - name: group
@@ -237,7 +237,7 @@ spec:
               parameters:
                 - name: size
                   value: '{{inputs.parameters.group}}'
-                - name: version
+                - name: version_argo_tasks
                   value: '{{= inputs.parameters.version_argo_tasks}}'
             depends: 'identify-updated-items.Succeeded'
 
@@ -329,6 +329,8 @@ spec:
               parameters:
                 - name: uri
                   value: '{{=sprig.trimSuffix("/", tasks["get-location"].outputs.parameters.location)}}/{{inputs.parameters.geospatial_category}}/flat/collection.json'
+                - name: version_argo_tasks
+                  value: '{{= inputs.parameters.version_argo_tasks}}'
               artifacts:
                 - name: stac-result
                   raw:

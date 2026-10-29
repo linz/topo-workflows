@@ -82,7 +82,7 @@ spec:
               parameters:
                 - name: source
                   value: '{{inputs.parameters.source}}'
-                - name: version
+                - name: version_argo_tasks
                   value: '{{inputs.parameters.version_argo_tasks}}'
           - name: copy
             depends: 'archive-setup.Succeeded'

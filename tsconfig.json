@@ -1,9 +1,15 @@
 {
   "extends": "@linzjs/style/tsconfig.base.json",
   "compilerOptions": {
-    "target": "ES2022",
-    "lib": ["ES2022"],
+    // No erasableSyntaxOnly/verbatimModuleSyntax: cdk8s generated code in infra/charts/imports uses enums
+    // and imports types without `type`.
+    "lib": ["ES2023"],
+    "target": "ES2023",
+    "types": ["node"],
+    "outDir": "build",
     "noEmit": true,
+    "module": "nodenext",
+    "moduleResolution": "nodenext",
     "allowImportingTsExtensions": true
   },
   "include": ["infra/", "templates/common/__test__/"]

@@ -15,12 +15,12 @@ spec:
           - name: odr_url
             description: 'S3 path to existing dataset collection.json'
             default: ''
-          - name: version
-            description: 'argo-tasks container version to use'
+          - name: version_argo_tasks
+            description: 'Specify a version of the argo-tasks container to use, e.g. "v5.1" or "latest"'
             default: 'v8'
 
       container:
-        image: '019359803926.dkr.ecr.ap-southeast-2.amazonaws.com/argo-tasks:{{=inputs.parameters.version}}'
+        image: '019359803926.dkr.ecr.ap-southeast-2.amazonaws.com/argo-tasks:{{=inputs.parameters.version_argo_tasks}}'
         imagePullPolicy: Always
         env:
           - name: AWS_ROLE_CONFIG_PATH
