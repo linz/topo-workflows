@@ -47,6 +47,9 @@ async function main(): Promise<void> {
       // Argo Workflows secrets for S3 Batch Operations Restore
       s3BatchRestoreAccountIdHydro: '/eks/S3BatchRestore/accountIdHydro',
       s3BatchRestoreAccountIdTopo: '/eks/S3BatchRestore/accountIdTopo',
+      // TODO(TDE-2159): Confirm whether WorkflowsNP also needs this SSM parameter.
+      // It exists in Topo prod but is missing from WorkflowsNP. If required,
+      // confirm whether it should reference the Planning prod account (777772816741).
       s3BatchRestoreAccountIdPlanning: '/eks/S3BatchRestore/accountIdPlanning',
       s3BatchRestoreRoleArn: '/eks/S3BatchRestore/roleArn',
 
