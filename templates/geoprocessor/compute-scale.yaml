@@ -97,8 +97,8 @@ spec:
           - '10'
         resources:
           requests:
-            # Includes the memory-backed /tmp
-            memory: 20Gi
+            # Includes the memory-backed /tmp and the 4 GiB GDAL cache shared by the compute-scale workers
+            memory: 22Gi
             cpu: 15000m
         volumeMounts:
           - name: tmp
