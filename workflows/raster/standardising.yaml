@@ -132,8 +132,11 @@ spec:
         description: 'If rescale_range is "auto", source pixel values above this percentile are clipped to 255'
         value: '99.5'
       - name: rescale_gamma
-        description: 'Gamma applied with rescale_range, e.g. "1.3" brightens mid tones. "1" is linear.'
+        description: 'Gamma applied with rescale_range, e.g. "1.3" brightens mid tones. "1" is linear. "auto" computes it from the source luminance, with rescale_range "auto".'
         value: '1.3'
+      - name: rescale_gamma_target
+        description: 'If rescale_gamma is "auto", the output brightness, as a fraction of white, that the median source luminance maps to'
+        value: '0.4'
       - name: create_capture_area
         description: 'Create a capture area GeoJSON file for the standardised dataset'
         value: 'true'
@@ -455,6 +458,11 @@ spec:
             depends: 'tile-index-validate'
             when: '{{= sprig.trim(tasks["tile-index-validate"].outputs.parameters.data_type) == "uint16" && workflow.parameters.compression == "webp" && sprig.trim(workflow.parameters.rescale_range) == "auto" && sprig.trim(workflow.parameters.odr_url) != "" && workflow.parameters.delete_all_existing_items != "true" }}'
 
+          - name: check-rescale-gamma
+            template: rescale-gamma-auto-unsupported
+            depends: 'tile-index-validate'
+            when: '{{= sprig.trim(tasks["tile-index-validate"].outputs.parameters.data_type) == "uint16" && workflow.parameters.compression == "webp" && sprig.trim(workflow.parameters.rescale_range) != "auto" && sprig.trim(workflow.parameters.rescale_gamma) == "auto" }}'
+
           - name: compute-scale
             templateRef:
               name: tpl-gp-raster-compute-scale
@@ -465,6 +473,8 @@ spec:
                   value: '{{=sprig.trim(workflow.parameters.rescale_clip_low_percentile)}}'
                 - name: rescale_clip_high_percentile
                   value: '{{=sprig.trim(workflow.parameters.rescale_clip_high_percentile)}}'
+                - name: rescale_gamma_target
+                  value: '{{=sprig.trim(workflow.parameters.rescale_gamma_target)}}'
                 - name: rescale_per_band
                   value: '{{=sprig.trim(workflow.parameters.rescale_per_band)}}'
                 - name: histogram_dir
@@ -474,7 +484,7 @@ spec:
               artifacts:
                 - name: files
                   from: '{{ tasks.tile-index-validate.outputs.artifacts.files }}'
-            depends: 'tile-index-validate && get-location && check-rescale-resupply'
+            depends: 'tile-index-validate && get-location && check-rescale-resupply && check-rescale-gamma'
             when: '{{= sprig.trim(tasks["tile-index-validate"].outputs.parameters.data_type) == "uint16" && workflow.parameters.compression == "webp" && sprig.trim(workflow.parameters.rescale_range) == "auto" }}'
 
           - name: standardise-validate
@@ -512,7 +522,7 @@ spec:
                 - name: rescale_range
                   value: '{{=tasks["compute-scale"].status == "Succeeded" ? sprig.trim(tasks["compute-scale"].outputs.parameters.rescale_range) : (sprig.trim(tasks["tile-index-validate"].outputs.parameters.data_type) == "uint16" && workflow.parameters.compression == "webp" ? sprig.trim(workflow.parameters.rescale_range) : "")}}'
                 - name: rescale_gamma
-                  value: '{{=sprig.trim(workflow.parameters.rescale_gamma)}}'
+                  value: '{{= sprig.trim(workflow.parameters.rescale_gamma) != "auto" ? sprig.trim(workflow.parameters.rescale_gamma) : tasks["compute-scale"].status == "Succeeded" ? sprig.trim(tasks["compute-scale"].outputs.parameters.rescale_gamma) : "1" }}'
                 - name: source_epsg
                   value: '{{=sprig.trim(workflow.parameters.source_epsg)}}'
                 - name: target_epsg
@@ -738,6 +748,13 @@ spec:
               key: '{{=sprig.trimSuffix("/", inputs.parameters.key)}}/flat/config-url'
             archive:
               none: {}
+
+    - name: rescale-gamma-auto-unsupported
+      container:
+        image: public.ecr.aws/docker/library/alpine:3.23.3
+        command: [sh, -c]
+        args:
+          - echo 'rescale_gamma "auto" requires rescale_range "auto"' >&2 && exit 1
 
     - name: rescale-resupply-unsupported
       container:
