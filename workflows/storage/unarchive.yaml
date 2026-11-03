@@ -40,6 +40,7 @@ spec:
         enum:
           - 'linz-topographic-archive'
           - 'linz-hydrographic-archive'
+          - 'linz-planning-archive'
       - name: archive_directory
         description: 'The directory in the archive bucket where the data to unarchive is stored. Does not include the bucket name. Example: "aerialsurveys/Invercargill2022_Pgrm3016/".'
         value: ''
@@ -84,7 +85,7 @@ spec:
                 - name: source
                   value: 's3://{{workflow.parameters.archive_bucket}}/{{=sprig.trimPrefix("/",workflow.parameters.archive_directory)}}'
                 - name: target
-                  value: 's3://{{= workflow.parameters.archive_bucket == "linz-topographic-archive" ? "linz-topographic-shared" : workflow.parameters.archive_bucket == "linz-hydrographic-archive" ? "linz-hydrographic-shared" : "unknown-bucket" }}/{{workflow.parameters.consumer}}/{{=sprig.trimPrefix("/",workflow.parameters.archive_directory)}}'
+                  value: 's3://{{= workflow.parameters.archive_bucket == "linz-topographic-archive" ? "linz-topographic-shared" : workflow.parameters.archive_bucket == "linz-hydrographic-archive" ? "linz-hydrographic-shared" : workflow.parameters.archive_bucket == "linz-planning-archive" ? "linz-planning-shared" : "unknown-bucket" }}/{{workflow.parameters.consumer}}/{{=sprig.trimPrefix("/",workflow.parameters.archive_directory)}}'
                 - name: action_location
                   value: '{{=sprig.trimSuffix("/", tasks["get-location"].outputs.parameters.location)}}/actions/'
                 - name: include
@@ -94,7 +95,7 @@ spec:
                 - name: group_size
                   value: '{{workflow.parameters.group_size}}'
                 - name: aws_role_config_path
-                  value: 's3://linz-bucket-config/config-write.topographic.json, s3://linz-bucket-config/config-write.hydrographic.json'
+                  value: 's3://linz-bucket-config/config-write.topographic.json,s3://linz-bucket-config/config-write.hydrographic.json,s3://linz-bucket-config/config-write.planning.json'
                 - name: version_argo_tasks
                   value: '{{workflow.parameters.version_argo_tasks}}'
             depends: 'get-location.Succeeded'
@@ -121,7 +122,7 @@ spec:
                 - name: request_output_bucket
                   value: '{{tasks.get-location.outputs.parameters.bucket}}'
                 - name: restore_location
-                  value: 's3://{{= workflow.parameters.archive_bucket == "linz-topographic-archive" ? "linz-topographic-shared" : workflow.parameters.archive_bucket == "linz-hydrographic-archive" ? "linz-hydrographic-shared" : "unknown-bucket" }}/{{workflow.parameters.consumer}}/{{=sprig.trimPrefix("/",workflow.parameters.archive_directory)}}'
+                  value: 's3://{{= workflow.parameters.archive_bucket == "linz-topographic-archive" ? "linz-topographic-shared" : workflow.parameters.archive_bucket == "linz-hydrographic-archive" ? "linz-hydrographic-shared" : workflow.parameters.archive_bucket == "linz-planning-archive" ? "linz-planning-shared" : "unknown-bucket" }}/{{workflow.parameters.consumer}}/{{=sprig.trimPrefix("/",workflow.parameters.archive_directory)}}'
                 - name: consumer
                   value: '{{workflow.parameters.consumer}}'
             depends: 'get-location && create-manifest'
@@ -158,6 +159,11 @@ spec:
               secretKeyRef:
                 key: ACCOUNT_ID_TOPO
                 name: s3-batch-restore-secrets
+          - name: ACCOUNT_ID_PLANNING
+            valueFrom:
+              secretKeyRef:
+                key: ACCOUNT_ID_PLANNING
+                name: s3-batch-restore-secrets
           - name: ROLE_ARN
             valueFrom:
               secretKeyRef:
@@ -171,6 +177,8 @@ spec:
               ACCOUNT_ID_ARCHIVE=$ACCOUNT_ID_HYDRO
             elif [ "{{inputs.parameters.archive_bucket}}" = "linz-topographic-archive" ]; then
               ACCOUNT_ID_ARCHIVE=$ACCOUNT_ID_TOPO
+            elif [ "{{inputs.parameters.archive_bucket}}" = "linz-planning-archive" ]; then
+              ACCOUNT_ID_ARCHIVE=$ACCOUNT_ID_PLANNING
             else
               echo "Unknown archive bucket: {{inputs.parameters.archive_bucket}}" >&2
               exit 1
