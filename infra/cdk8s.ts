@@ -129,7 +129,6 @@ async function main(): Promise<void> {
           ACCOUNT_ID_HYDRO: ssmConfig.s3BatchRestoreAccountIdHydro,
           ACCOUNT_ID_TOPO: ssmConfig.s3BatchRestoreAccountIdTopo,
           ACCOUNT_ID_PLANNING: ssmConfig.s3BatchRestoreAccountIdPlanning,
-
           ROLE_ARN: ssmConfig.s3BatchRestoreRoleArn,
         },
       },
