@@ -1,7 +1,6 @@
+import { App } from 'aws-cdk-lib';
 import assert from 'node:assert';
 import { describe, it } from 'node:test';
-
-import { App } from 'aws-cdk-lib';
 
 import { tryGetContextArns, validateRoleArn } from '../util/arn.ts';
 

@@ -25,7 +25,7 @@ python3 generate-argo-cli-commands-elevation.py
 
 - **region-year-datatype-scale.yaml:** workflow parameters for this dataset
 - **standardise-publish.sh:** bash script to 'deploy' argo workflows  
-   **nb: the commented lines at the end of this file detail the datasets not run due to know issues.**
+  **nb: the commented lines at the end of this file detail the datasets not run due to know issues.**
 
 **Submitting:**
 
