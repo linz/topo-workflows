@@ -43,6 +43,23 @@ jobs:
             docker run -v "$PWD:$PWD" ghcr.io/linz/argo-tasks:v8 stac-validate "${files[@]}"
           fi
 
+      - name: Validate Parameter File Targets
+        run: |
+          bucket="${ODR_BUCKET%/}/"
+          failed=0
+
+          while IFS= read -r -d '' file; do
+            target=$(yq '.target' "$file")
+            if [[ "$target" != "$bucket"* ]]; then
+              echo "::error file=$file::target $target is not in $bucket"
+              failed=1
+            fi
+          done < <(find publish-odr-parameters -type f -name '*.yaml' -print0 2>/dev/null)
+
+          exit "$failed"
+        env:
+          ODR_BUCKET: ${{ inputs.odr_bucket }}
+
   publish-odr:
     name: Publish ODR
     runs-on: ubuntu-latest
