@@ -47,7 +47,7 @@ See [standardise_validate.py](https://github.com/linz/geoprocessor/blob/master/p
       - name: scale_to_resolution
         value: '{{=sprig.trim(workflow.parameters.scale_to_resolution)}}'
       - name: rescale_range
-        value: '{{=tasks["compute-scale"].status == "Succeeded" ? sprig.trim(tasks["compute-scale"].outputs.parameters.rescale_range) : (sprig.trim(tasks["tile-index-validate"].outputs.parameters.data_type) == "uint16" && workflow.parameters.compression == "webp" && sprig.trim(workflow.parameters.rescale_range) != "auto" ? sprig.trim(workflow.parameters.rescale_range) : "")}}'
+        value: '{{=tasks["compute-scale"].status == "Succeeded" ? sprig.trim(tasks["compute-scale"].outputs.parameters.rescale_range) : (sprig.trim(tasks["tile-index-validate"].outputs.parameters.data_type) == "uint16" && workflow.parameters.compression == "webp" ? sprig.trim(workflow.parameters.rescale_range) : "")}}'
       - name: rescale_gamma
         value: '{{=sprig.trim(workflow.parameters.rescale_gamma)}}'
       - name: source_epsg
