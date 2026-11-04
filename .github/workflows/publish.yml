@@ -48,7 +48,7 @@ jobs:
           export BUCKET="${ODR_BUCKET%/}/"
           [[ -d publish-odr-parameters ]] || exit 0
 
-          errors=$(find publish-odr-parameters -type f -name '*.yaml' -exec yq -N '
+          errors=$(find -L publish-odr-parameters -type f -name '*.yaml' -exec yq -N '
             select((.target | tag) != "!!str" or ((.target | test("^" + strenv(BUCKET))) | not))
             | "::error file=" + filename + "::target " + (.target | to_string) + " is not in " + strenv(BUCKET)
           ' {} +)
