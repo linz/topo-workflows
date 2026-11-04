@@ -1,5 +1,5 @@
 import { Chart, ChartProps } from 'cdk8s';
-import * as kplus from 'cdk8s-plus-35';
+import * as kplus from 'cdk8s-plus-36';
 import { Construct } from 'constructs';
 
 import { ScratchBucketName } from '../constants.ts';
