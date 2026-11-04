@@ -1,5 +1,5 @@
 import { Chart, ChartProps } from 'cdk8s';
-import { Namespace } from 'cdk8s-plus-35';
+import { Namespace } from 'cdk8s-plus-36';
 import { Construct } from 'constructs';
 
 import { applyDefaultLabels } from '../util/labels.ts';
