@@ -45,18 +45,18 @@ jobs:
 
       - name: Validate Parameter File Targets
         run: |
-          bucket="${ODR_BUCKET%/}/"
-          failed=0
+          export BUCKET="${ODR_BUCKET%/}/"
+          [[ -d publish-odr-parameters ]] || exit 0
 
-          while IFS= read -r -d '' file; do
-            target=$(yq '.target' "$file")
-            if [[ "$target" != "$bucket"* ]]; then
-              echo "::error file=$file::target $target is not in $bucket"
-              failed=1
-            fi
-          done < <(find publish-odr-parameters -type f -name '*.yaml' -print0 2>/dev/null)
+          errors=$(find publish-odr-parameters -type f -name '*.yaml' -exec yq -N '
+            select((.target | tag) != "!!str" or ((.target | test("^" + strenv(BUCKET))) | not))
+            | "::error file=" + filename + "::target " + (.target | to_string) + " is not in " + strenv(BUCKET)
+          ' {} +)
 
-          exit "$failed"
+          if [[ -n "$errors" ]]; then
+            echo "$errors"
+            exit 1
+          fi
         env:
           ODR_BUCKET: ${{ inputs.odr_bucket }}
 
