@@ -17,7 +17,43 @@ This documentation does not include Argo Workflows upgrade.
   - [AWS for Fluent Bit](https://github.com/aws/aws-for-fluent-bit) does not seem to provide information. [Fluent Bit does not seem to have a matrix neither](https://github.com/fluent/fluent-bit/discussions/10860#discussioncomment-14371268).
   - [Karpenter](https://karpenter.sh/docs/upgrading/compatibility/)
   - [Elastic Agent](components/elastic.agent.md#when-to-update) - the Agent version should match our Elasticsearch server version.
+  - Check AWS EKS upgrade insights for any warnings, particularly kube-proxy version skew.
+  - Check the current kube-proxy version and confirm compatibility with the target Kubernetes version. Update it before upgrading the control plane if required.
 - TODO: backup cluster state + configuration. _This process has not been implemented yet._
+
+### Update kube-proxy
+
+kube-proxy is currently self-managed in our EKS clusters and is not updated automatically when the Kubernetes control plane is upgraded.
+
+Check the current version:
+
+```bash
+kubectl get daemonset kube-proxy -n kube-system \
+  -o jsonpath='{.spec.template.spec.containers[0].image}{"\n"}'
+```
+
+Before updating, confirm the appropriate image version for the cluster and back up the existing DaemonSet:
+
+```bash
+kubectl get daemonset kube-proxy -n kube-system -o yaml \
+  > /tmp/kube-proxy-before-upgrade.yaml
+```
+
+Update the image if required:
+
+```bash
+kubectl set image daemonset/kube-proxy \
+  -n kube-system \
+  kube-proxy=<verified-image-uri>
+```
+
+Verify the rollout:
+
+```bash
+kubectl rollout status daemonset/kube-proxy -n kube-system
+```
+
+If AWS EKS upgrade insights identify a kube-proxy version-skew warning, update kube-proxy to a compatible version before upgrading the control plane. After upgrading the control plane, check compatibility again and update kube-proxy if required.
 
 ## Upgrade Process
 
@@ -130,6 +166,7 @@ This process is necessary to avoid being blocked for a future Kubernetes version
    ```bash
    aws eks wait nodegroup-active --cluster-name=Workflows --nodegroup-name="$node_group_name"
    ```
+
 
 ### k8s components
 
