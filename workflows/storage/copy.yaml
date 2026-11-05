@@ -39,6 +39,7 @@ spec:
         enum:
           - 'land'
           - 'sea'
+          - 'planning'
           - 'none'
       - name: ticket
         description: Ticket ID e.g. 'AIP-55'
