@@ -167,7 +167,6 @@ This process is necessary to avoid being blocked for a future Kubernetes version
    aws eks wait nodegroup-active --cluster-name=Workflows --nodegroup-name="$node_group_name"
    ```
 
-
 ### k8s components
 
 #### Upgrade `cdk8s-plus`
