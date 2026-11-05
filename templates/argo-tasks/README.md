@@ -180,7 +180,7 @@ List files in a location that end with `manifest.json`:
 
 ## argo-tasks/push-to-github - `tpl-push-to-github`
 
-Template for Formatting and Pushing STAC Collections to Github. Set `include_items` to `'true'` to also push the STAC Items linked from the Collection.
+Template for Formatting and Pushing STAC Collections to Github
 See <https://github.com/linz/argo-tasks#stac-github-import>
 
 ### Template usage
@@ -204,8 +204,6 @@ See <https://github.com/linz/argo-tasks#stac-github-import>
         value: '{{=sprig.trim(workflow.parameters.ticket)}}'
       - name: copy_option
         value: '{{workflow.parameters.copy_option}}'
-      - name: include_items
-        value: 'false'
   depends: 'generate-path'
 ```
 

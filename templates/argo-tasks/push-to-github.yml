@@ -34,13 +34,6 @@ spec:
           - name: copy_option
             description: --no-clobber Skip overwriting existing files. --force Overwrite all files. --force-no-clobber Overwrite only changed files, skip unchanged files.
 
-          - name: include_items
-            description: Also push the STAC items linked from the collection.json file
-            default: 'false'
-            enum:
-              - 'true'
-              - 'false'
-
       container:
         image: '019359803926.dkr.ecr.ap-southeast-2.amazonaws.com/argo-tasks:{{=sprig.trim(inputs.parameters.version_argo_tasks)}}'
         env:
@@ -75,5 +68,4 @@ spec:
             '{{inputs.parameters.ticket}}',
             '--copy-option',
             '{{inputs.parameters.copy_option}}',
-            '--include-items={{inputs.parameters.include_items}}',
           ]

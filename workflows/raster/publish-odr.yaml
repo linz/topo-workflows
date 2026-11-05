@@ -125,8 +125,6 @@ spec:
                   value: '{{=sprig.trim(inputs.parameters.ticket)}}'
                 - name: copy_option
                   value: '{{= inputs.parameters.odr_url == "" ? "--no-clobber" : "--force-no-clobber"}}'
-                - name: include_items
-                  value: '{{= inputs.parameters.target_bucket_name == "nz-flood-map" ? "true" : "false"}}'
             depends: 'generate-path'
 
     - name: exit-handler
