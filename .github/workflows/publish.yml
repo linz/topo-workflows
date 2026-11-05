@@ -13,6 +13,10 @@ on:
         required: false
         type: string
         default: s3://linz-bucket-config/config-write.open-data-registry.json
+      stac_items:
+        required: false
+        type: boolean
+        default: false
 
 concurrency:
   group: ${{ github.repository }}-${{ github.ref == 'refs/heads/master' && 'publish-queue' || format('validate-{0}', github.run_id) }}
@@ -41,11 +45,18 @@ jobs:
         run: |
           mapfile -t files < <(find "$PWD/stac" -type f -name collection.json)
 
+          args=()
+          if [[ "$STAC_ITEMS" == "true" ]]; then
+            args+=(--recursive)
+          fi
+
           if [ ${#files[@]} -eq 0 ]; then
             echo "No collection.json files found."
           else
-            docker run -v "$PWD:$PWD" ghcr.io/linz/argo-tasks:v8 stac-validate "${files[@]}"
+            docker run -v "$PWD:$PWD" ghcr.io/linz/argo-tasks:v8 stac-validate "${args[@]}" "${files[@]}"
           fi
+        env:
+          STAC_ITEMS: ${{ inputs.stac_items }}
 
       - name: Validate Parameter File Targets
         run: |
@@ -117,11 +128,12 @@ jobs:
           mapfile -d '' modified_parameter_files < <(git diff --name-only --diff-filter=AM -z ${{ github.event.before }} ${{ github.event.after }} -- "publish-odr-parameters/*.yaml")
 
           for file in "${modified_parameter_files[@]}"; do
-            ./argo-linux-amd64 submit --wait --from wftmpl/copy -n argo -f "$file" -p aws_role_config_path="$AWS_ROLE_CONFIG_PATH" -p exclude="collection.json$" -p user_group="$USER_GROUP" --generate-name "publish-odr-file-copy-"
+            ./argo-linux-amd64 submit --wait --from wftmpl/copy -n argo -f "$file" -p aws_role_config_path="$AWS_ROLE_CONFIG_PATH" -p exclude="$COPY_EXCLUDE" -p user_group="$USER_GROUP" --generate-name "publish-odr-file-copy-"
           done
         env:
           USER_GROUP: ${{ inputs.user_group }}
           AWS_ROLE_CONFIG_PATH: ${{ inputs.aws_role_config_path }}
+          COPY_EXCLUDE: ${{ inputs.stac_items && '\.json$' || 'collection.json$' }}
 
   sync-stac:
     name: Sync STAC files
