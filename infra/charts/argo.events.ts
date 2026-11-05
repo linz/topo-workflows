@@ -1,6 +1,6 @@
 import { Chart, ChartProps, Helm } from 'cdk8s';
-import { Namespace, ServiceAccount } from 'cdk8s-plus-36';
-import { KubeClusterRole, KubeClusterRoleBinding } from 'cdk8s-plus-36/lib/imports/k8s.js';
+import { Namespace, ServiceAccount } from 'cdk8s-plus-37';
+import { KubeClusterRole, KubeClusterRoleBinding } from 'cdk8s-plus-37/lib/imports/k8s.js';
 import { Construct } from 'constructs';
 
 import { applyDefaultLabels } from '../util/labels.js';
