@@ -311,6 +311,8 @@ spec:
         env:
           - name: AWS_ROLE_CONFIG_PATH
             value: s3://linz-bucket-config/config.json
+          - name: POLYGON_CLIPPING_MAX_QUEUE_SIZE
+            value: '5000000'
         args:
           [
             'mapsheet-coverage',
