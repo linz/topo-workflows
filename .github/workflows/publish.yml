@@ -41,22 +41,15 @@ jobs:
         with:
           args: stac-validate /github/workspace/stac/catalog.json
 
-      - name: Validate STAC Collections
+      - name: Validate STAC
         run: |
           mapfile -t files < <(find "$PWD/stac" -type f -name collection.json)
-
-          args=()
-          if [[ "$STAC_ITEMS" == "true" ]]; then
-            args+=(--recursive)
-          fi
 
           if [ ${#files[@]} -eq 0 ]; then
             echo "No collection.json files found."
           else
-            docker run -v "$PWD:$PWD" ghcr.io/linz/argo-tasks:v8 stac-validate "${args[@]}" "${files[@]}"
+            docker run -v "$PWD:$PWD" ghcr.io/linz/argo-tasks:v8 stac-validate ${{ inputs.stac_items && '--recursive --checksum-links' || '' }} "${files[@]}"
           fi
-        env:
-          STAC_ITEMS: ${{ inputs.stac_items }}
 
       - name: Validate Parameter File Targets
         run: |
