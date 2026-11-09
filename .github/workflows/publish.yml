@@ -48,12 +48,8 @@ jobs:
           if [ ${#files[@]} -eq 0 ]; then
             echo "No collection.json files found."
           else
-            flags=()
-            if [[ "$VALIDATE_ITEMS" == "true" ]]; then flags=(--recursive --checksum-links); fi
-            docker run -v "$PWD:$PWD" ghcr.io/linz/argo-tasks:v8 stac-validate "${flags[@]}" "${files[@]}"
+            docker run -v "$PWD:$PWD" ghcr.io/linz/argo-tasks:v8 stac-validate ${{ inputs.validate_items && '--recursive --checksum-links' || '' }} "${files[@]}"
           fi
-        env:
-          VALIDATE_ITEMS: ${{ inputs.validate_items }}
 
       - name: Validate Parameter File Targets
         run: |
