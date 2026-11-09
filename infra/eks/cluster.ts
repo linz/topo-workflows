@@ -32,6 +32,7 @@ export class LinzEksCluster extends Stack {
   /* Cluster ID */
   id: string;
   /** Version of EKS to use, this must be aligned to the `kubectlLayer` */
+  // TODO: switch to KubernetesVersion.V1_37 once aws-cdk-lib makes avaliable
   version = KubernetesVersion.of('1.37');
   /** Argo needs a temporary bucket to store objects */
   tempBucket: IBucket;

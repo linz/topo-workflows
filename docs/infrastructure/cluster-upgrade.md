@@ -132,7 +132,7 @@ kubectl rollout status deployment/coredns -n kube-system
 
 Verify DNS resolution again after rolling back.
 
-****Note:**** Do not use `aws eks update-addon` unless CoreDNS has been migrated to an EKS-managed add-on. Confirm the management method for each cluster before upgrading.
+**Note:** Do not use `aws eks update-addon` unless CoreDNS has been migrated to an EKS-managed add-on. Confirm the management method for each cluster before upgrading.
 
 ## Upgrade Process
 
