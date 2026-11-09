@@ -19,6 +19,7 @@ This documentation does not include Argo Workflows upgrade.
   - [Elastic Agent](components/elastic.agent.md#when-to-update) - the Agent version should match our Elasticsearch server version.
   - Check AWS EKS upgrade insights for any warnings, particularly kube-proxy version skew.
   - Check the current kube-proxy version and confirm compatibility with the target Kubernetes version. Update it before upgrading the control plane if required.
+- Check the current CoreDNS version and confirm compatibility with the target Kubernetes version. Check whether CoreDNS is self-managed or an EKS-managed add-on; self-managed deployments must be updated separately from the EKS control plane.
 - TODO: backup cluster state + configuration. _This process has not been implemented yet._
 
 ### Update kube-proxy
@@ -54,6 +55,84 @@ kubectl rollout status daemonset/kube-proxy -n kube-system
 ```
 
 If AWS EKS upgrade insights identify a kube-proxy version-skew warning, update kube-proxy to a compatible version before upgrading the control plane. After upgrading the control plane, check compatibility again and update kube-proxy if required.
+
+### Update CoreDNS
+
+CoreDNS is self-managed in WorkflowsNP and is not automatically updated when the Kubernetes control plane is upgraded. Confirm whether CoreDNS is self-managed or an EKS-managed add-on in each target cluster. Its ConfigMap is managed through `cdk8s` in `infra/charts/kube-system.coredns.ts`, while the Deployment image is updated separately.
+
+Confirm the AWS profile and Kubernetes context point to the intended cluster before making changes:
+
+```bash
+kubectl config current-context
+aws sts get-caller-identity
+```
+
+Check the current image:
+
+```bash
+kubectl get deployment coredns -n kube-system \
+  -o jsonpath='{.spec.template.spec.containers[0].image}{"\n"}'
+```
+
+Confirm the target CoreDNS version is compatible with the Kubernetes version and the existing custom Corefile. Check that the required RBAC permissions are present.
+
+Back up the existing Deployment:
+
+```bash
+kubectl get deployment coredns -n kube-system -o yaml \
+  > /tmp/coredns-before-upgrade.yaml
+```
+
+Update the CoreDNS image using a verified version:
+
+```bash
+kubectl set image deployment/coredns \
+  -n kube-system \
+  coredns=<verified-image-uri>
+```
+
+Verify the rollout and pod health:
+
+```bash
+kubectl rollout status deployment/coredns -n kube-system
+kubectl get deployment coredns -n kube-system
+kubectl get pods -n kube-system -l k8s-app=kube-dns
+```
+
+Test internal DNS resolution:
+
+```bash
+kubectl run dns-test \
+  --namespace default \
+  --image=busybox:1.36 \
+  --restart=Never \
+  --rm -i \
+  --command -- nslookup kubernetes.default.svc.cluster.local
+```
+
+Test external DNS resolution:
+
+```bash
+kubectl run dns-test \
+  --namespace default \
+  --image=busybox:1.36 \
+  --restart=Never \
+  --rm -i \
+  --command -- nslookup example.com
+```
+
+Both lookups should return valid IP addresses. Check CoreDNS logs for errors and run a representative Argo workflow to verify workload functionality.
+
+If the upgrade causes issues, roll back to the previous Deployment revision:
+
+```bash
+kubectl rollout undo deployment/coredns -n kube-system
+kubectl rollout status deployment/coredns -n kube-system
+```
+
+Verify DNS resolution again after rolling back.
+
+****Note:**** Do not use `aws eks update-addon` unless CoreDNS has been migrated to an EKS-managed add-on. Confirm the management method for each cluster before upgrading.
 
 ## Upgrade Process
 
