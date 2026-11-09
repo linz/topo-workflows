@@ -93,6 +93,12 @@ jobs:
         run: |
           kubectl get nodes
 
+      # Authenticate to public ECR so Helm can pull charts without hitting anonymous rate limits
+      - name: Login to Public ECR (Helm)
+        if: steps.get-infra-changes.outputs.run_infra == 'true'
+        run: |
+          aws ecr-public get-login-password --region us-east-1 | helm registry login --username AWS --password-stdin public.ecr.aws
+
       # Configure the Kubernetes cluster with CDK8s
       - name: (CDK8s) Synth
         if: steps.get-infra-changes.outputs.run_infra == 'true'
