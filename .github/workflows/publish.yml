@@ -13,6 +13,10 @@ on:
         required: false
         type: string
         default: s3://linz-bucket-config/config-write.open-data-registry.json
+      validate_items:
+        required: false
+        type: boolean
+        default: false
 
 concurrency:
   group: ${{ github.repository }}-${{ github.ref == 'refs/heads/master' && 'publish-queue' || format('validate-{0}', github.run_id) }}
@@ -37,14 +41,14 @@ jobs:
         with:
           args: stac-validate /github/workspace/stac/catalog.json
 
-      - name: Validate STAC Collections
+      - name: Validate STAC
         run: |
           mapfile -t files < <(find "$PWD/stac" -type f -name collection.json)
 
           if [ ${#files[@]} -eq 0 ]; then
             echo "No collection.json files found."
           else
-            docker run -v "$PWD:$PWD" ghcr.io/linz/argo-tasks:v8 stac-validate "${files[@]}"
+            docker run -v "$PWD:$PWD" ghcr.io/linz/argo-tasks:v8 stac-validate ${{ inputs.validate_items && '--recursive --checksum-links' || '' }} "${files[@]}"
           fi
 
       - name: Validate Parameter File Targets
