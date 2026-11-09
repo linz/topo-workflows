@@ -41,7 +41,7 @@ jobs:
         with:
           args: stac-validate /github/workspace/stac/catalog.json
 
-      - name: Validate STAC Collections
+      - name: Validate STAC
         run: |
           mapfile -t files < <(find "$PWD/stac" -type f -name collection.json)
 
