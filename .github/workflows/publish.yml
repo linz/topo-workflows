@@ -13,6 +13,10 @@ on:
         required: false
         type: string
         default: s3://linz-bucket-config/config-write.open-data-registry.json
+      validate_items:
+        required: false
+        type: boolean
+        default: false
 
 concurrency:
   group: ${{ github.repository }}-${{ github.ref == 'refs/heads/master' && 'publish-queue' || format('validate-{0}', github.run_id) }}
@@ -44,8 +48,12 @@ jobs:
           if [ ${#files[@]} -eq 0 ]; then
             echo "No collection.json files found."
           else
-            docker run -v "$PWD:$PWD" ghcr.io/linz/argo-tasks:v8 stac-validate "${files[@]}"
+            flags=()
+            if [[ "$VALIDATE_ITEMS" == "true" ]]; then flags=(--recursive --checksum-links); fi
+            docker run -v "$PWD:$PWD" ghcr.io/linz/argo-tasks:v8 stac-validate "${flags[@]}" "${files[@]}"
           fi
+        env:
+          VALIDATE_ITEMS: ${{ inputs.validate_items }}
 
       - name: Validate Parameter File Targets
         run: |
