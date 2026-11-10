@@ -89,7 +89,8 @@ jobs:
       - name: Setup kubectl
         uses: azure/setup-kubectl@bda439f5f36b99b262ebdcd3613869bddb064c8e # v5.2.0
         with:
-          version: 'latest'
+          version: 'v1.37.2'
+          checksum: 'c04487523e7aa7d1493f7808174c899db93d7a9cf57531420cd76b9bd415f8f4'
 
       - name: AWS Configure
         uses: aws-actions/configure-aws-credentials@e1253824e5c10ff9df46874f81ed3ec929e19cfd # v6.3.0
