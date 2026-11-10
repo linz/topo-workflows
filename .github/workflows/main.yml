@@ -1,5 +1,6 @@
 on: [push]
 env:
+  # Set by scripts/bump-argo-versions.sh
   ARGO_URL: https://github.com/argoproj/argo-workflows/releases/download/v3.6.12/argo-linux-amd64.gz
   ARGO_SHA256: 2fa74a335e9d1a81d6892e4b67a58225a36e9af64bc1048924d8357403e2cd79
 jobs:
