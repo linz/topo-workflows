@@ -1,4 +1,4 @@
-# yaml-language-server: $schema=https://raw.githubusercontent.com/argoproj/argo-events/v1.9.10/api/jsonschema/schema.json
+# yaml-language-server: $schema=https://raw.githubusercontent.com/argoproj/argo-events/v1.9.11/api/jsonschema/schema.json
 
 apiVersion: argoproj.io/v1alpha1
 kind: Sensor
