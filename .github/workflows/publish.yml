@@ -18,6 +18,9 @@ on:
         type: boolean
         default: false
 
+env:
+  ARGO_URL: https://github.com/argoproj/argo-workflows/releases/download/v3.6.12/argo-linux-amd64.gz
+
 concurrency:
   group: ${{ github.repository }}-${{ github.ref == 'refs/heads/master' && 'publish-queue' || format('validate-{0}', github.run_id) }}
   queue: max
@@ -109,7 +112,7 @@ jobs:
 
       - name: Install Argo
         run: |
-          curl -sLO https://github.com/argoproj/argo-workflows/releases/download/v3.6.12/argo-linux-amd64.gz
+          curl --location --remote-name --silent "${{ env.ARGO_URL }}"
           gunzip argo-linux-amd64.gz
           chmod +x argo-linux-amd64
           ./argo-linux-amd64 version
