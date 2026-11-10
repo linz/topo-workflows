@@ -9,7 +9,7 @@ metadata:
 spec:
   schedules:
     - '0 06 * * 3' # 6 AM every Wednesday
-  timezone: 'NZ'
+  timezone: 'Pacific/Auckland'
   startingDeadlineSeconds: 3600 # Allow 1 hour delay if the workflow-controller clashes during the starting time.
   concurrencyPolicy: 'Allow'
   successfulJobsHistoryLimit: 3

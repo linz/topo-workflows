@@ -9,7 +9,7 @@ metadata:
 spec:
   schedules:
     - '0 6 * * 1-5' # At 06:00 AM, Monday through Friday
-  timezone: 'NZ'
+  timezone: 'Pacific/Auckland'
   concurrencyPolicy: 'Allow'
   successfulJobsHistoryLimit: 3
   failedJobsHistoryLimit: 3
