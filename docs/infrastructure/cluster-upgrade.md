@@ -173,13 +173,20 @@ Below is an example of upgrading from v1.27 to v1.28
          kubectlLayer: new KubectlV28Layer(this, 'KubeCtlLayer'),
    ```
 
-4. Pin the CI `kubectl` to the latest patch of the new version (`curl -Ls https://dl.k8s.io/release/stable-1.28.txt`) in the `azure/setup-kubectl` steps of `.github/workflows/main.yml` and `.github/workflows/publish.yml`. `kubectl` is only supported within one minor version of the cluster.
+4. Pin the CI `kubectl` to the latest patch of the new version in the `azure/setup-kubectl` steps of `.github/workflows/main.yml` and `.github/workflows/publish.yml`. `kubectl` is only supported within one minor version of the cluster.
+
+   ```bash
+   version="$(curl -Ls https://dl.k8s.io/release/stable-1.28.txt)"
+   echo "${version}"
+   curl -Ls "https://dl.k8s.io/release/${version}/bin/linux/amd64/kubectl.sha256"
+   ```
 
    ```yaml
    - name: Setup kubectl
      uses: azure/setup-kubectl@...
      with:
        version: 'v1.28.15'
+       checksum: '<sha256 from above>'
    ```
 
 5. Diff the stack to make sure that only versions are updated
