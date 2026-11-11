@@ -1,6 +1,8 @@
 on: [push]
 env:
-  ARGO_URL: https://github.com/argoproj/argo-workflows/releases/download/v3.6.12/argo-linux-amd64.gz
+  # Set by scripts/bump-argo-versions.sh
+  ARGO_URL: https://github.com/argoproj/argo-workflows/releases/download/v4.1.6/argo-linux-amd64.gz
+  ARGO_SHA256: 885f886a338d7e7c0fd4a681152770fb54df1847f8fc55eaed788d661c0304e0
 jobs:
   main:
     name: Build, Format and Test
@@ -23,6 +25,7 @@ jobs:
       - name: Install Argo
         run: |
           curl --location --remote-name --silent "${{ env.ARGO_URL }}"
+          echo "${{ env.ARGO_SHA256 }}  argo-linux-amd64.gz" | sha256sum --check --strict
           gunzip argo-linux-amd64.gz
           chmod +x argo-linux-amd64
           ./argo-linux-amd64 version
@@ -152,6 +155,7 @@ jobs:
         if: steps.get-infra-changes.outputs.run_infra == 'true'
         run: |
           curl --location --remote-name --silent "${{ env.ARGO_URL }}"
+          echo "${{ env.ARGO_SHA256 }}  argo-linux-amd64.gz" | sha256sum --check --strict
           gunzip argo-linux-amd64.gz
           chmod +x argo-linux-amd64
 

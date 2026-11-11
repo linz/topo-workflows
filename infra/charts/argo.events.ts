@@ -22,16 +22,17 @@ export interface ArgoEventsProps {
 }
 
 /**
- * This is the version of the Helm chart for Argo Events https://github.com/argoproj/argo-helm/blob/b8fc7466465c617f270256ded8d6c6d3d57ea524/charts/argo-events/Chart.yaml#L5C10-L5C16
+ * This is the version of the Helm chart for Argo Events https://github.com/argoproj/argo-helm/blob/f60d55861d0ed6052f807d981343bd84b9a5de06/charts/argo-events/Chart.yaml#L5
  */
-const chartVersion = '2.4.20';
+const chartVersion = '2.4.27';
 
 /**
  * This is the version of Argo Events for the `chartVersion` we're using
- * https://github.com/argoproj/argo-helm/blob/b8fc7466465c617f270256ded8d6c6d3d57ea524/charts/argo-events/Chart.yaml#L2
+ * https://github.com/argoproj/argo-helm/blob/f60d55861d0ed6052f807d981343bd84b9a5de06/charts/argo-events/Chart.yaml#L2
  *
+ * After changing it, run `scripts/bump-argo-versions.sh`
  */
-const appVersion = 'v1.9.10';
+const appVersion = 'v1.9.11';
 
 const namespace = 'argo-events';
 

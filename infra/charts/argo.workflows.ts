@@ -39,18 +39,19 @@ export interface ArgoWorkflowsProps {
 }
 
 /**
- * This is the version of the Helm chart for Argo Workflows https://github.com/argoproj/argo-helm/blob/25d7b519bc7fc37d2820721cd648f3a3403d0e38/charts/argo-workflows/Chart.yaml#L6
+ * This is the version of the Helm chart for Argo Workflows https://github.com/argoproj/argo-helm/blob/0ec0b3a73be5e47c7cd6ca6ab188105885798914/charts/argo-workflows/Chart.yaml#L6
  *
  * (Do not mix up with Argo Workflows application version)
  */
-const chartVersion = '0.45.20';
+const chartVersion = '2.0.15';
 
 /**
  * This is the version of Argo Workflows for the `chartVersion` we're using
- * https://github.com/argoproj/argo-helm/blob/2730dc24c7ad69b98d3206705a5ebf5cb34dd96b/charts/argo-workflows/Chart.yaml#L2
+ * https://github.com/argoproj/argo-helm/blob/0ec0b3a73be5e47c7cd6ca6ab188105885798914/charts/argo-workflows/Chart.yaml#L2
  *
+ * After changing it, run `scripts/bump-argo-versions.sh`
  */
-const appVersion = 'v3.6.12';
+const appVersion = 'v4.1.6';
 
 export class ArgoWorkflows extends Chart {
   constructor(scope: Construct, id: string, props: ArgoWorkflowsProps & ChartProps) {
@@ -108,6 +109,7 @@ export class ArgoWorkflows extends Chart {
       namespace: 'argo',
       version: chartVersion,
       values: {
+        crds: { full: false },
         global: {
           image: {
             repository: 'quay.io/argoproj/workflow-controller',
