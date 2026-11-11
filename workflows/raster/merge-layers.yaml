@@ -331,10 +331,6 @@ spec:
                   value: '{{=sprig.trimSuffix("/", tasks["get-location"].outputs.parameters.location)}}/{{inputs.parameters.geospatial_category}}/flat/collection.json'
                 - name: version_argo_tasks
                   value: '{{= inputs.parameters.version_argo_tasks}}'
-              artifacts:
-                - name: stac-result
-                  raw:
-                    data: '{{tasks.stac-validate-all.outputs.result}}'
             depends: 'create-collection.Succeeded'
             when: "'{{inputs.parameters.odr_url}}' == ''"
 
