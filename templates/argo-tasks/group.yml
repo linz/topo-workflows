@@ -32,7 +32,7 @@ spec:
             default: ''
 
           - name: group_size
-            description: Also close a group once the input files of its `tpl-at-tile-index-validate` records reach this total size, e.g. "100Gi", no limit if empty
+            description: Also close a group when files reach this this total size, e.g. "100Gi", no limit if empty
             default: ''
 
           - name: version_argo_tasks
