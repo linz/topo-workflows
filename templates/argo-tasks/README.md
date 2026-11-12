@@ -40,6 +40,16 @@ Group the output of `tile-index-validate` into groups of size 5
   depends: "tile-index-validate"
 ```
 
+Or into groups of about 100 GB of input files, with no limit on the number of records per group:
+
+```yaml
+parameters:
+  - name: size
+    value: '-1'
+  - name: group_size
+    value: '100Gi'
+```
+
 ### Consumer usage
 
 Using `withParams` to spin up a number of tasks from

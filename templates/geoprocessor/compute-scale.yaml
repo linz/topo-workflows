@@ -45,9 +45,19 @@ spec:
           - name: histogram_dir
             description: 'Directory of the histogram file of each source TIFF, reused when the step is retried, e.g. "s3://linz-workflows-scratch/2024-01/01-my-workflow-abcd/compute-scale/histograms/"'
 
+          - name: group_id
+            description: 'ID of the group in `group_data` to read, e.g. "000". Reads `files` if empty'
+            default: ''
+
         artifacts:
+          # Output of `tpl-at-tile-index-validate`, read if `group_id` is empty
           - name: files
             path: /tmp/input/file-list.json
+            optional: true
+          # Output of `tpl-at-group`, one file per group ID
+          - name: group_data
+            path: /tmp/input/group/
+            optional: true
 
       outputs:
         parameters:
@@ -70,7 +80,7 @@ spec:
         args:
           - 'compute-scale'
           - '--from-file'
-          - '/tmp/input/file-list.json'
+          - '{{= sprig.trim(inputs.parameters.group_id) == "" ? "/tmp/input/file-list.json" : "/tmp/input/group/" + sprig.trim(inputs.parameters.group_id) + ".json" }}'
           - '--target'
           - '/tmp/compute-scale/'
           - '--rescale-clip-low-percentile'

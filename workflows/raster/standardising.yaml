@@ -458,17 +458,16 @@ spec:
             depends: 'tile-index-validate'
             when: '{{= sprig.trim(tasks["tile-index-validate"].outputs.parameters.data_type) == "uint16" && workflow.parameters.compression == "webp" && sprig.trim(workflow.parameters.rescale_range) == "auto" && sprig.trim(workflow.parameters.odr_url) != "" && workflow.parameters.delete_all_existing_items != "true" }}'
 
-          - name: compute-scale-list
+          - name: compute-scale-group
             templateRef:
-              name: tpl-at-list
+              name: tpl-at-group
               template: main
             arguments:
+              artifacts:
+                - name: input
+                  from: '{{ tasks.tile-index-validate.outputs.artifacts.files }}'
               parameters:
-                - name: location
-                  value: '{{=sprig.trim(inputs.parameters.source)}}'
-                - name: include
-                  value: '{{workflow.parameters.include}}'
-                - name: group
+                - name: size
                   value: '-1'
                 - name: group_size
                   value: '{{=sprig.trim(workflow.parameters.compute_scale_group_size)}}'
@@ -484,16 +483,19 @@ spec:
               template: main
             arguments:
               parameters:
+                - name: group_id
+                  value: '{{item}}'
                 - name: histogram_dir
                   value: '{{=sprig.trimSuffix("/", tasks["get-location"].outputs.parameters.location)}}/compute-scale/histograms/'
                 - name: version_geoprocessor_raster
                   value: '{{= workflow.parameters.version_geoprocessor_raster}}'
               artifacts:
-                - name: files
-                  raw:
-                    data: '[{"output": "compute-scale", "input": {{item}}}]'
-            depends: 'compute-scale-list && get-location'
-            withParam: '{{=tasks["compute-scale-list"].status == "Succeeded" ? tasks["compute-scale-list"].outputs.parameters.files : "[]"}}'
+                - name: group_data
+                  from: '{{ tasks.compute-scale-group.outputs.artifacts.output }}'
+            depends: 'compute-scale-group && get-location'
+            # Same as compute-scale-group: Argo only resolves the group_data reference when this is true
+            when: '{{= sprig.trim(tasks["tile-index-validate"].outputs.parameters.data_type) == "uint16" && workflow.parameters.compression == "webp" && sprig.trim(workflow.parameters.rescale_range) == "auto" }}'
+            withParam: '{{=tasks["compute-scale-group"].status == "Succeeded" ? tasks["compute-scale-group"].outputs.parameters.output : "[]"}}'
 
           - name: compute-scale
             templateRef:

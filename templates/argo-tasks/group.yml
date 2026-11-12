@@ -28,7 +28,11 @@ spec:
 
         parameters:
           - name: size
-            description: Group into this number of records per group
+            description: Group into this number of records per group, -1 for no limit
+
+          - name: group_size
+            description: Also close a group once the input files of its `tpl-at-tile-index-validate` records reach this total size, e.g. "100Gi", -1 for no limit
+            default: '-1'
 
           - name: version_argo_tasks
             description: Specify a version of the argo-tasks container to use, e.g. "v5.1" or "latest"
@@ -68,4 +72,5 @@ spec:
           - 'group'
           - '--verbose'
           - '--size={{= inputs.parameters.size }}'
+          - '--group-size={{= inputs.parameters.group_size }}'
           - '--from-file={{= inputs.artifacts.input.path }}'
