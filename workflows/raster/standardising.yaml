@@ -135,7 +135,7 @@ spec:
         description: 'Gamma applied with rescale_range, e.g. "1.3" brightens mid tones. "1" is linear.'
         value: '1.3'
       - name: compute_scale_group_size
-        description: 'If rescale_range is "auto", total size of the source TIFFs read by each compute-scale task "pod", e.g. "100Gi"'
+        description: 'If rescale_range is "auto", total size of the source TIFFs read by each compute-scale task "pod", e.g. "100Gi". Each pod also reads at most 50 output tiles.'
         value: '100Gi'
       - name: create_capture_area
         description: 'Create a capture area GeoJSON file for the standardised dataset'
@@ -467,8 +467,6 @@ spec:
                 - name: input
                   from: '{{ tasks.tile-index-validate.outputs.artifacts.files }}'
               parameters:
-                - name: size
-                  value: '0'
                 - name: group_size
                   value: '{{=sprig.trim(workflow.parameters.compute_scale_group_size)}}'
                 - name: version_argo_tasks

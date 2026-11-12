@@ -28,10 +28,11 @@ spec:
 
         parameters:
           - name: size
-            description: Group into this number of records per group, 0 for no limit
+            description: Group into this number of records per group, argo-tasks defaults to 50 if empty
+            default: ''
 
           - name: group_size
-            description: Also close a group once the input files of its `tpl-at-tile-index-validate` records reach this total size, e.g. "100Gi", empty for no limit
+            description: Also close a group once the input files of its `tpl-at-tile-index-validate` records reach this total size, e.g. "100Gi", no limit if empty
             default: ''
 
           - name: version_argo_tasks
@@ -71,6 +72,7 @@ spec:
         args:
           - 'group'
           - '--verbose'
-          - '--size={{= inputs.parameters.size }}'
-          - '--group-size={{= inputs.parameters.group_size }}'
+          # An empty argument is ignored, so the option is only passed when set
+          - '{{= sprig.trim(inputs.parameters.size) == "" ? "" : "--size=" + sprig.trim(inputs.parameters.size) }}'
+          - '{{= sprig.trim(inputs.parameters.group_size) == "" ? "" : "--group-size=" + sprig.trim(inputs.parameters.group_size) }}'
           - '--from-file={{= inputs.artifacts.input.path }}'

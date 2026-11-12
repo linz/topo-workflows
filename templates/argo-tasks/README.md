@@ -40,12 +40,10 @@ Group the output of `tile-index-validate` into groups of size 5
   depends: "tile-index-validate"
 ```
 
-Or into groups of about 100 GB of input files, with no limit on the number of records per group:
+Or into groups of about 100 GB of input files, of at most 50 records (the argo-tasks default when `size` is empty):
 
 ```yaml
 parameters:
-  - name: size
-    value: '0'
   - name: group_size
     value: '100Gi'
 ```
