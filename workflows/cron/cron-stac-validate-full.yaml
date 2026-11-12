@@ -17,6 +17,7 @@ spec:
   workflowSpec:
     entrypoint: main
     onExit: exit-handler
+    parallelism: 30
     podMetadata:
       labels:
         linz.govt.nz/category: stac
