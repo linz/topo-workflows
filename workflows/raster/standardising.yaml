@@ -468,7 +468,7 @@ spec:
                   from: '{{ tasks.tile-index-validate.outputs.artifacts.files }}'
               parameters:
                 - name: size
-                  value: '-1'
+                  value: '0'
                 - name: group_size
                   value: '{{=sprig.trim(workflow.parameters.compute_scale_group_size)}}'
                 - name: version_argo_tasks

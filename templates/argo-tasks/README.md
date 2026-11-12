@@ -45,7 +45,7 @@ Or into groups of about 100 GB of input files, with no limit on the number of re
 ```yaml
 parameters:
   - name: size
-    value: '-1'
+    value: '0'
   - name: group_size
     value: '100Gi'
 ```
