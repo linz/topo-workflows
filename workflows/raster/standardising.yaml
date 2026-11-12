@@ -134,6 +134,9 @@ spec:
       - name: rescale_gamma
         description: 'Gamma applied with rescale_range, e.g. "1.3" brightens mid tones. "1" is linear.'
         value: '1.3'
+      - name: compute_scale_group_size
+        description: 'If rescale_range is "auto", total size of the source TIFFs read by each compute-scale pod, e.g. "100Gi". Each pod also reads at most 50 output tiles.'
+        value: '100Gi'
       - name: create_capture_area
         description: 'Create a capture area GeoJSON file for the standardised dataset'
         value: 'true'
@@ -455,6 +458,42 @@ spec:
             depends: 'tile-index-validate'
             when: '{{= sprig.trim(tasks["tile-index-validate"].outputs.parameters.data_type) == "uint16" && workflow.parameters.compression == "webp" && sprig.trim(workflow.parameters.rescale_range) == "auto" && sprig.trim(workflow.parameters.odr_url) != "" && workflow.parameters.delete_all_existing_items != "true" }}'
 
+          - name: compute-scale-group
+            templateRef:
+              name: tpl-at-group
+              template: main
+            arguments:
+              artifacts:
+                - name: input
+                  from: '{{ tasks.tile-index-validate.outputs.artifacts.files }}'
+              parameters:
+                - name: group_size
+                  value: '{{=sprig.trim(workflow.parameters.compute_scale_group_size)}}'
+                - name: version_argo_tasks
+                  value: '{{= workflow.parameters.version_argo_tasks}}'
+            depends: 'tile-index-validate && check-rescale-resupply'
+            when: '{{= sprig.trim(tasks["tile-index-validate"].outputs.parameters.data_type) == "uint16" && workflow.parameters.compression == "webp" && sprig.trim(workflow.parameters.rescale_range) == "auto" }}'
+
+          - name: compute-scale-histograms
+            templateRef:
+              name: tpl-gp-raster-compute-scale
+              template: main
+            arguments:
+              parameters:
+                - name: group_id
+                  value: '{{item}}'
+                - name: histogram_dir
+                  value: '{{=sprig.trimSuffix("/", tasks["get-location"].outputs.parameters.location)}}/compute-scale/histograms/'
+                - name: version_geoprocessor_raster
+                  value: '{{= workflow.parameters.version_geoprocessor_raster}}'
+              artifacts:
+                - name: group_data
+                  from: '{{ tasks.compute-scale-group.outputs.artifacts.output }}'
+            depends: 'compute-scale-group && get-location'
+            # Argo only resolves group_data when true
+            when: '{{= sprig.trim(tasks["tile-index-validate"].outputs.parameters.data_type) == "uint16" && workflow.parameters.compression == "webp" && sprig.trim(workflow.parameters.rescale_range) == "auto" }}'
+            withParam: '{{=tasks["compute-scale-group"].status == "Succeeded" ? tasks["compute-scale-group"].outputs.parameters.output : "[]"}}'
+
           - name: compute-scale
             templateRef:
               name: tpl-gp-raster-compute-scale
@@ -474,7 +513,7 @@ spec:
               artifacts:
                 - name: files
                   from: '{{ tasks.tile-index-validate.outputs.artifacts.files }}'
-            depends: 'tile-index-validate && get-location && check-rescale-resupply'
+            depends: 'tile-index-validate && get-location && check-rescale-resupply && compute-scale-histograms'
             when: '{{= sprig.trim(tasks["tile-index-validate"].outputs.parameters.data_type) == "uint16" && workflow.parameters.compression == "webp" && sprig.trim(workflow.parameters.rescale_range) == "auto" }}'
 
           - name: standardise-validate
