@@ -182,8 +182,7 @@ volumes:
 Template for computing the source pixel range to scale 16-bit TIFFs to 8-bit from the low and high percentiles of all source TIFFs.
 Outputs the `rescale_range` parameter for `tpl-gp-raster-standardise-validate`.
 
-Each pod downloads at most 2 TIFFs of 4.5 GB at a time, so large datasets are split by size with `tpl-at-group` first.
-Each group saves its histograms to `histogram_dir`, then a last `compute-scale` sums them without downloading the TIFFs again.
+Large datasets are grouped by size with `tpl-at-group`, then `compute-scale` sums the saved histograms.
 
 See [compute_scale.py](https://github.com/linz/geoprocessor/blob/master/packages/geoprocessor-raster/src/geoprocessor_raster/compute_scale.py)
 

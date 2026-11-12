@@ -474,7 +474,6 @@ spec:
             depends: 'tile-index-validate && check-rescale-resupply'
             when: '{{= sprig.trim(tasks["tile-index-validate"].outputs.parameters.data_type) == "uint16" && workflow.parameters.compression == "webp" && sprig.trim(workflow.parameters.rescale_range) == "auto" }}'
 
-          # Saves the histogram of each source TIFF in parallel, `compute-scale` then sums them
           - name: compute-scale-histograms
             templateRef:
               name: tpl-gp-raster-compute-scale
@@ -491,7 +490,7 @@ spec:
                 - name: group_data
                   from: '{{ tasks.compute-scale-group.outputs.artifacts.output }}'
             depends: 'compute-scale-group && get-location'
-            # Same as compute-scale-group: Argo only resolves the group_data reference when this is true
+            # Argo only resolves group_data when true
             when: '{{= sprig.trim(tasks["tile-index-validate"].outputs.parameters.data_type) == "uint16" && workflow.parameters.compression == "webp" && sprig.trim(workflow.parameters.rescale_range) == "auto" }}'
             withParam: '{{=tasks["compute-scale-group"].status == "Succeeded" ? tasks["compute-scale-group"].outputs.parameters.output : "[]"}}'
 

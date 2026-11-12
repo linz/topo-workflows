@@ -72,7 +72,7 @@ spec:
         args:
           - 'group'
           - '--verbose'
-          # An empty argument is ignored, so the option is only passed when set
+          # Empty args are dropped
           - '{{= sprig.trim(inputs.parameters.size) == "" ? "" : "--size=" + sprig.trim(inputs.parameters.size) }}'
           - '{{= sprig.trim(inputs.parameters.group_size) == "" ? "" : "--group-size=" + sprig.trim(inputs.parameters.group_size) }}'
           - '--from-file={{= inputs.artifacts.input.path }}'

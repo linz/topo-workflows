@@ -50,11 +50,9 @@ spec:
             default: ''
 
         artifacts:
-          # Output of `tpl-at-tile-index-validate`, read if `group_id` is empty
           - name: files
             path: /tmp/input/file-list.json
             optional: true
-          # Output of `tpl-at-group`, one file per group ID
           - name: group_data
             path: /tmp/input/group/
             optional: true
@@ -97,7 +95,7 @@ spec:
           - '--max-download-gb'
           - '9'
         resources:
-          # Sized to fit 3 pods per 32 GiB node; 2 downloads of 4.3 GB TIFFs peaked at 8.2 GiB and 0.7 CPU
+          # 3 pods per 32 GiB node
           requests:
             memory: 9Gi
             cpu: 1000m
