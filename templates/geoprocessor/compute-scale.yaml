@@ -19,16 +19,7 @@ spec:
         - name: tmp
           emptyDir:
             medium: Memory
-            sizeLimit: 12Gi
-      # Downloading is limited by the node network bandwidth (Mbit/s)
-      affinity:
-        nodeAffinity:
-          requiredDuringSchedulingIgnoredDuringExecution:
-            nodeSelectorTerms:
-              - matchExpressions:
-                  - key: karpenter.k8s.aws/instance-network-bandwidth
-                    operator: Gt
-                    values: ['20000']
+            sizeLimit: 9Gi
       inputs:
         parameters:
           - name: version_geoprocessor_raster
@@ -49,7 +40,7 @@ spec:
 
           - name: concurrency
             description: 'Number of concurrent TIFFs to read'
-            default: '64'
+            default: '8'
 
           - name: histogram_dir
             description: 'Directory of the histogram file of each source TIFF, reused when the step is retried, e.g. "s3://linz-workflows-scratch/2024-01/01-my-workflow-abcd/compute-scale/histograms/"'
@@ -94,12 +85,12 @@ spec:
           - '{{=sprig.trim(inputs.parameters.histogram_dir)}}'
           # Fits in the memory-backed /tmp
           - '--max-download-gb'
-          - '10'
+          - '9'
         resources:
+          # Sized to fit 3 pods per 32 GiB node; 2 downloads of 4.3 GB TIFFs peaked at 8.2 GiB and 0.7 CPU
           requests:
-            # Includes the memory-backed /tmp and the 4 GiB GDAL cache shared by the compute-scale workers
-            memory: 22Gi
-            cpu: 15000m
+            memory: 9Gi
+            cpu: 1000m
         volumeMounts:
           - name: tmp
             mountPath: '/tmp'
