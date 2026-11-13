@@ -23,8 +23,8 @@ spec:
     - name: main
       retryStrategy:
         expression: 'false'
-      container:
-        image: python:alpine3.6
+      script:
+        image: public.ecr.aws/docker/library/python:3.15-alpine3.24
         command: ['python']
         source: |
           # Do something that fails ...
