@@ -741,7 +741,7 @@ spec:
 
     - name: rescale-resupply-unsupported
       container:
-        image: public.ecr.aws/docker/library/alpine:3.23.3
+        image: public.ecr.aws/docker/library/alpine:3.24.4@sha256:f59abe656b692d901e184be3445e084786602108599d2a51d229c0f5a48c71bf
         command: [sh, -c]
         args:
           - echo 'rescale_range "auto" with an odr_url requires delete_all_existing_items "true", or a manual rescale_range' >&2 && exit 1
