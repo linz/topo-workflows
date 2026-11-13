@@ -45,7 +45,7 @@ spec:
 
     - name: list-imagery
       container:
-        image: peterevans/curl-jq:latest
+        image: public.ecr.aws/aws-cli/aws-cli:2.39.7@sha256:73f81e380c7974c9f03ac7ccd520ef080f17f443e10582f024c828b970ac8b73
         command: [sh, -c]
         args:
           [

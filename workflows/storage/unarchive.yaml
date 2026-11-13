@@ -130,7 +130,7 @@ spec:
 
     - name: no-files-to-restore
       container:
-        image: public.ecr.aws/docker/library/alpine:3.23.3
+        image: public.ecr.aws/docker/library/alpine:3.24.4@sha256:f59abe656b692d901e184be3445e084786602108599d2a51d229c0f5a48c71bf
         command: [sh]
         args: ["echo 'Error: No files found to restore.' && exit 1"]
 
@@ -147,7 +147,7 @@ spec:
           - name: restore_location
           - name: consumer
       container:
-        image: public.ecr.aws/aws-cli/aws-cli:2.27.62
+        image: public.ecr.aws/aws-cli/aws-cli:2.39.7@sha256:73f81e380c7974c9f03ac7ccd520ef080f17f443e10582f024c828b970ac8b73
         env:
           - name: ACCOUNT_ID_HYDRO
             valueFrom:
