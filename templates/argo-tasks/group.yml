@@ -28,7 +28,12 @@ spec:
 
         parameters:
           - name: size
-            description: Group into this number of records per group
+            description: Group into this number of records per group, argo-tasks defaults to 50 if empty
+            default: ''
+
+          - name: group_size
+            description: Also close a group when files reach this this total size, e.g. "100Gi", no limit if empty
+            default: ''
 
           - name: version_argo_tasks
             description: Specify a version of the argo-tasks container to use, e.g. "v5.1" or "latest"
@@ -67,5 +72,7 @@ spec:
         args:
           - 'group'
           - '--verbose'
-          - '--size={{= inputs.parameters.size }}'
+          # Empty args are dropped
+          - '{{= sprig.trim(inputs.parameters.size) == "" ? "" : "--size=" + sprig.trim(inputs.parameters.size) }}'
+          - '{{= sprig.trim(inputs.parameters.group_size) == "" ? "" : "--group-size=" + sprig.trim(inputs.parameters.group_size) }}'
           - '--from-file={{= inputs.artifacts.input.path }}'

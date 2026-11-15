@@ -182,6 +182,8 @@ volumes:
 Template for computing the source pixel range to scale 16-bit TIFFs to 8-bit from the low and high percentiles of all source TIFFs.
 Outputs the `rescale_range` parameter for `tpl-gp-raster-standardise-validate`.
 
+Large datasets are grouped by size with `tpl-at-group`, then `compute-scale` sums the saved histograms.
+
 See [compute_scale.py](https://github.com/linz/geoprocessor/blob/master/packages/geoprocessor-raster/src/geoprocessor_raster/compute_scale.py)
 
 ### Template usage
@@ -206,4 +208,25 @@ See [compute_scale.py](https://github.com/linz/geoprocessor/blob/master/packages
     artifacts:
       - name: files
         from: '{{ tasks.tile-index-validate.outputs.artifacts.files }}'
+```
+
+Histograms per group of source TIFFs from `tpl-at-group` with a `group_size`, before the `compute-scale` task above:
+
+```yaml
+- name: compute-scale-histograms
+  templateRef:
+    name: tpl-gp-raster-compute-scale
+    template: main
+  arguments:
+    parameters:
+      - name: group_id
+        value: '{{item}}'
+      - name: histogram_dir
+        value: '{{=sprig.trimSuffix("/", tasks["get-location"].outputs.parameters.location)}}/compute-scale/histograms/'
+      - name: version_geoprocessor_raster
+        value: '{{= workflow.parameters.version_geoprocessor_raster}}'
+    artifacts:
+      - name: group_data
+        from: '{{ tasks.compute-scale-group.outputs.artifacts.output }}'
+  withParam: '{{ tasks.compute-scale-group.outputs.parameters.output }}'
 ```
