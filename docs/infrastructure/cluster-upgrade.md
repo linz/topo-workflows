@@ -2,7 +2,7 @@
 
 Ideally the upgraded versions should be tested in a Dev cluster and the upgrade process in the NonProd (production-like) cluster.
 
-This documentation does not include Argo Workflows upgrade.
+This documentation does not include Argo Workflows upgrade, see [Argo Workflows - Upgrade](components/argo.workflows.md#upgrade).
 
 ## Pre-upgrade
 
