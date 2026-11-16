@@ -4,6 +4,17 @@ updates:
   - package-ecosystem: docker
     directories:
       - /.github/workflows
+      # Argo Workflow/WorkflowTemplate files are picked up as Kubernetes manifests
+      # (top-level apiVersion + kind); only `image:` values with a literal tag are tracked
+      - /workflows/**
+      - /templates/**
+    ignore:
+      # Internal images (names exclude the registry host) are versioned via workflow parameters
+      # or pinned on purpose (e.g. basemaps cli:v6), and live in private ECR registries
+      - dependency-name: 'argo-tasks'
+      - dependency-name: 'eks'
+      - dependency-name: 'geoprocessor/*'
+      - dependency-name: 'github/linz/*'
     open-pull-requests-limit: 5
     schedule:
       interval: weekly

@@ -78,7 +78,7 @@ spec:
             valueFrom:
               path: /tmp/flattened_manifests.json
       container:
-        image: public.ecr.aws/aws-cli/aws-cli:2.27.62
+        image: public.ecr.aws/aws-cli/aws-cli:2.39.7@sha256:73f81e380c7974c9f03ac7ccd520ef080f17f443e10582f024c828b970ac8b73
         imagePullPolicy: IfNotPresent
         command: [sh, '-c']
         args:
@@ -182,7 +182,7 @@ spec:
         parameters:
           - name: restore_manifest
       container:
-        image: public.ecr.aws/aws-cli/aws-cli:2.27.62
+        image: public.ecr.aws/aws-cli/aws-cli:2.39.7@sha256:73f81e380c7974c9f03ac7ccd520ef080f17f443e10582f024c828b970ac8b73
         imagePullPolicy: IfNotPresent
         command: [sh, '-c']
         args:

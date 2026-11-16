@@ -79,7 +79,8 @@ spec:
           - name: geopackage
             path: /tmp/
       container:
-        image: ghcr.io/osgeo/gdal:alpine-small-3.7.0
+        # TODO: GDAL 3.7.0 is from 2023 – upgrade to a current alpine-small release and check the FlatGeobuf output is unchanged
+        image: ghcr.io/osgeo/gdal:alpine-small-3.7.0@sha256:179fc178911a5cfd1cb089aa385025fd7342511c1d5319c0273adc9c7224bde5
         imagePullPolicy: IfNotPresent
         command: [sh]
         args: ['-c', 'ogr2ogr -f FlatGeobuf tmp/flatGeobuf.fgb tmp/*.gpkg']

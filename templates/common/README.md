@@ -96,7 +96,7 @@ spec:
         parameters:
           - name: message
       container:
-        image: alpine:latest
+        image: public.ecr.aws/docker/library/alpine:3.24.4
         command: [sh, -c]
         args: ['echo {{inputs.parameters.message}}']
 
@@ -159,7 +159,7 @@ spec:
         parameters:
           - name: custom_parameter
       container:
-        image: public.ecr.aws/aws-cli/aws-cli:2.27.62
+        image: public.ecr.aws/aws-cli/aws-cli:2.39.7
         command: [sh, -c]
         args:
           - |
