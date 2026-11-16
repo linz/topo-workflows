@@ -25,6 +25,9 @@ updates:
       default-days: 15
     commit-message:
       prefix: build(deps)
+    groups:
+      docker:
+        group-by: dependency-name
 
   - package-ecosystem: github-actions
     directories:
