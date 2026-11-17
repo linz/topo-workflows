@@ -21,7 +21,7 @@ Upon completion the merged TIFF file will be available to follow-on workflow ste
 
 | Parameter                   | Type | Default                                      | Description                                                                                          |
 | --------------------------- | ---- | -------------------------------------------- | ---------------------------------------------------------------------------------------------------- |
-| version_geoprocessor_raster | str  | v10                                          | (Optional) Version of geoprocessor to use, e.g. 'latest' or 'v10.0.1'                                |
+| version_geoprocessor_raster | str  | v11                                          | (Optional) Version of geoprocessor to use, e.g. 'latest' or 'v11.0.0'                                |
 | merged_filename             | str  | basename(base_filename)<br/>e.g. `CB13.tiff` | (Optional) Output file name for the artifact.                                                        |
 | base_filename               | str  |                                              | File to use as base layer, e.g. `s3://bucket/8m/CB13.tiff`                                           |
 | additional_filename         | str  |                                              | File to use as top layer, e.g. `s3://bucket/1m/CB13.tiff`<br/>Use VRT files to layer multiple files. |

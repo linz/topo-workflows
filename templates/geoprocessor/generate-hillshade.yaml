@@ -20,7 +20,7 @@ spec:
         parameters:
           - name: version_geoprocessor_raster
             description: 'Specify a version of the geoprocessor/raster image to use, e.g. "v4.8" or "latest"'
-            default: 'v10'
+            default: 'v11'
 
           - name: group_id
             description: 'The ID of the group of files to use as the input.'
