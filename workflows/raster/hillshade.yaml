@@ -34,7 +34,7 @@ spec:
         value: 'v8'
       - name: version_geoprocessor_raster
         description: 'Specify a version of the geoprocessor/raster image to use, e.g. "v4.8" or "latest"'
-        value: 'v10'
+        value: 'v11'
       - name: ticket
         description: 'Ticket ID, e.g. "TDE-1130"'
         value: ''

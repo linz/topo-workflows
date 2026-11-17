@@ -52,7 +52,7 @@ spec:
                     - name: version_basemaps_cli
                       value: 'v8'
                     - name: version_geoprocessor_raster
-                      value: 'v10'
+                      value: 'v11'
                     - name: ticket
                       value: 'TDE-1896'
                     - name: group
