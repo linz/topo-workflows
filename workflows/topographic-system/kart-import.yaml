@@ -1,36 +1,16 @@
 # yaml-language-server: $schema=https://raw.githubusercontent.com/argoproj/argo-workflows/v4.1.6/api/jsonschema/schema.json
 
-# PROPOSAL - a draft for discussion. Not tested in the cluster; parts of it need the code changes below.
+# Builds a kart-import target repo (e.g. topographic-data) and saves it as a git bundle,
+# downloadable from the workflow's artifacts in the Argo UI.
+# See https://github.com/linz/topographic-system/tree/master/packages/kart-import
 #
-# Runs the topographic-system kart-import pipeline in the kart container, then optionally pushes
-# the built repo to its dev GitHub repo, waits for approval, and pushes the same commits to prod.
-#
-#   build ──(artifact: data/output/<repo>)──► push-dev ──► approve (manual) ──► push-prod
-#
-# - build: one large pod runs Snakemake end to end. The cluster has no persistent volumes, so
+# - One pod runs the whole Snakemake pipeline. The cluster has no persistent volumes, so
 #   Snakemake's `data/` folder lives on the pod's local disk and is thrown away afterwards.
-# - The built repo (a plain git repo) is handed to the push steps as an Argo artifact (S3). Pushes
-#   don't rebuild anything, a failed push can be retried on its own, and no pod or disk is held
-#   while waiting for approval.
+# - Source data comes from the published source bundles, not a live pull from LDS (no LDS SSH key).
+# - Nothing is pushed to GitHub.
 #
-# Written against topographic-system master (#469). Annotations:
-#   [C1]..[C6]  proposed code changes in topographic-system that would simplify this workflow
-#   [I1]..[I2]  proposed infrastructure (secrets/access) needed before it can run
-#
-#   [C1] Dockerfile: `ENV UV_NO_SYNC=1`. Without it every Snakemake step fails in the image.
-#   [C2] Treat empty KART_IMPORT_THEME / KART_IMPORT_RELEASE as "everything". Today an empty
-#        value means "nothing", so an empty Argo parameter runs nothing.
-#   [C3] KART_PUSH_TARGET=dev|prod, with dev and prod URLs in repos.yml. Today every push goes to
-#        the prod repo. Defaulting to dev would make an accidental push harmless.
-#   [C4] Push: take the branch name (feat/release<n>) from the built repo's last `release: <n>`
-#        commit, not from the release config. The push steps then don't need KART_IMPORT_RELEASE.
-#   [C5] Push: refuse a prod push built from a partial release range (feature ids depend on the
-#        range). Moves the safety check below into the code, where local runs get it too.
-#   [C6] Dockerfile: default GIT_AUTHOR_* / GIT_COMMITTER_* values, so every caller (Argo, e2e,
-#        local docker) doesn't have to set an identity for kart's commits.
-#
-#   [I1] LDS SSH key (service account) as a Kubernetes secret, to pull the latest source data.
-#   [I2] GitHub write access to the topographic-* repos and their -dev copies.
+# To use the result: download `<repo>.bundle` from the workflow's artifacts, then
+#   kart clone <repo>.bundle <repo>
 apiVersion: argoproj.io/v1alpha1
 kind: WorkflowTemplate
 metadata:
@@ -48,7 +28,7 @@ spec:
   arguments:
     parameters:
       - name: version_kart_cli
-        description: Version of the kart CLI docker container to use (includes kart-import from #469 onwards)
+        description: Version of the kart CLI docker container to use
         value: 'latest'
 
       - name: repo
@@ -65,16 +45,8 @@ spec:
         value: ''
 
       - name: releases
-        description: Comma separated list of Topo50 releases to limit the build to, e.g. `30,31,32`. Empty for all releases. Must be empty to push to prod.
+        description: Comma separated list of Topo50 releases to limit the build to, e.g. `30,31,32`. Empty for all releases. Feature ids depend on the release range, so only a full build matches what would be published.
         value: ''
-
-      - name: push
-        description: Where to push the built repo. `dev-then-prod` pauses for approval between the two pushes.
-        value: 'none'
-        enum:
-          - 'none'
-          - 'dev'
-          - 'dev-then-prod'
 
   templates:
     - name: main
@@ -95,53 +67,6 @@ spec:
                 - name: releases
                   value: '{{ workflow.parameters.releases }}'
 
-          - name: push-dev
-            template: push
-            depends: build
-            when: "'{{ workflow.parameters.push }}' != 'none'"
-            arguments:
-              parameters:
-                - name: version_kart_cli
-                  value: '{{ workflow.parameters.version_kart_cli }}'
-                - name: repo
-                  value: '{{ workflow.parameters.repo }}'
-                - name: releases
-                  value: '{{ workflow.parameters.releases }}'
-                - name: push_target
-                  value: 'dev'
-                - name: force
-                  value: 'true' # dev is rebuilt freely, so overwrite whatever is there
-              artifacts:
-                - name: repo
-                  from: '{{ tasks.build.outputs.artifacts.repo }}'
-
-          # Someone checks the dev repo, then resumes the workflow (Argo UI, or `argo resume <name>`)
-          - name: approve
-            template: approve
-            depends: push-dev
-            when: "'{{ workflow.parameters.push }}' == 'dev-then-prod'"
-
-          - name: push-prod
-            template: push
-            depends: approve
-            when: "'{{ workflow.parameters.push }}' == 'dev-then-prod'"
-            arguments:
-              parameters:
-                - name: version_kart_cli
-                  value: '{{ workflow.parameters.version_kart_cli }}'
-                - name: repo
-                  value: '{{ workflow.parameters.repo }}'
-                - name: releases
-                  value: '{{ workflow.parameters.releases }}'
-                - name: push_target
-                  value: 'prod'
-                - name: force
-                  value: 'false'
-              artifacts:
-                - name: repo
-                  from: '{{ tasks.build.outputs.artifacts.repo }}'
-
-    # Runs Snakemake up to (not including) the push, e.g. `kart_import_topographic_data`
     - name: build
       inputs:
         parameters:
@@ -168,6 +93,8 @@ spec:
             cpu: 16000m
             ephemeral-storage: 150Gi # nodes have 200GB
         env:
+          - name: REPO
+            value: '{{ inputs.parameters.repo }}'
           - name: THEMES
             value: '{{ inputs.parameters.themes }}'
           - name: RELEASES
@@ -175,14 +102,14 @@ spec:
           # Fail on any schema problem, including missing schema files
           - name: KART_SCHEMA_CHECK
             value: strict
-          # [I1] No LDS SSH key yet, so build from the published source bundles, which can be out of date.
-          # Once there is a key: remove this, mount the key, and set GIT_SSH_COMMAND to use it.
+          # Build from the published source bundles only; there is no LDS SSH key to pull the latest
           - name: KART_IMPORT_SKIP_SOURCE_PULL
             value: 'true'
-          # [C1] Remove once the image sets this itself.
+          # Needed until the image sets it: the pipeline's own `uv run` calls must not re-sync the
+          # partial uv workspace in the image, or every step fails
           - name: UV_NO_SYNC
             value: '1'
-          # [C6] Remove once the image has a default identity.
+          # The image has no git config, and kart needs an identity to commit
           - name: GIT_AUTHOR_NAME
             value: 'LINZ Topographic System' # placeholder
           - name: GIT_AUTHOR_EMAIL
@@ -196,94 +123,27 @@ spec:
             mountPath: /workspace/packages/kart-import/data
         command: ['sh', '-c']
         args:
-          # [C2] Once empty values mean "everything", this script goes away: pass KART_IMPORT_THEME and
-          # KART_IMPORT_RELEASE straight from the parameters, and run
-          #   command: [uv, run, snakemake, --cores, '16', 'kart_import_<repo>']
           - |
             set -eu
+
+            # kart-import reads an empty KART_IMPORT_THEME/KART_IMPORT_RELEASE as "nothing",
+            # so only set them when given
             if [ -n "$THEMES" ]; then export KART_IMPORT_THEME="$THEMES"; fi
             if [ -n "$RELEASES" ]; then export KART_IMPORT_RELEASE="$RELEASES"; fi
-            exec uv run --no-sync snakemake --cores 16 \
-              'kart_import_{{= sprig.replace("-", "_", inputs.parameters.repo) }}'
+            echo "repo=$REPO themes=${KART_IMPORT_THEME:-<all>} releases=${KART_IMPORT_RELEASE:-<all>}"
+
+            # Build the target repo: data/output/<repo>/ (snakemake targets use _ for -)
+            uv run --no-sync snakemake --cores 16 "kart_import_$(echo "$REPO" | tr '-' '_')"
+
+            # Package it as a single file for download
+            git -C "data/output/$REPO" bundle create "../$REPO.bundle" --all
+            git -C "data/output/$REPO" bundle verify "../$REPO.bundle"
       outputs:
         artifacts:
-          # The built repo, including .git: everything the push steps need
-          - name: repo
-            path: /workspace/packages/kart-import/data/output/{{ inputs.parameters.repo }}
-
-    # Pushes a built repo without Snakemake (Snakemake would see the build as missing and redo it)
-    - name: push
-      inputs:
-        parameters:
-          - name: version_kart_cli
-          - name: repo
-          - name: releases
-          - name: push_target
-          - name: force
-        artifacts:
-          - name: repo
-            path: /workspace/packages/kart-import/data/output/{{ inputs.parameters.repo }}
-      retryStrategy:
-        limit: '2' # safe: commits already on the remote are skipped
-      container:
-        image: ghcr.io/linz/topographic-system/kart:{{ inputs.parameters.version_kart_cli }}
-        imagePullPolicy: Always
-        workingDir: /workspace/packages/kart-import
-        resources:
-          requests:
-            memory: 3.9Gi
-            cpu: 2000m
-            ephemeral-storage: 50Gi # the built repo; size once we know how big each repo is
-        env:
-          - name: RELEASES
-            value: '{{ inputs.parameters.releases }}'
-          - name: PUSH_TARGET
-            value: '{{ inputs.parameters.push_target }}'
-          # [C3] Picks the dev or prod URL from repos.yml.
-          # WARNING: without [C3] this is ignored and EVERY push, including push-dev, goes to prod.
-          - name: KART_PUSH_TARGET
-            value: '{{ inputs.parameters.push_target }}'
-          - name: KART_PUSH_FORCE
-            value: '{{ inputs.parameters.force }}'
-          # [I2] repos.yml uses SSH URLs (git@github.com:...). Rather than adding SSH keys, rewrite them
-          # to HTTPS and authenticate with a token secret. Uses the existing argo-tasks bot token as an
-          # example; it would need write access to every topographic-* repo and its -dev copy.
-          - name: GITHUB_TOKEN
-            valueFrom:
-              secretKeyRef:
-                name: github-linz-li-bot-pat
-                key: pat
-          - name: GIT_CONFIG_COUNT
-            value: '2'
-          - name: GIT_CONFIG_KEY_0
-            value: 'url.https://github.com/.insteadOf'
-          - name: GIT_CONFIG_VALUE_0
-            value: 'git@github.com:'
-          - name: GIT_CONFIG_KEY_1
-            value: 'credential.helper'
-          - name: GIT_CONFIG_VALUE_1 # reads the token from the env, so it never appears in a URL or log
-            value: '!f() { echo username=x-access-token; echo "password=$GITHUB_TOKEN"; }; f'
-        command: ['sh', '-c']
-        args:
-          - |
-            set -eu
-
-            # [C5] Feature ids depend on the release range, so prod only gets full builds.
-            # Move this check into kart_push_repo so local pushes get it too.
-            if [ "$PUSH_TARGET" = "prod" ] && [ -n "$RELEASES" ]; then
-              echo "Refusing to push a partial release range ($RELEASES) to prod"; exit 1
-            fi
-
-            # [C4] The branch name (feat/release<n>) comes from the release config, so it must see the
-            # same releases as the build. Once it's read from the built repo instead, drop this.
-            # [C2] Also needs empty to mean "everything", like the build step.
-            if [ -n "$RELEASES" ]; then export KART_IMPORT_RELEASE="$RELEASES"; fi
-
-            # No nested `uv run` here, so --no-sync is enough without [C1]
-            exec uv run --no-sync python -m kart_import.assets.kart_push_repo '{{ inputs.parameters.repo }}'
-
-    - name: approve
-      suspend: {}
+          - name: bundle
+            path: /workspace/packages/kart-import/data/output/{{ inputs.parameters.repo }}.bundle
+            archive:
+              none: {} # the bundle is already compressed; keep it as a plain .bundle file
 
     - name: exit-handler
       retryStrategy:
