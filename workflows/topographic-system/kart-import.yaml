@@ -104,6 +104,14 @@ spec:
           # Build from the published source bundles only; there is no LDS SSH key to pull the latest
           - name: KART_IMPORT_SKIP_SOURCE_PULL
             value: 'true'
+          # Some themes read public GitHub repos (e.g. linz/topographic-source-data) over SSH, and the
+          # pod has no SSH key. Clone them anonymously over HTTPS instead.
+          - name: GIT_CONFIG_COUNT
+            value: '1'
+          - name: GIT_CONFIG_KEY_0
+            value: 'url.https://github.com/.insteadOf'
+          - name: GIT_CONFIG_VALUE_0
+            value: 'git@github.com:'
           # Needed until the image sets it: the pipeline's own `uv run` calls must not re-sync the
           # partial uv workspace in the image, or every step fails
           - name: UV_NO_SYNC
