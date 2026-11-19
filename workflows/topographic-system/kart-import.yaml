@@ -38,10 +38,9 @@ spec:
           - 'topographic-data'
           - 'topographic-product-data'
           - 'topographic-contour-data'
-          - 'topographic-test-data'
 
       - name: themes
-        description: Comma separated list of themes to limit the build to, e.g. `airport,contour`. Empty for all themes in the repo.
+        description: Comma separated list of themes to limit the build to, e.g. `airport,building`. Empty for all of the repo's themes.
         value: ''
 
       - name: releases
@@ -126,9 +125,15 @@ spec:
           - |
             set -eu
 
-            # kart-import reads an empty KART_IMPORT_THEME/KART_IMPORT_RELEASE as "nothing",
-            # so only set them when given
-            if [ -n "$THEMES" ]; then export KART_IMPORT_THEME="$THEMES"; fi
+            # No themes given: use only this repo's themes. Without a theme filter kart-import loads,
+            # and strictly schema-checks, every theme of every repo, so a problem in another repo's
+            # theme would fail this build.
+            if [ -z "$THEMES" ]; then
+              THEMES=$(grep -l "^target_repo: $REPO\$" config/themes/*.yml | xargs -n1 basename | sed 's/\.yml$//' | paste -sd, -)
+            fi
+            export KART_IMPORT_THEME="$THEMES"
+
+            # kart-import reads an empty KART_IMPORT_RELEASE as "nothing", so only set it when given
             if [ -n "$RELEASES" ]; then export KART_IMPORT_RELEASE="$RELEASES"; fi
             echo "repo=$REPO themes=${KART_IMPORT_THEME:-<all>} releases=${KART_IMPORT_RELEASE:-<all>}"
 
