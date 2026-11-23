@@ -140,9 +140,9 @@ async function main(): Promise<void> {
         name: 'otel-expoter',
         data: {
           OTEL_EXPORTER_OTLP_ENDPOINT: ssmConfig.otelExporterOtlpEndpoint,
-          OTEL_EXPORTER_OTLP_HEADERS: ssmConfig.otelExporterOtlpHeaders
-        }
-      }
+          OTEL_EXPORTER_OTLP_HEADERS: ssmConfig.otelExporterOtlpHeaders,
+        },
+      },
     ],
   });
 
