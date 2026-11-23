@@ -32,7 +32,7 @@ spec:
     parameters:
       - name: version_kart_cli
         description: Version of the kart CLI docker container to use
-        value: 'latest'
+        value: 'pr-474' # TODO: back to 'latest' once topographic-system#474 is merged and released
 
       - name: target
         description: Snakemake target to run. `bundle_all` builds every repo; `bundle_<repo>` builds one.
@@ -105,10 +105,6 @@ spec:
             value: '{{ inputs.parameters.export_url }}'
           - name: KART_SCHEMA_CHECK
             value: '{{ inputs.parameters.schema_check }}'
-          # Needed until an image built with `ENV UV_NO_SYNC=1` is released: the pipeline's own
-          # `uv run` calls must not re-sync the partial uv workspace in the image, or every step fails
-          - name: UV_NO_SYNC
-            value: '1'
           # The image has no git config, and kart needs an identity to commit
           - name: GIT_AUTHOR_NAME
             value: 'LINZ Topographic System' # placeholder
