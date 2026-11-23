@@ -37,7 +37,7 @@ spec:
         value: 'v8'
       - name: version_geoprocessor_pointcloud
         description: 'Specify a version of the geoprocessor/pointcloud image to use, e.g. "v10" or "latest". Note: This image needs to contain PDAL.'
-        value: 'v10'
+        value: 'v11'
       - name: user_group
         description: Group of users running the workflow
         value: 'none'
