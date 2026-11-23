@@ -209,7 +209,7 @@ spec:
         parameters:
           - name: version_geoprocessor_pointcloud
             description: 'Specify a version of the geoprocessor/pointcloud image to use, e.g. "v10" or "latest"'
-            default: 'v10'
+            default: 'v11'
 
           - name: files
             description: 'Space-separated list of files to process'
