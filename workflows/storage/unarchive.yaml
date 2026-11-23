@@ -147,7 +147,7 @@ spec:
           - name: restore_location
           - name: consumer
       container:
-        image: public.ecr.aws/aws-cli/aws-cli:2.39.7@sha256:73f81e380c7974c9f03ac7ccd520ef080f17f443e10582f024c828b970ac8b73
+        image: public.ecr.aws/aws-cli/aws-cli:2.40.3@sha256:33a16c53ea442e918b58df67301ad76a8fb57082c39f7e78753b898c3f3e87c2
         env:
           - name: ACCOUNT_ID_HYDRO
             valueFrom:
