@@ -140,6 +140,7 @@ export class ArgoEvents extends Chart {
       metadata: { name: 'eventbus-default' },
       spec: {
         maxUnavailable: IntOrString.fromNumber(1),
+        unhealthyPodEvictionPolicy: 'AlwaysAllow',
         selector: {
           matchLabels: { controller: 'eventbus-controller', 'eventbus-name': 'default' },
         },
