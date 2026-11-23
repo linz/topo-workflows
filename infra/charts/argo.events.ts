@@ -1,6 +1,11 @@
 import { Chart, ChartProps, Helm } from 'cdk8s';
 import { Namespace, ServiceAccount } from 'cdk8s-plus-37';
-import { KubeClusterRole, KubeClusterRoleBinding } from 'cdk8s-plus-37/lib/imports/k8s.js';
+import {
+  IntOrString,
+  KubeClusterRole,
+  KubeClusterRoleBinding,
+  KubePodDisruptionBudget,
+} from 'cdk8s-plus-37/lib/imports/k8s.js';
 import { Construct } from 'constructs';
 
 import { applyDefaultLabels } from '../util/labels.js';
@@ -126,6 +131,18 @@ export class ArgoEvents extends Chart {
             queue: props.sqsBucketEventsQueueName,
             waitTimeSeconds: 20,
           },
+        },
+      },
+    });
+
+    // Keep JetStream quorum (2 of 3) while nodes are drained, e.g. nightly node group updates
+    new KubePodDisruptionBudget(this, 'EventBusDefaultPdb', {
+      metadata: { name: 'eventbus-default' },
+      spec: {
+        maxUnavailable: IntOrString.fromNumber(1),
+        unhealthyPodEvictionPolicy: 'AlwaysAllow',
+        selector: {
+          matchLabels: { controller: 'eventbus-controller', 'eventbus-name': 'default' },
         },
       },
     });
