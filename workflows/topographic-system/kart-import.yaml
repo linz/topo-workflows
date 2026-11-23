@@ -1,15 +1,19 @@
 # yaml-language-server: $schema=https://raw.githubusercontent.com/argoproj/argo-workflows/v4.1.6/api/jsonschema/schema.json
 
-# Builds a kart-import target repo (e.g. topographic-data) and saves it as a git bundle,
+# Runs stage 2 of kart-import (`process_all`, or `process_<repo>` for one repo) and saves each
+# built target repo as a git bundle,
 # downloadable from the workflow's artifacts in the Argo UI.
-# See https://github.com/linz/topographic-system/tree/master/packages/kart-import
+# See https://github.com/linz/topographic-system/tree/master/packages/kart-import#two-stages-extract-and-process
 #
+# - Stage 1 (`extract_all`: clone LDS sources and export per-commit parquets) needs an LDS SSH key,
+#   so it runs elsewhere. Its output is published under `export_url`.
+# - Stage 2 (this workflow) downloads only the exports it needs from `export_url`, then transforms
+#   and imports them into Kart. No LDS or GitHub access is needed.
 # - One pod runs the whole Snakemake pipeline. The cluster has no persistent volumes, so
 #   Snakemake's `data/` folder lives on the pod's local disk and is thrown away afterwards.
-# - Source data comes from the published source bundles, not a live pull from LDS (no LDS SSH key).
 # - Nothing is pushed to GitHub.
 #
-# To use the result: download `<repo>.bundle` from the workflow's artifacts, then
+# To use a result: download `<repo>.bundle` from the workflow's artifacts, then
 #   kart clone <repo>.bundle <repo>
 apiVersion: argoproj.io/v1alpha1
 kind: WorkflowTemplate
@@ -32,20 +36,32 @@ spec:
         value: 'latest'
 
       - name: repo
-        description: Target repo to build
-        value: 'topographic-data'
+        description: Target repo to build, or `all` for every repo (`process_all`)
+        value: 'all'
         enum:
+          - 'all'
           - 'topographic-data'
           - 'topographic-product-data'
           - 'topographic-contour-data'
 
+      - name: export_url
+        description: Where stage 1 (`extract_all`) published its exports. Must be https:// (the image has no AWS CLI for s3://).
+        value: 'https://d1jzh93b1t1cv.cloudfront.net/source/export/'
+
       - name: themes
-        description: Comma separated list of themes to limit the build to, e.g. `airport,building`. Empty for all of the repo's themes.
+        description: Comma separated list of themes to limit the build to, e.g. `airport,building`. Empty for all themes.
         value: ''
 
       - name: releases
         description: Comma separated list of Topo50 releases to limit the build to, e.g. `30,31,32`. Empty for all releases. Feature ids depend on the release range, so only a full build matches what would be published.
         value: ''
+
+      - name: schema_check
+        description: How to treat themes that don't match their schema. `warn` logs the problems and continues; `strict` fails the run. Currently `contour`, `nztopo50_grid` and `nztopo50_dms_grid` fail the check.
+        value: 'warn'
+        enum:
+          - 'warn'
+          - 'strict'
 
   templates:
     - name: main
@@ -53,26 +69,32 @@ spec:
         expression: 'false'
       dag:
         tasks:
-          - name: build
-            template: build
+          - name: process
+            template: process
             arguments:
               parameters:
                 - name: version_kart_cli
                   value: '{{ workflow.parameters.version_kart_cli }}'
                 - name: repo
                   value: '{{ workflow.parameters.repo }}'
+                - name: export_url
+                  value: '{{ workflow.parameters.export_url }}'
                 - name: themes
                   value: '{{ workflow.parameters.themes }}'
                 - name: releases
                   value: '{{ workflow.parameters.releases }}'
+                - name: schema_check
+                  value: '{{ workflow.parameters.schema_check }}'
 
-    - name: build
+    - name: process
       inputs:
         parameters:
           - name: version_kart_cli
           - name: repo
+          - name: export_url
           - name: themes
           - name: releases
+          - name: schema_check
       activeDeadlineSeconds: 86400 # 24 hours
       # A long single-pod run: a spot interruption would lose all progress
       nodeSelector:
@@ -87,7 +109,7 @@ spec:
         imagePullPolicy: Always
         workingDir: /workspace/packages/kart-import
         resources:
-          requests: # starting guesses: size with a trial run (a full local run uses ~70GB of disk)
+          requests: # starting guesses: size with a trial run
             memory: 60Gi
             cpu: 16000m
             ephemeral-storage: 150Gi # nodes have 200GB
@@ -98,20 +120,10 @@ spec:
             value: '{{ inputs.parameters.themes }}'
           - name: RELEASES
             value: '{{ inputs.parameters.releases }}'
-          # Fail on any schema problem, including missing schema files
+          - name: KART_EXPORT_URL
+            value: '{{ inputs.parameters.export_url }}'
           - name: KART_SCHEMA_CHECK
-            value: strict
-          # Build from the published source bundles only; there is no LDS SSH key to pull the latest
-          - name: KART_IMPORT_SKIP_SOURCE_PULL
-            value: 'true'
-          # Some themes read public GitHub repos (e.g. linz/topographic-source-data) over SSH, and the
-          # pod has no SSH key. Clone them anonymously over HTTPS instead.
-          - name: GIT_CONFIG_COUNT
-            value: '1'
-          - name: GIT_CONFIG_KEY_0
-            value: 'url.https://github.com/.insteadOf'
-          - name: GIT_CONFIG_VALUE_0
-            value: 'git@github.com:'
+            value: '{{ inputs.parameters.schema_check }}'
           # Needed until the image sets it: the pipeline's own `uv run` calls must not re-sync the
           # partial uv workspace in the image, or every step fails
           - name: UV_NO_SYNC
@@ -133,30 +145,57 @@ spec:
           - |
             set -eu
 
-            # No themes given: use only this repo's themes. Without a theme filter kart-import loads,
-            # and strictly schema-checks, every theme of every repo, so a problem in another repo's
-            # theme would fail this build.
-            if [ -z "$THEMES" ]; then
-              THEMES=$(grep -l "^target_repo: $REPO\$" config/themes/*.yml | xargs -n1 basename | sed 's/\.yml$//' | paste -sd, -)
+            if [ "$REPO" = "all" ]; then
+              target=process_all
+            else
+              # snakemake targets use _ for -, e.g. process_topographic_data
+              target="process_$(echo "$REPO" | tr '-' '_')"
+              # No themes given: use only this repo's themes. Without a theme filter kart-import loads,
+              # and schema-checks, every theme of every repo, so with schema_check=strict a problem in
+              # another repo's theme would fail this build.
+              if [ -z "$THEMES" ]; then
+                THEMES=$(grep -l "^target_repo: $REPO\$" config/themes/*.yml | xargs -n1 basename | sed 's/\.yml$//' | paste -sd, -)
+              fi
             fi
-            export KART_IMPORT_THEME="$THEMES"
 
-            # kart-import reads an empty KART_IMPORT_RELEASE as "nothing", so only set it when given
+            # kart-import reads an empty KART_IMPORT_THEME/KART_IMPORT_RELEASE as "nothing",
+            # so only set them when given
+            if [ -n "$THEMES" ]; then export KART_IMPORT_THEME="$THEMES"; fi
             if [ -n "$RELEASES" ]; then export KART_IMPORT_RELEASE="$RELEASES"; fi
-            echo "repo=$REPO themes=${KART_IMPORT_THEME:-<all>} releases=${KART_IMPORT_RELEASE:-<all>}"
+            echo "target=$target themes=${KART_IMPORT_THEME:-<all>} releases=${KART_IMPORT_RELEASE:-<all>} exports=$KART_EXPORT_URL"
 
-            # Build the target repo: data/output/<repo>/ (snakemake targets use _ for -)
-            uv run --no-sync snakemake --cores 16 "kart_import_$(echo "$REPO" | tr '-' '_')"
+            # Stage 2: build the target repo(s) under data/output/<repo>/. --keep-going so a failure in
+            # one repo (e.g. a missing export) doesn't stop the others; the run still fails at the end.
+            status=0
+            uv run --no-sync snakemake --cores 16 --keep-going "$target" || status=$?
 
-            # Package it as a single file for download
-            git -C "data/output/$REPO" bundle create "../$REPO.bundle" --all
-            git -C "data/output/$REPO" bundle verify "../$REPO.bundle"
+            # Package each repo that finished as a single file for download
+            for imported in data/output/*/.imported; do
+              [ -e "$imported" ] || continue
+              repo=$(basename "$(dirname "$imported")")
+              git -C "data/output/$repo" bundle create "../$repo.bundle" --all
+              git -C "data/output/$repo" bundle verify "../$repo.bundle"
+              echo "bundled $repo"
+            done
+            exit "$status"
       outputs:
         artifacts:
-          - name: bundle
-            path: /workspace/packages/kart-import/data/output/{{ inputs.parameters.repo }}.bundle
+          # One per target repo. Optional: a theme filter can leave a repo with nothing to build.
+          - name: topographic-data
+            path: /workspace/packages/kart-import/data/output/topographic-data.bundle
+            optional: true
             archive:
               none: {} # the bundle is already compressed; keep it as a plain .bundle file
+          - name: topographic-product-data
+            path: /workspace/packages/kart-import/data/output/topographic-product-data.bundle
+            optional: true
+            archive:
+              none: {}
+          - name: topographic-contour-data
+            path: /workspace/packages/kart-import/data/output/topographic-contour-data.bundle
+            optional: true
+            archive:
+              none: {}
 
     - name: exit-handler
       retryStrategy:
