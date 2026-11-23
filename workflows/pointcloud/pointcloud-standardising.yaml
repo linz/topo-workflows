@@ -74,10 +74,10 @@ spec:
           - 'west-coast'
       - name: source
         description: 'S3 location of the source dataset..'
-        value: 's3://linz-imagery-staging/test/sample/'
+        value: 's3://linz-elevation-staging/test/sample/'
       - name: target
         description: 'S3 location of the target output.'
-        value: 's3://linz-imagery-staging/test/output/'
+        value: 's3://linz-elevation-staging/test/output/'
       - name: include
         description: 'Regular expression pattern match for paths/files to include e.g "\.la[sz]$"'
         value: '\.la[sz]$'
