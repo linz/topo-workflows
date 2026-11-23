@@ -1,4 +1,4 @@
-# yaml-language-server: $schema=https://raw.githubusercontent.com/argoproj/argo-workflows/v3.6.12/api/jsonschema/schema.json
+# yaml-language-server: $schema=https://raw.githubusercontent.com/argoproj/argo-workflows/v4.1.6/api/jsonschema/schema.json
 
 apiVersion: argoproj.io/v1alpha1
 kind: WorkflowTemplate
@@ -39,6 +39,7 @@ spec:
         enum:
           - 'land'
           - 'sea'
+          - 'planning'
           - 'none'
       - name: ticket
         description: Ticket ID e.g. 'AIP-55'
@@ -103,7 +104,7 @@ spec:
         value: 'f'
       - name: aws_role_config_path
         description: s3 URL or comma-separated list of s3 URLs allowing the workflow to write to a target(s)
-        value: 's3://linz-bucket-config/config-write.elevation.json,s3://linz-bucket-config/config-write.imagery.json,s3://linz-bucket-config/config-write.topographic.json'
+        value: 's3://linz-bucket-config/config-write.elevation.json,s3://linz-bucket-config/config-write.imagery.json,s3://linz-bucket-config/config-write.topographic.json,s3://linz-bucket-config/config-write.planning.json'
   templateDefaults:
     container:
       imagePullPolicy: Always
@@ -128,7 +129,7 @@ spec:
             default: '--no-clobber'
           - name: aws_role_config_path
             value: '{{workflow.parameters.aws_role_config_path}}'
-            default: 's3://linz-bucket-config/config-write.elevation.json,s3://linz-bucket-config/config-write.imagery.json,s3://linz-bucket-config/config-write.topographic.json'
+            default: 's3://linz-bucket-config/config-write.elevation.json,s3://linz-bucket-config/config-write.imagery.json,s3://linz-bucket-config/config-write.topographic.json,s3://linz-bucket-config/config-write.planning.json'
           - name: flatten
             value: '{{workflow.parameters.flatten}}'
             default: 'false'
@@ -220,10 +221,10 @@ spec:
                   value: '{{inputs.parameters.source}}'
                 - name: dry_run
                   value: 'false'
-                - name: version
+                - name: version_argo_tasks
                   value: '{{inputs.parameters.version_argo_tasks}}'
                 - name: aws_role_config_path
-                  value: 's3://linz-bucket-config/config-write.topographic.json,s3://linz-bucket-config/config-write.hydrographic.json'
+                  value: 's3://linz-bucket-config/config-write.topographic.json,s3://linz-bucket-config/config-write.hydrographic.json,s3://linz-bucket-config/config-write.planning.json'
             depends: 'copy.Succeeded'
             when: "'{{inputs.parameters.delete_empty_folders}}' == 'true'"
 

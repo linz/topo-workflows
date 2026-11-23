@@ -49,7 +49,7 @@ async function main(): Promise<void> {
     env: { region: DefaultRegion, account: accountId },
     maintainerRoleArns,
     s3BatchRestoreRoleArn: ssmConfig.s3BatchRestoreRoleArn,
-    bucketEventSources: ObjectCreatedSources,
+    bucketEventSources: process.env['NODE_ENV'] === 'production' ? ObjectCreatedSources : [],
   });
 
   cluster.addDependency(argoDbStack);

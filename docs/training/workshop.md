@@ -129,7 +129,7 @@ spec:
             template: say-hello-template
     - name: say-hello-template
       container:
-        image: '019359803926.dkr.ecr.ap-southeast-2.amazonaws.com/geoprocessor/raster:v10'
+        image: '019359803926.dkr.ecr.ap-southeast-2.amazonaws.com/geoprocessor/raster:v11'
         command: [echo]
         args: ['hello world']
 ```
@@ -211,7 +211,7 @@ spec:
         parameters:
           - name: message
       container:
-        image: '019359803926.dkr.ecr.ap-southeast-2.amazonaws.com/geoprocessor/raster:v10'
+        image: '019359803926.dkr.ecr.ap-southeast-2.amazonaws.com/geoprocessor/raster:v11'
         command: [echo]
         args: ['{{inputs.parameters.message}}']
 ```
@@ -373,7 +373,7 @@ spec:
         parameters:
           - name: message
       container:
-        image: '019359803926.dkr.ecr.ap-southeast-2.amazonaws.com/geoprocessor/raster:v10'
+        image: '019359803926.dkr.ecr.ap-southeast-2.amazonaws.com/geoprocessor/raster:v11'
         command: [echo]
         args: ['{{inputs.parameters.message}}']
 ```
@@ -443,7 +443,7 @@ spec:
         parameters:
           - name: message
       container:
-        image: '019359803926.dkr.ecr.ap-southeast-2.amazonaws.com/geoprocessor/raster:v10'
+        image: '019359803926.dkr.ecr.ap-southeast-2.amazonaws.com/geoprocessor/raster:v11'
         command: [echo]
         args: ['{{inputs.parameters.message}}']
 ```

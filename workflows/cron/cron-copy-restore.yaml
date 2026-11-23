@@ -1,4 +1,4 @@
-# yaml-language-server: $schema=https://raw.githubusercontent.com/argoproj/argo-workflows/v3.6.12/api/jsonschema/schema.json
+# yaml-language-server: $schema=https://raw.githubusercontent.com/argoproj/argo-workflows/v4.1.6/api/jsonschema/schema.json
 apiVersion: argoproj.io/v1alpha1
 kind: CronWorkflow
 metadata:
@@ -8,7 +8,7 @@ metadata:
 spec:
   schedules:
     - '0 7,13 * * *' # At 7am and 1pm every day
-  timezone: 'NZ'
+  timezone: 'Pacific/Auckland'
   startingDeadlineSeconds: 3600 # Allow 1 hour delay if the workflow-controller clashes during the starting time.
   concurrencyPolicy: 'Allow'
   successfulJobsHistoryLimit: 3

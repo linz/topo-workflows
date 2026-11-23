@@ -1,4 +1,4 @@
-# yaml-language-server: $schema=https://raw.githubusercontent.com/argoproj/argo-workflows/v3.6.12/api/jsonschema/schema.json
+# yaml-language-server: $schema=https://raw.githubusercontent.com/argoproj/argo-workflows/v4.1.6/api/jsonschema/schema.json
 
 apiVersion: argoproj.io/v1alpha1
 kind: WorkflowTemplate
@@ -43,7 +43,7 @@ spec:
         value: 'v8'
       - name: version_geoprocessor_raster
         description: 'Specify a version of the geoprocessor/raster image to use, e.g. "v4.8" or "latest"'
-        value: 'v10'
+        value: 'v11'
       - name: user_group
         description: Group of users running the workflow
         value: 'none'
@@ -103,7 +103,7 @@ spec:
         description: 'EPSG of the standardised output files'
         value: '2193'
       - name: group
-        description: 'How many output tiles to process in each standardise-validate task "pod". Change if you have resource or performance issues when standardising a dataset.'
+        description: 'How many output tiles to process in each standardise-validate task "pod". Change if you have resource or performance issues when standardising a dataset. Ignored if compression is rgbnir_zstd, which always uses 5.'
         value: '20'
       - name: concurrency
         description: 'Number of concurrent tiles to standardise. If not specified, defaults to 4, or 1 if compression is rgbnir_zstd.'
@@ -116,6 +116,27 @@ spec:
           - 'lzw'
           - 'dem_lerc'
           - 'rgbnir_zstd'
+      - name: rescale_range
+        description: 'Source pixel range scaled to 8-bit when "uint16" TIFFs are standardised with "webp" compression. "auto" computes it from the source pixel values, otherwise "min,max" or "min,max;min,max;min,max" (red;green;blue). Leave blank for the full range.'
+        value: 'auto'
+      - name: rescale_per_band
+        description: 'If rescale_range is "auto", compute one range per band (red, green, blue) instead of one range for all bands'
+        value: 'false'
+        enum:
+          - 'false'
+          - 'true'
+      - name: rescale_clip_low_percentile
+        description: 'If rescale_range is "auto", source pixel values below this percentile are clipped to 0'
+        value: '0.5'
+      - name: rescale_clip_high_percentile
+        description: 'If rescale_range is "auto", source pixel values above this percentile are clipped to 255'
+        value: '99.5'
+      - name: rescale_gamma
+        description: 'Gamma applied with rescale_range, e.g. "1.3" brightens mid tones. "1" is linear.'
+        value: '1.3'
+      - name: compute_scale_group_size
+        description: 'If rescale_range is "auto", total size of the source TIFFs read by each compute-scale pod, e.g. "100Gi". Each pod also reads at most 50 output tiles.'
+        value: '100Gi'
       - name: create_capture_area
         description: 'Create a capture area GeoJSON file for the standardised dataset'
         value: 'true'
@@ -359,7 +380,7 @@ spec:
               parameters:
                 - name: odr_url
                   value: '{{workflow.parameters.odr_url}}'
-                - name: version
+                - name: version_argo_tasks
                   value: '{{= workflow.parameters.version_argo_tasks}}'
             when: "'{{workflow.parameters.odr_url}}' != ''"
 
@@ -381,7 +402,7 @@ spec:
                   value: '{{=sprig.trim(workflow.parameters.target_epsg)}}'
                 - name: preset
                   value: '{{= workflow.parameters.compression}}'
-                - name: version
+                - name: version_argo_tasks
                   value: '{{= workflow.parameters.version_argo_tasks}}'
             depends: 'stac-collection-output.Succeeded || stac-collection-output.Skipped'
 
@@ -409,7 +430,7 @@ spec:
                   value: '{{=sprig.trim(workflow.parameters.historic_survey_number)}}'
                 - name: odr_url
                   value: '{{=sprig.trim(workflow.parameters.odr_url)}}'
-                - name: version
+                - name: version_argo_tasks
                   value: '{{=sprig.trim(workflow.parameters.version_argo_tasks)}}'
                 - name: target_bucket_name # derived if not provided
                   value: '{{= sprig.trim(workflow.parameters.target_bucket_name) != "" ? sprig.trim(workflow.parameters.target_bucket_name) : workflow.parameters.domain == "coastal" ? "nz-coastal" : workflow.parameters.category in ["dem", "dsm"] ? "nz-elevation" : "nz-imagery" }}'
@@ -427,10 +448,73 @@ spec:
                   from: '{{ tasks.tile-index-validate.outputs.artifacts.files }}'
               parameters:
                 - name: size
-                  value: '{{workflow.parameters.group}}'
-                - name: version
+                  value: '{{= workflow.parameters.compression == "rgbnir_zstd" ? "5" : (workflow.parameters.group == "" ? "20" : workflow.parameters.group) }}'
+                - name: version_argo_tasks
                   value: '{{= workflow.parameters.version_argo_tasks}}'
             depends: 'tile-index-validate'
+
+          - name: check-rescale-resupply
+            template: rescale-resupply-unsupported
+            depends: 'tile-index-validate'
+            when: '{{= sprig.trim(tasks["tile-index-validate"].outputs.parameters.data_type) == "uint16" && workflow.parameters.compression == "webp" && sprig.trim(workflow.parameters.rescale_range) == "auto" && sprig.trim(workflow.parameters.odr_url) != "" && workflow.parameters.delete_all_existing_items != "true" }}'
+
+          - name: compute-scale-group
+            templateRef:
+              name: tpl-at-group
+              template: main
+            arguments:
+              artifacts:
+                - name: input
+                  from: '{{ tasks.tile-index-validate.outputs.artifacts.files }}'
+              parameters:
+                - name: group_size
+                  value: '{{=sprig.trim(workflow.parameters.compute_scale_group_size)}}'
+                - name: version_argo_tasks
+                  value: '{{= workflow.parameters.version_argo_tasks}}'
+            depends: 'tile-index-validate && check-rescale-resupply'
+            when: '{{= sprig.trim(tasks["tile-index-validate"].outputs.parameters.data_type) == "uint16" && workflow.parameters.compression == "webp" && sprig.trim(workflow.parameters.rescale_range) == "auto" }}'
+
+          - name: compute-scale-histograms
+            templateRef:
+              name: tpl-gp-raster-compute-scale
+              template: main
+            arguments:
+              parameters:
+                - name: group_id
+                  value: '{{item}}'
+                - name: histogram_dir
+                  value: '{{=sprig.trimSuffix("/", tasks["get-location"].outputs.parameters.location)}}/compute-scale/histograms/'
+                - name: version_geoprocessor_raster
+                  value: '{{= workflow.parameters.version_geoprocessor_raster}}'
+              artifacts:
+                - name: group_data
+                  from: '{{ tasks.compute-scale-group.outputs.artifacts.output }}'
+            depends: 'compute-scale-group && get-location'
+            # Argo only resolves group_data when true
+            when: '{{= sprig.trim(tasks["tile-index-validate"].outputs.parameters.data_type) == "uint16" && workflow.parameters.compression == "webp" && sprig.trim(workflow.parameters.rescale_range) == "auto" }}'
+            withParam: '{{=tasks["compute-scale-group"].status == "Succeeded" ? tasks["compute-scale-group"].outputs.parameters.output : "[]"}}'
+
+          - name: compute-scale
+            templateRef:
+              name: tpl-gp-raster-compute-scale
+              template: main
+            arguments:
+              parameters:
+                - name: rescale_clip_low_percentile
+                  value: '{{=sprig.trim(workflow.parameters.rescale_clip_low_percentile)}}'
+                - name: rescale_clip_high_percentile
+                  value: '{{=sprig.trim(workflow.parameters.rescale_clip_high_percentile)}}'
+                - name: rescale_per_band
+                  value: '{{=sprig.trim(workflow.parameters.rescale_per_band)}}'
+                - name: histogram_dir
+                  value: '{{=sprig.trimSuffix("/", tasks["get-location"].outputs.parameters.location)}}/compute-scale/histograms/'
+                - name: version_geoprocessor_raster
+                  value: '{{= workflow.parameters.version_geoprocessor_raster}}'
+              artifacts:
+                - name: files
+                  from: '{{ tasks.tile-index-validate.outputs.artifacts.files }}'
+            depends: 'tile-index-validate && get-location && check-rescale-resupply && compute-scale-histograms'
+            when: '{{= sprig.trim(tasks["tile-index-validate"].outputs.parameters.data_type) == "uint16" && workflow.parameters.compression == "webp" && sprig.trim(workflow.parameters.rescale_range) == "auto" }}'
 
           - name: standardise-validate
             templateRef:
@@ -464,6 +548,10 @@ spec:
                   value: '{{ tasks.tile-index-validate.outputs.parameters.data_type }}'
                 - name: scale_to_resolution
                   value: '{{=sprig.trim(tasks["tile-index-validate"].outputs.parameters.gsd) + "," + sprig.trim(tasks["tile-index-validate"].outputs.parameters.gsd)}}'
+                - name: rescale_range
+                  value: '{{=tasks["compute-scale"].status == "Succeeded" ? sprig.trim(tasks["compute-scale"].outputs.parameters.rescale_range) : (sprig.trim(tasks["tile-index-validate"].outputs.parameters.data_type) == "uint16" && workflow.parameters.compression == "webp" ? sprig.trim(workflow.parameters.rescale_range) : "")}}'
+                - name: rescale_gamma
+                  value: '{{=sprig.trim(workflow.parameters.rescale_gamma)}}'
                 - name: source_epsg
                   value: '{{=sprig.trim(workflow.parameters.source_epsg)}}'
                 - name: target_epsg
@@ -477,7 +565,7 @@ spec:
               artifacts:
                 - name: group_data
                   from: '{{ tasks.group.outputs.artifacts.output }}'
-            depends: 'group && stac-setup && get-location'
+            depends: 'group && stac-setup && get-location && compute-scale'
             withParam: '{{ tasks.group.outputs.parameters.output }}'
 
           - name: create-collection
@@ -542,10 +630,8 @@ spec:
               parameters:
                 - name: uri
                   value: '{{=sprig.trimSuffix("/", tasks["get-location"].outputs.parameters.location)}}/flat/collection.json'
-              artifacts:
-                - name: stac-result
-                  raw:
-                    data: '{{tasks.stac-validate-all.outputs.result}}'
+                - name: version_argo_tasks
+                  value: '{{= workflow.parameters.version_argo_tasks}}'
             depends: 'create-collection.Succeeded'
             when: "'{{workflow.parameters.odr_url}}' == ''"
 
@@ -687,6 +773,13 @@ spec:
               key: '{{=sprig.trimSuffix("/", inputs.parameters.key)}}/flat/config-url'
             archive:
               none: {}
+
+    - name: rescale-resupply-unsupported
+      container:
+        image: public.ecr.aws/docker/library/alpine:3.24.4@sha256:f59abe656b692d901e184be3445e084786602108599d2a51d229c0f5a48c71bf
+        command: [sh, -c]
+        args:
+          - echo 'rescale_range "auto" with an odr_url requires delete_all_existing_items "true", or a manual rescale_range' >&2 && exit 1
 
     - name: exit-handler
       retryStrategy:

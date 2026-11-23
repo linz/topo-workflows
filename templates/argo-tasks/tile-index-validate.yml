@@ -1,4 +1,4 @@
-# yaml-language-server: $schema=https://raw.githubusercontent.com/argoproj/argo-workflows/v3.6.12/api/jsonschema/schema.json
+# yaml-language-server: $schema=https://raw.githubusercontent.com/argoproj/argo-workflows/v4.1.6/api/jsonschema/schema.json
 
 apiVersion: argoproj.io/v1alpha1
 kind: WorkflowTemplate
@@ -44,7 +44,7 @@ spec:
             description: Compression type of dataset e.g. webp, lzw, dem_lerc
             default: 'webp'
 
-          - name: version
+          - name: version_argo_tasks
             description: version of argo-tasks to use
             default: 'v8'
 
@@ -83,7 +83,7 @@ spec:
               none: {}
 
       container:
-        image: '019359803926.dkr.ecr.ap-southeast-2.amazonaws.com/argo-tasks:{{=inputs.parameters.version}}'
+        image: '019359803926.dkr.ecr.ap-southeast-2.amazonaws.com/argo-tasks:{{=inputs.parameters.version_argo_tasks}}'
         env:
           - name: AWS_ROLE_CONFIG_PATH
             value: s3://linz-bucket-config/config.json

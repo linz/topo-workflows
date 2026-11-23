@@ -54,7 +54,7 @@ export interface KarpenterProps {
  *
  * https://github.com/aws/karpenter/blob/7c989a2bfae43d4e73235aca0af50b8008c67b68/charts/karpenter/Chart.yaml#L5C10-L5C16
  */
-const version = '1.6.7';
+const version = '1.15.1';
 
 export class Karpenter extends Chart {
   constructor(scope: Construct, id: string, props: KarpenterProps & ChartProps) {
@@ -95,10 +95,7 @@ export class Karpenter extends Chart {
         },
         settings: {
           clusterName: props.clusterName,
-          aws: {
-            clusterEndpoint: props.clusterEndpoint,
-            defaultInstanceProfile: props.instanceProfile,
-          },
+          clusterEndpoint: props.clusterEndpoint,
         },
       },
     });
@@ -166,7 +163,7 @@ export class KarpenterNodePool extends Chart {
               {
                 key: 'karpenter.k8s.aws/instance-family',
                 operator: NodePoolSpecTemplateSpecRequirementsOperator.IN,
-                values: ['c5', 'c6i', 'c6a', 'c7i', 'c8i'],
+                values: ['c5', 'c6i', 'c6a', 'c6in', 'c7i', 'c8i'],
               },
             ],
             taints: [
@@ -216,7 +213,7 @@ export class KarpenterNodePool extends Chart {
               {
                 key: 'karpenter.k8s.aws/instance-family',
                 operator: NodePoolSpecTemplateSpecRequirementsOperator.IN,
-                values: ['c5', 'c6i', 'c6a', 'c7i', 'c8i'],
+                values: ['c5', 'c6i', 'c6a', 'c6in', 'c7i', 'c8i'],
               },
             ],
             taints: [

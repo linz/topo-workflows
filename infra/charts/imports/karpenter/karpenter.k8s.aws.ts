@@ -2,6 +2,7 @@
 import { ApiObject, ApiObjectMetadata, GroupVersionKind } from 'cdk8s';
 import { Construct } from 'constructs';
 
+
 /**
  * EC2NodeClass is the Schema for the EC2NodeClass API
  *
@@ -14,7 +15,7 @@ export class Ec2NodeClass extends ApiObject {
   public static readonly GVK: GroupVersionKind = {
     apiVersion: 'karpenter.k8s.aws/v1',
     kind: 'EC2NodeClass',
-  };
+  }
 
   /**
    * Renders a Kubernetes manifest for "EC2NodeClass".
@@ -79,17 +80,17 @@ export interface Ec2NodeClassProps {
 /**
  * Converts an object of type 'Ec2NodeClassProps' to JSON representation.
  */
+/* eslint-disable max-len, @stylistic/max-len, quote-props, @stylistic/quote-props */
 export function toJson_Ec2NodeClassProps(obj: Ec2NodeClassProps | undefined): Record<string, any> | undefined {
-  if (obj === undefined) {
-    return undefined;
-  }
+  if (obj === undefined) { return undefined; }
   const result = {
-    metadata: obj.metadata,
-    spec: toJson_Ec2NodeClassSpec(obj.spec),
+    'metadata': obj.metadata,
+    'spec': toJson_Ec2NodeClassSpec(obj.spec),
   };
   // filter undefined values
-  return Object.entries(result).reduce((r, i) => (i[1] === undefined ? r : { ...r, [i[0]]: i[1] }), {});
+  return Object.entries(result).reduce((r, i) => (i[1] === undefined) ? r : ({ ...r, [i[0]]: i[1] }), {});
 }
+/* eslint-enable max-len, @stylistic/max-len, quote-props, @stylistic/quote-props */
 
 /**
  * EC2NodeClassSpec is the top level specification for the AWS Karpenter Provider.
@@ -140,6 +141,15 @@ export interface Ec2NodeClassSpec {
   readonly capacityReservationSelectorTerms?: Ec2NodeClassSpecCapacityReservationSelectorTerms[];
 
   /**
+   * ConnectionTracking configures idle connection tracking timeouts for
+   * ENIs Karpenter provisions in the launch template. EFA-only interfaces
+   * are excluded. See ConnectionTracking.
+   *
+   * @schema Ec2NodeClassSpec#connectionTracking
+   */
+  readonly connectionTracking?: Ec2NodeClassSpecConnectionTracking;
+
+  /**
    * Context is a Reserved field in EC2 APIs
    * https://docs.aws.amazon.com/AWSEC2/latest/APIReference/API_CreateFleet.html
    *
@@ -148,11 +158,28 @@ export interface Ec2NodeClassSpec {
   readonly context?: string;
 
   /**
+   * CPUOptions defines the CPU options for the instance.
+   *
+   * @schema Ec2NodeClassSpec#cpuOptions
+   */
+  readonly cpuOptions?: Ec2NodeClassSpecCpuOptions;
+
+  /**
    * DetailedMonitoring controls if detailed monitoring is enabled for instances that are launched
    *
    * @schema Ec2NodeClassSpec#detailedMonitoring
    */
   readonly detailedMonitoring?: boolean;
+
+  /**
+   * EnclaveOptions specifies whether the instance is enabled for Amazon Web Services Nitro Enclaves.
+   * When enabled, instance types are restricted to those that support Nitro Enclaves.
+   * When enclaveOptions is omitted or enabled is false, Nitro Enclaves are disabled.
+   * When enclaveOptions is specified, enabled is required.
+   *
+   * @schema Ec2NodeClassSpec#enclaveOptions
+   */
+  readonly enclaveOptions?: Ec2NodeClassSpecEnclaveOptions;
 
   /**
    * InstanceProfile is the AWS entity that instances use.
@@ -172,13 +199,24 @@ export interface Ec2NodeClassSpec {
   readonly instanceStorePolicy?: Ec2NodeClassSpecInstanceStorePolicy;
 
   /**
-   * Kubelet defines args to be used when configuring kubelet on provisioned nodes.
-   * They are a subset of the upstream types, recognizing not all options may be supported.
-   * Wherever possible, the types and names should reflect the upstream kubelet types.
+   * IPPrefixCount sets the number of IPv4 prefixes to be automatically assigned to the network interface.
+   *
+   * @schema Ec2NodeClassSpec#ipPrefixCount
+   */
+  readonly ipPrefixCount?: number;
+
+  /**
+   * Kubelet configures the kubelet on provisioned nodes. Any field of the upstream
+   * KubeletConfiguration for the Kubernetes version Karpenter was built against may be set;
+   * see the k8s.io/kubelet version in go.mod for the exact set.
+   * Karpenter reads the fields relevant to scheduling (maxPods, podsPerCore, kubeReserved,
+   * systemReserved, evictionHard) and passes all others through to UserData unchanged.
+   * Field names and types are validated by Karpenter, which reports a rejected configuration
+   * on status.conditions as ValidationSucceeded=False rather than failing the apply.
    *
    * @schema Ec2NodeClassSpec#kubelet
    */
-  readonly kubelet?: Ec2NodeClassSpecKubelet;
+  readonly kubelet?: { [key: string]: any };
 
   /**
    * MetadataOptions for the generated launch template of provisioned nodes.
@@ -201,11 +239,22 @@ export interface Ec2NodeClassSpec {
   readonly metadataOptions?: Ec2NodeClassSpecMetadataOptions;
 
   /**
-   * Role is the AWS identity that nodes use. This field is immutable.
+   * NetworkInterfaces specifies the network interface configurations to be attached to provisioned instances.
+   *
+   * @schema Ec2NodeClassSpec#networkInterfaces
+   */
+  readonly networkInterfaces?: Ec2NodeClassSpecNetworkInterfaces[];
+
+  /**
+   * PlacementGroupSelector defines the name or the id of the placement to resolve with the nodeclass.
+   *
+   * @schema Ec2NodeClassSpec#placementGroupSelector
+   */
+  readonly placementGroupSelector?: Ec2NodeClassSpecPlacementGroupSelector;
+
+  /**
+   * Role is the AWS identity that nodes use.
    * This field is mutually exclusive from instanceProfile.
-   * Marking this field as immutable avoids concerns around terminating managed instance profiles from running instances.
-   * This field may be made mutable in the future, assuming the correct garbage collection and drift handling is implemented
-   * for the old instance profiles on an update.
    *
    * @schema Ec2NodeClassSpec#role
    */
@@ -245,38 +294,37 @@ export interface Ec2NodeClassSpec {
 /**
  * Converts an object of type 'Ec2NodeClassSpec' to JSON representation.
  */
+/* eslint-disable max-len, @stylistic/max-len, quote-props, @stylistic/quote-props */
 export function toJson_Ec2NodeClassSpec(obj: Ec2NodeClassSpec | undefined): Record<string, any> | undefined {
-  if (obj === undefined) {
-    return undefined;
-  }
+  if (obj === undefined) { return undefined; }
   const result = {
-    amiFamily: obj.amiFamily,
-    amiSelectorTerms: obj.amiSelectorTerms?.map((y) => toJson_Ec2NodeClassSpecAmiSelectorTerms(y)),
-    associatePublicIPAddress: obj.associatePublicIpAddress,
-    blockDeviceMappings: obj.blockDeviceMappings?.map((y) => toJson_Ec2NodeClassSpecBlockDeviceMappings(y)),
-    capacityReservationSelectorTerms: obj.capacityReservationSelectorTerms?.map((y) =>
-      toJson_Ec2NodeClassSpecCapacityReservationSelectorTerms(y),
-    ),
-    context: obj.context,
-    detailedMonitoring: obj.detailedMonitoring,
-    instanceProfile: obj.instanceProfile,
-    instanceStorePolicy: obj.instanceStorePolicy,
-    kubelet: toJson_Ec2NodeClassSpecKubelet(obj.kubelet),
-    metadataOptions: toJson_Ec2NodeClassSpecMetadataOptions(obj.metadataOptions),
-    role: obj.role,
-    securityGroupSelectorTerms: obj.securityGroupSelectorTerms?.map((y) =>
-      toJson_Ec2NodeClassSpecSecurityGroupSelectorTerms(y),
-    ),
-    subnetSelectorTerms: obj.subnetSelectorTerms?.map((y) => toJson_Ec2NodeClassSpecSubnetSelectorTerms(y)),
-    tags:
-      obj.tags === undefined
-        ? undefined
-        : Object.entries(obj.tags).reduce((r, i) => (i[1] === undefined ? r : { ...r, [i[0]]: i[1] }), {}),
-    userData: obj.userData,
+    'amiFamily': obj.amiFamily,
+    'amiSelectorTerms': obj.amiSelectorTerms?.map(y => toJson_Ec2NodeClassSpecAmiSelectorTerms(y)),
+    'associatePublicIPAddress': obj.associatePublicIpAddress,
+    'blockDeviceMappings': obj.blockDeviceMappings?.map(y => toJson_Ec2NodeClassSpecBlockDeviceMappings(y)),
+    'capacityReservationSelectorTerms': obj.capacityReservationSelectorTerms?.map(y => toJson_Ec2NodeClassSpecCapacityReservationSelectorTerms(y)),
+    'connectionTracking': toJson_Ec2NodeClassSpecConnectionTracking(obj.connectionTracking),
+    'context': obj.context,
+    'cpuOptions': toJson_Ec2NodeClassSpecCpuOptions(obj.cpuOptions),
+    'detailedMonitoring': obj.detailedMonitoring,
+    'enclaveOptions': toJson_Ec2NodeClassSpecEnclaveOptions(obj.enclaveOptions),
+    'instanceProfile': obj.instanceProfile,
+    'instanceStorePolicy': obj.instanceStorePolicy,
+    'ipPrefixCount': obj.ipPrefixCount,
+    'kubelet': ((obj.kubelet) === undefined) ? undefined : (Object.entries(obj.kubelet).reduce((r, i) => (i[1] === undefined) ? r : ({ ...r, [i[0]]: i[1] }), {})),
+    'metadataOptions': toJson_Ec2NodeClassSpecMetadataOptions(obj.metadataOptions),
+    'networkInterfaces': obj.networkInterfaces?.map(y => toJson_Ec2NodeClassSpecNetworkInterfaces(y)),
+    'placementGroupSelector': toJson_Ec2NodeClassSpecPlacementGroupSelector(obj.placementGroupSelector),
+    'role': obj.role,
+    'securityGroupSelectorTerms': obj.securityGroupSelectorTerms?.map(y => toJson_Ec2NodeClassSpecSecurityGroupSelectorTerms(y)),
+    'subnetSelectorTerms': obj.subnetSelectorTerms?.map(y => toJson_Ec2NodeClassSpecSubnetSelectorTerms(y)),
+    'tags': ((obj.tags) === undefined) ? undefined : (Object.entries(obj.tags).reduce((r, i) => (i[1] === undefined) ? r : ({ ...r, [i[0]]: i[1] }), {})),
+    'userData': obj.userData,
   };
   // filter undefined values
-  return Object.entries(result).reduce((r, i) => (i[1] === undefined ? r : { ...r, [i[0]]: i[1] }), {});
+  return Object.entries(result).reduce((r, i) => (i[1] === undefined) ? r : ({ ...r, [i[0]]: i[1] }), {});
 }
+/* eslint-enable max-len, @stylistic/max-len, quote-props, @stylistic/quote-props */
 
 /**
  * AMIFamily dictates the UserData format and default BlockDeviceMappings used when generating launch templates.
@@ -290,17 +338,19 @@ export function toJson_Ec2NodeClassSpec(obj: Ec2NodeClassSpec | undefined): Reco
  */
 export enum Ec2NodeClassSpecAmiFamily {
   /** AL2 */
-  AL2 = 'AL2',
+  AL2 = "AL2",
   /** AL2023 */
-  AL2023 = 'AL2023',
+  AL2023 = "AL2023",
   /** Bottlerocket */
-  BOTTLEROCKET = 'Bottlerocket',
+  BOTTLEROCKET = "Bottlerocket",
   /** Custom */
-  CUSTOM = 'Custom',
+  CUSTOM = "Custom",
   /** Windows2019 */
-  WINDOWS2019 = 'Windows2019',
+  WINDOWS2019 = "Windows2019",
   /** Windows2022 */
-  WINDOWS2022 = 'Windows2022',
+  WINDOWS2022 = "Windows2022",
+  /** Windows2025 */
+  WINDOWS2025 = "Windows2025",
 }
 
 /**
@@ -313,7 +363,7 @@ export interface Ec2NodeClassSpecAmiSelectorTerms {
   /**
    * Alias specifies which EKS optimized AMI to select.
    * Each alias consists of a family and an AMI version, specified as "family@version".
-   * Valid families include: al2, al2023, bottlerocket, windows2019, and windows2022.
+   * Valid families include: al2, al2023, bottlerocket, windows2019, windows2022, windows2025.
    * The version can either be pinned to a specific AMI release, with that AMIs version format (ex: "al2023@v20240625" or "bottlerocket@v1.10.0").
    * The version can also be set to "latest" for any family. Setting the version to latest will result in drift when a new AMI is released. This is **not** recommended for production environments.
    * Note: The Windows families do **not** support version pinning, and only latest may be used.
@@ -364,26 +414,21 @@ export interface Ec2NodeClassSpecAmiSelectorTerms {
 /**
  * Converts an object of type 'Ec2NodeClassSpecAmiSelectorTerms' to JSON representation.
  */
-export function toJson_Ec2NodeClassSpecAmiSelectorTerms(
-  obj: Ec2NodeClassSpecAmiSelectorTerms | undefined,
-): Record<string, any> | undefined {
-  if (obj === undefined) {
-    return undefined;
-  }
+/* eslint-disable max-len, @stylistic/max-len, quote-props, @stylistic/quote-props */
+export function toJson_Ec2NodeClassSpecAmiSelectorTerms(obj: Ec2NodeClassSpecAmiSelectorTerms | undefined): Record<string, any> | undefined {
+  if (obj === undefined) { return undefined; }
   const result = {
-    alias: obj.alias,
-    id: obj.id,
-    name: obj.name,
-    owner: obj.owner,
-    ssmParameter: obj.ssmParameter,
-    tags:
-      obj.tags === undefined
-        ? undefined
-        : Object.entries(obj.tags).reduce((r, i) => (i[1] === undefined ? r : { ...r, [i[0]]: i[1] }), {}),
+    'alias': obj.alias,
+    'id': obj.id,
+    'name': obj.name,
+    'owner': obj.owner,
+    'ssmParameter': obj.ssmParameter,
+    'tags': ((obj.tags) === undefined) ? undefined : (Object.entries(obj.tags).reduce((r, i) => (i[1] === undefined) ? r : ({ ...r, [i[0]]: i[1] }), {})),
   };
   // filter undefined values
-  return Object.entries(result).reduce((r, i) => (i[1] === undefined ? r : { ...r, [i[0]]: i[1] }), {});
+  return Object.entries(result).reduce((r, i) => (i[1] === undefined) ? r : ({ ...r, [i[0]]: i[1] }), {});
 }
+/* eslint-enable max-len, @stylistic/max-len, quote-props, @stylistic/quote-props */
 
 /**
  * @schema Ec2NodeClassSpecBlockDeviceMappings
@@ -415,20 +460,18 @@ export interface Ec2NodeClassSpecBlockDeviceMappings {
 /**
  * Converts an object of type 'Ec2NodeClassSpecBlockDeviceMappings' to JSON representation.
  */
-export function toJson_Ec2NodeClassSpecBlockDeviceMappings(
-  obj: Ec2NodeClassSpecBlockDeviceMappings | undefined,
-): Record<string, any> | undefined {
-  if (obj === undefined) {
-    return undefined;
-  }
+/* eslint-disable max-len, @stylistic/max-len, quote-props, @stylistic/quote-props */
+export function toJson_Ec2NodeClassSpecBlockDeviceMappings(obj: Ec2NodeClassSpecBlockDeviceMappings | undefined): Record<string, any> | undefined {
+  if (obj === undefined) { return undefined; }
   const result = {
-    deviceName: obj.deviceName,
-    ebs: toJson_Ec2NodeClassSpecBlockDeviceMappingsEbs(obj.ebs),
-    rootVolume: obj.rootVolume,
+    'deviceName': obj.deviceName,
+    'ebs': toJson_Ec2NodeClassSpecBlockDeviceMappingsEbs(obj.ebs),
+    'rootVolume': obj.rootVolume,
   };
   // filter undefined values
-  return Object.entries(result).reduce((r, i) => (i[1] === undefined ? r : { ...r, [i[0]]: i[1] }), {});
+  return Object.entries(result).reduce((r, i) => (i[1] === undefined) ? r : ({ ...r, [i[0]]: i[1] }), {});
 }
+/* eslint-enable max-len, @stylistic/max-len, quote-props, @stylistic/quote-props */
 
 /**
  * @schema Ec2NodeClassSpecCapacityReservationSelectorTerms
@@ -440,6 +483,13 @@ export interface Ec2NodeClassSpecCapacityReservationSelectorTerms {
    * @schema Ec2NodeClassSpecCapacityReservationSelectorTerms#id
    */
   readonly id?: string;
+
+  /**
+   * InstanceMatchCriteria specifies how instances are matched to capacity reservations.
+   *
+   * @schema Ec2NodeClassSpecCapacityReservationSelectorTerms#instanceMatchCriteria
+   */
+  readonly instanceMatchCriteria?: Ec2NodeClassSpecCapacityReservationSelectorTermsInstanceMatchCriteria;
 
   /**
    * Owner is the owner id for the ami.
@@ -460,23 +510,137 @@ export interface Ec2NodeClassSpecCapacityReservationSelectorTerms {
 /**
  * Converts an object of type 'Ec2NodeClassSpecCapacityReservationSelectorTerms' to JSON representation.
  */
-export function toJson_Ec2NodeClassSpecCapacityReservationSelectorTerms(
-  obj: Ec2NodeClassSpecCapacityReservationSelectorTerms | undefined,
-): Record<string, any> | undefined {
-  if (obj === undefined) {
-    return undefined;
-  }
+/* eslint-disable max-len, @stylistic/max-len, quote-props, @stylistic/quote-props */
+export function toJson_Ec2NodeClassSpecCapacityReservationSelectorTerms(obj: Ec2NodeClassSpecCapacityReservationSelectorTerms | undefined): Record<string, any> | undefined {
+  if (obj === undefined) { return undefined; }
   const result = {
-    id: obj.id,
-    ownerID: obj.ownerId,
-    tags:
-      obj.tags === undefined
-        ? undefined
-        : Object.entries(obj.tags).reduce((r, i) => (i[1] === undefined ? r : { ...r, [i[0]]: i[1] }), {}),
+    'id': obj.id,
+    'instanceMatchCriteria': obj.instanceMatchCriteria,
+    'ownerID': obj.ownerId,
+    'tags': ((obj.tags) === undefined) ? undefined : (Object.entries(obj.tags).reduce((r, i) => (i[1] === undefined) ? r : ({ ...r, [i[0]]: i[1] }), {})),
   };
   // filter undefined values
-  return Object.entries(result).reduce((r, i) => (i[1] === undefined ? r : { ...r, [i[0]]: i[1] }), {});
+  return Object.entries(result).reduce((r, i) => (i[1] === undefined) ? r : ({ ...r, [i[0]]: i[1] }), {});
 }
+/* eslint-enable max-len, @stylistic/max-len, quote-props, @stylistic/quote-props */
+
+/**
+ * ConnectionTracking configures idle connection tracking timeouts for
+ * ENIs Karpenter provisions in the launch template. EFA-only interfaces
+ * are excluded. See ConnectionTracking.
+ *
+ * @schema Ec2NodeClassSpecConnectionTracking
+ */
+export interface Ec2NodeClassSpecConnectionTracking {
+  /**
+   * TCPEstablishedTimeout is the timeout (in seconds) for idle TCP connections
+   * in an established state.
+   * Value must be between 60 and 432,000 (5 days).
+   * If unset, EC2 applies its default which is 350 seconds for Nitro v6
+   * instance types (excluding P6e-GB200) and 432,000 seconds for other
+   * instance types.
+   *
+   * @schema Ec2NodeClassSpecConnectionTracking#tcpEstablishedTimeout
+   */
+  readonly tcpEstablishedTimeout?: number;
+
+  /**
+   * UDPStreamTimeout is the timeout (in seconds) for idle UDP "stream" flows
+   * that have seen more than one request-response transaction.
+   * Value must be between 60 and 180.
+   * If unset, EC2 applies its default of 180 seconds.
+   *
+   * @schema Ec2NodeClassSpecConnectionTracking#udpStreamTimeout
+   */
+  readonly udpStreamTimeout?: number;
+
+  /**
+   * UDPTimeout is the timeout (in seconds) for idle UDP flows that have seen
+   * traffic only in a single direction or a single request-response transaction.
+   * Value must be between 30 and 60.
+   * If unset, EC2 applies its default of 30 seconds.
+   *
+   * @schema Ec2NodeClassSpecConnectionTracking#udpTimeout
+   */
+  readonly udpTimeout?: number;
+}
+
+/**
+ * Converts an object of type 'Ec2NodeClassSpecConnectionTracking' to JSON representation.
+ */
+/* eslint-disable max-len, @stylistic/max-len, quote-props, @stylistic/quote-props */
+export function toJson_Ec2NodeClassSpecConnectionTracking(obj: Ec2NodeClassSpecConnectionTracking | undefined): Record<string, any> | undefined {
+  if (obj === undefined) { return undefined; }
+  const result = {
+    'tcpEstablishedTimeout': obj.tcpEstablishedTimeout,
+    'udpStreamTimeout': obj.udpStreamTimeout,
+    'udpTimeout': obj.udpTimeout,
+  };
+  // filter undefined values
+  return Object.entries(result).reduce((r, i) => (i[1] === undefined) ? r : ({ ...r, [i[0]]: i[1] }), {});
+}
+/* eslint-enable max-len, @stylistic/max-len, quote-props, @stylistic/quote-props */
+
+/**
+ * CPUOptions defines the CPU options for the instance.
+ *
+ * @schema Ec2NodeClassSpecCpuOptions
+ */
+export interface Ec2NodeClassSpecCpuOptions {
+  /**
+   * NestedVirtualization enables or disables nested virtualization on the instance.
+   * When enabled, Karpenter filters instance types to only those reporting
+   * "nested-virtualization" in ProcessorInfo.SupportedFeatures from DescribeInstanceTypes.
+   *
+   * @schema Ec2NodeClassSpecCpuOptions#nestedVirtualization
+   */
+  readonly nestedVirtualization?: Ec2NodeClassSpecCpuOptionsNestedVirtualization;
+}
+
+/**
+ * Converts an object of type 'Ec2NodeClassSpecCpuOptions' to JSON representation.
+ */
+/* eslint-disable max-len, @stylistic/max-len, quote-props, @stylistic/quote-props */
+export function toJson_Ec2NodeClassSpecCpuOptions(obj: Ec2NodeClassSpecCpuOptions | undefined): Record<string, any> | undefined {
+  if (obj === undefined) { return undefined; }
+  const result = {
+    'nestedVirtualization': obj.nestedVirtualization,
+  };
+  // filter undefined values
+  return Object.entries(result).reduce((r, i) => (i[1] === undefined) ? r : ({ ...r, [i[0]]: i[1] }), {});
+}
+/* eslint-enable max-len, @stylistic/max-len, quote-props, @stylistic/quote-props */
+
+/**
+ * EnclaveOptions specifies whether the instance is enabled for Amazon Web Services Nitro Enclaves.
+ * When enabled, instance types are restricted to those that support Nitro Enclaves.
+ * When enclaveOptions is omitted or enabled is false, Nitro Enclaves are disabled.
+ * When enclaveOptions is specified, enabled is required.
+ *
+ * @schema Ec2NodeClassSpecEnclaveOptions
+ */
+export interface Ec2NodeClassSpecEnclaveOptions {
+  /**
+   * Enabled indicates whether the instance is enabled for Amazon Web Services Nitro Enclaves.
+   *
+   * @schema Ec2NodeClassSpecEnclaveOptions#enabled
+   */
+  readonly enabled: boolean;
+}
+
+/**
+ * Converts an object of type 'Ec2NodeClassSpecEnclaveOptions' to JSON representation.
+ */
+/* eslint-disable max-len, @stylistic/max-len, quote-props, @stylistic/quote-props */
+export function toJson_Ec2NodeClassSpecEnclaveOptions(obj: Ec2NodeClassSpecEnclaveOptions | undefined): Record<string, any> | undefined {
+  if (obj === undefined) { return undefined; }
+  const result = {
+    'enabled': obj.enabled,
+  };
+  // filter undefined values
+  return Object.entries(result).reduce((r, i) => (i[1] === undefined) ? r : ({ ...r, [i[0]]: i[1] }), {});
+}
+/* eslint-enable max-len, @stylistic/max-len, quote-props, @stylistic/quote-props */
 
 /**
  * InstanceStorePolicy specifies how to handle instance-store disks.
@@ -485,157 +649,7 @@ export function toJson_Ec2NodeClassSpecCapacityReservationSelectorTerms(
  */
 export enum Ec2NodeClassSpecInstanceStorePolicy {
   /** RAID0 */
-  RAID0 = 'RAID0',
-}
-
-/**
- * Kubelet defines args to be used when configuring kubelet on provisioned nodes.
- * They are a subset of the upstream types, recognizing not all options may be supported.
- * Wherever possible, the types and names should reflect the upstream kubelet types.
- *
- * @schema Ec2NodeClassSpecKubelet
- */
-export interface Ec2NodeClassSpecKubelet {
-  /**
-   * clusterDNS is a list of IP addresses for the cluster DNS server.
-   * Note that not all providers may use all addresses.
-   *
-   * @schema Ec2NodeClassSpecKubelet#clusterDNS
-   */
-  readonly clusterDns?: string[];
-
-  /**
-   * CPUCFSQuota enables CPU CFS quota enforcement for containers that specify CPU limits.
-   *
-   * @schema Ec2NodeClassSpecKubelet#cpuCFSQuota
-   */
-  readonly cpuCfsQuota?: boolean;
-
-  /**
-   * EvictionHard is the map of signal names to quantities that define hard eviction thresholds
-   *
-   * @schema Ec2NodeClassSpecKubelet#evictionHard
-   */
-  readonly evictionHard?: { [key: string]: string };
-
-  /**
-   * EvictionMaxPodGracePeriod is the maximum allowed grace period (in seconds) to use when terminating pods in
-   * response to soft eviction thresholds being met.
-   *
-   * @schema Ec2NodeClassSpecKubelet#evictionMaxPodGracePeriod
-   */
-  readonly evictionMaxPodGracePeriod?: number;
-
-  /**
-   * EvictionSoft is the map of signal names to quantities that define soft eviction thresholds
-   *
-   * @schema Ec2NodeClassSpecKubelet#evictionSoft
-   */
-  readonly evictionSoft?: { [key: string]: string };
-
-  /**
-   * EvictionSoftGracePeriod is the map of signal names to quantities that define grace periods for each eviction signal
-   *
-   * @schema Ec2NodeClassSpecKubelet#evictionSoftGracePeriod
-   */
-  readonly evictionSoftGracePeriod?: { [key: string]: string };
-
-  /**
-   * ImageGCHighThresholdPercent is the percent of disk usage after which image
-   * garbage collection is always run. The percent is calculated by dividing this
-   * field value by 100, so this field must be between 0 and 100, inclusive.
-   * When specified, the value must be greater than ImageGCLowThresholdPercent.
-   *
-   * @schema Ec2NodeClassSpecKubelet#imageGCHighThresholdPercent
-   */
-  readonly imageGcHighThresholdPercent?: number;
-
-  /**
-   * ImageGCLowThresholdPercent is the percent of disk usage before which image
-   * garbage collection is never run. Lowest disk usage to garbage collect to.
-   * The percent is calculated by dividing this field value by 100,
-   * so the field value must be between 0 and 100, inclusive.
-   * When specified, the value must be less than imageGCHighThresholdPercent
-   *
-   * @schema Ec2NodeClassSpecKubelet#imageGCLowThresholdPercent
-   */
-  readonly imageGcLowThresholdPercent?: number;
-
-  /**
-   * KubeReserved contains resources reserved for Kubernetes system components.
-   *
-   * @schema Ec2NodeClassSpecKubelet#kubeReserved
-   */
-  readonly kubeReserved?: { [key: string]: string };
-
-  /**
-   * MaxPods is an override for the maximum number of pods that can run on
-   * a worker node instance.
-   *
-   * @schema Ec2NodeClassSpecKubelet#maxPods
-   */
-  readonly maxPods?: number;
-
-  /**
-   * PodsPerCore is an override for the number of pods that can run on a worker node
-   * instance based on the number of cpu cores. This value cannot exceed MaxPods, so, if
-   * MaxPods is a lower value, that value will be used.
-   *
-   * @schema Ec2NodeClassSpecKubelet#podsPerCore
-   */
-  readonly podsPerCore?: number;
-
-  /**
-   * SystemReserved contains resources reserved for OS system daemons and kernel memory.
-   *
-   * @schema Ec2NodeClassSpecKubelet#systemReserved
-   */
-  readonly systemReserved?: { [key: string]: string };
-}
-
-/**
- * Converts an object of type 'Ec2NodeClassSpecKubelet' to JSON representation.
- */
-export function toJson_Ec2NodeClassSpecKubelet(
-  obj: Ec2NodeClassSpecKubelet | undefined,
-): Record<string, any> | undefined {
-  if (obj === undefined) {
-    return undefined;
-  }
-  const result = {
-    clusterDNS: obj.clusterDns?.map((y) => y),
-    cpuCFSQuota: obj.cpuCfsQuota,
-    evictionHard:
-      obj.evictionHard === undefined
-        ? undefined
-        : Object.entries(obj.evictionHard).reduce((r, i) => (i[1] === undefined ? r : { ...r, [i[0]]: i[1] }), {}),
-    evictionMaxPodGracePeriod: obj.evictionMaxPodGracePeriod,
-    evictionSoft:
-      obj.evictionSoft === undefined
-        ? undefined
-        : Object.entries(obj.evictionSoft).reduce((r, i) => (i[1] === undefined ? r : { ...r, [i[0]]: i[1] }), {}),
-    evictionSoftGracePeriod:
-      obj.evictionSoftGracePeriod === undefined
-        ? undefined
-        : Object.entries(obj.evictionSoftGracePeriod).reduce(
-            (r, i) => (i[1] === undefined ? r : { ...r, [i[0]]: i[1] }),
-            {},
-          ),
-    imageGCHighThresholdPercent: obj.imageGcHighThresholdPercent,
-    imageGCLowThresholdPercent: obj.imageGcLowThresholdPercent,
-    kubeReserved:
-      obj.kubeReserved === undefined
-        ? undefined
-        : Object.entries(obj.kubeReserved).reduce((r, i) => (i[1] === undefined ? r : { ...r, [i[0]]: i[1] }), {}),
-    maxPods: obj.maxPods,
-    podsPerCore: obj.podsPerCore,
-    systemReserved:
-      obj.systemReserved === undefined
-        ? undefined
-        : Object.entries(obj.systemReserved).reduce((r, i) => (i[1] === undefined ? r : { ...r, [i[0]]: i[1] }), {}),
-  };
-  // filter undefined values
-  return Object.entries(result).reduce((r, i) => (i[1] === undefined ? r : { ...r, [i[0]]: i[1] }), {});
+  RAID0 = "RAID0",
 }
 
 /**
@@ -713,21 +727,100 @@ export interface Ec2NodeClassSpecMetadataOptions {
 /**
  * Converts an object of type 'Ec2NodeClassSpecMetadataOptions' to JSON representation.
  */
-export function toJson_Ec2NodeClassSpecMetadataOptions(
-  obj: Ec2NodeClassSpecMetadataOptions | undefined,
-): Record<string, any> | undefined {
-  if (obj === undefined) {
-    return undefined;
-  }
+/* eslint-disable max-len, @stylistic/max-len, quote-props, @stylistic/quote-props */
+export function toJson_Ec2NodeClassSpecMetadataOptions(obj: Ec2NodeClassSpecMetadataOptions | undefined): Record<string, any> | undefined {
+  if (obj === undefined) { return undefined; }
   const result = {
-    httpEndpoint: obj.httpEndpoint,
-    httpProtocolIPv6: obj.httpProtocolIPv6,
-    httpPutResponseHopLimit: obj.httpPutResponseHopLimit,
-    httpTokens: obj.httpTokens,
+    'httpEndpoint': obj.httpEndpoint,
+    'httpProtocolIPv6': obj.httpProtocolIPv6,
+    'httpPutResponseHopLimit': obj.httpPutResponseHopLimit,
+    'httpTokens': obj.httpTokens,
   };
   // filter undefined values
-  return Object.entries(result).reduce((r, i) => (i[1] === undefined ? r : { ...r, [i[0]]: i[1] }), {});
+  return Object.entries(result).reduce((r, i) => (i[1] === undefined) ? r : ({ ...r, [i[0]]: i[1] }), {});
 }
+/* eslint-enable max-len, @stylistic/max-len, quote-props, @stylistic/quote-props */
+
+/**
+ * NetworkInterface specifies the configuration for a network interface to be attached
+ * to provisioned instances.
+ *
+ * @schema Ec2NodeClassSpecNetworkInterfaces
+ */
+export interface Ec2NodeClassSpecNetworkInterfaces {
+  /**
+   * DeviceIndex is the device index for the network interface attachment.
+   *
+   * @schema Ec2NodeClassSpecNetworkInterfaces#deviceIndex
+   */
+  readonly deviceIndex: number;
+
+  /**
+   * InterfaceType is the type of network interface. Valid values are "interface" and "efa-only".
+   *
+   * @schema Ec2NodeClassSpecNetworkInterfaces#interfaceType
+   */
+  readonly interfaceType: Ec2NodeClassSpecNetworkInterfacesInterfaceType;
+
+  /**
+   * NetworkCardIndex is the index of the network card to attach the interface to.
+   *
+   * @schema Ec2NodeClassSpecNetworkInterfaces#networkCardIndex
+   */
+  readonly networkCardIndex: number;
+}
+
+/**
+ * Converts an object of type 'Ec2NodeClassSpecNetworkInterfaces' to JSON representation.
+ */
+/* eslint-disable max-len, @stylistic/max-len, quote-props, @stylistic/quote-props */
+export function toJson_Ec2NodeClassSpecNetworkInterfaces(obj: Ec2NodeClassSpecNetworkInterfaces | undefined): Record<string, any> | undefined {
+  if (obj === undefined) { return undefined; }
+  const result = {
+    'deviceIndex': obj.deviceIndex,
+    'interfaceType': obj.interfaceType,
+    'networkCardIndex': obj.networkCardIndex,
+  };
+  // filter undefined values
+  return Object.entries(result).reduce((r, i) => (i[1] === undefined) ? r : ({ ...r, [i[0]]: i[1] }), {});
+}
+/* eslint-enable max-len, @stylistic/max-len, quote-props, @stylistic/quote-props */
+
+/**
+ * PlacementGroupSelector defines the name or the id of the placement to resolve with the nodeclass.
+ *
+ * @schema Ec2NodeClassSpecPlacementGroupSelector
+ */
+export interface Ec2NodeClassSpecPlacementGroupSelector {
+  /**
+   * ID is the placement group id in EC2
+   *
+   * @schema Ec2NodeClassSpecPlacementGroupSelector#id
+   */
+  readonly id?: string;
+
+  /**
+   * Name is the placement group name in EC2
+   *
+   * @schema Ec2NodeClassSpecPlacementGroupSelector#name
+   */
+  readonly name?: string;
+}
+
+/**
+ * Converts an object of type 'Ec2NodeClassSpecPlacementGroupSelector' to JSON representation.
+ */
+/* eslint-disable max-len, @stylistic/max-len, quote-props, @stylistic/quote-props */
+export function toJson_Ec2NodeClassSpecPlacementGroupSelector(obj: Ec2NodeClassSpecPlacementGroupSelector | undefined): Record<string, any> | undefined {
+  if (obj === undefined) { return undefined; }
+  const result = {
+    'id': obj.id,
+    'name': obj.name,
+  };
+  // filter undefined values
+  return Object.entries(result).reduce((r, i) => (i[1] === undefined) ? r : ({ ...r, [i[0]]: i[1] }), {});
+}
+/* eslint-enable max-len, @stylistic/max-len, quote-props, @stylistic/quote-props */
 
 /**
  * SecurityGroupSelectorTerm defines selection logic for a security group used by Karpenter to launch nodes.
@@ -763,23 +856,18 @@ export interface Ec2NodeClassSpecSecurityGroupSelectorTerms {
 /**
  * Converts an object of type 'Ec2NodeClassSpecSecurityGroupSelectorTerms' to JSON representation.
  */
-export function toJson_Ec2NodeClassSpecSecurityGroupSelectorTerms(
-  obj: Ec2NodeClassSpecSecurityGroupSelectorTerms | undefined,
-): Record<string, any> | undefined {
-  if (obj === undefined) {
-    return undefined;
-  }
+/* eslint-disable max-len, @stylistic/max-len, quote-props, @stylistic/quote-props */
+export function toJson_Ec2NodeClassSpecSecurityGroupSelectorTerms(obj: Ec2NodeClassSpecSecurityGroupSelectorTerms | undefined): Record<string, any> | undefined {
+  if (obj === undefined) { return undefined; }
   const result = {
-    id: obj.id,
-    name: obj.name,
-    tags:
-      obj.tags === undefined
-        ? undefined
-        : Object.entries(obj.tags).reduce((r, i) => (i[1] === undefined ? r : { ...r, [i[0]]: i[1] }), {}),
+    'id': obj.id,
+    'name': obj.name,
+    'tags': ((obj.tags) === undefined) ? undefined : (Object.entries(obj.tags).reduce((r, i) => (i[1] === undefined) ? r : ({ ...r, [i[0]]: i[1] }), {})),
   };
   // filter undefined values
-  return Object.entries(result).reduce((r, i) => (i[1] === undefined ? r : { ...r, [i[0]]: i[1] }), {});
+  return Object.entries(result).reduce((r, i) => (i[1] === undefined) ? r : ({ ...r, [i[0]]: i[1] }), {});
 }
+/* eslint-enable max-len, @stylistic/max-len, quote-props, @stylistic/quote-props */
 
 /**
  * SubnetSelectorTerm defines selection logic for a subnet used by Karpenter to launch nodes.
@@ -807,22 +895,17 @@ export interface Ec2NodeClassSpecSubnetSelectorTerms {
 /**
  * Converts an object of type 'Ec2NodeClassSpecSubnetSelectorTerms' to JSON representation.
  */
-export function toJson_Ec2NodeClassSpecSubnetSelectorTerms(
-  obj: Ec2NodeClassSpecSubnetSelectorTerms | undefined,
-): Record<string, any> | undefined {
-  if (obj === undefined) {
-    return undefined;
-  }
+/* eslint-disable max-len, @stylistic/max-len, quote-props, @stylistic/quote-props */
+export function toJson_Ec2NodeClassSpecSubnetSelectorTerms(obj: Ec2NodeClassSpecSubnetSelectorTerms | undefined): Record<string, any> | undefined {
+  if (obj === undefined) { return undefined; }
   const result = {
-    id: obj.id,
-    tags:
-      obj.tags === undefined
-        ? undefined
-        : Object.entries(obj.tags).reduce((r, i) => (i[1] === undefined ? r : { ...r, [i[0]]: i[1] }), {}),
+    'id': obj.id,
+    'tags': ((obj.tags) === undefined) ? undefined : (Object.entries(obj.tags).reduce((r, i) => (i[1] === undefined) ? r : ({ ...r, [i[0]]: i[1] }), {})),
   };
   // filter undefined values
-  return Object.entries(result).reduce((r, i) => (i[1] === undefined ? r : { ...r, [i[0]]: i[1] }), {});
+  return Object.entries(result).reduce((r, i) => (i[1] === undefined) ? r : ({ ...r, [i[0]]: i[1] }), {});
 }
+/* eslint-enable max-len, @stylistic/max-len, quote-props, @stylistic/quote-props */
 
 /**
  * EBS contains parameters used to automatically set up EBS volumes when an instance is launched.
@@ -934,25 +1017,49 @@ export interface Ec2NodeClassSpecBlockDeviceMappingsEbs {
 /**
  * Converts an object of type 'Ec2NodeClassSpecBlockDeviceMappingsEbs' to JSON representation.
  */
-export function toJson_Ec2NodeClassSpecBlockDeviceMappingsEbs(
-  obj: Ec2NodeClassSpecBlockDeviceMappingsEbs | undefined,
-): Record<string, any> | undefined {
-  if (obj === undefined) {
-    return undefined;
-  }
+/* eslint-disable max-len, @stylistic/max-len, quote-props, @stylistic/quote-props */
+export function toJson_Ec2NodeClassSpecBlockDeviceMappingsEbs(obj: Ec2NodeClassSpecBlockDeviceMappingsEbs | undefined): Record<string, any> | undefined {
+  if (obj === undefined) { return undefined; }
   const result = {
-    deleteOnTermination: obj.deleteOnTermination,
-    encrypted: obj.encrypted,
-    iops: obj.iops,
-    kmsKeyID: obj.kmsKeyId,
-    snapshotID: obj.snapshotId,
-    throughput: obj.throughput,
-    volumeInitializationRate: obj.volumeInitializationRate,
-    volumeSize: obj.volumeSize,
-    volumeType: obj.volumeType,
+    'deleteOnTermination': obj.deleteOnTermination,
+    'encrypted': obj.encrypted,
+    'iops': obj.iops,
+    'kmsKeyID': obj.kmsKeyId,
+    'snapshotID': obj.snapshotId,
+    'throughput': obj.throughput,
+    'volumeInitializationRate': obj.volumeInitializationRate,
+    'volumeSize': obj.volumeSize,
+    'volumeType': obj.volumeType,
   };
   // filter undefined values
-  return Object.entries(result).reduce((r, i) => (i[1] === undefined ? r : { ...r, [i[0]]: i[1] }), {});
+  return Object.entries(result).reduce((r, i) => (i[1] === undefined) ? r : ({ ...r, [i[0]]: i[1] }), {});
+}
+/* eslint-enable max-len, @stylistic/max-len, quote-props, @stylistic/quote-props */
+
+/**
+ * InstanceMatchCriteria specifies how instances are matched to capacity reservations.
+ *
+ * @schema Ec2NodeClassSpecCapacityReservationSelectorTermsInstanceMatchCriteria
+ */
+export enum Ec2NodeClassSpecCapacityReservationSelectorTermsInstanceMatchCriteria {
+  /** open */
+  OPEN = "open",
+  /** targeted */
+  TARGETED = "targeted",
+}
+
+/**
+ * NestedVirtualization enables or disables nested virtualization on the instance.
+ * When enabled, Karpenter filters instance types to only those reporting
+ * "nested-virtualization" in ProcessorInfo.SupportedFeatures from DescribeInstanceTypes.
+ *
+ * @schema Ec2NodeClassSpecCpuOptionsNestedVirtualization
+ */
+export enum Ec2NodeClassSpecCpuOptionsNestedVirtualization {
+  /** enabled */
+  ENABLED = "enabled",
+  /** disabled */
+  DISABLED = "disabled",
 }
 
 /**
@@ -967,9 +1074,9 @@ export function toJson_Ec2NodeClassSpecBlockDeviceMappingsEbs(
  */
 export enum Ec2NodeClassSpecMetadataOptionsHttpEndpoint {
   /** enabled */
-  ENABLED = 'enabled',
+  ENABLED = "enabled",
   /** disabled */
-  DISABLED = 'disabled',
+  DISABLED = "disabled",
 }
 
 /**
@@ -981,9 +1088,9 @@ export enum Ec2NodeClassSpecMetadataOptionsHttpEndpoint {
  */
 export enum Ec2NodeClassSpecMetadataOptionsHttpProtocolIPv6 {
   /** enabled */
-  ENABLED = 'enabled',
+  ENABLED = "enabled",
   /** disabled */
-  DISABLED = 'disabled',
+  DISABLED = "disabled",
 }
 
 /**
@@ -1006,9 +1113,21 @@ export enum Ec2NodeClassSpecMetadataOptionsHttpProtocolIPv6 {
  */
 export enum Ec2NodeClassSpecMetadataOptionsHttpTokens {
   /** required */
-  REQUIRED = 'required',
+  REQUIRED = "required",
   /** optional */
-  OPTIONAL = 'optional',
+  OPTIONAL = "optional",
+}
+
+/**
+ * InterfaceType is the type of network interface. Valid values are "interface" and "efa-only".
+ *
+ * @schema Ec2NodeClassSpecNetworkInterfacesInterfaceType
+ */
+export enum Ec2NodeClassSpecNetworkInterfacesInterfaceType {
+  /** interface */
+  INTERFACE = "interface",
+  /** efa-only */
+  EFA_HYPHEN_ONLY = "efa-only",
 }
 
 /**
@@ -1020,17 +1139,18 @@ export enum Ec2NodeClassSpecMetadataOptionsHttpTokens {
  */
 export enum Ec2NodeClassSpecBlockDeviceMappingsEbsVolumeType {
   /** standard */
-  STANDARD = 'standard',
+  STANDARD = "standard",
   /** io1 */
-  IO1 = 'io1',
+  IO1 = "io1",
   /** io2 */
-  IO2 = 'io2',
+  IO2 = "io2",
   /** gp2 */
-  GP2 = 'gp2',
+  GP2 = "gp2",
   /** sc1 */
-  SC1 = 'sc1',
+  SC1 = "sc1",
   /** st1 */
-  ST1 = 'st1',
+  ST1 = "st1",
   /** gp3 */
-  GP3 = 'gp3',
+  GP3 = "gp3",
 }
+

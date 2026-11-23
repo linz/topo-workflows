@@ -1,4 +1,4 @@
-# yaml-language-server: $schema=https://raw.githubusercontent.com/argoproj/argo-workflows/v3.6.12/api/jsonschema/schema.json
+# yaml-language-server: $schema=https://raw.githubusercontent.com/argoproj/argo-workflows/v4.1.6/api/jsonschema/schema.json
 
 apiVersion: argoproj.io/v1alpha1
 kind: WorkflowTemplate
@@ -96,6 +96,8 @@ spec:
                   value: '{{inputs.parameters.checksum_links}}'
                 - name: recursive
                   value: '{{inputs.parameters.recursive}}'
+                - name: version_argo_tasks
+                  value: '{{inputs.parameters.version_argo_tasks}}'
             depends: aws-list
             withParam: '{{tasks.aws-list.outputs.parameters.files}}'
     - name: aws-list

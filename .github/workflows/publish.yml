@@ -1,0 +1,181 @@
+name: Shared Publish
+
+on:
+  workflow_call:
+    inputs:
+      user_group:
+        required: true
+        type: string
+      odr_bucket:
+        required: true
+        type: string
+      aws_role_config_path:
+        required: false
+        type: string
+        default: s3://linz-bucket-config/config-write.open-data-registry.json
+      stac_items:
+        required: false
+        type: boolean
+        default: false
+
+env:
+  # Set by scripts/bump-argo-versions.sh
+  ARGO_URL: https://github.com/argoproj/argo-workflows/releases/download/v4.1.6/argo-linux-amd64.gz
+  ARGO_SHA256: 885f886a338d7e7c0fd4a681152770fb54df1847f8fc55eaed788d661c0304e0
+
+concurrency:
+  group: ${{ github.repository }}-${{ github.ref == 'refs/heads/master' && 'publish-queue' || format('validate-{0}', github.run_id) }}
+  queue: max
+
+jobs:
+  main:
+    name: Validate STAC
+    runs-on: ubuntu-latest
+    steps:
+      - uses: linz/action-typescript@47be81e60ed1d891c696c3fb7f558876ba9a2b57 # v3.2.0
+        with:
+          node-version: 24.x
+
+      - name: Create STAC Catalog
+        uses: docker://ghcr.io/linz/argo-tasks:v8
+        with:
+          args: stac-catalog --output stac/catalog.json --template template/catalog.json /github/workspace/stac/
+
+      - name: Validate STAC Catalog
+        uses: docker://ghcr.io/linz/argo-tasks:v8
+        with:
+          args: stac-validate /github/workspace/stac/catalog.json
+
+      - name: Validate STAC
+        run: |
+          mapfile -t files < <(find "$PWD/stac" -type f -name collection.json)
+
+          if [ ${#files[@]} -eq 0 ]; then
+            echo "No collection.json files found."
+          else
+            docker run -v "$PWD:$PWD" ghcr.io/linz/argo-tasks:v8 stac-validate ${{ inputs.stac_items && '--recursive --checksum-links' || '' }} "${files[@]}"
+          fi
+
+      - name: Validate Parameter File Targets
+        run: |
+          export BUCKET="${ODR_BUCKET%/}/"
+          [[ -d publish-odr-parameters ]] || exit 0
+
+          errors=$(find -L publish-odr-parameters -type f -name '*.yaml' -exec yq -N '
+            select((.target | tag) != "!!str" or ((.target | test("^" + strenv(BUCKET))) | not))
+            | "::error file=" + filename + "::target " + (.target | to_string) + " is not in " + strenv(BUCKET)
+          ' {} +)
+
+          if [[ -n "$errors" ]]; then
+            echo "$errors"
+            exit 1
+          fi
+        env:
+          ODR_BUCKET: ${{ inputs.odr_bucket }}
+
+  publish-odr:
+    name: Publish ODR
+    runs-on: ubuntu-latest
+    needs: main
+    if: ${{ github.ref == 'refs/heads/master' }}
+
+    environment:
+      name: prod
+
+    permissions:
+      id-token: write
+      contents: read
+
+    steps:
+      - uses: linz/action-typescript@47be81e60ed1d891c696c3fb7f558876ba9a2b57 # v3.2.0
+        with:
+          node-version: 24.x
+
+      - name: Setup kubectl
+        uses: azure/setup-kubectl@bda439f5f36b99b262ebdcd3613869bddb064c8e # v5.2.0
+        with:
+          version: 'v1.37.2'
+          checksum: 'c04487523e7aa7d1493f7808174c899db93d7a9cf57531420cd76b9bd415f8f4'
+
+      - name: AWS Configure
+        uses: aws-actions/configure-aws-credentials@e1253824e5c10ff9df46874f81ed3ec929e19cfd # v6.3.0
+        with:
+          aws-region: ap-southeast-2
+          mask-aws-account-id: true
+          role-to-assume: ${{ secrets.AWS_EKS_CI_ROLE }}
+
+      - name: Login to EKS
+        run: |
+          aws eks update-kubeconfig --name Workflows --region ap-southeast-2
+
+      - name: Check EKS connection
+        run: |
+          kubectl get nodes
+
+      - name: Install Argo
+        run: |
+          curl --location --remote-name --silent "${{ env.ARGO_URL }}"
+          echo "${{ env.ARGO_SHA256 }}  argo-linux-amd64.gz" | sha256sum --check --strict
+          gunzip argo-linux-amd64.gz
+          chmod +x argo-linux-amd64
+          ./argo-linux-amd64 version
+
+      - name: Submit Added/Changed Parameter Files
+        id: modified-files
+        if: ${{ !contains(github.event.head_commit.message, '[skip-argo]') && github.ref == 'refs/heads/master' }}
+        run: |
+          # AM = Include: Added, Modified
+          mapfile -d '' modified_parameter_files < <(git diff --name-only --diff-filter=AM -z ${{ github.event.before }} ${{ github.event.after }} -- "publish-odr-parameters/*.yaml")
+
+          for file in "${modified_parameter_files[@]}"; do
+            ./argo-linux-amd64 submit --wait --from wftmpl/copy -n argo -f "$file" -p aws_role_config_path="$AWS_ROLE_CONFIG_PATH" -p exclude="$COPY_EXCLUDE" -p user_group="$USER_GROUP" --generate-name "publish-odr-file-copy-"
+          done
+        env:
+          USER_GROUP: ${{ inputs.user_group }}
+          AWS_ROLE_CONFIG_PATH: ${{ inputs.aws_role_config_path }}
+          COPY_EXCLUDE: ${{ inputs.stac_items && '\.json$' || 'collection.json$' }}
+
+  sync-stac:
+    name: Sync STAC files
+    runs-on: ubuntu-latest
+    needs: publish-odr
+    if: ${{ github.ref == 'refs/heads/master' }}
+
+    environment:
+      name: prod
+
+    permissions:
+      id-token: write
+      contents: read
+
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          ref: ${{ github.sha }} # Sync the STAC for the commit that triggered the Publish ODR workflow run
+
+      - name: AWS Configure
+        uses: aws-actions/configure-aws-credentials@e1253824e5c10ff9df46874f81ed3ec929e19cfd # v6.3.0
+        with:
+          aws-region: ap-southeast-2
+          mask-aws-account-id: true
+          role-to-assume: ${{ secrets.AWS_ODR_CI_ROLE }}
+
+      - name: AWS Configure ODR
+        uses: aws-actions/configure-aws-credentials@e1253824e5c10ff9df46874f81ed3ec929e19cfd # v6.3.0
+        with:
+          aws-region: ap-southeast-2
+          mask-aws-account-id: true
+          role-to-assume: ${{ secrets.AWS_ODR_DATA_MANAGER_ROLE }}
+          role-chaining: true
+
+      - name: Create STAC Catalog
+        uses: docker://ghcr.io/linz/argo-tasks:v8
+        with:
+          args: stac-catalog --output stac/catalog.json --template template/catalog.json /github/workspace/stac/
+
+      # Sync STAC files only on push to 'master'
+      - name: Sync STAC
+        if: ${{ !contains(github.event.head_commit.message, '[skip-sync]') && github.ref == 'refs/heads/master' }}
+        uses: docker://ghcr.io/linz/argo-tasks:v8
+        with:
+          args: stac-sync /github/workspace/stac/ ${{ inputs.odr_bucket }}

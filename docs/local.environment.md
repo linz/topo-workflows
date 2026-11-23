@@ -21,11 +21,12 @@ kind create cluster --name argo
 
 ## Argo Workflows
 
-Choose and install the Controller and Server of [a release](https://github.com/argoproj/argo-workflows/releases/) that matches the [production version (`appVersion`)](https://github.com/linz/topo-workflows/blob/master/infra/charts/argo.workflows.ts). The installation process should be described in the Argo Workflow Release page, for example for `v3.6.12`:
+Choose and install the Controller and Server of [a release](https://github.com/argoproj/argo-workflows/releases/) that matches the [production version (`appVersion`)](https://github.com/linz/topo-workflows/blob/master/infra/charts/argo.workflows.ts). The installation process should be described in the Argo Workflow Release page. From the repository root, to install the production version:
 
 ```bash
+ARGO_VERSION=$(sed -n "s/^const appVersion = '\(.*\)';$/\1/p" infra/charts/argo.workflows.ts)
 kubectl create namespace argo
-kubectl apply -n argo -f https://github.com/argoproj/argo-workflows/releases/download/v3.6.12/install.yaml
+kubectl apply -n argo -f "https://github.com/argoproj/argo-workflows/releases/download/${ARGO_VERSION}/install.yaml"
 kubectl create rolebinding default-admin --clusterrole=admin --serviceaccount=argo:default --namespace=argo
 ```
 

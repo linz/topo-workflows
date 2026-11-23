@@ -8,14 +8,9 @@ As `cdk8s` does not natively know the structure of these CRDs, we need to import
 1. Import the CRDs into TypeScript classes:
 
    ```shell
-   npx cdk8s import https://raw.githubusercontent.com/aws/karpenter-provider-aws/refs/tags/v1.5.0/pkg/apis/crds/karpenter.sh_nodepools.yaml
-   npx cdk8s import https://raw.githubusercontent.com/aws/karpenter-provider-aws/refs/tags/v1.5.0/pkg/apis/crds/karpenter.k8s.aws_nodeclasses.yaml
+   npx cdk8s import https://raw.githubusercontent.com/aws/karpenter-provider-aws/v1.15.1/pkg/apis/crds/karpenter.sh_nodepools.yaml
+
+   npx cdk8s import https://raw.githubusercontent.com/aws/karpenter-provider-aws/v1.15.1/pkg/apis/crds/karpenter.k8s.aws_ec2nodeclasses.yaml
    ```
 
-2. Remove unnecessary linter rules such as:
-
-   ```typescript
-   /* eslint-disable max-len, @stylistic/max-len, quote-props, @stylistic/quote-props */
-   ```
-
-3. Move the files to `infra/charts/imports/`
+2. Move the files to `infra/charts/imports/`

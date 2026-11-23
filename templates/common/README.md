@@ -22,7 +22,7 @@ The script run by this template as an exit handler is generating a log, includin
   "parameters": {
     "version_argo_tasks": "v4",
     "version_basemaps_cli": "v8",
-    "version_geoprocessor_raster": "v10",
+    "version_geoprocessor_raster": "v11",
     "ticket": "",
     "region": "new-zealand",
     "source": "s3://linz-imagery-staging/test/sample/",
@@ -96,7 +96,7 @@ spec:
         parameters:
           - name: message
       container:
-        image: alpine:latest
+        image: public.ecr.aws/docker/library/alpine:3.24.4
         command: [sh, -c]
         args: ['echo {{inputs.parameters.message}}']
 
@@ -159,7 +159,7 @@ spec:
         parameters:
           - name: custom_parameter
       container:
-        image: public.ecr.aws/aws-cli/aws-cli:2.27.62
+        image: public.ecr.aws/aws-cli/aws-cli:2.39.7
         command: [sh, -c]
         args:
           - |

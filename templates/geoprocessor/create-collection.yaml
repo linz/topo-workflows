@@ -1,4 +1,4 @@
-# yaml-language-server: $schema=https://raw.githubusercontent.com/argoproj/argo-workflows/v3.6.12/api/jsonschema/schema.json
+# yaml-language-server: $schema=https://raw.githubusercontent.com/argoproj/argo-workflows/v4.1.6/api/jsonschema/schema.json
 
 apiVersion: argoproj.io/v1alpha1
 kind: WorkflowTemplate
@@ -18,7 +18,7 @@ spec:
         parameters:
           - name: version_geoprocessor_raster
             description: 'Specify a version of the geoprocessor/raster image to use, e.g. "v4.8" or "latest"'
-            default: 'v10'
+            default: 'v11'
 
           - name: collection_id
             description: 'Collection ID of existing dataset, or else a generated collection ID'

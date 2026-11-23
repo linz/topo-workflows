@@ -1,4 +1,4 @@
-# yaml-language-server: $schema=https://raw.githubusercontent.com/argoproj/argo-workflows/v3.6.12/api/jsonschema/schema.json
+# yaml-language-server: $schema=https://raw.githubusercontent.com/argoproj/argo-workflows/v4.1.6/api/jsonschema/schema.json
 
 apiVersion: argoproj.io/v1alpha1
 kind: WorkflowTemplate
@@ -78,7 +78,7 @@ spec:
             valueFrom:
               path: /tmp/flattened_manifests.json
       container:
-        image: public.ecr.aws/aws-cli/aws-cli:2.27.62
+        image: public.ecr.aws/aws-cli/aws-cli:2.40.3@sha256:33a16c53ea442e918b58df67301ad76a8fb57082c39f7e78753b898c3f3e87c2
         imagePullPolicy: IfNotPresent
         command: [sh, '-c']
         args:
@@ -145,7 +145,7 @@ spec:
                 - name: decompress
                   value: 'true'
                 - name: aws_role_config_path
-                  value: 's3://linz-bucket-config/config-write.topographic.json,s3://linz-bucket-config/config-write.hydrographic.json'
+                  value: 's3://linz-bucket-config/config-write.topographic.json,s3://linz-bucket-config/config-write.hydrographic.json,s3://linz-bucket-config/config-write.planning.json'
             withParam: '{{inputs.parameters.copy_manifests}}'
           - name: mark-restore-manifest-done
             template: mark-restore-manifest-done
@@ -182,7 +182,7 @@ spec:
         parameters:
           - name: restore_manifest
       container:
-        image: public.ecr.aws/aws-cli/aws-cli:2.27.62
+        image: public.ecr.aws/aws-cli/aws-cli:2.40.3@sha256:33a16c53ea442e918b58df67301ad76a8fb57082c39f7e78753b898c3f3e87c2
         imagePullPolicy: IfNotPresent
         command: [sh, '-c']
         args:

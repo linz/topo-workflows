@@ -1,4 +1,4 @@
-# yaml-language-server: $schema=https://raw.githubusercontent.com/argoproj/argo-workflows/v3.6.12/api/jsonschema/schema.json
+# yaml-language-server: $schema=https://raw.githubusercontent.com/argoproj/argo-workflows/v4.1.6/api/jsonschema/schema.json
 
 apiVersion: argoproj.io/v1alpha1
 kind: WorkflowTemplate
@@ -79,7 +79,7 @@ spec:
           - name: geopackage
             path: /tmp/
       container:
-        image: ghcr.io/osgeo/gdal:alpine-small-3.7.0
+        image: ghcr.io/osgeo/gdal:alpine-small-3.7.0@sha256:179fc178911a5cfd1cb089aa385025fd7342511c1d5319c0273adc9c7224bde5
         imagePullPolicy: IfNotPresent
         command: [sh]
         args: ['-c', 'ogr2ogr -f FlatGeobuf tmp/flatGeobuf.fgb tmp/*.gpkg']

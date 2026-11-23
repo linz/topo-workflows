@@ -47,11 +47,16 @@ async function main(): Promise<void> {
       // Argo Workflows secrets for S3 Batch Operations Restore
       s3BatchRestoreAccountIdHydro: '/eks/S3BatchRestore/accountIdHydro',
       s3BatchRestoreAccountIdTopo: '/eks/S3BatchRestore/accountIdTopo',
+      s3BatchRestoreAccountIdPlanning: '/eks/S3BatchRestore/accountIdPlanning',
       s3BatchRestoreRoleArn: '/eks/S3BatchRestore/roleArn',
 
       // Elastic Agent Fleet
       elasticFleetUrl: '/eks/elastic/fleetUrl',
       elasticFleetToken: '/eks/elastic/fleetToken',
+
+      // Open Telemetry
+      otelExporterOtlpEndpoint: '/eks/otel/exporterOtlpEndpoint',
+      otelExporterOtlpHeaders: '/eks/otel/exporterOtlpHeaders',
     }),
     describeCluster(ClusterName),
   ]);
@@ -127,7 +132,15 @@ async function main(): Promise<void> {
         data: {
           ACCOUNT_ID_HYDRO: ssmConfig.s3BatchRestoreAccountIdHydro,
           ACCOUNT_ID_TOPO: ssmConfig.s3BatchRestoreAccountIdTopo,
+          ACCOUNT_ID_PLANNING: ssmConfig.s3BatchRestoreAccountIdPlanning,
           ROLE_ARN: ssmConfig.s3BatchRestoreRoleArn,
+        },
+      },
+      {
+        name: 'otel-exporter',
+        data: {
+          OTEL_EXPORTER_OTLP_ENDPOINT: ssmConfig.otelExporterOtlpEndpoint,
+          OTEL_EXPORTER_OTLP_HEADERS: ssmConfig.otelExporterOtlpHeaders,
         },
       },
     ],

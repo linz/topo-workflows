@@ -1,4 +1,4 @@
-# yaml-language-server: $schema=https://raw.githubusercontent.com/argoproj/argo-workflows/v3.6.12/api/jsonschema/schema.json
+# yaml-language-server: $schema=https://raw.githubusercontent.com/argoproj/argo-workflows/v4.1.6/api/jsonschema/schema.json
 
 apiVersion: argoproj.io/v1alpha1
 kind: WorkflowTemplate
@@ -34,7 +34,7 @@ spec:
         value: 'v8'
       - name: version_geoprocessor_raster
         description: 'Specify a version of the geoprocessor/raster image to use, e.g. "v4.8" or "latest"'
-        value: 'v10'
+        value: 'v11'
       - name: ticket
         description: 'Ticket ID, e.g. "TDE-1130"'
         value: ''
@@ -205,7 +205,7 @@ spec:
                   value: '{{inputs.parameters.geospatial_category}}'
                 - name: odr_url
                   value: '{{=sprig.trim(inputs.parameters.odr_url)}}'
-                - name: version
+                - name: version_argo_tasks
                   value: '{{=sprig.trim(inputs.parameters.version_argo_tasks)}}'
                 - name: target_bucket_name
                   value: '{{=sprig.trim(inputs.parameters.target_bucket_name)}}'
@@ -222,7 +222,7 @@ spec:
                   value: '{{= inputs.parameters.odr_url == "" || inputs.parameters.regenerate == "true" ? "" : sprig.trimSuffix("/", inputs.parameters.odr_url) + "/collection.json" }}'
                 - name: sourceCollections
                   value: '{{= inputs.parameters.base_layer_source == "" ? "" : sprig.trimSuffix("/", inputs.parameters.base_layer_source) + "/collection.json;" }}{{=sprig.trimSuffix("/", inputs.parameters.top_layer_source)}}/collection.json'
-                - name: version
+                - name: version_argo_tasks
                   value: '{{= inputs.parameters.version_argo_tasks}}'
 
           - name: group
@@ -237,7 +237,7 @@ spec:
               parameters:
                 - name: size
                   value: '{{inputs.parameters.group}}'
-                - name: version
+                - name: version_argo_tasks
                   value: '{{= inputs.parameters.version_argo_tasks}}'
             depends: 'identify-updated-items.Succeeded'
 
@@ -329,10 +329,8 @@ spec:
               parameters:
                 - name: uri
                   value: '{{=sprig.trimSuffix("/", tasks["get-location"].outputs.parameters.location)}}/{{inputs.parameters.geospatial_category}}/flat/collection.json'
-              artifacts:
-                - name: stac-result
-                  raw:
-                    data: '{{tasks.stac-validate-all.outputs.result}}'
+                - name: version_argo_tasks
+                  value: '{{= inputs.parameters.version_argo_tasks}}'
             depends: 'create-collection.Succeeded'
             when: "'{{inputs.parameters.odr_url}}' == ''"
 

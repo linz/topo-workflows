@@ -1,7 +1,14 @@
-import { KubectlV34Layer } from '@aws-cdk/lambda-layer-kubectl-v34';
-import { Aws, CfnOutput, Fn, Stack, StackProps } from 'aws-cdk-lib';
+import { KubectlV37Layer } from '@aws-cdk/lambda-layer-kubectl-v37';
+import { Aws, CfnOutput, Fn, Stack, StackProps, TimeZone } from 'aws-cdk-lib';
 import { InstanceType, IVpc, Port, SecurityGroup, SubnetType, Vpc } from 'aws-cdk-lib/aws-ec2';
-import { Cluster, ClusterLoggingTypes, IpFamily, KubernetesVersion, NodegroupAmiType } from 'aws-cdk-lib/aws-eks';
+import {
+  CfnNodegroup,
+  Cluster,
+  ClusterLoggingTypes,
+  IpFamily,
+  KubernetesVersion,
+  NodegroupAmiType,
+} from 'aws-cdk-lib/aws-eks';
 import {
   CfnInstanceProfile,
   Effect,
@@ -13,6 +20,8 @@ import {
 } from 'aws-cdk-lib/aws-iam';
 import * as iam from 'aws-cdk-lib/aws-iam';
 import { Bucket, IBucket } from 'aws-cdk-lib/aws-s3';
+import { Schedule, ScheduleExpression, ScheduleTargetInput } from 'aws-cdk-lib/aws-scheduler';
+import { Universal } from 'aws-cdk-lib/aws-scheduler-targets';
 import { Construct } from 'constructs';
 import { createHash } from 'crypto';
 
@@ -32,7 +41,8 @@ export class LinzEksCluster extends Stack {
   /* Cluster ID */
   id: string;
   /** Version of EKS to use, this must be aligned to the `kubectlLayer` */
-  version = KubernetesVersion.V1_34;
+  // TODO: switch to KubernetesVersion.V1_37 once aws-cdk-lib makes avaliable
+  version = KubernetesVersion.of('1.37');
   /** Argo needs a temporary bucket to store objects */
   tempBucket: IBucket;
   /* Bucket where read/write roles config files are stored */
@@ -63,7 +73,7 @@ export class LinzEksCluster extends Stack {
       defaultCapacity: 0,
       vpcSubnets: [{ subnetType: SubnetType.PRIVATE_WITH_EGRESS }],
       /** This must align to Cluster version: {@link version} */
-      kubectlLayer: new KubectlV34Layer(this, 'KubeCtlLayer'),
+      kubectlLayer: new KubectlV37Layer(this, 'KubeCtlLayer'),
       /** To prevent IP exhaustion when running huge workflows run using ipv6 */
       ipFamily: IpFamily.IP_V6,
       clusterLogging: [ClusterLoggingTypes.API, ClusterLoggingTypes.CONTROLLER_MANAGER, ClusterLoggingTypes.SCHEDULER],
@@ -82,6 +92,36 @@ export class LinzEksCluster extends Stack {
       subnets: { subnetType: SubnetType.PRIVATE_WITH_EGRESS },
     });
     this.tempBucket.grantReadWrite(nodeGroup.role);
+
+    /**
+     * Keep the managed node group patched by rolling it to the latest EKS-optimised AMI
+     * (Bottlerocket) for the current Kubernetes version on a schedule.
+     *
+     * EventBridge Scheduler calls the EKS API directly, no Lambda needed.
+     * Node drains respect PodDisruptionBudgets (e.g. the Argo Events eventbus PDB).
+     */
+    new Schedule(this, 'NodegroupVersionUpdate', {
+      description: `Update ${id} ClusterDefault node group to the latest AMI release`,
+      schedule: ScheduleExpression.cron({
+        minute: '0',
+        hour: '2',
+        timeZone: TimeZone.PACIFIC_AUCKLAND,
+      }),
+      target: new Universal({
+        service: 'eks',
+        action: 'updateNodegroupVersion',
+        input: ScheduleTargetInput.fromObject({
+          ClusterName: this.cluster.clusterName,
+          NodegroupName: (nodeGroup.node.defaultChild as CfnNodegroup).attrNodegroupName,
+        }),
+        policyStatements: [
+          new PolicyStatement({
+            actions: ['eks:UpdateNodegroupVersion'],
+            resources: [nodeGroup.nodegroupArn],
+          }),
+        ],
+      }),
+    });
 
     //allow the maintainer roles access to the cluster
     for (const roleArn of props.maintainerRoleArns) {
@@ -174,6 +214,11 @@ export class LinzEksCluster extends Stack {
             'ec2:TerminateInstances',
             'ec2:DescribeImages',
             'ec2:DescribeSpotPriceHistory',
+            'ec2:DescribeCapacityReservations',
+            'ec2:DescribeInstanceStatus',
+            'ec2:DescribePlacementGroups',
+            'iam:ListInstanceProfiles',
+            'iam:GetInstanceProfile',
             'iam:PassRole',
             'iam:CreateServiceLinkedRole',
             'ssm:GetParameter',
