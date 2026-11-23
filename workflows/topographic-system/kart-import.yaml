@@ -109,9 +109,11 @@ spec:
         imagePullPolicy: Always
         workingDir: /workspace/packages/kart-import
         resources:
-          requests: # starting guesses: size with a trial run
+          # Sized to fill a c5.9xlarge (36 vCPU, 72 GiB), the smallest on-demand `c` node with room
+          # for 60Gi; leaves headroom for system pods. Keep --cores below in step with cpu.
+          requests:
             memory: 60Gi
-            cpu: 16000m
+            cpu: 32000m
             ephemeral-storage: 150Gi # nodes have 200GB
         env:
           - name: REPO
@@ -167,7 +169,7 @@ spec:
             # Stage 2: build the target repo(s) under data/output/<repo>/. --keep-going so a failure in
             # one repo (e.g. a missing export) doesn't stop the others; the run still fails at the end.
             status=0
-            uv run --no-sync snakemake --cores 16 --keep-going "$target" || status=$?
+            uv run --no-sync snakemake --cores 32 --keep-going "$target" || status=$?
 
             # Package each repo that finished as a single file for download
             for imported in data/output/*/.imported; do
