@@ -55,8 +55,8 @@ async function main(): Promise<void> {
       elasticFleetToken: '/eks/elastic/fleetToken',
 
       // Open Telemetry
-      otelExporterOtlpEndpoint: '/eks/otel/expoterOtlpEndpoint',
-      otelExporterOtlpHeaders: '/eks/otel/expoterOtlpHeaders',
+      otelExporterOtlpEndpoint: '/eks/otel/exporterOtlpEndpoint',
+      otelExporterOtlpHeaders: '/eks/otel/exporterOtlpHeaders',
     }),
     describeCluster(ClusterName),
   ]);
@@ -137,7 +137,7 @@ async function main(): Promise<void> {
         },
       },
       {
-        name: 'otel-expoter',
+        name: 'otel-exporter',
         data: {
           OTEL_EXPORTER_OTLP_ENDPOINT: ssmConfig.otelExporterOtlpEndpoint,
           OTEL_EXPORTER_OTLP_HEADERS: ssmConfig.otelExporterOtlpHeaders,
