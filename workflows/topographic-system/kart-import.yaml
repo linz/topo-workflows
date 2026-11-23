@@ -109,11 +109,11 @@ spec:
         imagePullPolicy: Always
         workingDir: /workspace/packages/kart-import
         resources:
-          # Sized to fill a c5.9xlarge (36 vCPU, 72 GiB), the smallest on-demand `c` node with room
-          # for 60Gi; leaves headroom for system pods. Keep --cores below in step with cpu.
+          # These pick the node: Karpenter gives the smallest on-demand `c` node with room for them.
+          # Snakemake runs up to 64 jobs' worth of threads at once (`--cores 64`).
           requests:
             memory: 60Gi
-            cpu: 32000m
+            cpu: 128000m
             ephemeral-storage: 150Gi # nodes have 200GB
         env:
           - name: REPO
@@ -139,6 +139,17 @@ spec:
             value: 'LINZ Topographic System' # placeholder
           - name: GIT_COMMITTER_EMAIL
             value: 'noreply@linz.govt.nz' # placeholder
+          # Where to send OpenTelemetry traces and metrics
+          - name: OTEL_EXPORTER_OTLP_ENDPOINT
+            valueFrom:
+              secretKeyRef:
+                name: otel-exporter
+                key: OTEL_EXPORTER_OTLP_ENDPOINT
+          - name: OTEL_EXPORTER_OTLP_HEADERS
+            valueFrom:
+              secretKeyRef:
+                name: otel-exporter
+                key: OTEL_EXPORTER_OTLP_HEADERS
         volumeMounts:
           - name: data
             mountPath: /workspace/packages/kart-import/data
@@ -164,12 +175,12 @@ spec:
             # so only set them when given
             if [ -n "$THEMES" ]; then export KART_IMPORT_THEME="$THEMES"; fi
             if [ -n "$RELEASES" ]; then export KART_IMPORT_RELEASE="$RELEASES"; fi
-            echo "target=$target themes=${KART_IMPORT_THEME:-<all>} releases=${KART_IMPORT_RELEASE:-<all>} exports=$KART_EXPORT_URL"
+            echo "target=$target themes=${KART_IMPORT_THEME:-<all>} releases=${KART_IMPORT_RELEASE:-<all>} exports=$KART_EXPORT_URL node_cores=$(nproc)"
 
             # Stage 2: build the target repo(s) under data/output/<repo>/. --keep-going so a failure in
             # one repo (e.g. a missing export) doesn't stop the others; the run still fails at the end.
             status=0
-            uv run --no-sync snakemake --cores 32 --keep-going "$target" || status=$?
+            uv run --no-sync snakemake --cores 64 --keep-going "$target" || status=$?
 
             # Package each repo that finished as a single file for download
             for imported in data/output/*/.imported; do
