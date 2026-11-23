@@ -53,6 +53,10 @@ async function main(): Promise<void> {
       // Elastic Agent Fleet
       elasticFleetUrl: '/eks/elastic/fleetUrl',
       elasticFleetToken: '/eks/elastic/fleetToken',
+
+      // Open Telemetry
+      otelExporterOtlpEndpoint: '/eks/otel/exporterOtlpEndpoint',
+      otelExporterOtlpHeaders: '/eks/otel/exporterOtlpHeaders',
     }),
     describeCluster(ClusterName),
   ]);
@@ -130,6 +134,13 @@ async function main(): Promise<void> {
           ACCOUNT_ID_TOPO: ssmConfig.s3BatchRestoreAccountIdTopo,
           ACCOUNT_ID_PLANNING: ssmConfig.s3BatchRestoreAccountIdPlanning,
           ROLE_ARN: ssmConfig.s3BatchRestoreRoleArn,
+        },
+      },
+      {
+        name: 'otel-exporter',
+        data: {
+          OTEL_EXPORTER_OTLP_ENDPOINT: ssmConfig.otelExporterOtlpEndpoint,
+          OTEL_EXPORTER_OTLP_HEADERS: ssmConfig.otelExporterOtlpHeaders,
         },
       },
     ],
