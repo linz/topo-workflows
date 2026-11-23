@@ -1,0 +1,71 @@
+# yaml-language-server: $schema=https://raw.githubusercontent.com/argoproj/argo-workflows/v4.1.6/api/jsonschema/schema.json
+
+apiVersion: argoproj.io/v1alpha1
+kind: WorkflowTemplate
+metadata:
+  # Template uses container https://github.com/linz/geoprocessor/pkgs/container/geoprocessor%2Fpointcloud
+  # see https://github.com/linz/geoprocessor/blob/master/packages/geoprocessor-pointcloud/src/geoprocessor_pointcloud/standardise_copc.py
+  name: tpl-gp-pointcloud-standardise-copc
+  labels:
+    linz.govt.nz/category: pointcloud
+    linz.govt.nz/data-type: pointcloud
+spec:
+  templateDefaults:
+    container:
+      imagePullPolicy: Always
+      image: ''
+  entrypoint: main
+  templates:
+    - name: main
+      inputs:
+        parameters:
+          - name: version_geoprocessor_pointcloud
+            description: 'Specify a version of the geoprocessor/pointcloud image to use, e.g. "v11" or "latest"'
+            default: 'v11'
+
+          - name: files
+            description: 'Space-separated list of files to process'
+            default: ''
+
+          - name: from_file
+            description: 'File containing a JSON list of files to process'
+            default: ''
+
+          - name: from_manifest
+            description: 'File containing a manifest of files to process (will only use source)'
+            default: ''
+
+          - name: target
+            description: 'Location for output files'
+            default: ''
+
+      outputs:
+        artifacts:
+          - name: processed_files
+            optional: true
+            path: '/tmp/processed.json'
+            archive:
+              none: {}
+
+      container:
+        image: '019359803926.dkr.ecr.ap-southeast-2.amazonaws.com/geoprocessor/pointcloud:{{=sprig.trim(inputs.parameters.version_geoprocessor_pointcloud)}}'
+        resources:
+          requests:
+            memory: 7.8Gi
+            cpu: 15000m
+            ephemeral-storage: 29.5Gi
+        volumeMounts:
+          # This volume must be defined in the workflow calling this workflowTemplate
+          - name: ephemeral
+            mountPath: '/tmp'
+        args:
+          - 'standardise-copc'
+          - '--is-argo'
+          - '--from-file'
+          - '{{inputs.parameters.from_file}}'
+          - '--from-manifest'
+          - '{{inputs.parameters.from_manifest}}'
+          - '--files'
+          - '{{=sprig.trim(inputs.parameters.files)}}'
+          - '--target'
+          - '{{inputs.parameters.target}}'
