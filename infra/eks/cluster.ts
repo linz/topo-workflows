@@ -1,7 +1,14 @@
 import { KubectlV37Layer } from '@aws-cdk/lambda-layer-kubectl-v37';
-import { Aws, CfnOutput, Fn, Stack, StackProps } from 'aws-cdk-lib';
+import { Aws, CfnOutput, Fn, Stack, StackProps, TimeZone } from 'aws-cdk-lib';
 import { InstanceType, IVpc, Port, SecurityGroup, SubnetType, Vpc } from 'aws-cdk-lib/aws-ec2';
-import { Cluster, ClusterLoggingTypes, IpFamily, KubernetesVersion, NodegroupAmiType } from 'aws-cdk-lib/aws-eks';
+import {
+  CfnNodegroup,
+  Cluster,
+  ClusterLoggingTypes,
+  IpFamily,
+  KubernetesVersion,
+  NodegroupAmiType,
+} from 'aws-cdk-lib/aws-eks';
 import {
   CfnInstanceProfile,
   Effect,
@@ -13,6 +20,8 @@ import {
 } from 'aws-cdk-lib/aws-iam';
 import * as iam from 'aws-cdk-lib/aws-iam';
 import { Bucket, IBucket } from 'aws-cdk-lib/aws-s3';
+import { Schedule, ScheduleExpression, ScheduleTargetInput } from 'aws-cdk-lib/aws-scheduler';
+import { Universal } from 'aws-cdk-lib/aws-scheduler-targets';
 import { Construct } from 'constructs';
 import { createHash } from 'crypto';
 
@@ -83,6 +92,36 @@ export class LinzEksCluster extends Stack {
       subnets: { subnetType: SubnetType.PRIVATE_WITH_EGRESS },
     });
     this.tempBucket.grantReadWrite(nodeGroup.role);
+
+    /**
+     * Keep the managed node group patched by rolling it to the latest EKS-optimised AMI
+     * (Bottlerocket) for the current Kubernetes version on a schedule.
+     *
+     * EventBridge Scheduler calls the EKS API directly, no Lambda needed.
+     * Node drains respect PodDisruptionBudgets (e.g. the Argo Events eventbus PDB).
+     */
+    new Schedule(this, 'NodegroupVersionUpdate', {
+      description: `Update ${id} ClusterDefault node group to the latest AMI release`,
+      schedule: ScheduleExpression.cron({
+        minute: '0',
+        hour: '2',
+        timeZone: TimeZone.PACIFIC_AUCKLAND,
+      }),
+      target: new Universal({
+        service: 'eks',
+        action: 'updateNodegroupVersion',
+        input: ScheduleTargetInput.fromObject({
+          ClusterName: this.cluster.clusterName,
+          NodegroupName: (nodeGroup.node.defaultChild as CfnNodegroup).attrNodegroupName,
+        }),
+        policyStatements: [
+          new PolicyStatement({
+            actions: ['eks:UpdateNodegroupVersion'],
+            resources: [nodeGroup.nodegroupArn],
+          }),
+        ],
+      }),
+    });
 
     //allow the maintainer roles access to the cluster
     for (const roleArn of props.maintainerRoleArns) {
