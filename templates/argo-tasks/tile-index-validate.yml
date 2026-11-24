@@ -121,7 +121,7 @@ spec:
           - '--verbose'
           - '--scale={{= inputs.parameters.scale }}'
           - '--preset={{= inputs.parameters.preset }}'
-          - "{{= inputs.parameters.source_type == 'raster' ? '' : '--source-type=' + inputs.parameters.source_type }}"
+          - '--source-type={{= inputs.parameters.source_type }}'
           - "{{= sprig.empty(inputs.parameters.source_epsg) ? '' : '--source-epsg=' + inputs.parameters.source_epsg }}"
           - "{{= sprig.empty(inputs.parameters.source_vertical_epsg) ? '' : '--source-vertical-epsg=' + inputs.parameters.source_vertical_epsg }}"
           - "{{= sprig.empty(inputs.parameters.target_epsg) ? '' : '--target-epsg=' + inputs.parameters.target_epsg }}"
