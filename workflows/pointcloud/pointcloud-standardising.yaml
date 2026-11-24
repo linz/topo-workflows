@@ -93,10 +93,7 @@ spec:
           - '10000'
           - '50000'
       - name: source_epsg
-        description: '(Optional) EPSG of the source files, e.g. "2193". Leave blank to use the CRS in the file headers.'
-        value: ''
-      - name: source_vertical_epsg
-        description: '(Optional) Vertical EPSG of the source files, e.g. "7839" for NZVD2016. Leave blank to use the CRS in the file headers.'
+        description: '(Optional) Horizontal and vertical EPSG of the source files, e.g. "2193+7839" for NZTM2000 + NZVD2016. Leave blank to use the CRS in the file headers.'
         value: ''
       - name: group
         description: 'How many output tiles to merge in each standardise-copc task "pod". Change if you have resource or performance issues when standardising a dataset.'
@@ -154,8 +151,6 @@ spec:
                   value: '{{=sprig.trim(inputs.parameters.source)}}'
                 - name: source_epsg
                   value: '{{=sprig.trim(workflow.parameters.source_epsg)}}'
-                - name: source_vertical_epsg
-                  value: '{{=sprig.trim(workflow.parameters.source_vertical_epsg)}}'
                 - name: version_argo_tasks
                   value: '{{= workflow.parameters.version_argo_tasks}}'
 

@@ -28,11 +28,7 @@ spec:
               - 'pointcloud'
 
           - name: source_epsg
-            description: Force source EPSG, "" will attempt to load EPSG from the source files
-            default: ''
-
-          - name: source_vertical_epsg
-            description: Force the vertical EPSG of point clouds, e.g. "7839" for NZVD2016, "" will attempt to load it from the source files
+            description: Force source EPSG, point clouds can add a vertical EPSG, e.g. "2193+7839" for NZTM2000 + NZVD2016. "" will attempt to load EPSG from the source files
             default: ''
 
           - name: target_epsg
@@ -123,7 +119,6 @@ spec:
           - '--preset={{= inputs.parameters.preset }}'
           - '--source-type={{= inputs.parameters.source_type }}'
           - "{{= sprig.empty(inputs.parameters.source_epsg) ? '' : '--source-epsg=' + inputs.parameters.source_epsg }}"
-          - "{{= sprig.empty(inputs.parameters.source_vertical_epsg) ? '' : '--source-vertical-epsg=' + inputs.parameters.source_vertical_epsg }}"
           - "{{= sprig.empty(inputs.parameters.target_epsg) ? '' : '--target-epsg=' + inputs.parameters.target_epsg }}"
           - "{{= sprig.empty(inputs.parameters.include) ? '' : '--include=' + inputs.parameters.include }}"
           - '--includeDerived={{= inputs.parameters.includeDerived }}'
