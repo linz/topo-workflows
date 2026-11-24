@@ -23,21 +23,25 @@ spec:
             description: 'Specify a version of the geoprocessor/pointcloud image to use, e.g. "v11" or "latest"'
             default: 'v11'
 
-          - name: files
-            description: 'Space-separated list of files to process'
+          - name: group_id
+            description: 'The ID of the group of output tiles to use as the input'
             default: ''
 
-          - name: from_file
-            description: 'File containing a JSON list of files to process'
-            default: ''
-
-          - name: from_manifest
-            description: 'File containing a manifest of files to process (will only use source)'
-            default: ''
+          - name: concurrency
+            description: 'Number of output tiles to merge at the same time'
+            default: '1'
 
           - name: target
             description: 'Location for output files'
             default: ''
+
+          - name: source_crs
+            description: 'CRS of the source point clouds, e.g. "EPSG:2193+7839", from tile-index-validate'
+            default: ''
+
+        artifacts:
+          - name: group_data
+            path: /tmp/input/
 
       outputs:
         artifacts:
@@ -49,6 +53,9 @@ spec:
 
       container:
         image: '019359803926.dkr.ecr.ap-southeast-2.amazonaws.com/geoprocessor/pointcloud:{{=sprig.trim(inputs.parameters.version_geoprocessor_pointcloud)}}'
+        env:
+          - name: AWS_ROLE_CONFIG_PATH
+            value: s3://linz-bucket-config/config.json
         resources:
           requests:
             memory: 7.8Gi
@@ -62,10 +69,10 @@ spec:
           - 'standardise-copc'
           - '--is-argo'
           - '--from-file'
-          - '{{inputs.parameters.from_file}}'
-          - '--from-manifest'
-          - '{{inputs.parameters.from_manifest}}'
-          - '--files'
-          - '{{=sprig.trim(inputs.parameters.files)}}'
+          - '/tmp/input/{{inputs.parameters.group_id}}.json'
+          - '--concurrency'
+          - '{{inputs.parameters.concurrency}}'
           - '--target'
           - '{{inputs.parameters.target}}'
+          - '--source-crs'
+          - '{{=sprig.trim(inputs.parameters.source_crs)}}'

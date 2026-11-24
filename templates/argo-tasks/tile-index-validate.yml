@@ -17,11 +17,22 @@ spec:
       inputs:
         parameters:
           - name: scale
-            description: Tile Index scale to validate against or target scale for retiling. "auto" determines the appropriate scale based on input TIFFs GSD and preset
+            description: Tile Index scale to validate against or target scale for retiling. "auto" determines the appropriate scale based on input TIFFs GSD and preset, point clouds need a scale
             default: 'auto'
 
+          - name: source_type
+            description: Type of the input files, "raster" (TIFF) or "pointcloud" (LAS/LAZ, placed in the tile of their centroid)
+            default: 'raster'
+            enum:
+              - 'raster'
+              - 'pointcloud'
+
           - name: source_epsg
-            description: Force source EPSG, "" will attempt to load EPSG from the source tiffs
+            description: Force source EPSG, "" will attempt to load EPSG from the source files
+            default: ''
+
+          - name: source_vertical_epsg
+            description: Force the vertical EPSG of point clouds, e.g. "7839" for NZVD2016, "" will attempt to load it from the source files
             default: ''
 
           - name: target_epsg
@@ -60,6 +71,24 @@ spec:
             valueFrom:
               path: /tmp/tile-index-validate/data-type
 
+          - name: density
+            description: 'Median point density of the input point clouds in points per m²'
+            valueFrom:
+              path: /tmp/tile-index-validate/density
+              default: ''
+
+          - name: point_format
+            description: 'LAS point data record format of the input point clouds'
+            valueFrom:
+              path: /tmp/tile-index-validate/point-format
+              default: ''
+
+          - name: crs
+            description: 'CRS of the input point clouds, e.g. "EPSG:2193+7839"'
+            valueFrom:
+              path: /tmp/tile-index-validate/crs
+              default: ''
+
         artifacts:
           # List of tiff files that need to be processed
           - name: files
@@ -92,7 +121,9 @@ spec:
           - '--verbose'
           - '--scale={{= inputs.parameters.scale }}'
           - '--preset={{= inputs.parameters.preset }}'
+          - "{{= inputs.parameters.source_type == 'raster' ? '' : '--source-type=' + inputs.parameters.source_type }}"
           - "{{= sprig.empty(inputs.parameters.source_epsg) ? '' : '--source-epsg=' + inputs.parameters.source_epsg }}"
+          - "{{= sprig.empty(inputs.parameters.source_vertical_epsg) ? '' : '--source-vertical-epsg=' + inputs.parameters.source_vertical_epsg }}"
           - "{{= sprig.empty(inputs.parameters.target_epsg) ? '' : '--target-epsg=' + inputs.parameters.target_epsg }}"
           - "{{= sprig.empty(inputs.parameters.include) ? '' : '--include=' + inputs.parameters.include }}"
           - '--includeDerived={{= inputs.parameters.includeDerived }}'
