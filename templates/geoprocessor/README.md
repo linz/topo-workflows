@@ -6,6 +6,7 @@
 - [Create Collection](#geoprocessorraster-create-collection---tpl-gp-raster-create-collection)
 - [Generate Hillshade](#geoprocessorraster-generate-hillshade---tpl-gp-raster-generate-hillshade)
 - [Compute Scale](#geoprocessorraster-compute-scale---tpl-gp-raster-compute-scale)
+- [Standardise COPC](#geoprocessorpointcloud-standardise-copc---tpl-gp-pointcloud-standardise-copc)
 
 ## geoprocessor/raster standardise-validate - `tpl-gp-raster-standardise-validate`
 
@@ -229,4 +230,38 @@ Histograms per group of source TIFFs from `tpl-at-group` with a `group_size`, be
       - name: group_data
         from: '{{ tasks.compute-scale-group.outputs.artifacts.output }}'
   withParam: '{{ tasks.compute-scale-group.outputs.parameters.output }}'
+```
+
+## geoprocessor/pointcloud standardise-copc - `tpl-gp-pointcloud-standardise-copc`
+
+Template for standardising point cloud files (LAS/LAZ) to Cloud Optimized Point Cloud (COPC).
+Input files can be given with `files`, `from_file` or `from_manifest`.
+
+See [standardise_copc.py](https://github.com/linz/geoprocessor/blob/master/packages/geoprocessor-pointcloud/src/geoprocessor_pointcloud/standardise_copc.py)
+
+### Template usage
+
+```yaml
+- name: standardise-copc
+  templateRef:
+    name: tpl-gp-pointcloud-standardise-copc
+    template: main
+  arguments:
+    parameters:
+      - name: from_manifest
+        value: '{{item}}'
+      - name: target
+        value: '{{=sprig.trimSuffix("/", tasks["get-location"].outputs.parameters.location)}}/flat/'
+      - name: version_geoprocessor_pointcloud
+        value: '{{= workflow.parameters.version_geoprocessor_pointcloud}}'
+  depends: 'list-source.Succeeded && get-location.Succeeded'
+  withParam: '{{tasks.list-source.outputs.parameters.files}}'
+```
+
+The Workflow caller must have the following volume:
+
+```yaml
+volumes:
+  - name: ephemeral
+    emptyDir: {}
 ```
