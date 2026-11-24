@@ -32,9 +32,17 @@ jobs:
     name: Validate STAC
     runs-on: ubuntu-latest
     steps:
-      - uses: linz/action-typescript@47be81e60ed1d891c696c3fb7f558876ba9a2b57 # v3.2.0
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          fetch-depth: 0
+      - uses: linz/action-setup-node@48f43de2a9a49534e8d739cd34b75b797ad032ce # v1.0.8
         with:
           node-version: 24.x
+          cache: npm
+      - run: npm ci
+      - run: npm run build --if-present
+      - run: npm run lint --if-present -- --fix=false
+      - run: npm run test --if-present
 
       - name: Create STAC Catalog
         uses: docker://ghcr.io/linz/argo-tasks:v8
@@ -87,9 +95,17 @@ jobs:
       contents: read
 
     steps:
-      - uses: linz/action-typescript@47be81e60ed1d891c696c3fb7f558876ba9a2b57 # v3.2.0
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          fetch-depth: 0
+      - uses: linz/action-setup-node@48f43de2a9a49534e8d739cd34b75b797ad032ce # v1.0.8
         with:
           node-version: 24.x
+          cache: npm
+      - run: npm ci
+      - run: npm run build --if-present
+      - run: npm run lint --if-present -- --fix=false
+      - run: npm run test --if-present
 
       - name: Setup kubectl
         uses: azure/setup-kubectl@bda439f5f36b99b262ebdcd3613869bddb064c8e # v5.2.0
