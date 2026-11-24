@@ -3,6 +3,8 @@
 apiVersion: argoproj.io/v1alpha1
 kind: WorkflowTemplate
 metadata:
+  # Template from https://github.com/linz/geoprocessor
+  # see https://github.com/linz/geoprocessor/blob/master/packages/geoprocessor-pointcloud/src/geoprocessor_pointcloud/standardise_copc.py
   name: pointcloud-standardising
   labels:
     linz.govt.nz/category: pointcloud
@@ -36,10 +38,10 @@ spec:
   arguments:
     parameters:
       - name: version_argo_tasks
-        description: 'Specify a version of the argo-tasks image to use, e.g. "v8" or "latest". It needs point cloud support in tileindex-validate.'
+        description: 'Specify a version of the argo-tasks image to use, e.g. "v5.1" or "latest"'
         value: 'v8'
       - name: version_geoprocessor_pointcloud
-        description: 'Specify a version of the geoprocessor/pointcloud image to use, e.g. "v11" or "latest". It needs standardise-copc to merge tiles.'
+        description: 'Specify a version of the geoprocessor/pointcloud image to use, e.g. "v11" or "latest". Note: This image needs to contain PDAL.'
         value: 'v11'
       - name: user_group
         description: Group of users running the workflow
@@ -77,13 +79,13 @@ spec:
           - 'wellington'
           - 'west-coast'
       - name: source
-        description: 'S3 location of the source dataset(s). Separate multiple sources with a semicolon (;). Where folders overlap, later sources (right) take priority'
+        description: 'S3 location of the source dataset(s). Separate multiple sources with a semicolon (;) for merging.'
         value: 's3://linz-elevation-staging/test/sample/'
       - name: include
         description: 'Regular expression pattern match for paths/files to include e.g "\.la[sz]$"'
         value: '\.la[sz]$'
       - name: scale
-        description: 'Scale of the standardised output tiles. Each source file goes into the tile of its centroid.'
+        description: 'Scale of the standardised output point clouds. Each source file goes into the tile of its centroid.'
         value: '5000'
         enum:
           - '500'
@@ -93,19 +95,19 @@ spec:
           - '10000'
           - '50000'
       - name: source_epsg
-        description: '(Optional) Horizontal and vertical EPSG of the source files, e.g. "2193+7839" for NZTM2000 + NZVD2016. Leave blank to use the CRS in the file headers.'
+        description: 'EPSG of the source files, e.g. "2193+7839" for NZTM2000 + NZVD2016. Leave blank to use the CRS in the file headers.'
         value: ''
       - name: group
-        description: 'How many output tiles to merge in each standardise-copc task "pod". Change if you have resource or performance issues when standardising a dataset.'
+        description: 'How many output tiles to process in each standardise-copc pod. Change if you have resource or performance issues when standardising a dataset.'
         value: '5'
       - name: group_size
-        description: '(Optional) Also close a group when its source files reach this total size, e.g. "50Gi". Leave blank for no size limit.'
+        description: 'Total size of the source point clouds read by each standardise-copc pod, e.g. "100Gi". Leave blank for no size limit.'
         value: ''
       - name: concurrency
-        description: 'Number of output tiles to merge at the same time in each standardise-copc task "pod"'
+        description: 'Number of concurrent tiles to standardise.'
         value: '1'
       - name: target
-        description: '(Optional) S3 location to copy the standardised files to. Leave blank to keep them in the workflow scratch location only.'
+        description: '(Optional) S3 location of the target output. Leave blank to keep the output in the scratch location only.'
         value: ''
       - name: copy_option
         description: 'Do not overwrite existing files with "no-clobber", "force" overwriting files in the target location, or "force-no-clobber" overwriting only changed files, skipping unchanged files'
@@ -115,7 +117,7 @@ spec:
           - '--force'
           - '--force-no-clobber'
       - name: aws_role_config_path
-        description: 's3 URL or comma-separated list of s3 URLs allowing the workflow to write to the target'
+        description: s3 URL or comma-separated list of s3 URLs allowing the workflow to write to a target(s)
         value: 's3://linz-bucket-config/config-write.elevation.json'
   templateDefaults:
     container:
