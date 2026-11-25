@@ -116,6 +116,7 @@ spec:
           - 'lzw'
           - 'dem_lerc'
           - 'rgbnir_zstd'
+          - 'intensity_zstd'
       - name: rescale_range
         description: 'Source pixel range scaled to 8-bit when "uint16" TIFFs are standardised with "webp" compression. "auto" computes it from the source pixel values, otherwise "min,max" or "min,max;min,max;min,max" (red;green;blue). Leave blank for the full range.'
         value: 'auto'
@@ -172,6 +173,7 @@ spec:
           - 'dsm'
           - 'satellite-imagery'
           - 'near-infrared-satellite-imagery'
+          - 'intensity'
       - name: domain
         description: 'domain of the dataset, e.g. "land", "coastal"'
         value: 'land'
@@ -433,7 +435,7 @@ spec:
                 - name: version_argo_tasks
                   value: '{{=sprig.trim(workflow.parameters.version_argo_tasks)}}'
                 - name: target_bucket_name # derived if not provided
-                  value: '{{= sprig.trim(workflow.parameters.target_bucket_name) != "" ? sprig.trim(workflow.parameters.target_bucket_name) : workflow.parameters.domain == "coastal" ? "nz-coastal" : workflow.parameters.category in ["dem", "dsm"] ? "nz-elevation" : "nz-imagery" }}'
+                  value: '{{= sprig.trim(workflow.parameters.target_bucket_name) != "" ? sprig.trim(workflow.parameters.target_bucket_name) : workflow.parameters.domain == "coastal" ? "nz-coastal" : workflow.parameters.category in ["dem","dsm","intensity"] ? "nz-elevation" : "nz-imagery" }}'
                 - name: target_epsg
                   value: '{{=sprig.trim(workflow.parameters.target_epsg)}}'
             depends: tile-index-validate
@@ -662,7 +664,7 @@ spec:
               template: main
 
           - name: create-overview
-            when: "'{{workflow.parameters.target_epsg}}' =~ '2193|3857' && '{{workflow.parameters.compression}}' !~ 'dem_lerc|rgbnir_zstd'"
+            when: "'{{workflow.parameters.target_epsg}}' =~ '2193|3857' && '{{workflow.parameters.compression}}' !~ 'dem_lerc|rgbnir_zstd|intensity_zstd'"
             arguments:
               parameters:
                 - name: location
@@ -695,7 +697,7 @@ spec:
                 - name: source
                   value: '{{=sprig.trimSuffix("/", tasks["get-location"].outputs.parameters.location)}}/flat/'
                 - name: target_bucket_name # derived if not provided
-                  value: '{{= sprig.trim(workflow.parameters.target_bucket_name) != "" ? sprig.trim(workflow.parameters.target_bucket_name) : workflow.parameters.domain == "coastal" ? "nz-coastal" : workflow.parameters.category in ["dem", "dsm"] ? "nz-elevation" : "nz-imagery" }}'
+                  value: '{{= sprig.trim(workflow.parameters.target_bucket_name) != "" ? sprig.trim(workflow.parameters.target_bucket_name) : workflow.parameters.domain == "coastal" ? "nz-coastal" : workflow.parameters.category in ["dem","dsm","intensity"] ? "nz-elevation" : "nz-imagery" }}'
                 - name: ticket
                   value: '{{=sprig.trim(workflow.parameters.ticket)}}'
                 - name: odr_url
