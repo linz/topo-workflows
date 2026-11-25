@@ -27,10 +27,6 @@ spec:
             description: 'The ID of the group of output tiles to use as the input'
             default: ''
 
-          - name: concurrency
-            description: 'Number of output tiles to merge at the same time'
-            default: '1'
-
           - name: target
             description: 'Location for output files'
             default: ''
@@ -70,8 +66,6 @@ spec:
           - '--is-argo'
           - '--from-file'
           - '/tmp/input/{{inputs.parameters.group_id}}.json'
-          - '--concurrency'
-          - '{{inputs.parameters.concurrency}}'
           - '--target'
           - '{{inputs.parameters.target}}'
           - '--source-crs'

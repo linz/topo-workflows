@@ -254,8 +254,6 @@ See [standardise_copc.py](https://github.com/linz/geoprocessor/blob/master/packa
         value: '{{=sprig.trimSuffix("/", tasks["get-location"].outputs.parameters.location)}}/flat/'
       - name: source_crs
         value: '{{ tasks.tile-index-validate.outputs.parameters.crs }}'
-      - name: concurrency
-        value: '{{=sprig.trim(workflow.parameters.concurrency)}}'
       - name: version_geoprocessor_pointcloud
         value: '{{= workflow.parameters.version_geoprocessor_pointcloud}}'
     artifacts:

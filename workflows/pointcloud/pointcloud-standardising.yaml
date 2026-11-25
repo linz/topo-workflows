@@ -103,9 +103,6 @@ spec:
       - name: group_size
         description: 'Total size of the source point clouds read by each standardise-copc pod, e.g. "100Gi". Leave blank for no size limit.'
         value: ''
-      - name: concurrency
-        description: 'Number of concurrent tiles to standardise.'
-        value: '1'
       - name: target
         description: '(Optional) S3 location of the target output. Leave blank to keep the output in the scratch location only.'
         value: ''
@@ -185,8 +182,6 @@ spec:
                   value: '{{=sprig.trimSuffix("/", tasks["get-location"].outputs.parameters.location)}}/flat/'
                 - name: source_crs
                   value: '{{ tasks.tile-index-validate.outputs.parameters.crs }}'
-                - name: concurrency
-                  value: '{{=sprig.trim(workflow.parameters.concurrency)}}'
                 - name: version_geoprocessor_pointcloud
                   value: '{{= workflow.parameters.version_geoprocessor_pointcloud}}'
               artifacts:
