@@ -33,7 +33,6 @@ spec:
 
           - name: source_crs
             description: 'CRS of the source point clouds, e.g. "EPSG:2193+7839", from tile-index-validate'
-            default: ''
 
         artifacts:
           - name: group_data

@@ -58,12 +58,12 @@ spec:
       outputs:
         parameters:
           - name: gsd
-            description: 'GSD of the input tiffs'
+            description: 'GSD of the input TIFFs, empty for point clouds'
             valueFrom:
               path: /tmp/tile-index-validate/gsd
 
           - name: data_type
-            description: 'Data type of the input tiffs'
+            description: 'Data type of the input TIFFs, empty for point clouds'
             valueFrom:
               path: /tmp/tile-index-validate/data-type
 
@@ -86,21 +86,21 @@ spec:
               default: ''
 
         artifacts:
-          # List of tiff files that need to be processed
+          # Input files that need to be processed, per output tile
           - name: files
             path: /tmp/tile-index-validate/file-list.json
             optional: true
             archive:
               none: {}
 
-          # GeoJSON containing all the bounding box of all input tiffs
+          # GeoJSON containing the bounding boxes of all input files
           - name: input
             path: /tmp/tile-index-validate/input.geojson
             optional: true
             archive:
               none: {}
 
-          # GeoJSON containing the bounding boxes of all the output tiffs
+          # GeoJSON containing the bounding boxes of all the output tiles
           - name: output
             path: /tmp/tile-index-validate/output.geojson
             optional: true

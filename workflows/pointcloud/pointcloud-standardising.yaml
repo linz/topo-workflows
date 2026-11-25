@@ -124,9 +124,6 @@ spec:
     - name: main
       retryStrategy:
         expression: 'false'
-      inputs:
-        parameters:
-          - name: source
       dag:
         tasks:
           - name: get-location
@@ -147,7 +144,7 @@ spec:
                 - name: include
                   value: '{{workflow.parameters.include}}'
                 - name: source
-                  value: '{{=sprig.trim(inputs.parameters.source)}}'
+                  value: '{{=sprig.trim(workflow.parameters.source)}}'
                 - name: source_epsg
                   value: '{{=sprig.trim(workflow.parameters.source_epsg)}}'
                 - name: version_argo_tasks
@@ -163,7 +160,7 @@ spec:
                   from: '{{ tasks.tile-index-validate.outputs.artifacts.files }}'
               parameters:
                 - name: size
-                  value: '{{=sprig.trim(workflow.parameters.group)}}'
+                  value: '{{= sprig.trim(workflow.parameters.group) == "" ? "5" : sprig.trim(workflow.parameters.group) }}'
                 - name: group_size
                   value: '{{=sprig.trim(workflow.parameters.group_size)}}'
                 - name: version_argo_tasks
@@ -194,7 +191,7 @@ spec:
             templateRef:
               name: copy
               template: main
-            when: "'{{workflow.parameters.target}}' != ''"
+            when: '{{= sprig.trim(workflow.parameters.target) != "" }}'
             arguments:
               parameters:
                 - name: source
