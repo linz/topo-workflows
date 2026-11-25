@@ -1,19 +1,8 @@
 # yaml-language-server: $schema=https://raw.githubusercontent.com/argoproj/argo-workflows/v4.1.6/api/jsonschema/schema.json
 
-# Runs stage 2 of kart-import and packs each built target repo as a git bundle (the `bundle_all`
-# or `bundle_<repo>` Snakemake target), downloadable from the workflow's artifacts in the Argo UI.
+# Builds the topographic Kart repos from stage 1's exports (kart-import stage 2) and saves each as a
+# git bundle in the workflow's artifacts. Use one with `kart clone <repo>.bundle <repo>`.
 # See https://github.com/linz/topographic-system/tree/master/packages/kart-import#two-stages-extract-and-process
-#
-# - Stage 1 (`extract_all`: clone LDS sources and export per-commit parquets) needs an LDS SSH key,
-#   so it runs elsewhere. Its output is published under `export_url`.
-# - Stage 2 (this workflow) downloads only the exports it needs from `export_url`, then transforms
-#   and imports them into Kart. No LDS or GitHub access is needed.
-# - One pod runs the whole Snakemake pipeline. The cluster has no persistent volumes, so
-#   Snakemake's `data/` folder lives on the pod's local disk and is thrown away afterwards.
-# - Nothing is pushed to GitHub.
-#
-# To use a result: download `<repo>.bundle` from the workflow's artifacts, then
-#   kart clone <repo>.bundle <repo>
 apiVersion: argoproj.io/v1alpha1
 kind: WorkflowTemplate
 metadata:
@@ -32,7 +21,7 @@ spec:
     parameters:
       - name: version_kart_cli
         description: Version of the kart CLI docker container to use
-        value: 'pr-474' # TODO: back to 'latest' once topographic-system#474 is merged and released
+        value: 'latest'
 
       - name: target
         description: Snakemake target to run. `bundle_all` builds every repo; `bundle_<repo>` builds one.
@@ -44,11 +33,11 @@ spec:
           - 'bundle_topographic_contour_data'
 
       - name: export_url
-        description: Where stage 1 (`extract_all`) published its exports. Must be https:// (the image has no AWS CLI for s3://).
+        description: Where stage 1 (`extract_all`) published its exports
         value: 'https://d1jzh93b1t1cv.cloudfront.net/source/export/'
 
       - name: schema_check
-        description: How to treat themes that don't match their schema. `warn` logs the problems and continues; `strict` fails the run. Only the themes the target builds are checked. Currently `contour`, `nztopo50_grid` and `nztopo50_dms_grid` fail, so `strict` fails every target except `bundle_topographic_data`.
+        description: '`warn` logs schema problems and continues; `strict` fails the run'
         value: 'warn'
         enum:
           - 'warn'
@@ -81,40 +70,34 @@ spec:
           - name: export_url
           - name: schema_check
       activeDeadlineSeconds: 86400 # 24 hours
-      # A long single-pod run: a spot interruption would lose all progress
+      # Spot to keep costs down. If the node is reclaimed, the cluster's default retry starts the run again.
       nodeSelector:
-        karpenter.sh/capacity-type: 'on-demand'
-      tolerations:
-        - key: 'karpenter.sh/capacity-type'
-          operator: 'Equal'
-          value: 'on-demand'
-          effect: 'NoSchedule'
+        karpenter.sh/capacity-type: 'spot'
       container:
         image: ghcr.io/linz/topographic-system/kart:{{ inputs.parameters.version_kart_cli }}
         imagePullPolicy: Always
         workingDir: /workspace/packages/kart-import
         resources:
-          # These pick the node: Karpenter gives the smallest on-demand `c` node with room for them.
-          # Snakemake runs up to 64 jobs' worth of threads at once (`--cores 64`).
+          # Picks the node; Snakemake uses 32 cores (`--cores=32`)
           requests:
             memory: 60Gi
-            cpu: 128000m
+            cpu: 32000m
             ephemeral-storage: 150Gi # nodes have 200GB
         env:
           - name: KART_EXPORT_URL
             value: '{{ inputs.parameters.export_url }}'
           - name: KART_SCHEMA_CHECK
             value: '{{ inputs.parameters.schema_check }}'
-          # The image has no git config, and kart needs an identity to commit
+          # Kart needs an identity to commit
           - name: GIT_AUTHOR_NAME
-            value: 'LINZ Topographic System' # placeholder
+            value: 'LINZ Topographic System'
           - name: GIT_AUTHOR_EMAIL
-            value: 'noreply@linz.govt.nz' # placeholder
+            value: 'noreply@linz.govt.nz'
           - name: GIT_COMMITTER_NAME
-            value: 'LINZ Topographic System' # placeholder
+            value: 'LINZ Topographic System'
           - name: GIT_COMMITTER_EMAIL
-            value: 'noreply@linz.govt.nz' # placeholder
-          # Where to send OpenTelemetry traces and metrics
+            value: 'noreply@linz.govt.nz'
+          # Where to send OpenTelemetry traces and logs
           - name: OTEL_EXPORTER_OTLP_ENDPOINT
             valueFrom:
               secretKeyRef:
@@ -128,18 +111,17 @@ spec:
         volumeMounts:
           - name: data
             mountPath: /workspace/packages/kart-import/data
-        # --keep-going: a failure in one repo (e.g. a missing export) doesn't stop the others, and
-        # each repo that finishes still gets its bundle. The run still fails at the end.
+        # --keep-going: one repo failing doesn't stop the others
         command: ['uv', 'run', 'snakemake']
-        args: ['--cores=64', '--keep-going', '{{ inputs.parameters.target }}']
+        args: ['--cores=32', '--keep-going', '{{ inputs.parameters.target }}']
       outputs:
         artifacts:
-          # One per target repo. Optional: a theme filter can leave a repo with nothing to build.
+          # One per target repo. Optional, as `bundle_<repo>` builds only one.
           - name: topographic-data
             path: /workspace/packages/kart-import/data/bundle/topographic-data.bundle
             optional: true
             archive:
-              none: {} # the bundle is already compressed; keep it as a plain .bundle file
+              none: {} # keep it a plain .bundle file
           - name: topographic-product-data
             path: /workspace/packages/kart-import/data/bundle/topographic-product-data.bundle
             optional: true
