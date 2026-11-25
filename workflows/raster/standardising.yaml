@@ -374,6 +374,10 @@ spec:
           - name: source
       dag:
         tasks:
+          - name: check-category-compression
+            template: category-compression-mismatch
+            when: '{{= sprig.trim(workflow.parameters.compression) == "rgbnir_zstd" && sprig.trim(workflow.parameters.category) not in ["ancillary-near-infrared-aerial-photos", "near-infrared-aerial-photos", "near-infrared-satellite-imagery"] }}'
+
           - name: stac-collection-output
             templateRef:
               name: tpl-at-stac-collection-output
@@ -406,7 +410,7 @@ spec:
                   value: '{{= workflow.parameters.compression}}'
                 - name: version_argo_tasks
                   value: '{{= workflow.parameters.version_argo_tasks}}'
-            depends: 'stac-collection-output.Succeeded || stac-collection-output.Skipped'
+            depends: '(stac-collection-output.Succeeded || stac-collection-output.Skipped) && check-category-compression'
 
           - name: stac-setup
             templateRef:
@@ -783,6 +787,12 @@ spec:
         args:
           - echo 'rescale_range "auto" with an odr_url requires delete_all_existing_items "true", or a manual rescale_range' >&2 && exit 1
 
+    - name: category-compression-mismatch
+      container:
+        image: public.ecr.aws/docker/library/alpine:3.24.4@sha256:f59abe656b692d901e184be3445e084786602108599d2a51d229c0f5a48c71bf
+        command: [sh, -c]
+        args:
+          - echo 'Category "{{=sprig.trim(workflow.parameters.category)}}" is not a near-infrared category, but compression "{{=sprig.trim(workflow.parameters.compression)}}" keeps the output as 16-bit RGBNIR. Use "ancillary-near-infrared-aerial-photos", "near-infrared-aerial-photos" or "near-infrared-satellite-imagery".' >&2 && exit 1
     - name: exit-handler
       retryStrategy:
         limit: '0' # `tpl-log-notification` retries itself
