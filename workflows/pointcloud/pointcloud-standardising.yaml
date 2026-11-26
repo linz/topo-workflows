@@ -145,7 +145,9 @@ spec:
             depends: 'get-location.Succeeded'
 
           - name: standardise-copc
-            template: standardise-copc
+            templateRef:
+              name: tpl-gp-pointcloud-standardise-copc
+              template: main
             arguments:
               parameters:
                 - name: from_manifest
@@ -195,62 +197,6 @@ spec:
                   value: 'false'
             depends: 'standardise-copc.Succeeded'
       # END TEMPLATE `main`
-
-    - name: standardise-copc
-      outputs:
-        artifacts:
-          - name: processed_files
-            optional: true
-            path: '/tmp/processed.json'
-            archive:
-              none: {}
-
-      inputs:
-        parameters:
-          - name: version_geoprocessor_pointcloud
-            description: 'Specify a version of the geoprocessor/pointcloud image to use, e.g. "v10" or "latest"'
-            default: 'v11'
-
-          - name: files
-            description: 'Space-separated list of files to process'
-            default: ''
-
-          - name: from_file
-            description: 'File containing a JSON list of files to process'
-            default: ''
-
-          - name: from_manifest
-            description: 'File containing a manifest of files to process (will only use source)'
-            default: ''
-
-          - name: target
-            description: 'Location for output files'
-            default: ''
-
-      container:
-        imagePullPolicy: Always
-        image: '019359803926.dkr.ecr.ap-southeast-2.amazonaws.com/geoprocessor/pointcloud:{{=sprig.trim(inputs.parameters.version_geoprocessor_pointcloud)}}'
-        resources:
-          requests:
-            memory: 7.8Gi
-            cpu: 15000m
-            ephemeral-storage: 29.5Gi
-        volumeMounts:
-          # This volume must be defined in the workflow calling this workflowTemplate
-          - name: ephemeral
-            mountPath: '/tmp'
-        args:
-          - 'standardise-copc'
-          - '--is-argo'
-          - '--from-file'
-          - '{{inputs.parameters.from_file}}'
-          - '--from-manifest'
-          - '{{inputs.parameters.from_manifest}}'
-          - '--files'
-          - '{{=sprig.trim(inputs.parameters.files)}}'
-          - '--target'
-          - '{{inputs.parameters.target}}'
-      # END TEMPLATE `standardise-copc`
 
     - name: exit-handler
       retryStrategy:
