@@ -1,0 +1,153 @@
+# yaml-language-server: $schema=https://raw.githubusercontent.com/argoproj/argo-workflows/v4.1.6/api/jsonschema/schema.json
+
+# Builds the topographic Kart repos from stage 1's exports (kart-import stage 2) and saves each as a
+# git bundle in the workflow's artifacts. Use one with `kart clone <repo>.bundle <repo>`.
+# See https://github.com/linz/topographic-system/tree/master/packages/kart-import#two-stages-extract-and-process
+apiVersion: argoproj.io/v1alpha1
+kind: WorkflowTemplate
+metadata:
+  name: topographic-kart-import
+  labels:
+    linz.govt.nz/category: topo-maps
+    linz.govt.nz/data-type: vector
+spec:
+  entrypoint: main
+  onExit: exit-handler
+  podMetadata:
+    labels:
+      linz.govt.nz/category: topo-maps
+      linz.govt.nz/data-type: vector
+  arguments:
+    parameters:
+      - name: version_kart_cli
+        description: Version of the kart CLI docker container to use
+        value: 'latest'
+
+      - name: target
+        description: Snakemake target to run. `bundle_all` builds every repo; `bundle_<repo>` builds one.
+        value: 'bundle_all'
+        enum:
+          - 'bundle_all'
+          - 'bundle_topographic_data'
+          - 'bundle_topographic_product_data'
+          - 'bundle_topographic_contour_data'
+
+      - name: export_url
+        description: Where stage 1 (`extract_all`) published its exports
+        value: 'https://d1jzh93b1t1cv.cloudfront.net/source/export/'
+
+      - name: schema_check
+        description: '`warn` logs schema problems and continues; `strict` fails the run'
+        value: 'warn'
+        enum:
+          - 'warn'
+          - 'strict'
+
+  templates:
+    - name: main
+      retryStrategy:
+        expression: 'false'
+      dag:
+        tasks:
+          - name: process
+            template: process
+            arguments:
+              parameters:
+                - name: version_kart_cli
+                  value: '{{ workflow.parameters.version_kart_cli }}'
+                - name: target
+                  value: '{{ workflow.parameters.target }}'
+                - name: export_url
+                  value: '{{ workflow.parameters.export_url }}'
+                - name: schema_check
+                  value: '{{ workflow.parameters.schema_check }}'
+
+    - name: process
+      inputs:
+        parameters:
+          - name: version_kart_cli
+          - name: target
+          - name: export_url
+          - name: schema_check
+      activeDeadlineSeconds: 86400 # 24 hours
+      # Spot to keep costs down. If the node is reclaimed, the cluster's default retry starts the run again.
+      nodeSelector:
+        karpenter.sh/capacity-type: 'spot'
+      container:
+        image: ghcr.io/linz/topographic-system/kart:{{ inputs.parameters.version_kart_cli }}
+        imagePullPolicy: Always
+        workingDir: /workspace/packages/kart-import
+        resources:
+          # Picks the node; Snakemake uses 32 cores (`--cores=32`)
+          requests:
+            memory: 60Gi
+            cpu: 32000m
+            ephemeral-storage: 150Gi # nodes have 200GB
+        env:
+          - name: KART_EXPORT_URL
+            value: '{{ inputs.parameters.export_url }}'
+          - name: KART_SCHEMA_CHECK
+            value: '{{ inputs.parameters.schema_check }}'
+          # Kart needs an identity to commit
+          - name: GIT_AUTHOR_NAME
+            value: 'LINZ Topographic System'
+          - name: GIT_AUTHOR_EMAIL
+            value: 'noreply@linz.govt.nz'
+          - name: GIT_COMMITTER_NAME
+            value: 'LINZ Topographic System'
+          - name: GIT_COMMITTER_EMAIL
+            value: 'noreply@linz.govt.nz'
+          # Where to send OpenTelemetry traces and logs
+          - name: OTEL_EXPORTER_OTLP_ENDPOINT
+            valueFrom:
+              secretKeyRef:
+                name: otel-exporter
+                key: OTEL_EXPORTER_OTLP_ENDPOINT
+          - name: OTEL_EXPORTER_OTLP_HEADERS
+            valueFrom:
+              secretKeyRef:
+                name: otel-exporter
+                key: OTEL_EXPORTER_OTLP_HEADERS
+        volumeMounts:
+          - name: data
+            mountPath: /workspace/packages/kart-import/data
+        # --keep-going: one repo failing doesn't stop the others
+        command: ['uv', 'run', 'snakemake']
+        args: ['--cores=32', '--keep-going', '{{ inputs.parameters.target }}']
+      outputs:
+        artifacts:
+          # One per target repo. Optional, as `bundle_<repo>` builds only one.
+          - name: topographic-data
+            path: /workspace/packages/kart-import/data/bundle/topographic-data.bundle
+            optional: true
+            archive:
+              none: {} # keep it a plain .bundle file
+          - name: topographic-product-data
+            path: /workspace/packages/kart-import/data/bundle/topographic-product-data.bundle
+            optional: true
+            archive:
+              none: {}
+          - name: topographic-contour-data
+            path: /workspace/packages/kart-import/data/bundle/topographic-contour-data.bundle
+            optional: true
+            archive:
+              none: {}
+
+    - name: exit-handler
+      retryStrategy:
+        limit: '0' # `tpl-log-notification` retries itself
+      steps:
+        - - name: exit
+            templateRef:
+              name: tpl-log-notification
+              template: main
+            arguments:
+              parameters:
+                - name: workflow_status
+                  value: '{{workflow.status}}'
+                - name: workflow_parameters
+                  value: '{{workflow.parameters}}'
+
+  volumes:
+    - name: data
+      emptyDir: {}
