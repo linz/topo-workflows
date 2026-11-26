@@ -410,7 +410,7 @@ spec:
                   value: '{{= workflow.parameters.compression}}'
                 - name: version_argo_tasks
                   value: '{{= workflow.parameters.version_argo_tasks}}'
-            depends: '(stac-collection-output.Succeeded || stac-collection-output.Skipped) && check-category-compression'
+            depends: 'stac-collection-output && check-category-compression'
 
           - name: stac-setup
             templateRef:
