@@ -234,8 +234,8 @@ Histograms per group of source TIFFs from `tpl-at-group` with a `group_size`, be
 
 ## geoprocessor/pointcloud standardise-copc - `tpl-gp-pointcloud-standardise-copc`
 
-Template for standardising point cloud files (LAS/LAZ) to Cloud Optimized Point Cloud (COPC).
-Input files can be given with `files`, `from_file` or `from_manifest`.
+Template for merging the point cloud files (LAS/LAZ) of each output tile into one Cloud Optimized Point Cloud (COPC) file, `<tile>.copc.laz`.
+Input is a group of `tile-index-validate` output tiles from `tpl-at-group`.
 
 See [standardise_copc.py](https://github.com/linz/geoprocessor/blob/master/packages/geoprocessor-pointcloud/src/geoprocessor_pointcloud/standardise_copc.py)
 
@@ -248,14 +248,19 @@ See [standardise_copc.py](https://github.com/linz/geoprocessor/blob/master/packa
     template: main
   arguments:
     parameters:
-      - name: from_manifest
+      - name: group_id
         value: '{{item}}'
       - name: target
         value: '{{=sprig.trimSuffix("/", tasks["get-location"].outputs.parameters.location)}}/flat/'
+      - name: source_crs
+        value: '{{ tasks.tile-index-validate.outputs.parameters.crs }}'
       - name: version_geoprocessor_pointcloud
         value: '{{= workflow.parameters.version_geoprocessor_pointcloud}}'
-  depends: 'list-source.Succeeded && get-location.Succeeded'
-  withParam: '{{tasks.list-source.outputs.parameters.files}}'
+    artifacts:
+      - name: group_data
+        from: '{{ tasks.group.outputs.artifacts.output }}'
+  depends: 'group && get-location'
+  withParam: '{{ tasks.group.outputs.parameters.output }}'
 ```
 
 The Workflow caller must have the following volume:

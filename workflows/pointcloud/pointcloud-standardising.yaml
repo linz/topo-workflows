@@ -5,7 +5,7 @@ kind: WorkflowTemplate
 metadata:
   # Template from https://github.com/linz/geoprocessor
   # see https://github.com/linz/geoprocessor/blob/master/packages/geoprocessor-pointcloud/src/geoprocessor_pointcloud/standardise_copc.py
-  name: pointcloud-standardise
+  name: pointcloud-standardising
   labels:
     linz.govt.nz/category: pointcloud
     linz.govt.nz/data-type: pointcloud
@@ -15,6 +15,11 @@ spec:
     karpenter.sh/capacity-type: 'spot'
   entrypoint: main
   onExit: exit-handler
+  synchronization:
+    semaphores:
+      - configMapKeyRef:
+          name: semaphores
+          key: standardising
   workflowMetadata:
     labelsFrom:
       linz.govt.nz/user-group:
@@ -33,10 +38,10 @@ spec:
   arguments:
     parameters:
       - name: version_argo_tasks
-        description: 'Specify a version of the argo-tasks image to use, e.g. "v.1" or "latest"'
+        description: 'Specify a version of the argo-tasks image to use, e.g. "v5.1" or "latest"'
         value: 'v8'
       - name: version_geoprocessor_pointcloud
-        description: 'Specify a version of the geoprocessor/pointcloud image to use, e.g. "v10" or "latest". Note: This image needs to contain PDAL.'
+        description: 'Specify a version of the geoprocessor/pointcloud image to use, e.g. "v11" or "latest". Note: This image needs to contain PDAL.'
         value: 'v11'
       - name: user_group
         description: Group of users running the workflow
@@ -56,6 +61,7 @@ spec:
           - 'auckland'
           - 'bay-of-plenty'
           - 'canterbury'
+          - 'chatham-islands'
           - 'gisborne'
           - 'global'
           - 'hawkes-bay'
@@ -73,23 +79,33 @@ spec:
           - 'wellington'
           - 'west-coast'
       - name: source
-        description: 'S3 location of the source dataset..'
+        description: 'S3 location of the source dataset(s). Separate multiple sources with a semicolon (;) for merging.'
         value: 's3://linz-elevation-staging/test/sample/'
-      - name: target
-        description: 'S3 location of the target output.'
-        value: 's3://linz-elevation-staging/test/output/'
       - name: include
         description: 'Regular expression pattern match for paths/files to include e.g "\.la[sz]$"'
         value: '\.la[sz]$'
-      - name: exclude
-        description: 'Regular expression pattern match for paths/files to exclude'
+      - name: scale
+        description: 'Scale of the standardised output point clouds. Each source file goes into the tile of its centroid.'
+        value: '5000'
+        enum:
+          - '500'
+          - '1000'
+          - '2000'
+          - '5000'
+          - '10000'
+          - '50000'
+      - name: source_epsg
+        description: 'EPSG of the source files, e.g. "2193+7839" for NZTM2000 + NZVD2016. Leave blank to use the CRS in the file headers.'
         value: ''
       - name: group
-        description: 'Group files by this many files (will use the value of `group` or `group_size` that is reached first). Set to -1 to disable.'
-        value: '500'
+        description: 'How many output tiles to process in each standardise-copc pod. Change if you have resource or performance issues when standardising a dataset.'
+        value: '5'
       - name: group_size
-        description: 'Group the files into this size per group (will use the value of `group` or `group_size` that is reached first). Set to -1 to disable.'
-        value: '100Gi'
+        description: 'Total size of the source point clouds read by each standardise-copc pod, e.g. "100Gi". Leave blank for no size limit.'
+        value: ''
+      - name: target
+        description: '(Optional) S3 location of the target output. Leave blank to keep the output in the scratch location only.'
+        value: ''
       - name: copy_option
         description: 'Do not overwrite existing files with "no-clobber", "force" overwriting files in the target location, or "force-no-clobber" overwriting only changed files, skipping unchanged files'
         value: '--force-no-clobber'
@@ -98,9 +114,11 @@ spec:
           - '--force'
           - '--force-no-clobber'
       - name: aws_role_config_path
-        value: 's3://linz-bucket-config/config-write.topographic.json'
+        description: s3 URL or comma-separated list of s3 URLs allowing the workflow to write to a target(s)
+        value: 's3://linz-bucket-config/config-write.elevation.json'
   templateDefaults:
     container:
+      imagePullPolicy: Always
       image: ''
   templates:
     - name: main
@@ -112,37 +130,42 @@ spec:
             templateRef:
               name: tpl-get-location
               template: main
-            arguments:
-              parameters:
-                - name: version_argo_tasks
-                  value: '{{workflow.parameters.version_argo_tasks}}'
-          - name: list-source
+
+          - name: tile-index-validate
             templateRef:
-              name: tpl-create-manifest
+              name: tpl-at-tile-index-validate
               template: main
             arguments:
               parameters:
-                - name: source
-                  value: '{{workflow.parameters.source}}'
-                - name: target
-                  value: '{{workflow.parameters.source}}'
-                - name: action_location
-                  value: '{{=sprig.trimSuffix("/", tasks["get-location"].outputs.parameters.location)}}/actions/'
+                - name: source_type
+                  value: 'pointcloud'
+                - name: scale
+                  value: '{{=sprig.trim(workflow.parameters.scale)}}'
                 - name: include
                   value: '{{workflow.parameters.include}}'
-                - name: exclude
-                  value: '{{workflow.parameters.exclude}}'
-                - name: flatten
-                  value: 'false'
-                - name: transform
-                  value: 'f'
-                - name: group
-                  value: '{{workflow.parameters.group}}'
-                - name: group_size
-                  value: '{{workflow.parameters.group_size}}'
+                - name: source
+                  value: '{{=sprig.trim(workflow.parameters.source)}}'
+                - name: source_epsg
+                  value: '{{=sprig.trim(workflow.parameters.source_epsg)}}'
                 - name: version_argo_tasks
-                  value: '{{workflow.parameters.version_argo_tasks}}'
-            depends: 'get-location.Succeeded'
+                  value: '{{= workflow.parameters.version_argo_tasks}}'
+
+          - name: group
+            templateRef:
+              name: tpl-at-group
+              template: main
+            arguments:
+              artifacts:
+                - name: input
+                  from: '{{ tasks.tile-index-validate.outputs.artifacts.files }}'
+              parameters:
+                - name: size
+                  value: '{{= sprig.trim(workflow.parameters.group) == "" ? "5" : sprig.trim(workflow.parameters.group) }}'
+                - name: group_size
+                  value: '{{=sprig.trim(workflow.parameters.group_size)}}'
+                - name: version_argo_tasks
+                  value: '{{= workflow.parameters.version_argo_tasks}}'
+            depends: 'tile-index-validate'
 
           - name: standardise-copc
             templateRef:
@@ -150,29 +173,35 @@ spec:
               template: main
             arguments:
               parameters:
-                - name: from_manifest
+                - name: group_id
                   value: '{{item}}'
                 - name: target
                   value: '{{=sprig.trimSuffix("/", tasks["get-location"].outputs.parameters.location)}}/flat/'
+                - name: source_crs
+                  value: '{{ tasks.tile-index-validate.outputs.parameters.crs }}'
                 - name: version_geoprocessor_pointcloud
                   value: '{{= workflow.parameters.version_geoprocessor_pointcloud}}'
-            depends: 'list-source.Succeeded && get-location.Succeeded'
-            withParam: '{{tasks.list-source.outputs.parameters.files}}'
+              artifacts:
+                - name: group_data
+                  from: '{{ tasks.group.outputs.artifacts.output }}'
+            depends: 'group && get-location'
+            withParam: '{{ tasks.group.outputs.parameters.output }}'
 
           - name: copy-processed
             templateRef:
               name: copy
               template: main
+            when: '{{= sprig.trim(workflow.parameters.target) != "" }}'
             arguments:
               parameters:
                 - name: source
                   value: '{{=sprig.trimSuffix("/", tasks["get-location"].outputs.parameters.location)}}/flat/'
                 - name: target
-                  value: '{{workflow.parameters.target}}'
+                  value: '{{=sprig.trim(workflow.parameters.target)}}'
                 - name: include
-                  value: '{{workflow.parameters.include}}'
+                  value: '\.copc\.laz$'
                 - name: exclude
-                  value: '{{workflow.parameters.exclude}}'
+                  value: ''
                 - name: copy_option
                   value: '{{workflow.parameters.copy_option}}'
                 - name: aws_role_config_path
@@ -182,9 +211,9 @@ spec:
                 - name: transform
                   value: 'f'
                 - name: group
-                  value: '{{workflow.parameters.group}}'
+                  value: '1000'
                 - name: group_size
-                  value: '{{workflow.parameters.group_size}}'
+                  value: '100Gi'
                 - name: version_argo_tasks
                   value: '{{workflow.parameters.version_argo_tasks}}'
                 - name: compress
@@ -195,7 +224,13 @@ spec:
                   value: 'false'
                 - name: delete_empty_folders
                   value: 'false'
-            depends: 'standardise-copc.Succeeded'
+            depends: 'standardise-copc'
+
+      outputs:
+        parameters:
+          - name: target
+            valueFrom:
+              parameter: '{{tasks.get-location.outputs.parameters.location}}'
       # END TEMPLATE `main`
 
     - name: exit-handler
