@@ -793,6 +793,7 @@ spec:
         command: [sh, -c]
         args:
           - echo 'Category "{{=sprig.trim(workflow.parameters.category)}}" is not a near-infrared category, but compression "{{=sprig.trim(workflow.parameters.compression)}}" is for 4-band RGBNIR imagery. Use "ancillary-near-infrared-aerial-photos", "near-infrared-aerial-photos" or "near-infrared-satellite-imagery".' >&2 && exit 1
+
     - name: exit-handler
       retryStrategy:
         limit: '0' # `tpl-log-notification` retries itself
